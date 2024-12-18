@@ -31,7 +31,7 @@ export default function RootLayout({
 				className={cn(
 					geistSans.variable,
 					geistMono.variable,
-					'antialiased bg-white dark:bg-black',
+					'antialiased bg-stone-200 dark:bg-black',
 				)}
 			>
 				<ThemeProvider
@@ -45,7 +45,7 @@ export default function RootLayout({
 							process.env.NODE_ENV === 'development' &&
 								'max-w-[360px] min-h-[687px]',
 							'mx-auto mt-4 p-4',
-							'bg-background',
+							'bg-background border-secondary border',
 						)}
 					>
 						{children}
