@@ -9,8 +9,8 @@ datasource db {
 
 model Hunt {
   id          Int          @id @default(autoincrement())
-  createdAt   DateTime
-  completedAt DateTime
+  createdAt   DateTime     @default(now())
+  completedAt DateTime?
   description String
   status      String
   maxHunters  Int
