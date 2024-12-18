@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Hunt {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime
+  completedAt DateTime
+  description String
+  status      String
+  maxHunters  Int
+  minRating   Float
+  hunters     HuntHunter[]
+  photos      Photo[]
+
+  @@index([status])
+}
+
+model HuntHunter {
+  huntId   Int
+  hunt     Hunt   @relation(fields: [huntId], references: [id])
+  hunterId Int
+  hunter   Hunter @relation(fields: [hunterId], references: [id])
+
+  acceptedAt DateTime @default(now())
+  rating     Float?
+
+  @@id([huntId, hunterId])
+}
+
+model Hunter {
+  id     Int          @id @default(autoincrement())
+  name   String
+  rating Float
+  hunts  HuntHunter[]
+  userId Int          @unique
+  photo  Photo[]
+}
+
+model Photo {
+  id         Int     @id @default(autoincrement())
+  path       String
+  uploadedBy Int
+  width      Int
+  height     Int
+  hunter     Hunter? @relation(fields: [hunterId], references: [id])
+  hunterId   Int?
+  hunt       Hunt?   @relation(fields: [huntId], references: [id])
+  huntId     Int?
+}
