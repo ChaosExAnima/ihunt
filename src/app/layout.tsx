@@ -31,7 +31,7 @@ export default function RootLayout({
 				className={cn(
 					geistSans.variable,
 					geistMono.variable,
-					"antialiased bg-stone-200 dark:bg-stone-900",
+					"antialiased bg-white dark:bg-black",
 				)}
 			>
 				<ThemeProvider
@@ -40,7 +40,14 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<main className="mx-auto mt-4 max-w-[360px] min-h-[687px] bg-background p-4">
+					<main
+						className={cn(
+							process.env.NODE_ENV === "development" &&
+								"max-w-[360px] min-h-[687px]",
+							"mx-auto mt-4 p-4",
+							"bg-stone-200 dark:bg-stone-900",
+						)}
+					>
 						{children}
 					</main>
 				</ThemeProvider>

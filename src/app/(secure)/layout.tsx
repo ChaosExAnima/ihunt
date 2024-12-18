@@ -3,5 +3,6 @@ export default function SecureLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	return <main className="container mx-auto">{children}</main>;
+	// TODO: Check auth information here
+	return children;
 }
