@@ -1,5 +1,4 @@
 import Navbar from '@/components/navbar';
-import Page from '@/components/page';
 
 export default function SecureLayout({
 	children,
@@ -10,7 +9,7 @@ export default function SecureLayout({
 	return (
 		<>
 			<Navbar />
-			<Page>{children}</Page>
+			<div className="grow px-4">{children}</div>
 		</>
 	);
 }

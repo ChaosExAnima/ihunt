@@ -32,8 +32,6 @@ export default function RootLayout({
 					geistSans.variable,
 					geistMono.variable,
 					'antialiased bg-stone-200 dark:bg-black',
-					process.env.NODE_ENV === 'development' &&
-						'max-w-[360px] min-h-[687px] mx-auto mt-4',
 				)}
 			>
 				<ThemeProvider
@@ -42,7 +40,16 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					{children}
+					<div
+						className={cn(
+							'flex flex-col w-full justify-stretch',
+							'border border-stone-400 dark:border-stone-800',
+							process.env.NODE_ENV === 'development' &&
+								'max-w-[360px] min-h-[687px] mx-auto mt-4',
+						)}
+					>
+						{children}
+					</div>
 				</ThemeProvider>
 			</body>
 		</html>

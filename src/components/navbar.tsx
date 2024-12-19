@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 export default function Navbar({ children }: PropsWithChildren) {
 	return (
-		<nav className="border-b mb-4 sticky top-0">
+		<nav className="border-b border-stone-400 dark:border-stone-800 shadow-md mb-4 sticky">
 			<ol className="flex gap-2 justify-stretch">
 				<NavbarItemLink href="/hunts" name="Hunts" />
 				<NavbarItemLink href="/settings" name="Settings" />
