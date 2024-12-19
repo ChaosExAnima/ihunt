@@ -44,8 +44,8 @@ export default function RootLayout({
 						className={cn(
 							process.env.NODE_ENV === 'development' &&
 								'max-w-[360px] min-h-[687px]',
-							'mx-auto mt-4 p-4',
-							'bg-background border-secondary border',
+							'mx-auto mt-4',
+							'bg-background text-foreground border-secondary border',
 						)}
 					>
 						{children}

@@ -1,21 +1,31 @@
 import Link from 'next/link';
-import { PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 
 export default function Navbar({ children }: PropsWithChildren) {
 	return (
-		<nav className="border-b">
-			<ol className="flex gap-2 justify-between">
-				<li>
-					<Link href="/hunts">Hunts</Link>
-				</li>
-				<li>
-					<Link href="/settings">Settings</Link>
-				</li>
-				<li>
-					<a href="discord://-/">Messages</a>
-				</li>
+		<nav className="border-b mb-4 sticky top-0">
+			<ol className="flex gap-2 justify-stretch">
+				<NavbarItemLink href="/hunts" name="Hunts" />
+				<NavbarItemLink href="/settings" name="Settings" />
+				{/** See: https://gist.github.com/ghostrider-05/8f1a0bfc27c7c4509b4ea4e8ce718af0 */}
+				<NavbarItemLink href="discord://-/" name="Messages" />
 				{children ? <li>{children}</li> : null}
 			</ol>
 		</nav>
+	);
+}
+
+interface NavbarItemProps {
+	href: string;
+	name: string;
+}
+
+function NavbarItemLink({ href, name }: NavbarItemProps) {
+	return (
+		<li className="w-full">
+			<Link href={href} className="block p-4 w-full text-center">
+				{name}
+			</Link>
+		</li>
 	);
 }
