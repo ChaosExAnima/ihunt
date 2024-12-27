@@ -9,7 +9,7 @@ export default function SecureLayout({
 	return (
 		<>
 			<Navbar />
-			<div className="grow px-4">{children}</div>
+			<main className="grow px-4 flex flex-col gap-4">{children}</main>
 		</>
 	);
 }
