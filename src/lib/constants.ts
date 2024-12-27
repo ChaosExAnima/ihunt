@@ -1,6 +1,6 @@
 export enum HuntStatus {
-	Available = 'available',
 	Active = 'active',
-	Complete = 'complete',
+	Available = 'available',
 	Cancelled = 'cancelled',
+	Complete = 'complete',
 }

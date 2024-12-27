@@ -4,15 +4,15 @@ import Link from 'next/link';
 
 export default async function HuntsPage() {
 	const availableHunts = await db.hunt.findMany({
-		where: {
-			status: HuntStatus.Available,
-		},
 		include: {
 			_count: {
 				select: {
 					hunters: true,
 				},
 			},
+		},
+		where: {
+			status: HuntStatus.Available,
 		},
 	});
 	return (

@@ -29,18 +29,18 @@ async function main() {
 		await db.hunt.createMany({
 			data: [
 				{
-					id: 1,
 					description: 'Werewolf',
-					status: HuntStatus.Available,
+					id: 1,
 					maxHunters: 2,
 					minRating: 1,
+					status: HuntStatus.Available,
 				},
 				{
-					id: 2,
 					description: 'Vampire',
-					status: HuntStatus.Available,
+					id: 2,
 					maxHunters: 1,
 					minRating: 3,
+					status: HuntStatus.Available,
 				},
 			],
 		});

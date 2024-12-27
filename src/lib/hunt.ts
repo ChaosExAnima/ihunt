@@ -1,4 +1,5 @@
 import { Hunt } from '@prisma/client';
+
 import { db } from './db';
 
 export async function huntToHunters(hunt: Hunt) {

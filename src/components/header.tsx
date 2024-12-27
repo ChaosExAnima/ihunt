@@ -1,9 +1,10 @@
-import { cn } from '@/lib/utils';
 import type { ElementType, PropsWithChildren } from 'react';
 
+import { cn } from '@/lib/utils';
+
 interface HeaderProps {
-	level?: 1 | 2 | 3 | 4;
 	className?: string;
+	level?: 1 | 2 | 3 | 4;
 }
 
 export default function Header({

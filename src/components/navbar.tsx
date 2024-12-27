@@ -1,6 +1,14 @@
-import Link from 'next/link';
 import type { JSX, PropsWithChildren } from 'react';
+
 import { Crosshair, MessageCircle, Settings } from 'lucide-react';
+import Link from 'next/link';
+
+interface NavbarItemProps {
+	href: string;
+	icon: JSX.Element;
+	name: string;
+	noLabel?: boolean;
+}
 
 export default function Navbar({ children }: PropsWithChildren) {
 	return (
@@ -8,19 +16,19 @@ export default function Navbar({ children }: PropsWithChildren) {
 			<ol className="flex gap-2 justify-between">
 				<NavbarItemLink
 					href="/hunts"
-					name="Hunts"
 					icon={<Crosshair />}
+					name="Hunts"
 				/>
 				{/** See: https://gist.github.com/ghostrider-05/8f1a0bfc27c7c4509b4ea4e8ce718af0 */}
 				<NavbarItemLink
 					href="discord://-/"
-					name="Messages"
 					icon={<MessageCircle />}
+					name="Messages"
 				/>
 				<NavbarItemLink
 					href="/settings"
-					name="Settings"
 					icon={<Settings />}
+					name="Settings"
 					noLabel
 				/>
 				{children ? <li>{children}</li> : null}
@@ -29,20 +37,13 @@ export default function Navbar({ children }: PropsWithChildren) {
 	);
 }
 
-interface NavbarItemProps {
-	href: string;
-	name: string;
-	icon: JSX.Element;
-	noLabel?: boolean;
-}
-
-function NavbarItemLink({ href, name, icon, noLabel }: NavbarItemProps) {
+function NavbarItemLink({ href, icon, name, noLabel }: NavbarItemProps) {
 	return (
 		<li className="">
 			<Link
-				href={href}
-				className="p-4 w-full text-center flex gap-2"
 				aria-label={name}
+				className="p-4 w-full text-center flex gap-2"
+				href={href}
 			>
 				{icon}
 				{!noLabel && <span className="hidden sm:block">{name}</span>}
