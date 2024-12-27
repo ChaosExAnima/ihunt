@@ -1,15 +1,28 @@
+import HuntDisplay from '@/components/hunt';
 import { HuntStatus } from '@/lib/constants';
 import { db } from '@/lib/db';
-import Link from 'next/link';
+import { fetchCurrentUser } from '@/lib/user';
 
 export default async function HuntsPage() {
-	const availableHunts = await db.hunt.findMany({
+	const currentUser = await fetchCurrentUser();
+	const acceptedHunts = await db.hunt.findMany({
 		include: {
-			_count: {
-				select: {
-					hunters: true,
+			hunters: true,
+			photos: true,
+		},
+		where: {
+			hunters: {
+				some: {
+					hunterId: currentUser.id,
 				},
 			},
+			status: HuntStatus.Active,
+		},
+	});
+	const availableHunts = await db.hunt.findMany({
+		include: {
+			hunters: true,
+			photos: true,
 		},
 		where: {
 			status: HuntStatus.Available,
@@ -18,15 +31,12 @@ export default async function HuntsPage() {
 	return (
 		<>
 			<ul className="flex flex-col gap-4">
-				{availableHunts.map((hunt) => (
+				{acceptedHunts.concat(availableHunts).map((hunt) => (
 					<li key={hunt.id}>
-						<Link href={`/hunts/${hunt.id}`}>
-							<p className="font-bold">{hunt.description}</p>
-							<p>
-								Spots available:&nbsp;
-								{hunt.maxHunters - hunt._count.hunters}
-							</p>
-						</Link>
+						<HuntDisplay
+							className="border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
+							hunt={hunt}
+						/>
 					</li>
 				))}
 			</ul>
