@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 
-import { ThemeProvider } from '@/components/theme-provider';
+import DevTools from '@/components/dev-tools';
 
 import './globals.css';
 
+import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 import { Geist, Geist_Mono } from 'next/font/google';
 
@@ -27,6 +28,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const isDev = process.env.NODE_ENV === 'development';
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head />
@@ -47,12 +49,12 @@ export default function RootLayout({
 						className={cn(
 							'flex flex-col w-full justify-stretch',
 							'border border-stone-400 dark:border-stone-800',
-							process.env.NODE_ENV === 'development' &&
-								'max-w-[360px] min-h-[687px] mx-auto mt-4',
+							isDev && 'max-w-[360px] min-h-[687px] mx-auto mt-4',
 						)}
 					>
 						{children}
 					</div>
+					{isDev && <DevTools />}
 				</ThemeProvider>
 			</body>
 		</html>
