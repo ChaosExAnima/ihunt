@@ -10,7 +10,7 @@ interface HeaderProps {
 export default function Header({
 	children,
 	className,
-	level = 2,
+	level = 1,
 }: PropsWithChildren<HeaderProps>) {
 	const Component: ElementType = `h${level}`;
 	return (

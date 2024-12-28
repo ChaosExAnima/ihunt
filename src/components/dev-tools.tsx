@@ -1,4 +1,12 @@
-import { Database, DatabaseZap, FileCode, FileImage, Home } from 'lucide-react';
+import {
+	Database,
+	DatabaseZap,
+	FileCode,
+	FileImage,
+	FileLock2,
+	FileType2,
+	Home,
+} from 'lucide-react';
 import Link from 'next/link';
 import { PropsWithChildren } from 'react';
 
@@ -8,18 +16,24 @@ interface LinkProps {
 
 export default function DevTools() {
 	return (
-		<ul className="flex justify-center gap-4 my-4 w-full text-stone-700">
+		<ul className="flex justify-center gap-4 my-4">
 			<ExternalLink href="http://localhost:5555">
 				<Database />
 			</ExternalLink>
 			<ExternalLink href="/">
 				<Home />
 			</ExternalLink>
+			<ExternalLink href="/admin">
+				<FileLock2 />
+			</ExternalLink>
 			<ExternalLink href="https://nextjs.org/docs/app/building-your-application">
 				<FileCode />
 			</ExternalLink>
 			<ExternalLink href="https://www.prisma.io/docs/orm/prisma-client">
 				<DatabaseZap />
+			</ExternalLink>
+			<ExternalLink href="https://tailwindcss.com/docs/utility-first">
+				<FileType2 />
 			</ExternalLink>
 			<ExternalLink href="https://lucide.dev/icons/">
 				<FileImage />

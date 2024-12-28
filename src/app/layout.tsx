@@ -45,16 +45,10 @@ export default function RootLayout({
 					disableTransitionOnChange
 					enableSystem
 				>
-					<div
-						className={cn(
-							'flex flex-col w-full justify-stretch',
-							'border border-stone-400 dark:border-stone-800',
-							isDev && 'max-w-[360px] min-h-[687px] mx-auto mt-4',
-						)}
-					>
+					<div className="min-h-screen flex flex-col">
 						{children}
+						{isDev && <DevTools />}
 					</div>
-					{isDev && <DevTools />}
 				</ThemeProvider>
 			</body>
 		</html>
