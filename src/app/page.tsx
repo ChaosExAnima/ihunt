@@ -1,13 +1,15 @@
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Header from '@/components/header';
+import LogInButton from '@/components/log-in';
+import { db } from '@/lib/db';
 
-export default function Home() {
+export default async function Home() {
+	const hunters = await db.hunter.findMany();
 	return (
-		<>
-			<h1 className="text-4xl font-bold m-4">Log in</h1>
-			<Button asChild className="mx-4" variant="secondary">
-				<Link href="/hunts">Click here to log in</Link>
-			</Button>
-		</>
+		<main className="grow p-4 flex flex-col gap-4">
+			<Header level={1}>Log in as</Header>
+			{hunters.map((hunter) => (
+				<LogInButton hunter={hunter} key={hunter.id} />
+			))}
+		</main>
 	);
 }

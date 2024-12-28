@@ -13,7 +13,7 @@ export default async function HuntsPage() {
 		where: {
 			hunters: {
 				some: {
-					hunterId: currentUser.id,
+					id: currentUser.id,
 				},
 			},
 			status: HuntStatus.Active,
@@ -25,6 +25,9 @@ export default async function HuntsPage() {
 			photos: true,
 		},
 		where: {
+			minRating: {
+				lte: currentUser.rating,
+			},
 			status: HuntStatus.Available,
 		},
 	});

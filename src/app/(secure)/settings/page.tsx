@@ -1,7 +1,14 @@
+import Header from '@/components/header';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
 export default async function SettingsPage() {
 	return (
-		<div className="grid grid-cols-2 gap-4 items-center">
-			<h1 className="text-4xl font-bold col-span-2">Settings</h1>
-		</div>
+		<>
+			<Header level={1}>Settings</Header>
+			<Button asChild variant="destructive">
+				<Link href="/">Log out</Link>
+			</Button>
+		</>
 	);
 }

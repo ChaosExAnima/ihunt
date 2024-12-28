@@ -3,4 +3,5 @@ export enum HuntStatus {
 	Available = 'available',
 	Cancelled = 'cancelled',
 	Complete = 'complete',
+	Pending = 'pending',
 }
