@@ -1,11 +1,13 @@
 import Navbar from '@/components/navbar';
+import { fetchCurrentUser } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
 
-export default function SecureLayout({
+export default async function SecureLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const user = await fetchCurrentUser();
 	const devMode = isDev();
 	// TODO: Check auth information here
 	return (
@@ -16,7 +18,7 @@ export default function SecureLayout({
 				devMode && 'w-[360px] min-h-[687px] mx-auto mt-4',
 			)}
 		>
-			<Navbar />
+			<Navbar hunter={user} />
 			<main className="grow px-4 flex flex-col gap-4">{children}</main>
 		</div>
 	);

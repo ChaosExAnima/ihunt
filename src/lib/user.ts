@@ -12,6 +12,13 @@ export async function fetchCurrentUser() {
 		id = Number.parseInt(cookie.value);
 	}
 	const user = await db.hunter.findFirstOrThrow({
+		include: {
+			photos: {
+				where: {
+					huntId: null,
+				},
+			},
+		},
 		where: {
 			id,
 		},

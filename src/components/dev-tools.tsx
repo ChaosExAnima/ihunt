@@ -6,6 +6,7 @@ import {
 	FileLock2,
 	FileType2,
 	Home,
+	Puzzle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { PropsWithChildren } from 'react';
@@ -34,6 +35,9 @@ export default function DevTools() {
 			</ExternalLink>
 			<ExternalLink href="https://tailwindcss.com/docs/utility-first">
 				<FileType2 />
+			</ExternalLink>
+			<ExternalLink href="https://ui.shadcn.com/docs/components/accordion">
+				<Puzzle />
 			</ExternalLink>
 			<ExternalLink href="https://lucide.dev/icons/">
 				<FileImage />
