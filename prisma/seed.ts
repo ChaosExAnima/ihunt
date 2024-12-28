@@ -107,6 +107,13 @@ async function main() {
 					path: 'buffy.jpg',
 					width: 1036,
 				},
+				{
+					height: 1024,
+					huntId: 4,
+					id: 7,
+					path: 'vampire.webp',
+					width: 1024,
+				},
 			],
 		});
 		await db.hunt.update({
