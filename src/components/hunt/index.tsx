@@ -38,6 +38,7 @@ export default function HuntDisplay({ className, hunt, hunterId }: HuntProps) {
 			</p>
 			<p className="mb-4">{hunt.description}</p>
 			<HuntHuntersDisplay
+				hunterId={hunterId}
 				hunters={hunt.hunters}
 				isAccepted={isAccepted}
 				maxHunters={hunt.maxHunters}
@@ -87,10 +88,12 @@ function HuntAcceptButton({
 }
 
 function HuntHuntersDisplay({
+	hunterId,
 	hunters,
 	isAccepted,
 	maxHunters,
-}: { isAccepted: boolean } & Pick<HuntModel, 'hunters' | 'maxHunters'>) {
+}: { isAccepted: boolean } & Pick<HuntModel, 'hunters' | 'maxHunters'> &
+	Pick<HuntProps, 'hunterId'>) {
 	const spotsRemaining = maxHunters - hunters.length;
 	return (
 		<>
@@ -99,7 +102,13 @@ function HuntHuntersDisplay({
 					<li>Hunters:</li>
 					{hunters.map((hunter) => (
 						<li key={hunter.id}>
-							<Link href={`/hunters/${hunter.id}`}>
+							<Link
+								href={
+									hunter.id === hunterId
+										? '/settings'
+										: `/hunters/${hunter.id}`
+								}
+							>
 								<Avatar hunter={hunter} />
 							</Link>
 						</li>

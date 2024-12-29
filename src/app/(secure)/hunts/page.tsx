@@ -14,7 +14,12 @@ export default async function HuntsPage() {
 		fetchOpenHunts(huntDisplayInclude),
 		fetchCompletedHunts(huntDisplayInclude),
 	]);
-	const hunts = [...accepted, ...open, ...completed];
+	let hunts = [];
+	if (accepted.length > 0) {
+		hunts = [...accepted, ...completed];
+	} else {
+		hunts = [...open, ...completed];
+	}
 	const user = await fetchCurrentUser();
 
 	return (
