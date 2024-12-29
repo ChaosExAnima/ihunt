@@ -1,29 +1,23 @@
-import HuntDisplay from '@/components/hunt';
+import { huntDisplayInclude, HuntModel } from '@/components/hunt/consts';
 import {
 	fetchAcceptedHunts,
 	fetchCompletedHunts,
 	fetchOpenHunts,
 } from '@/lib/hunt';
+import { fetchCurrentUser } from '@/lib/user';
+
+import { HuntsCards } from './components';
 
 export default async function HuntsPage() {
 	const [accepted, open, completed] = await Promise.all([
-		fetchAcceptedHunts({ hunters: true, photos: true }),
-		fetchOpenHunts({ hunters: true, photos: true }),
-		fetchCompletedHunts({ hunters: true, photos: true }),
+		fetchAcceptedHunts(huntDisplayInclude),
+		fetchOpenHunts(huntDisplayInclude),
+		fetchCompletedHunts(huntDisplayInclude),
 	]);
 	const hunts = [...accepted, ...open, ...completed];
+	const user = await fetchCurrentUser();
+
 	return (
-		<>
-			<ul className="flex flex-col gap-4">
-				{hunts.map((hunt) => (
-					<li key={hunt.id}>
-						<HuntDisplay
-							className="border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
-							hunt={hunt}
-						/>
-					</li>
-				))}
-			</ul>
-		</>
+		<HuntsCards hunts={hunts as unknown as HuntModel[]} userId={user.id} />
 	);
 }

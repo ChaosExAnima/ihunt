@@ -1,11 +1,14 @@
 import type { JSX, PropsWithChildren } from 'react';
 
-import { cn } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 import { Crosshair, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
-import PhotoDisplay from './photo';
+import Avatar from './avatar';
+
+export interface NavbarProps {
+	hunter: Prisma.HunterGetPayload<{ include: { photos: true } }>;
+}
 
 interface NavbarItemProps {
 	className?: string;
@@ -13,10 +16,6 @@ interface NavbarItemProps {
 	icon: JSX.Element;
 	name: string;
 	noLabel?: boolean;
-}
-
-interface NavbarProps {
-	hunter: Prisma.HunterGetPayload<{ include: { photos: true } }>;
 }
 
 export default function Navbar({
@@ -40,7 +39,7 @@ export default function Navbar({
 				<NavbarItemLink
 					className="ml-auto"
 					href="/settings"
-					icon={<NavbarProfile hunter={hunter} />}
+					icon={<Avatar hunter={hunter} />}
 					name="Settings"
 					noLabel
 				/>
@@ -68,24 +67,5 @@ function NavbarItemLink({
 				{!noLabel && <span className="hidden sm:block">{name}</span>}
 			</Link>
 		</li>
-	);
-}
-
-function NavbarProfile({ hunter }: NavbarProps) {
-	const pic = hunter.photos.at(0) ?? null;
-	console.log(pic);
-
-	return (
-		<div
-			className={cn(
-				'border border-stone-400 dark:border-stone-800',
-				'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
-			)}
-		>
-			{pic && <PhotoDisplay photo={pic} />}
-			<span className="uppercase flex h-full w-full items-center justify-center rounded-full bg-muted">
-				{hunter.name.slice(0, 2)}
-			</span>
-		</div>
 	);
 }
