@@ -32,7 +32,7 @@ export function HuntsCards({ hunts, userId }: HuntsCardsProps) {
 	}, [api]);
 	return (
 		<>
-			<Carousel className="-mx-4 grow flex flex-col" setApi={setApi}>
+			<Carousel className="-mx-4 flex flex-col" setApi={setApi}>
 				<CarouselContent className="grow">
 					{hunts.map((hunt) => (
 						<CarouselItem key={hunt.id}>
@@ -54,6 +54,9 @@ function HuntSlider({
 	current,
 	hunts,
 }: { current: number } & Pick<HuntsCardsProps, 'hunts'>) {
+	if (hunts.length <= 1) {
+		return null;
+	}
 	return (
 		<div className="flex p-2 gap-1 self-center mx-auto rounded-full bg-stone-300 dark:bg-stone-900">
 			{hunts.map((hunt, index) => (
