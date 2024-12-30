@@ -4,7 +4,10 @@ import { Prisma } from '@prisma/client';
 import PhotoDisplay from './photo';
 
 interface AvatarProps {
-	hunter: Prisma.HunterGetPayload<{ include: { photos: true } }>;
+	hunter: Pick<
+		Prisma.HunterGetPayload<{ include: { photos: true } }>,
+		'name' | 'photos'
+	>;
 }
 
 export default function Avatar({ hunter }: AvatarProps) {
@@ -23,4 +26,8 @@ export default function Avatar({ hunter }: AvatarProps) {
 			</span>
 		</div>
 	);
+}
+
+export function AvatarEmpty({ name = '?' }: { name?: string }) {
+	return <Avatar hunter={{ name, photos: [] }} />;
 }
