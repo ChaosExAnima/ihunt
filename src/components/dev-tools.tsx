@@ -50,7 +50,7 @@ function ExternalLink({ children, href }: PropsWithChildren<LinkProps>) {
 	return (
 		<li>
 			<Link
-				className="text-stone-700 hover:text-stone-200 transition-colors"
+				className="text-stone-400 hover:text-stone-500 dark:text-stone-700 dark:hover:text-stone-400 transition-colors"
 				href={href}
 				target={href.startsWith('/') ? '_self' : '_blank'}
 			>
