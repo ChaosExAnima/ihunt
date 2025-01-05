@@ -13,8 +13,15 @@ interface SettingBlockProps extends PropsWithChildren {
 
 export function AvatarReplaceButton() {
 	const handleSubmit = useCallback(async (blob: Blob) => {
-		console.log('submit:', blob);
-		await fetch('/settings/avatar', { body: blob, method: 'POST' });
+		const response = await fetch('/settings/avatar', {
+			body: blob,
+			method: 'POST',
+		});
+		if (!response.ok) {
+			console.error(response.status);
+			return;
+		}
+		console.log('response:', await response.json());
 	}, []);
 
 	return <UploadPhoto onCrop={handleSubmit} title="Replace avatar" />;

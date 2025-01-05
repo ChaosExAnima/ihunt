@@ -4,11 +4,11 @@ const TO_RADIANS = Math.PI / 180;
 
 export function canvasPreview(
 	image: HTMLImageElement,
-	canvas: HTMLCanvasElement,
 	crop: PixelCrop,
 	scale = 1,
 	rotate = 0,
 ) {
+	const canvas = document.createElement('canvas');
 	const ctx = canvas.getContext('2d');
 
 	if (!ctx) {
@@ -62,4 +62,33 @@ export function canvasPreview(
 	);
 
 	ctx.restore();
+}
+
+export async function updateCroppedImg(
+	image: HTMLImageElement,
+	crop: PixelCrop,
+): Promise<Blob> {
+	const offscreen = new OffscreenCanvas(crop.width, crop.height);
+
+	const ctx = offscreen.getContext('2d');
+	if (!ctx) {
+		throw new Error('No 2d context');
+	}
+
+	ctx.drawImage(
+		image,
+		0,
+		0,
+		image.width,
+		image.height,
+		0,
+		0,
+		offscreen.width,
+		offscreen.height,
+	);
+
+	return offscreen.convertToBlob({
+		quality: 0.7,
+		type: 'image/jpeg',
+	});
 }

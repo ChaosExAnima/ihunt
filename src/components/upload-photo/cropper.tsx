@@ -39,7 +39,7 @@ export default function UploadCropper({
 			onComplete={(c) => onComplete(c)}
 		>
 			<img
-				alt="New avatar"
+				alt="New image"
 				onLoad={handleLoad}
 				ref={imgRef}
 				src={imageSrc}

@@ -1,8 +1,11 @@
+'use client';
+
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
 import UploadCropper from './cropper';
 import UploadDialog from './dialog';
+import { updateCroppedImg } from './functions';
 
 interface UploadPhotoProps {
 	aspect?: number;
@@ -17,7 +20,6 @@ export default function UploadPhoto({
 	onCrop,
 	title,
 }: UploadPhotoProps) {
-	const inputRef = useRef<HTMLInputElement>(null);
 	const [imgSrc, setImgSrc] = useState('');
 	const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files.length > 0) {
@@ -29,6 +31,8 @@ export default function UploadPhoto({
 			fileReader.readAsDataURL(file);
 		}
 	};
+
+	const inputRef = useRef<HTMLInputElement>(null);
 	const handleDialogOpen = (open: boolean) => {
 		if (inputRef.current) {
 			if (open) {
@@ -42,18 +46,18 @@ export default function UploadPhoto({
 			setImgSrc('');
 		}
 	};
+
 	const [tempCrop, setTempComp] = useState<PixelCrop>();
 	const handleCrop = (crop: PixelCrop) => {
 		setTempComp(crop);
 	};
+
 	const handleDialogConfirm = useCallback(async () => {
 		if (!tempCrop || !imgSrc) {
 			return;
 		}
-		const image = document.createElement('img');
+		const image = new Image();
 		image.src = imgSrc;
-		console.log('confirm:', image, tempCrop);
-
 		try {
 			const blob = await updateCroppedImg(image, tempCrop);
 			await onCrop(blob);
@@ -62,6 +66,7 @@ export default function UploadPhoto({
 		}
 		setImgSrc('');
 	}, [imgSrc, onCrop, tempCrop]);
+
 	return (
 		<>
 			<input
@@ -86,41 +91,4 @@ export default function UploadPhoto({
 			</UploadDialog>
 		</>
 	);
-}
-
-async function updateCroppedImg(
-	image: HTMLImageElement,
-	crop: PixelCrop,
-): Promise<Blob> {
-	const scaleX = image.naturalWidth / image.width;
-	const scaleY = image.naturalHeight / image.height;
-
-	console.log('offscreen:', scaleX, scaleY);
-
-	const offscreen = new OffscreenCanvas(
-		crop.width * scaleX,
-		crop.height * scaleY,
-	);
-
-	const ctx = offscreen.getContext('2d');
-	if (!ctx) {
-		throw new Error('No 2d context');
-	}
-
-	ctx.drawImage(
-		image,
-		0,
-		0,
-		image.width,
-		image.height,
-		0,
-		0,
-		offscreen.width,
-		offscreen.height,
-	);
-
-	return offscreen.convertToBlob({
-		quality: 0.7,
-		type: 'image/jpg',
-	});
 }
