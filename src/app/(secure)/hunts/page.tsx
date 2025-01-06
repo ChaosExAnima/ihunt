@@ -16,13 +16,17 @@ export default async function HuntsPage() {
 	]);
 	let hunts = [];
 	if (accepted.length > 0) {
-		hunts = [...accepted, ...completed];
+		hunts = [...accepted];
 	} else {
-		hunts = [...open, ...completed];
+		hunts = [...open];
 	}
 	const user = await fetchCurrentUser();
 
 	return (
-		<HuntsCards hunts={hunts as unknown as HuntModel[]} userId={user.id} />
+		<HuntsCards
+			completed={completed as unknown as HuntModel[]}
+			hunts={hunts as unknown as HuntModel[]}
+			userId={user.id}
+		/>
 	);
 }

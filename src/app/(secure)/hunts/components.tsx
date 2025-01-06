@@ -13,11 +13,12 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
 interface HuntsCardsProps {
+	completed: HuntModel[];
 	hunts: HuntModel[];
 	userId: number;
 }
 
-export function HuntsCards({ hunts, userId }: HuntsCardsProps) {
+export function HuntsCards({ completed = [], hunts, userId }: HuntsCardsProps) {
 	const [current, setCurrent] = useState(0);
 	const [api, setApi] = useState<CarouselApi>();
 	useEffect(() => {
@@ -43,10 +44,32 @@ export function HuntsCards({ hunts, userId }: HuntsCardsProps) {
 							/>
 						</CarouselItem>
 					))}
+					<CompletedHunts completed={completed} userId={userId} />
 				</CarouselContent>
 			</Carousel>
 			<HuntSlider current={current} hunts={hunts} />
 		</>
+	);
+}
+
+function CompletedHunts({
+	completed,
+	userId,
+}: Pick<HuntsCardsProps, 'completed' | 'userId'>) {
+	if (completed.length === 0) {
+		return null;
+	}
+	return (
+		<CarouselItem className="flex flex-col gap-4">
+			{completed.map((hunt) => (
+				<HuntDisplay
+					className="mx-4 border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
+					hunt={hunt}
+					hunterId={userId}
+					key={hunt.id}
+				/>
+			))}
+		</CarouselItem>
 	);
 }
 
@@ -64,8 +87,6 @@ function HuntSlider({
 					className={cn(
 						'size-2 rounded-full transition-colors duration-500',
 						'bg-stone-400 dark:bg-stone-700',
-						hunt.status === HuntStatus.Complete &&
-							'bg-stone-600 dark:bg-stone-600',
 						hunt.status === HuntStatus.Active &&
 							'bg-green-400 dark:bg-green-600',
 						current === index && 'bg-white dark:bg-stone-200',
