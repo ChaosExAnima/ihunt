@@ -12,7 +12,7 @@ interface SettingBlockProps extends PropsWithChildren {
 	label: string;
 }
 
-export function AvatarReplaceButton() {
+export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	const router = useRouter();
 	const handleSubmit = useCallback(
 		async (blob: Blob) => {
@@ -32,7 +32,11 @@ export function AvatarReplaceButton() {
 	);
 
 	return (
-		<UploadPhoto circular onCrop={handleSubmit} title="Replace avatar" />
+		<UploadPhoto
+			circular
+			onCrop={handleSubmit}
+			title={existing ? 'Replace avatar' : 'Add avatar'}
+		/>
 	);
 }
 

@@ -20,7 +20,7 @@ export default async function SettingsPage() {
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					<Avatar hunter={user} />
-					<AvatarReplaceButton />
+					<AvatarReplaceButton existing={!!user.avatar} />
 				</SettingBlock>
 			</section>
 			<Button asChild variant="secondary">
