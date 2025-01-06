@@ -1,11 +1,12 @@
 'use client';
 
+import { LoaderCircle } from 'lucide-react';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
 import UploadCropper from './cropper';
 import UploadDialog from './dialog';
-import { imageToBlob } from './functions';
+import { blobToDataUrl, imageToBlob } from './functions';
 
 interface UploadPhotoProps {
 	aspect?: number;
@@ -20,19 +21,32 @@ export default function UploadPhoto({
 	onCrop,
 	title,
 }: UploadPhotoProps) {
+	const [disabled, setDisabled] = useState(false);
+	const [open, setOpen] = useState(false);
 	const [imgSrc, setImgSrc] = useState('');
-	const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
-		if (event.target.files && event.target.files.length > 0) {
-			const file = event.target.files[0];
-			const imgStr = await blobToDataUrl(file);
-			setImgSrc(imgStr);
-			setOpen(true);
-		} else {
-			setOpen(false);
-		}
+	const [errorMsg, setErrorMsg] = useState('');
+
+	const reset = () => {
+		setDisabled(false);
+		setOpen(false);
+		setImgSrc('');
+		setErrorMsg('');
 	};
 
-	const [open, setOpen] = useState(false);
+	const handleFileChange = useCallback(
+		async (event: ChangeEvent<HTMLInputElement>) => {
+			if (event.target.files && event.target.files.length > 0) {
+				const file = event.target.files[0];
+				const imgStr = await blobToDataUrl(file);
+				setImgSrc(imgStr);
+				setOpen(true);
+			} else {
+				reset();
+			}
+		},
+		[],
+	);
+
 	const inputRef = useRef<HTMLInputElement>(null);
 	const handleDialogOpen = (open: boolean) => {
 		if (inputRef.current) {
@@ -43,8 +57,7 @@ export default function UploadPhoto({
 			}
 		}
 		if (!open) {
-			setImgSrc('');
-			setOpen(false);
+			reset();
 		}
 	};
 
@@ -58,19 +71,21 @@ export default function UploadPhoto({
 		if (!tempCrop || !imgSrc || !imageRef.current) {
 			return false;
 		}
+		setDisabled(true);
 		try {
 			const blob = await imageToBlob(imageRef.current, tempCrop);
 			const result = await onCrop(blob);
-			if (!result) {
-				return false;
+			if (result) {
+				reset();
+				return true;
 			}
+			setErrorMsg('Error saving image, try again');
 		} catch (err) {
 			console.error(err);
-			return false;
+			setErrorMsg('Cannot upload image, try again');
 		}
-		setOpen(false);
-		setImgSrc('');
-		return true;
+		setDisabled(false);
+		return false;
 	}, [imgSrc, onCrop, tempCrop]);
 
 	return (
@@ -78,11 +93,13 @@ export default function UploadPhoto({
 			<input
 				accept="image/*"
 				className="hidden"
-				onChange={handleInputChange}
+				disabled={disabled}
+				onChange={handleFileChange}
 				ref={inputRef}
 				type="file"
 			/>
 			<UploadDialog
+				disabled={disabled}
 				onConfirm={handleDialogConfirm}
 				open={open}
 				setOpen={handleDialogOpen}
@@ -92,22 +109,28 @@ export default function UploadPhoto({
 					<UploadCropper
 						aspect={aspect}
 						circular={circular}
+						className="rounded-lg"
+						disabled={disabled}
 						imageRef={imageRef}
 						imageSrc={imgSrc}
 						onComplete={handleCrop}
-					/>
+					>
+						{disabled && (
+							<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
+								<LoaderCircle
+									className="animate-spin"
+									size="2rem"
+								/>
+							</div>
+						)}
+					</UploadCropper>
+				)}
+				{!!errorMsg && (
+					<p className="text-red-500 font-bold text-right">
+						{errorMsg}
+					</p>
 				)}
 			</UploadDialog>
 		</>
 	);
-}
-
-function blobToDataUrl(blob: Blob): Promise<string> {
-	return new Promise((result, reject) => {
-		const reader = new FileReader();
-		reader.onload = () => result(reader.result as string);
-		reader.onerror = () => reject(reader.error);
-		reader.onabort = () => reject(new Error('Read aborted'));
-		reader.readAsDataURL(blob);
-	});
 }

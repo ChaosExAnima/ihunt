@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { RefObject, SyntheticEvent, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { PropsWithChildren, RefObject, SyntheticEvent, useState } from 'react';
 import ReactCrop, {
 	centerCrop,
 	makeAspectCrop,
@@ -7,9 +8,10 @@ import ReactCrop, {
 	PixelCrop,
 } from 'react-image-crop';
 
-interface UploadCropperProps {
+interface UploadCropperProps extends PropsWithChildren {
 	aspect?: number;
 	circular: boolean;
+	className?: string;
 	disabled?: boolean;
 	imageRef: RefObject<HTMLImageElement | null>;
 	imageSrc: string;
@@ -18,7 +20,9 @@ interface UploadCropperProps {
 
 export default function UploadCropper({
 	aspect = 1,
+	children,
 	circular,
+	className,
 	disabled = false,
 	imageRef,
 	imageSrc,
@@ -35,7 +39,7 @@ export default function UploadCropper({
 		<ReactCrop
 			aspect={aspect}
 			circularCrop={circular}
-			className="rounded-full w-full"
+			className="w-full"
 			crop={crop}
 			disabled={disabled}
 			minHeight={100}
@@ -44,10 +48,12 @@ export default function UploadCropper({
 		>
 			<img
 				alt="New image"
+				className={cn(className)}
 				onLoad={handleLoad}
 				ref={imageRef}
 				src={imageSrc}
 			/>
+			{children}
 		</ReactCrop>
 	);
 }
