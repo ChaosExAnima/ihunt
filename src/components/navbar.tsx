@@ -1,13 +1,12 @@
 import type { JSX, PropsWithChildren } from 'react';
 
-import { Prisma } from '@prisma/client';
 import { Crosshair, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
-import Avatar from './avatar';
+import Avatar, { AvatarHunter } from './avatar';
 
 export interface NavbarProps {
-	hunter: Prisma.HunterGetPayload<{ include: { photos: true } }>;
+	hunter: AvatarHunter;
 }
 
 interface NavbarItemProps {

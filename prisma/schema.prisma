@@ -22,13 +22,15 @@ model Hunt {
 }
 
 model Hunter {
-    id     Int     @id @default(autoincrement())
-    name   String
-    rating Float
-    hunts  Hunt[]
-    userId String  @unique
-    email  String
-    photos Photo[]
+    id       Int     @id @default(autoincrement())
+    name     String
+    rating   Float
+    hunts    Hunt[]
+    userId   String  @unique
+    email    String
+    photos   Photo[] @relation("Photos")
+    avatar   Photo?  @relation("Avatar", fields: [avatarId], references: [id])
+    avatarId Int?    @unique
 }
 
 model Photo {
@@ -37,10 +39,11 @@ model Photo {
     width    Int
     height   Int
     blurry   String?
-    hunter   Hunter? @relation(fields: [hunterId], references: [id])
+    hunter   Hunter? @relation("Photos", fields: [hunterId], references: [id])
     hunterId Int?
     hunt     Hunt?   @relation(fields: [huntId], references: [id])
     huntId   Int?
+    avatar   Hunter? @relation("Avatar")
 
     @@index([huntId, hunterId])
 }

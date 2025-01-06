@@ -1,77 +1,65 @@
 'use server';
 
-import B2 from 'backblaze-b2';
 import { fileTypeFromBuffer } from 'file-type';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
-import z from 'zod';
 
+import { b2 } from './b2';
 import { db } from './db';
 import { fetchBlurry } from './image-loader';
-
-export const b2 = new B2({
-	applicationKey: process.env.BACKBLAZE_BUCKET ?? '',
-	applicationKeyId: process.env.BACKBLAZE_KEY ?? '',
-});
-
-const b2UploadResponse = z.object({
-	fileName: z.string(),
-});
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
 	hunterId?: number;
 	huntId?: number;
+	name?: string;
 }
 
 export async function uploadPhoto({
 	buffer,
 	hunterId,
 	huntId,
+	name,
 }: UploadPhotoArgs) {
-	try {
-		// Web buffer to Node buffer
-		const arrayBuffer = Buffer.from(buffer);
+	// Web buffer to Node buffer
+	const arrayBuffer = Buffer.from(buffer);
 
-		// Check file type
-		const fileType = await fileTypeFromBuffer(arrayBuffer);
-		if (!fileType) {
-			throw new Error('Could not validate file type');
-		}
+	// Check file type
+	const fileType = await fileTypeFromBuffer(arrayBuffer);
+	if (!fileType) {
+		throw new Error('Could not validate file type');
+	}
+	if (!fileType.mime.startsWith('image/')) {
+		throw new Error(`Invalid mime type: ${fileType.mime}`);
+	}
 
-		// Get image dimensions
-		const dimensions = await imageDimensionsFromData(buffer);
-		if (!dimensions) {
-			throw new Error('Could not extract dimensions');
-		}
+	// Get image dimensions
+	const dimensions = await imageDimensionsFromData(buffer);
+	if (!dimensions) {
+		throw new Error('Could not extract dimensions');
+	}
 
-		// Hash buffer
+	// Hash buffer for the filename
+	let fileName = name;
+	if (!fileName) {
 		const hash = createHash('sha256');
 		hash.update(arrayBuffer);
 		const hex = hash.digest('hex');
-
-		// Send it to B2
-		await b2.authorize();
-		const { data } = await b2.uploadFile({
-			data: arrayBuffer,
-			fileName: `${hex}.${fileType.ext}`,
-			uploadAuthToken: '',
-			uploadUrl: '',
-		});
-		const { fileName } = b2UploadResponse.parse(data); // Use B2 file name
-
-		// Fetch blurry version using Cloudflare image transforms
-		const blurryData = await fetchBlurry(fileName);
-		await db.photo.create({
-			data: {
-				...dimensions,
-				blurry: blurryData,
-				hunterId,
-				huntId,
-				path: fileName,
-			},
-		});
-	} catch (err: unknown) {
-		console.error(err);
+		fileName = `${hex}.${fileType.ext}`;
 	}
+
+	// Send it to B2
+	await b2.upload(buffer, fileName, fileType.mime);
+
+	// Fetch blurry version using Cloudflare image transforms
+	const blurryData = await fetchBlurry(fileName);
+	return db.photo.create({
+		data: {
+			...dimensions,
+			blurry: blurryData,
+			hunterId,
+			huntId,
+			path: fileName,
+		},
+	});
 }

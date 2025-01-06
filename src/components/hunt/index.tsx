@@ -3,7 +3,7 @@
 import { acceptHunt } from '@/lib/actions';
 import { HuntStatus } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { CircleCheckBig, X } from 'lucide-react';
+import { CircleCheckBig, Crosshair, X } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -149,14 +149,19 @@ function HuntPhotoDisplay({ photos }: Pick<HuntModel, 'photos'>) {
 function HuntStatusDisplay({ status }: Pick<HuntModel, 'status'>) {
 	switch (status) {
 		case HuntStatus.Active:
-			return <p>Accepted</p>;
+			return (
+				<div className="flex mt-4 gap-2 items-center justify-center text-blue-500 text-center font-semibold">
+					<Crosshair className="size-4 shrink-0" />
+					Ongoing
+				</div>
+			);
 		case HuntStatus.Cancelled:
 			return <p>Cancelled</p>;
 		case HuntStatus.Complete:
 			return (
 				<div
 					className={cn(
-						'flex mt-4 gap-2 items-center justify-center font-bold self-center',
+						'flex mt-4 gap-2 items-center justify-center font-semibold self-center',
 						'text-green-500',
 					)}
 				>

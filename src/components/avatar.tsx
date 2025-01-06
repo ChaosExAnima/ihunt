@@ -3,15 +3,16 @@ import { Prisma } from '@prisma/client';
 
 import PhotoDisplay from './photo';
 
+export type AvatarHunter = Prisma.HunterGetPayload<{
+	include: { avatar: true };
+}>;
+
 interface AvatarProps {
-	hunter: Pick<
-		Prisma.HunterGetPayload<{ include: { photos: true } }>,
-		'name' | 'photos'
-	>;
+	hunter: Pick<AvatarHunter, 'avatar' | 'name'>;
 }
 
 export default function Avatar({ hunter }: AvatarProps) {
-	const pic = hunter.photos.at(0) ?? null;
+	const pic = hunter.avatar;
 
 	return (
 		<div
@@ -29,5 +30,5 @@ export default function Avatar({ hunter }: AvatarProps) {
 }
 
 export function AvatarEmpty({ name = '?' }: { name?: string }) {
-	return <Avatar hunter={{ name, photos: [] }} />;
+	return <Avatar hunter={{ avatar: null, name }} />;
 }

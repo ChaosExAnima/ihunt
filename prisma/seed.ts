@@ -38,31 +38,6 @@ async function main() {
 				},
 			],
 		});
-		await db.hunter.createMany({
-			data: [
-				{
-					email: 'dean@ihunt.de',
-					id: 1,
-					name: 'Dean',
-					rating: 1,
-					userId: '1',
-				},
-				{
-					email: 'velma@ihunt.de',
-					id: 2,
-					name: 'Velma',
-					rating: 3,
-					userId: '2',
-				},
-				{
-					email: 'buffy@ihunt.de',
-					id: 3,
-					name: 'Buffy',
-					rating: 5,
-					userId: '3',
-				},
-			],
-		});
 		await db.photo.createMany({
 			data: [
 				{
@@ -88,31 +63,55 @@ async function main() {
 				},
 				{
 					height: 826,
-					hunterId: 2,
 					id: 4,
 					path: 'velma.png',
 					width: 844,
 				},
 				{
 					height: 1024,
-					hunterId: 1,
 					id: 5,
 					path: 'dean.png',
 					width: 1048,
 				},
 				{
 					height: 1086,
-					hunterId: 3,
 					id: 6,
 					path: 'buffy.jpg',
 					width: 1036,
 				},
 				{
 					height: 1024,
-					huntId: 4,
 					id: 7,
 					path: 'vampire.webp',
 					width: 1024,
+				},
+			],
+		});
+		await db.hunter.createMany({
+			data: [
+				{
+					avatarId: 5,
+					email: 'dean@ihunt.de',
+					id: 1,
+					name: 'Dean',
+					rating: 1,
+					userId: '1',
+				},
+				{
+					avatarId: 4,
+					email: 'velma@ihunt.de',
+					id: 2,
+					name: 'Velma',
+					rating: 3,
+					userId: '2',
+				},
+				{
+					avatarId: 6,
+					email: 'buffy@ihunt.de',
+					id: 3,
+					name: 'Buffy',
+					rating: 5,
+					userId: '3',
 				},
 			],
 		});
