@@ -25,7 +25,9 @@ export function AvatarReplaceButton() {
 		return body.success;
 	}, []);
 
-	return <UploadPhoto onCrop={handleSubmit} title="Replace avatar" />;
+	return (
+		<UploadPhoto circular onCrop={handleSubmit} title="Replace avatar" />
+	);
 }
 
 export function SettingBlock({ children, id, label }: SettingBlockProps) {
