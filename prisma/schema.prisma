@@ -11,6 +11,7 @@ model Hunt {
     id          Int       @id @default(autoincrement())
     createdAt   DateTime  @default(now())
     completedAt DateTime?
+    name        String    @default("")
     description String
     status      String
     maxHunters  Int

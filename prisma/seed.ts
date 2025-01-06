@@ -9,31 +9,36 @@ async function main() {
 		await db.hunt.createMany({
 			data: [
 				{
-					description: 'Werewolf',
+					description:
+						'saw something wandering around in the woods. hearing howls.',
 					id: 1,
 					maxHunters: 2,
 					minRating: 1,
+					name: 'Werewolf',
 					status: HuntStatus.Available,
 				},
 				{
-					description: 'Vampire',
+					description: 'a body was found without blood',
 					id: 2,
 					maxHunters: 1,
 					minRating: 5,
+					name: 'Vampire',
 					status: HuntStatus.Available,
 				},
 				{
-					description: 'Zombie',
+					description: 'brains',
 					id: 3,
 					maxHunters: 3,
 					minRating: 3,
+					name: 'Zombie',
 					status: HuntStatus.Pending,
 				},
 				{
-					description: 'Ashed Vampire',
+					description: 'very old dangerous vampire!',
 					id: 4,
 					maxHunters: 1,
 					minRating: 1,
+					name: 'Ashed Vampire',
 					status: HuntStatus.Complete,
 				},
 			],
