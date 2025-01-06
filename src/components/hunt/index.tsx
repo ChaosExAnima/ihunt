@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 import type { HuntModel } from './consts';
 
 import Avatar from '../avatar';
+import DateDisplay from '../date';
 import PhotoDisplay from '../photo';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -34,7 +35,7 @@ export default function HuntDisplay({ className, hunt, hunterId }: HuntProps) {
 		<Card className={cn(className)} slot="article">
 			<HuntPhotoDisplay photos={hunt.photos} />
 			<p className="text-stone-600 text-xs mb-2">
-				{hunt.createdAt.getTime()}
+				added <DateDisplay date={hunt.createdAt} />
 			</p>
 			<p className="mb-4">{hunt.description}</p>
 			<HuntHuntersDisplay
