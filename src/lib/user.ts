@@ -13,11 +13,7 @@ export async function fetchCurrentUser() {
 	}
 	const user = await db.hunter.findFirstOrThrow({
 		include: {
-			photos: {
-				where: {
-					huntId: null,
-				},
-			},
+			avatar: true,
 		},
 		where: {
 			id,

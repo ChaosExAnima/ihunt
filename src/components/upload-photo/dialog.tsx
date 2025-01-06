@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { Button, ButtonProps } from '../ui/button';
 import {
@@ -15,7 +15,8 @@ interface UploadDialogProps extends PropsWithChildren {
 	buttonProps?: ButtonProps;
 	disabled?: boolean;
 	onConfirm: () => Promise<boolean>;
-	onDialog?: (open: boolean) => void;
+	open: boolean;
+	setOpen: (open: boolean) => void;
 	title: string;
 	triggerText?: string;
 }
@@ -25,28 +26,21 @@ export default function UploadDialog({
 	children,
 	disabled = false,
 	onConfirm,
-	onDialog,
+	open,
+	setOpen,
 	title,
 	triggerText = 'Replace',
 }: UploadDialogProps) {
-	const [openDialog, setDialogOpen] = useState(false);
 	const handleChange = (open: boolean) => {
-		setDialogOpen(open);
-		if (onDialog) {
-			onDialog(open);
-		}
+		setOpen(open);
 	};
-	const handleConfirm = async () => {
+	const handleConfirm = () => {
 		if (onConfirm) {
-			const success = await onConfirm();
-			if (!success) {
-				return;
-			}
+			onConfirm();
 		}
-		setDialogOpen(false);
 	};
 	return (
-		<Dialog onOpenChange={handleChange} open={openDialog}>
+		<Dialog onOpenChange={handleChange} open={open}>
 			<DialogTrigger asChild>
 				<Button variant="secondary" {...buttonProps}>
 					{triggerText}

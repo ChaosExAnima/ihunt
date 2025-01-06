@@ -5,7 +5,7 @@ import { PixelCrop } from 'react-image-crop';
 
 import UploadCropper from './cropper';
 import UploadDialog from './dialog';
-import { updateCroppedImg } from './functions';
+import { imageToBlob } from './functions';
 
 interface UploadPhotoProps {
 	aspect?: number;
@@ -21,17 +21,18 @@ export default function UploadPhoto({
 	title,
 }: UploadPhotoProps) {
 	const [imgSrc, setImgSrc] = useState('');
-	const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+	const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files.length > 0) {
 			const file = event.target.files[0];
-			const fileReader = new FileReader();
-			fileReader.addEventListener('load', () => {
-				setImgSrc(fileReader.result?.toString() || '');
-			});
-			fileReader.readAsDataURL(file);
+			const imgStr = await blobToDataUrl(file);
+			setImgSrc(imgStr);
+			setOpen(true);
+		} else {
+			setOpen(false);
 		}
 	};
 
+	const [open, setOpen] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const handleDialogOpen = (open: boolean) => {
 		if (inputRef.current) {
@@ -41,9 +42,9 @@ export default function UploadPhoto({
 				inputRef.current.value = '';
 			}
 		}
-
 		if (!open) {
 			setImgSrc('');
+			setOpen(false);
 		}
 	};
 
@@ -52,14 +53,13 @@ export default function UploadPhoto({
 		setTempComp(crop);
 	};
 
+	const imageRef = useRef<HTMLImageElement>(null);
 	const handleDialogConfirm = useCallback(async () => {
-		if (!tempCrop || !imgSrc) {
+		if (!tempCrop || !imgSrc || !imageRef.current) {
 			return false;
 		}
-		const image = new Image();
-		image.src = imgSrc;
 		try {
-			const blob = await updateCroppedImg(image, tempCrop);
+			const blob = await imageToBlob(imageRef.current, tempCrop);
 			const result = await onCrop(blob);
 			if (!result) {
 				return false;
@@ -68,6 +68,7 @@ export default function UploadPhoto({
 			console.error(err);
 			return false;
 		}
+		setOpen(false);
 		setImgSrc('');
 		return true;
 	}, [imgSrc, onCrop, tempCrop]);
@@ -83,13 +84,15 @@ export default function UploadPhoto({
 			/>
 			<UploadDialog
 				onConfirm={handleDialogConfirm}
-				onDialog={handleDialogOpen}
+				open={open}
+				setOpen={handleDialogOpen}
 				title={title}
 			>
 				{!!imgSrc && (
 					<UploadCropper
 						aspect={aspect}
 						circular={circular}
+						imageRef={imageRef}
 						imageSrc={imgSrc}
 						onComplete={handleCrop}
 					/>
@@ -97,4 +100,14 @@ export default function UploadPhoto({
 			</UploadDialog>
 		</>
 	);
+}
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+	return new Promise((result, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => result(reader.result as string);
+		reader.onerror = () => reject(reader.error);
+		reader.onabort = () => reject(new Error('Read aborted'));
+		reader.readAsDataURL(blob);
+	});
 }

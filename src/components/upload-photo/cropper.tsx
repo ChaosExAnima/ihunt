@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import { SyntheticEvent, useRef, useState } from 'react';
+import { RefObject, SyntheticEvent, useState } from 'react';
 import ReactCrop, {
 	centerCrop,
-	Crop,
 	makeAspectCrop,
+	PercentCrop,
 	PixelCrop,
 } from 'react-image-crop';
 
@@ -11,6 +11,7 @@ interface UploadCropperProps {
 	aspect?: number;
 	circular: boolean;
 	disabled?: boolean;
+	imageRef: RefObject<HTMLImageElement | null>;
 	imageSrc: string;
 	onComplete: (crop: PixelCrop) => void;
 }
@@ -19,11 +20,11 @@ export default function UploadCropper({
 	aspect = 1,
 	circular,
 	disabled = false,
+	imageRef,
 	imageSrc,
 	onComplete,
 }: UploadCropperProps) {
-	const [crop, setCrop] = useState<Crop>();
-	const imgRef = useRef<HTMLImageElement>(null);
+	const [crop, setCrop] = useState<PercentCrop>();
 
 	const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
 		const { height, width } = event.currentTarget;
@@ -34,17 +35,17 @@ export default function UploadCropper({
 		<ReactCrop
 			aspect={aspect}
 			circularCrop={circular}
-			className="rounded-full w-full aspect-square"
+			className="rounded-full w-full"
 			crop={crop}
 			disabled={disabled}
 			minHeight={100}
 			onChange={(_, percentage) => setCrop(percentage)}
-			onComplete={(c) => onComplete(c)}
+			onComplete={(crop) => onComplete(crop)}
 		>
 			<img
 				alt="New image"
 				onLoad={handleLoad}
-				ref={imgRef}
+				ref={imageRef}
 				src={imageSrc}
 			/>
 		</ReactCrop>

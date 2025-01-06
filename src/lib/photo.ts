@@ -48,7 +48,7 @@ export async function uploadPhoto({
 
 	// Fetch blurry version using Cloudflare image transforms
 	const blurryData = await fetchBlurry(fileName);
-	await db.photo.create({
+	return db.photo.create({
 		data: {
 			...dimensions,
 			blurry: blurryData,
