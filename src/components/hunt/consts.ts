@@ -6,7 +6,7 @@ export type HuntModel = Prisma.HuntGetPayload<{
 export const huntDisplayInclude = {
 	hunters: {
 		include: {
-			photos: true,
+			avatar: true,
 		},
 	},
 	photos: true,

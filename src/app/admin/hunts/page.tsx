@@ -19,7 +19,7 @@ export default async function AdminHuntsPage() {
 			},
 			hunters: {
 				include: {
-					photos: true,
+					avatar: true,
 				},
 			},
 			photos: true,
@@ -42,7 +42,7 @@ function HuntCard({
 	hunt,
 }: {
 	hunt: Prisma.HuntGetPayload<{
-		include: { hunters: { include: { photos: true } }; photos: true };
+		include: { hunters: { include: { avatar: true } }; photos: true };
 	}>;
 }) {
 	const photo = hunt.photos.at(0);

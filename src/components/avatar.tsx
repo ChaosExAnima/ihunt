@@ -3,11 +3,12 @@ import { Prisma } from '@prisma/client';
 
 import PhotoDisplay from './photo';
 
+export type AvatarHunter = Prisma.HunterGetPayload<{
+	include: { avatar: true };
+}>;
+
 interface AvatarProps {
-	hunter: Pick<
-		Prisma.HunterGetPayload<{ include: { avatar: true } }>,
-		'avatar' | 'name'
-	>;
+	hunter: Pick<AvatarHunter, 'avatar' | 'name'>;
 }
 
 export default function Avatar({ hunter }: AvatarProps) {
