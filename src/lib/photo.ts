@@ -12,12 +12,14 @@ interface UploadPhotoArgs {
 	buffer: Uint8Array;
 	hunterId?: number;
 	huntId?: number;
+	name?: string;
 }
 
 export async function uploadPhoto({
 	buffer,
 	hunterId,
 	huntId,
+	name,
 }: UploadPhotoArgs) {
 	// Web buffer to Node buffer
 	const arrayBuffer = Buffer.from(buffer);
@@ -38,10 +40,13 @@ export async function uploadPhoto({
 	}
 
 	// Hash buffer for the filename
-	const hash = createHash('sha256');
-	hash.update(arrayBuffer);
-	const hex = hash.digest('hex');
-	const fileName = `${hex}.${fileType.ext}`;
+	let fileName = name;
+	if (!fileName) {
+		const hash = createHash('sha256');
+		hash.update(arrayBuffer);
+		const hex = hash.digest('hex');
+		fileName = `${hex}.${fileType.ext}`;
+	}
 
 	// Send it to B2
 	await b2.upload(buffer, fileName, fileType.mime);

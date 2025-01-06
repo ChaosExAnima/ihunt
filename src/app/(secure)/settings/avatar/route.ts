@@ -9,7 +9,11 @@ export async function POST(request: NextRequest) {
 		const body = await request.bytes();
 		const user = await fetchCurrentUser();
 
-		const photo = await uploadPhoto({ buffer: body, hunterId: user.id });
+		const photo = await uploadPhoto({
+			buffer: body,
+			hunterId: user.id,
+			name: `avatar-${user.id}.jpg`,
+		});
 		await db.hunter.update({
 			data: {
 				avatarId: photo.id,
