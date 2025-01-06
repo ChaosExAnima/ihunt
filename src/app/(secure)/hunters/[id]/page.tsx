@@ -1,5 +1,6 @@
 import Header from '@/components/header';
 import PhotoDisplay from '@/components/photo';
+import Rating from '@/components/rating';
 import { HuntStatus } from '@/lib/constants';
 import { db } from '@/lib/db';
 
@@ -35,7 +36,9 @@ export default async function HunterPage({ params }: HunterPageProps) {
 			)}
 			<Header>{hunter.name}</Header>
 			<p>Completed hunts: {hunter._count.hunts}</p>
-			<p>Rating: {hunter.rating}</p>
+			<p>
+				Rating: <Rating rating={hunter.rating} size="1em" />
+			</p>
 		</>
 	);
 }
