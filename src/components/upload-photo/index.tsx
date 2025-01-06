@@ -10,7 +10,7 @@ import { updateCroppedImg } from './functions';
 interface UploadPhotoProps {
 	aspect?: number;
 	circular?: boolean;
-	onCrop: (blob: Blob) => Promise<void> | void;
+	onCrop: (blob: Blob) => Promise<boolean>;
 	title: string;
 }
 
@@ -54,22 +54,28 @@ export default function UploadPhoto({
 
 	const handleDialogConfirm = useCallback(async () => {
 		if (!tempCrop || !imgSrc) {
-			return;
+			return false;
 		}
 		const image = new Image();
 		image.src = imgSrc;
 		try {
 			const blob = await updateCroppedImg(image, tempCrop);
-			await onCrop(blob);
+			const result = await onCrop(blob);
+			if (!result) {
+				return false;
+			}
 		} catch (err) {
 			console.error(err);
+			return false;
 		}
 		setImgSrc('');
+		return true;
 	}, [imgSrc, onCrop, tempCrop]);
 
 	return (
 		<>
 			<input
+				accept="image/*"
 				className="hidden"
 				onChange={handleInputChange}
 				ref={inputRef}

@@ -13,7 +13,8 @@ import { DialogDescription, DialogFooter, DialogHeader } from '../ui/dialog';
 
 interface UploadDialogProps extends PropsWithChildren {
 	buttonProps?: ButtonProps;
-	onConfirm: () => void;
+	disabled?: boolean;
+	onConfirm: () => Promise<boolean>;
 	onDialog?: (open: boolean) => void;
 	title: string;
 	triggerText?: string;
@@ -22,6 +23,7 @@ interface UploadDialogProps extends PropsWithChildren {
 export default function UploadDialog({
 	buttonProps = {},
 	children,
+	disabled = false,
 	onConfirm,
 	onDialog,
 	title,
@@ -34,9 +36,12 @@ export default function UploadDialog({
 			onDialog(open);
 		}
 	};
-	const handleConfirm = () => {
+	const handleConfirm = async () => {
 		if (onConfirm) {
-			onConfirm();
+			const success = await onConfirm();
+			if (!success) {
+				return;
+			}
 		}
 		setDialogOpen(false);
 	};
@@ -56,10 +61,12 @@ export default function UploadDialog({
 				</DialogHeader>
 				{children}
 				<DialogFooter>
-					<DialogClose asChild>
+					<DialogClose asChild disabled={disabled}>
 						<Button variant="destructive">Cancel</Button>
 					</DialogClose>
-					<Button onClick={handleConfirm}>Confirm</Button>
+					<Button disabled={disabled} onClick={handleConfirm}>
+						Confirm
+					</Button>
 				</DialogFooter>
 			</DialogContent>
 			<DialogOverlay />

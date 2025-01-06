@@ -21,7 +21,8 @@ export function AvatarReplaceButton() {
 			console.error(response.status);
 			return;
 		}
-		console.log('response:', await response.json());
+		const body = await response.json();
+		return body.success;
 	}, []);
 
 	return <UploadPhoto onCrop={handleSubmit} title="Replace avatar" />;

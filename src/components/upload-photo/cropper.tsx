@@ -10,6 +10,7 @@ import ReactCrop, {
 interface UploadCropperProps {
 	aspect?: number;
 	circular: boolean;
+	disabled?: boolean;
 	imageSrc: string;
 	onComplete: (crop: PixelCrop) => void;
 }
@@ -17,6 +18,7 @@ interface UploadCropperProps {
 export default function UploadCropper({
 	aspect = 1,
 	circular,
+	disabled = false,
 	imageSrc,
 	onComplete,
 }: UploadCropperProps) {
@@ -34,6 +36,7 @@ export default function UploadCropper({
 			circularCrop={circular}
 			className="rounded-full w-full aspect-square"
 			crop={crop}
+			disabled={disabled}
 			minHeight={100}
 			onChange={(_, percentage) => setCrop(percentage)}
 			onComplete={(c) => onComplete(c)}

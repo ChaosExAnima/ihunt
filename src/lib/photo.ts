@@ -27,6 +27,9 @@ export async function uploadPhoto({
 	if (!fileType) {
 		throw new Error('Could not validate file type');
 	}
+	if (!fileType.mime.startsWith('image/')) {
+		throw new Error(`Invalid mime type: ${fileType.mime}`);
+	}
 
 	// Get image dimensions
 	const dimensions = await imageDimensionsFromData(buffer);
