@@ -1,4 +1,4 @@
-import { acceptHunt } from '@/lib/actions';
+import { acceptHunt } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
 import { CircleCheckBig, X } from 'lucide-react';
 import { useMemo } from 'react';

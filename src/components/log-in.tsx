@@ -1,6 +1,6 @@
 'use client';
 
-import { logInAs } from '@/lib/actions';
+import { logInAs } from '@/lib/user';
 import { Hunter } from '@prisma/client';
 
 import { Button } from './ui/button';

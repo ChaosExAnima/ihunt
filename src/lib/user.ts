@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 
 import { db } from './db';
+import { redirect } from 'next/navigation';
 
 export async function fetchCurrentUser() {
 	const cookieStore = await cookies();
@@ -20,4 +21,10 @@ export async function fetchCurrentUser() {
 		},
 	});
 	return user;
+}
+export async function logInAs(id: number) {
+	console.log(`Logging in as ${id}`);
+	const cookieStore = await cookies();
+	cookieStore.set('user', id.toString());
+	redirect('/hunts');
 }
