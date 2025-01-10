@@ -1,9 +1,9 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import { db } from './db';
-import { redirect } from 'next/navigation';
 
 export async function fetchCurrentUser() {
 	const cookieStore = await cookies();
