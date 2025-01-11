@@ -1,8 +1,8 @@
-import type { ElementType, PropsWithChildren } from 'react';
+import type { ElementType, HTMLProps, PropsWithChildren } from 'react';
 
 import { cn } from '@/lib/utils';
 
-interface HeaderProps {
+interface HeaderProps extends HTMLProps<HTMLHeadingElement> {
 	className?: string;
 	level?: 1 | 2 | 3 | 4;
 }
@@ -11,6 +11,7 @@ export default function Header({
 	children,
 	className,
 	level = 1,
+	...props
 }: PropsWithChildren<HeaderProps>) {
 	const Component: ElementType = `h${level}`;
 	return (
@@ -23,6 +24,7 @@ export default function Header({
 				level === 4 && 'text-xl',
 				className,
 			)}
+			{...props}
 		>
 			{children}
 		</Component>
