@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 import { HuntStatus } from './constants';
 import { db } from './db';
-import { fetchCurrentUser } from './user';
+import { fetchCurrentUser, forceAdmin } from './user';
 
 export async function acceptHunt(id: number) {
 	const user = await fetchCurrentUser();
@@ -59,7 +59,8 @@ export async function acceptHunt(id: number) {
 		console.log(`${user.name} accepted hunt with ID ${id}`);
 	}
 
-	revalidatePath(`/hunts`);
+	revalidatePath('/hunts');
+	revalidatePath('/admin/hunts');
 }
 
 export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
@@ -77,6 +78,34 @@ export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
 	});
 }
 
+export async function fetchAdminHunts() {
+	await forceAdmin();
+	return db.hunt.findMany({
+		include: {
+			_count: {
+				select: {
+					hunters: true,
+				},
+			},
+			hunters: {
+				include: {
+					avatar: true,
+				},
+			},
+			photos: true,
+		},
+		orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+		where: {
+			status: {
+				in: [
+					HuntStatus.Active,
+					HuntStatus.Available,
+					HuntStatus.Pending,
+				],
+			},
+		},
+	});
+}
 export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
 	const user = await fetchCurrentUser();
 	return db.hunt.findMany({
@@ -91,6 +120,7 @@ export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
 		},
 	});
 }
+
 export async function fetchOpenHunts(include: Prisma.HuntInclude = {}) {
 	const user = await fetchCurrentUser();
 	return db.hunt.findMany({

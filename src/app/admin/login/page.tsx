@@ -15,7 +15,7 @@ export default function AdminPage() {
 				Enter password:
 			</label>
 			<Input
-				autoFocus={true}
+				autoFocus
 				className={cn(
 					'max-w-80',
 					state.success === false && 'border-red-700',
