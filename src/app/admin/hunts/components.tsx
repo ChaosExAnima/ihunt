@@ -12,17 +12,28 @@ import { AdminHunts } from '@/lib/hunt';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
 
 interface HuntProps {
 	hunt: HuntModel;
 }
 
 export function HuntList() {
-	const { data: hunts, isLoading } = useQuery<AdminHunts>({
+	const path = usePathname();
+	const {
+		data: hunts,
+		isLoading,
+		refetch,
+	} = useQuery<AdminHunts>({
 		queryFn: () => fetchFromApi('/admin/api/hunts'),
 		queryKey: ['hunts'],
 	});
+	useEffect(() => {
+		if (path === '/admin/hunts') {
+			refetch();
+		}
+	}, [path, refetch]);
 	if (isLoading || !hunts) {
 		return <HuntListLoading />;
 	}

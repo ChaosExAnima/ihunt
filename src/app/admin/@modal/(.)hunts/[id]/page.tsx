@@ -18,6 +18,8 @@ export default async function EditHuntModal({ params }: AdminHuntParams) {
 		include: huntDisplayInclude,
 		where: { id: Number.parseInt(id) },
 	});
+	console.log('rendering modal');
+
 	return (
 		<Modal>
 			<EditHunt hunt={hunt} saveAction={updateHunt} />

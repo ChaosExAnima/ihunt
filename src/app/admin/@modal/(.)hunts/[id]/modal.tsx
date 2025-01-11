@@ -3,6 +3,8 @@
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
+	DialogHeader,
 	DialogOverlay,
 	DialogTitle,
 } from '@/components/ui/dialog';
@@ -13,8 +15,15 @@ export default function Modal({ children }: PropsWithChildren) {
 	const router = useRouter();
 	return (
 		<Dialog onOpenChange={() => router.back()} open>
-			<DialogTitle>Edit Hunt</DialogTitle>
-			<DialogContent>{children}</DialogContent>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Edit Hunt</DialogTitle>
+					<DialogDescription className="hidden">
+						Edit hunt information
+					</DialogDescription>
+				</DialogHeader>
+				{children}
+			</DialogContent>
 			<DialogOverlay />
 		</Dialog>
 	);
