@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { PropsWithChildren } from 'react';
 
 export default function AdminLayout({ children }: PropsWithChildren) {
@@ -7,3 +8,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
 		</main>
 	);
 }
+
+export const metadata: Metadata = {
+	title: 'Admin - iHunt',
+};

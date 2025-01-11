@@ -7,7 +7,7 @@ import PhotoDisplay from '@/components/photo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { fetchFromApi } from '@/lib/api';
-import { HuntStatus } from '@/lib/constants';
+import { HuntStatus, huntStatusNames } from '@/lib/constants';
 import { AdminHunts } from '@/lib/hunt';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Pencil } from 'lucide-react';
@@ -31,7 +31,7 @@ export function HuntList() {
 			{Object.entries(hunts).map(([status, typeHunts]) => (
 				<section key={status}>
 					<Header className="mb-4" level={3}>
-						{status}
+						{huntStatusNames[status as HuntStatus]}
 					</Header>
 					<div className="grid grid-cols-3 gap-4">
 						{typeHunts.map((hunt) => (

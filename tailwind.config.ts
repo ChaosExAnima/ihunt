@@ -57,6 +57,10 @@ export default {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))',
 				},
+				success: {
+					DEFAULT: 'rgb(var(--success))',
+					foreground: 'rgb(var(--success-foreground))',
+				},
 			},
 		},
 	},
