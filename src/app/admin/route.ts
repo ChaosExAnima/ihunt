@@ -1,9 +1,9 @@
-import { cookies } from 'next/headers';
+import { isAdmin } from '@/lib/user';
 import { redirect } from 'next/navigation';
 
 export async function GET() {
-	const cookieStore = await cookies();
-	if (cookieStore.get('admin')?.value === 'yes') {
+	const admin = await isAdmin();
+	if (admin) {
 		throw redirect('/admin/hunts');
 	}
 	throw redirect('/admin/login');

@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-interface AdminHuntParams {
+export interface AdminHuntParams {
 	params: Promise<{
 		id: string;
 	}>;
@@ -30,7 +30,7 @@ export default async function AdminHunt({ params }: AdminHuntParams) {
 	);
 }
 
-const updateHunt: EditHuntAction = async (newHunt, { id }) => {
+export const updateHunt: EditHuntAction = async (newHunt, { id }) => {
 	'use server';
 	await db.hunt.update({
 		data: newHunt,

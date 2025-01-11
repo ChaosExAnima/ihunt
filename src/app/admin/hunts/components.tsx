@@ -65,15 +65,15 @@ function HuntCard({ hunt }: HuntProps) {
 					{hunt.status === HuntStatus.Active && (
 						<HuntStatusButton hunt={hunt} />
 					)}
-					<Button
-						className="absolute top-0 right-0 rounded-none rounded-bl-md"
-						size="icon"
-						variant="ghost"
-					>
-						<Link href={`/admin/hunts/${hunt.id}`}>
+					<Link href={`/admin/hunts/${hunt.id}`}>
+						<Button
+							className="absolute top-0 right-0 rounded-none rounded-bl-md"
+							size="icon"
+							variant="ghost"
+						>
 							<Pencil />
-						</Link>
-					</Button>
+						</Button>
+					</Link>
 				</div>
 				<ul className="flex gap-2 mt-2">
 					{hunt.hunters.map((hunter) => (
