@@ -1,9 +1,16 @@
 import { huntDisplayInclude } from '@/components/hunt/consts';
-import EditHunt from '@/components/hunt/edit';
+import EditHunt, { EditHuntAction } from '@/components/hunt/edit';
 import { db } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
-import { AdminHuntParams, updateHunt } from '../../../hunts/[id]/page';
 import Modal from './modal';
+
+export interface AdminHuntParams {
+	params: Promise<{
+		id: string;
+	}>;
+}
 
 export default async function EditHuntModal({ params }: AdminHuntParams) {
 	const { id } = await params;
@@ -13,11 +20,20 @@ export default async function EditHuntModal({ params }: AdminHuntParams) {
 	});
 	return (
 		<Modal>
-			<EditHunt
-				backHref="/admin/hunts"
-				hunt={hunt}
-				saveAction={updateHunt}
-			/>
+			<EditHunt hunt={hunt} saveAction={updateHunt} />
 		</Modal>
 	);
 }
+
+export const updateHunt: EditHuntAction = async (newHunt, { id }) => {
+	'use server';
+	await db.hunt.update({
+		data: newHunt,
+		where: {
+			id,
+		},
+	});
+	console.log(`Updated hunt ${id}:`, newHunt);
+	revalidatePath('/admin/hunts');
+	redirect('/admin/hunts');
+};

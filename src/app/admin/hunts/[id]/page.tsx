@@ -21,11 +21,7 @@ export default async function AdminHunt({ params }: AdminHuntParams) {
 	return (
 		<>
 			<Header>Hunt Details</Header>
-			<EditHunt
-				backHref="/admin/hunts"
-				hunt={hunt}
-				saveAction={updateHunt}
-			/>
+			<EditHunt hunt={hunt} saveAction={updateHunt} />
 		</>
 	);
 }

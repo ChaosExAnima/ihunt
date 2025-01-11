@@ -37,12 +37,10 @@ export type EditHuntAction = (
 export type HuntSchema = z.infer<typeof huntSchema>;
 
 interface EditHuntProps extends Omit<HuntProps, 'hunterId'> {
-	backHref: string;
 	saveAction: EditHuntAction;
 }
 
 export default function EditHunt({
-	backHref,
 	className,
 	hunt,
 	saveAction,
@@ -141,12 +139,12 @@ export default function EditHunt({
 					)}
 				/>
 				<div className="flex gap-4 mt-4 justify-end">
-					<Link href={backHref}>
-						<Button variant="secondary">
+					<Button asChild type="button" variant="secondary">
+						<Link href="/admin/hunts">
 							<X />
 							Cancel
-						</Button>
-					</Link>
+						</Link>
+					</Button>
 					<Button type="submit" variant="success">
 						<Save />
 						Save

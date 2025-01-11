@@ -12,7 +12,7 @@ import { PropsWithChildren } from 'react';
 export default function Modal({ children }: PropsWithChildren) {
 	const router = useRouter();
 	return (
-		<Dialog onOpenChange={() => router.push('/admin/hunts')} open>
+		<Dialog onOpenChange={() => router.back()} open>
 			<DialogTitle>Edit Hunt</DialogTitle>
 			<DialogContent>{children}</DialogContent>
 			<DialogOverlay />
