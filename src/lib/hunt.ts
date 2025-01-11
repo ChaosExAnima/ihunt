@@ -1,11 +1,14 @@
 'use server';
 
+import { HuntModel } from '@/components/hunt/consts';
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 import { HuntStatus } from './constants';
 import { db } from './db';
 import { fetchCurrentUser, forceAdmin } from './user';
+
+export type AdminHunts = { [key in HuntStatus]?: HuntModel[] };
 
 export async function acceptHunt(id: number) {
 	const user = await fetchCurrentUser();
@@ -80,13 +83,8 @@ export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
 
 export async function fetchAdminHunts() {
 	await forceAdmin();
-	return db.hunt.findMany({
+	const hunts = await db.hunt.findMany({
 		include: {
-			_count: {
-				select: {
-					hunters: true,
-				},
-			},
 			hunters: {
 				include: {
 					avatar: true,
@@ -105,6 +103,13 @@ export async function fetchAdminHunts() {
 			},
 		},
 	});
+	return hunts.reduce<AdminHunts>(
+		(prev, hunt) => ({
+			...prev,
+			[hunt.status]: (prev[hunt.status as HuntStatus] ?? []).concat(hunt),
+		}),
+		{},
+	);
 }
 export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
 	const user = await fetchCurrentUser();

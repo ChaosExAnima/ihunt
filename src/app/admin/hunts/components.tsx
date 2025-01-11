@@ -1,40 +1,46 @@
 'use client';
 
 import Avatar, { AvatarEmpty } from '@/components/avatar';
+import Header from '@/components/header';
 import { HuntModel } from '@/components/hunt/consts';
 import PhotoDisplay from '@/components/photo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { fetchFromApi } from '@/lib/api';
 import { HuntStatus } from '@/lib/constants';
+import { AdminHunts } from '@/lib/hunt';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-interface HuntListProps {
-	hunts: HuntModel[];
-}
-
 interface HuntProps {
 	hunt: HuntModel;
 }
 
-export function HuntList({ hunts: pageHunts }: HuntListProps) {
-	const { data: hunts, isLoading } = useQuery<HuntModel[]>({
-		placeholderData: pageHunts,
+export function HuntList() {
+	const { data: hunts, isLoading } = useQuery<AdminHunts>({
 		queryFn: () => fetchFromApi('/admin/api/hunts'),
 		queryKey: ['hunts'],
 	});
-	if (isLoading || !Array.isArray(hunts)) {
-		return '...';
+	if (isLoading || !hunts) {
+		return <HuntListLoading />;
 	}
 	return (
-		<div className="grid grid-cols-3 gap-4">
-			{hunts.map((hunt) => (
-				<HuntCard hunt={hunt} key={hunt.id} />
+		<>
+			{Object.entries(hunts).map(([status, typeHunts]) => (
+				<section key={status}>
+					<Header className="mb-4" level={3}>
+						{status}
+					</Header>
+					<div className="grid grid-cols-3 gap-4">
+						{typeHunts.map((hunt) => (
+							<HuntCard hunt={hunt} key={hunt.id} />
+						))}
+					</div>
+				</section>
 			))}
-		</div>
+		</>
 	);
 }
 
@@ -50,7 +56,7 @@ function HuntCard({ hunt }: HuntProps) {
 		);
 	}, [hunt.maxHunters, hunt.hunters.length]);
 	return (
-		<Card key={hunt.id}>
+		<Card>
 			<CardContent className="mt-6">
 				<div className="relative rounded-lg overflow-hidden">
 					{photo && (
@@ -72,13 +78,41 @@ function HuntCard({ hunt }: HuntProps) {
 				<ul className="flex gap-2 mt-2">
 					{hunt.hunters.map((hunter) => (
 						<li key={hunter.id}>
-							<Avatar hunter={hunter} />
+							<Button className="rounded-full" size="icon">
+								<Avatar hunter={hunter} />
+							</Button>
 						</li>
 					))}
 					{emptyAvatars}
 				</ul>
 			</CardContent>
 		</Card>
+	);
+}
+
+function HuntListLoading({ length = 3 }: { length?: number }) {
+	const hunts = useMemo(() => Array.from(Array(length).keys()), [length]);
+	return (
+		<div className="grid grid-cols-3 gap-4">
+			{hunts.map((index) => (
+				<Card key={index}>
+					<CardContent className="mt-6">
+						<div className="aspect-square animate-pulse bg-stone-800 rounded-lg" />
+						<ul className="flex gap-2 mt-2">
+							<li>
+								<AvatarEmpty />
+							</li>
+							<li>
+								<AvatarEmpty />
+							</li>
+							<li>
+								<AvatarEmpty />
+							</li>
+						</ul>
+					</CardContent>
+				</Card>
+			))}
+		</div>
 	);
 }
 
