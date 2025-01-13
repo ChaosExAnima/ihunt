@@ -40,7 +40,7 @@ export async function acceptHunt(id: number) {
 		});
 		console.log(`${user.name} canceled hunt with ID ${id}`);
 	} else {
-		const hunt = await db.hunt.update({
+		await db.hunt.update({
 			data: {
 				hunters: {
 					connect: {
@@ -48,17 +48,8 @@ export async function acceptHunt(id: number) {
 					},
 				},
 			},
-			include: {
-				hunters: { select: { id: true } },
-			},
 			where: { id },
 		});
-		if (hunt.hunters.length === hunt.maxHunters) {
-			await db.hunt.update({
-				data: { status: HuntStatus.Active },
-				where: { id },
-			});
-		}
 		console.log(`${user.name} accepted hunt with ID ${id}`);
 	}
 
