@@ -1,10 +1,8 @@
 'use client';
 
-import { HuntStatus } from '@/lib/constants';
+import { HuntModel, HuntStatus } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { CircleCheckBig, Crosshair } from 'lucide-react';
-
-import type { HuntModel } from '@/lib/hunt';
 
 import DateDisplay from '../date';
 import Header from '../header';

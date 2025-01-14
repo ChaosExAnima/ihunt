@@ -1,24 +1,13 @@
+'use server';
+
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
-import { HuntStatus } from './constants';
+import { HuntModel, HuntStatus } from './constants';
 import { db } from './db';
 import { fetchCurrentUser, forceAdmin } from './user';
 
 export type AdminHunts = { [key in HuntStatus]?: HuntModel[] };
-
-export type HuntModel = Prisma.HuntGetPayload<{
-	include: typeof huntDisplayInclude;
-}>;
-
-export const huntDisplayInclude = {
-	hunters: {
-		include: {
-			avatar: true,
-		},
-	},
-	photos: true,
-} as const satisfies Prisma.HuntInclude;
 
 export async function acceptHunt(id: number) {
 	const user = await fetchCurrentUser();

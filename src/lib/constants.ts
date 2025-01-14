@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 export enum HuntStatus {
@@ -17,3 +18,16 @@ export const huntStatusNames: Record<HuntStatus, string> = {
 };
 
 export const huntStatus = z.nativeEnum(HuntStatus).default(HuntStatus.Pending);
+
+export type HuntModel = Prisma.HuntGetPayload<{
+	include: typeof huntDisplayInclude;
+}>;
+
+export const huntDisplayInclude = {
+	hunters: {
+		include: {
+			avatar: true,
+		},
+	},
+	photos: true,
+} as const satisfies Prisma.HuntInclude;

@@ -8,7 +8,7 @@ import {
 	CarouselItem,
 } from '@/components/ui/carousel';
 import { HuntStatus } from '@/lib/constants';
-import { HuntModel } from '@/lib/hunt';
+import { HuntModel } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 

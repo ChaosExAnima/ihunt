@@ -1,5 +1,6 @@
+import { HuntModel } from '@/lib/constants';
+
 import HunterList from '../hunter-list';
-import { HuntModel } from '@/lib/hunt';
 import { HuntProps } from './index';
 
 interface HuntHuntersDisplayProps {
