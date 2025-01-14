@@ -1,7 +1,7 @@
 import { HunterRow } from '@/app/admin/api/hunter/route';
+import { fetchFromApi } from '@/lib/api';
+import { useMutation } from '@tanstack/react-query';
 import {
-	ArrayField,
-	ChipField,
 	Create,
 	Datagrid,
 	Edit,
@@ -10,12 +10,12 @@ import {
 	NumberField,
 	NumberInput,
 	SimpleForm,
-	SingleFieldList,
 	TextField,
 	TextInput,
 } from 'react-admin';
 
 import PhotoDisplay from '../photo';
+import ChipListField from './chip-list';
 
 export function HunterCreate() {
 	return (
@@ -39,6 +39,25 @@ export function HunterEdit() {
 }
 
 export function HunterList() {
+	const { isPending, mutate } = useMutation({
+		mutationFn: ({
+			hunterId,
+			huntId,
+		}: {
+			hunterId: number;
+			huntId: number;
+		}) =>
+			fetchFromApi('/admin/api/hunt/hunters', {
+				body: {
+					hunterId,
+					huntId,
+				},
+				method: 'DELETE',
+			}),
+	});
+	const handleDelete = async (hunterId: number, huntId: number) => {
+		await mutate({ hunterId, huntId });
+	};
 	return (
 		<List>
 			<Datagrid bulkActionButtons={false}>
@@ -65,17 +84,15 @@ export function HunterList() {
 					source="money"
 					textAlign="left"
 				/>
-				<ArrayField label="Hunts" sortable={false} source="hunts">
-					<SingleFieldList
-						empty={
-							<em className="text-primary-foreground dark:text-secondary-foreground">
-								No hunts yet
-							</em>
-						}
-					>
-						<ChipField source="name" />
-					</SingleFieldList>
-				</ArrayField>
+				<ChipListField
+					empty="No hunts yet"
+					fieldSource="name"
+					isLoading={isPending}
+					label="Hunts"
+					onDelete={handleDelete}
+					sortable={false}
+					source="hunts"
+				/>
 			</Datagrid>
 		</List>
 	);
