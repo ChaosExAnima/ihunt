@@ -4,12 +4,9 @@ import { NextResponse } from 'next/server';
 import {
 	defaultHandler,
 	getListHandler,
+	getOneHandler,
 	RaPayload,
 } from 'ra-data-simple-prisma';
-
-export type HunterRow = Prisma.HunterGetPayload<{
-	include: { avatar: true };
-}>;
 
 const route = async (req: Request) => {
 	const body: RaPayload<Prisma.ModelName> = await req.json();
@@ -23,6 +20,19 @@ const route = async (req: Request) => {
 					include: {
 						avatar: true,
 						hunts: true,
+					},
+				},
+			);
+			return NextResponse.json(result);
+		}
+		case 'getOne': {
+			const result = await getOneHandler<Prisma.HunterFindUniqueArgs>(
+				body,
+				db.hunter,
+				{
+					include: {
+						avatar: true,
+						photos: true,
 					},
 				},
 			);
