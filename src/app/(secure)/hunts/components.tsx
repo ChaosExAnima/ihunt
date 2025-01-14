@@ -1,7 +1,6 @@
 'use client';
 
 import HuntDisplay from '@/components/hunt';
-import { HuntModel } from '@/components/hunt/consts';
 import {
 	Carousel,
 	CarouselApi,
@@ -9,6 +8,7 @@ import {
 	CarouselItem,
 } from '@/components/ui/carousel';
 import { HuntStatus } from '@/lib/constants';
+import { HuntModel } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 

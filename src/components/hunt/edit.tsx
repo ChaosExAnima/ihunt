@@ -1,6 +1,7 @@
 'use client';
 
 import { huntStatus, HuntStatus } from '@/lib/constants';
+import { HuntModel } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, X } from 'lucide-react';
@@ -20,7 +21,6 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
-import { HuntModel } from './consts';
 
 const huntSchema = z.object({
 	description: z.string(),

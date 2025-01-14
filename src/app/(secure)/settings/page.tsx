@@ -6,6 +6,12 @@ import Link from 'next/link';
 
 import { AvatarReplaceButton, SettingBlock } from './components';
 
+const formatter = new Intl.NumberFormat('de-DE', {
+	currency: 'EUR',
+	maximumFractionDigits: 0,
+	style: 'currency',
+});
+
 export default async function SettingsPage() {
 	const user = await fetchCurrentUser();
 	return (
@@ -16,7 +22,7 @@ export default async function SettingsPage() {
 					<p>{user.name}</p>
 				</SettingBlock>
 				<SettingBlock label="Cash">
-					<p>$0</p>
+					<p>{formatter.format(user.money)}</p>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					<Avatar hunter={user} />
