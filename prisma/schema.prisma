@@ -28,8 +28,6 @@ model Hunter {
     id       Int     @id @default(autoincrement())
     name     String
     hunts    Hunt[]
-    userId   String  @unique
-    email    String
     photos   Photo[] @relation("Photos")
     avatar   Photo?  @relation("Avatar", fields: [avatarId], references: [id])
     avatarId Int?    @unique
