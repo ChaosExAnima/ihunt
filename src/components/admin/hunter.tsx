@@ -30,7 +30,7 @@ export function HunterCreate() {
 		<Create>
 			<SimpleForm>
 				<TextInput source="name" />
-				<NumberInput source="money" />
+				<NumberInput defaultValue={0} source="money" />
 			</SimpleForm>
 		</Create>
 	);
