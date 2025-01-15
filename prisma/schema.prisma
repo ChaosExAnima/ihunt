@@ -14,12 +14,14 @@ model Hunt {
     completedAt DateTime?
     name        String
     description String
-    status      String
-    maxHunters  Int
+    status      String    @default("pending")
+    maxHunters  Int       @default(4)
     danger      Int       @default(1)
     hunters     Hunter[]
     photos      Photo[]
     rating      Float?
+    comment     String?
+    payment     Int
 
     @@index([status])
 }

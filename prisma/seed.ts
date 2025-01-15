@@ -15,6 +15,7 @@ async function main() {
 					id: 1,
 					maxHunters: 2,
 					name: 'Werewolf',
+					payment: 1_000,
 					status: HuntStatus.Available,
 				},
 				{
@@ -23,6 +24,7 @@ async function main() {
 					id: 2,
 					maxHunters: 4,
 					name: 'Vampire',
+					payment: 10_000,
 					status: HuntStatus.Available,
 				},
 				{
@@ -31,6 +33,7 @@ async function main() {
 					id: 3,
 					maxHunters: 4,
 					name: 'Zombie',
+					payment: 20,
 					status: HuntStatus.Pending,
 				},
 				{
@@ -39,6 +42,7 @@ async function main() {
 					id: 4,
 					maxHunters: 1,
 					name: 'Ashed Vampire',
+					payment: 10_000,
 					status: HuntStatus.Complete,
 				},
 			],
