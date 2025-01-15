@@ -10,6 +10,7 @@ import {
 	List,
 	NumberField,
 	NumberInput,
+	SearchInput,
 	SimpleForm,
 	TextField,
 	TextInput,
@@ -51,6 +52,7 @@ export function HunterEdit() {
 						<figcaption>
 							Avatar{' '}
 							<DeleteButton
+								mutationMode="pessimistic"
 								record={{ id: record.avatar.id }}
 								redirect={false}
 								resource="photo"
@@ -64,6 +66,8 @@ export function HunterEdit() {
 		</Edit>
 	);
 }
+
+const listFilters = [<SearchInput alwaysOn key="1" source="name" />];
 
 export function HunterList() {
 	const { isPending, mutate } = useMutation({
@@ -86,7 +90,7 @@ export function HunterList() {
 		await mutate({ hunterId, huntId });
 	};
 	return (
-		<List>
+		<List filters={listFilters}>
 			<Datagrid
 				bulkActionButtons={false}
 				sort={{ field: 'id', order: 'ASC' }}
