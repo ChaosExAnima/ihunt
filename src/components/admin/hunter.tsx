@@ -1,3 +1,5 @@
+'use client';
+
 import { fetchFromApi } from '@/lib/api';
 import { Prisma } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
@@ -37,10 +39,7 @@ export function HunterCreate() {
 }
 
 export function HunterEdit() {
-	const { record } =
-		useEditController<
-			Prisma.HunterGetPayload<{ include: { avatar: true } }>
-		>();
+	const { record } = useEditController<HunterRow>();
 	return (
 		<Edit>
 			<SimpleForm>

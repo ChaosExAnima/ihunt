@@ -2,8 +2,9 @@
 
 import { Crosshair, UserRound } from 'lucide-react';
 import { dataProvider } from 'ra-data-simple-prisma';
-import { Admin, EditGuesser, ListGuesser, Resource } from 'react-admin';
+import { Admin, Resource } from 'react-admin';
 
+import { HuntCreate, HuntEdit, HuntList } from './hunt';
 import { HunterCreate, HunterEdit, HunterList } from './hunter';
 
 export default function AdminApp() {
@@ -18,9 +19,10 @@ export default function AdminApp() {
 				recordRepresentation="name"
 			/>
 			<Resource
-				edit={EditGuesser}
+				create={HuntCreate}
+				edit={HuntEdit}
 				icon={Crosshair}
-				list={ListGuesser}
+				list={HuntList}
 				name="hunt"
 				recordRepresentation="name"
 			/>

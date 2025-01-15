@@ -31,3 +31,15 @@ export const huntDisplayInclude = {
 	},
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
+
+export const huntSchema = z.object({
+	comment: z.string().nullable(),
+	completedAt: z.coerce.date().nullable().default(null),
+	danger: z.number().int().min(1).max(3).default(1),
+	description: z.string().default(''),
+	maxHunters: z.number().int().min(1).max(4).default(1),
+	name: z.string().min(1),
+	rating: z.number().int().min(0).max(5).default(0),
+	scheduledAt: z.coerce.date().nullable().default(null),
+	status: huntStatus,
+});
