@@ -1,6 +1,11 @@
 'use client';
 
-import { HuntModel, huntSchema } from '@/lib/constants';
+import {
+	HuntModel,
+	huntSchema,
+	HuntStatus,
+	HuntStatusValues,
+} from '@/lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	Create,
@@ -12,12 +17,16 @@ import {
 	List,
 	NumberField,
 	NumberInput,
+	SelectArrayInput,
+	SelectInput,
 	SimpleForm,
 	TextField,
 	TextInput,
 } from 'react-admin';
 
 import HunterList from '../hunter-list';
+
+type HuntStatusNames = Array<keyof typeof HuntStatus>;
 
 export function HuntCreate() {
 	return (
@@ -35,9 +44,27 @@ export function HuntEdit() {
 	);
 }
 
+function huntStatusChoices(disabled: HuntStatusValues[] = []) {
+	const statusNames = Object.keys(HuntStatus) as HuntStatusNames;
+	return statusNames.map((status) => ({
+		disabled: disabled.includes(HuntStatus[status]),
+		id: HuntStatus[status],
+		name: status,
+	}));
+}
+
+const listFilters = [
+	<SelectArrayInput
+		alwaysOn
+		choices={huntStatusChoices()}
+		key="1"
+		source="status"
+	/>,
+];
+
 export function HuntList() {
 	return (
-		<List>
+		<List filters={listFilters}>
 			<Datagrid
 				bulkActionButtons={false}
 				sort={{ field: 'id', order: 'ASC' }}
@@ -45,7 +72,11 @@ export function HuntList() {
 				<NumberField source="id" />
 				<TextField source="name" />
 				<TextField source="status" />
-				<DateField label="Scheduled for" source="scheduledAt" />
+				<DateField
+					emptyText="Not scheduled"
+					label="Scheduled for"
+					source="scheduledAt"
+				/>
 				<NumberField
 					locales="de-DE"
 					options={{
@@ -73,15 +104,32 @@ export function HuntList() {
 function HuntForm({}: { create?: boolean }) {
 	return (
 		<SimpleForm resolver={zodResolver(huntSchema)}>
-			<TextInput required source="name" />
-			<TextInput required source="description" />
-			<DateTimeInput source="scheduledAt" />
-			<NumberInput source="payment" />
-			<NumberInput defaultValue={4} max={4} min={1} source="maxHunters" />
-			<NumberInput defaultValue={1} max={3} min={1} source="danger" />
-			<DateTimeInput source="completedAt" />
-			<NumberInput max={5} min={0} source="rating" />
-			<TextInput source="comment" />
+			<div className="grid grid-cols-2 gap-4">
+				<TextInput required source="name" />
+				<SelectInput
+					choices={huntStatusChoices([])}
+					required
+					source="status"
+				/>
+				<TextInput
+					className="col-span-2"
+					multiline
+					required
+					source="description"
+				/>
+				<NumberInput source="payment" />
+				<NumberInput defaultValue={1} max={3} min={1} source="danger" />
+				<DateTimeInput source="scheduledAt" />
+				<NumberInput
+					defaultValue={4}
+					max={4}
+					min={1}
+					source="maxHunters"
+				/>
+				<DateTimeInput source="completedAt" />
+				<NumberInput max={5} min={0} source="rating" />
+				<TextInput className="col-span-2" multiline source="comment" />
+			</div>
 		</SimpleForm>
 	);
 }
