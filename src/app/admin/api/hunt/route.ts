@@ -19,10 +19,6 @@ const route = async (req: Request) => {
 			const { data: rawData } = body.params as CreateParams<Hunt>;
 			const data = huntSchema.parse(rawData);
 			body.params.data = data;
-			console.log(body, data);
-			// await db.hunt.create({
-			// 	data
-			// });
 			try {
 				const result = await createHandler<Prisma.HuntCreateArgs>(
 					body,
