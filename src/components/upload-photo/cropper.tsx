@@ -7,6 +7,7 @@ import ReactCrop, {
 	PercentCrop,
 	PixelCrop,
 } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 interface UploadCropperProps extends PropsWithChildren {
 	aspect?: number;

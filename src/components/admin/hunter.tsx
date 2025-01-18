@@ -17,10 +17,12 @@ import {
 	TextField,
 	TextInput,
 	useEditController,
+	useRefresh,
 } from 'react-admin';
 
 import Avatar from '../avatar';
 import PhotoDisplay from '../photo';
+import UploadPhoto from '../upload-photo';
 import ChipListField from './chip-list';
 
 type HunterRow = Prisma.HunterGetPayload<{
@@ -40,6 +42,28 @@ export function HunterCreate() {
 
 export function HunterEdit() {
 	const { record } = useEditController<HunterRow>();
+	const refresh = useRefresh();
+	const { mutateAsync } = useMutation({
+		async mutationFn(blob: Blob) {
+			if (!record?.id) {
+				throw new Error('No record ID');
+			}
+			const { success } = await fetchFromApi<{ success: boolean }>(
+				`/admin/api/photo/upload?avatar=true&hunterId=${record.id}`,
+				{
+					body: blob,
+					method: 'POST',
+				},
+			);
+			if (!success) {
+				throw new Error('Not able to upload image');
+			}
+			return true;
+		},
+		onSuccess() {
+			refresh();
+		},
+	});
 	return (
 		<Edit>
 			<SimpleForm>
@@ -52,6 +76,7 @@ export function HunterEdit() {
 							Avatar{' '}
 							<DeleteButton
 								mutationMode="pessimistic"
+								mutationOptions={{ onSuccess: () => refresh() }}
 								record={{ id: record.avatar.id }}
 								redirect={false}
 								resource="photo"
@@ -60,7 +85,7 @@ export function HunterEdit() {
 						</figcaption>
 					</figure>
 				)}
-				{/* TODO: Handle photos */}
+				<UploadPhoto circular onCrop={mutateAsync} title="Avatar" />
 			</SimpleForm>
 		</Edit>
 	);

@@ -38,7 +38,7 @@ model Hunter {
 
 model Photo {
     id       Int     @id @default(autoincrement())
-    path     String
+    path     String  @unique
     width    Int
     height   Int
     blurry   String?

@@ -10,8 +10,8 @@ import { fetchBlurry } from './image-loader';
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
-	hunterId?: number;
-	huntId?: number;
+	hunterId?: null | number;
+	huntId?: null | number;
 	name?: string;
 }
 

@@ -6,7 +6,6 @@ import UploadPhoto from '@/components/upload-photo';
 import { fetchFromApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { PropsWithChildren, useCallback } from 'react';
-import 'react-image-crop/dist/ReactCrop.css';
 import { z } from 'zod';
 
 interface SettingBlockProps extends PropsWithChildren {

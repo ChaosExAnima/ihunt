@@ -1,8 +1,8 @@
 'use client';
 
-import { Crosshair, UserRound } from 'lucide-react';
+import { Crosshair, Image, UserRound } from 'lucide-react';
 import { dataProvider } from 'ra-data-simple-prisma';
-import { Admin, Resource } from 'react-admin';
+import { Admin, EditGuesser, ListGuesser, Resource } from 'react-admin';
 
 import { HuntCreate, HuntEdit, HuntList } from './hunt';
 import { HunterCreate, HunterEdit, HunterList } from './hunter';
@@ -25,6 +25,13 @@ export default function AdminApp() {
 				list={HuntList}
 				name="hunt"
 				recordRepresentation="name"
+			/>
+			<Resource
+				edit={EditGuesser}
+				icon={Image}
+				list={ListGuesser}
+				name="photo"
+				recordRepresentation="path"
 			/>
 		</Admin>
 	);

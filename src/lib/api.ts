@@ -34,3 +34,9 @@ export const fetchFn = async <Data>(
 ) => {
 	return () => fetchFromApi<Data>(...args);
 };
+
+export const idSchema = z.number().int().positive().min(1);
+export const idSchemaCoerce = z.preprocess(
+	(arg) => (typeof arg === 'string' ? Number.parseInt(arg) : arg),
+	idSchema,
+);

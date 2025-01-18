@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
 		const photo = await uploadPhoto({
 			buffer: body,
 			hunterId: user.id,
-			name: `avatar-${user.id}.jpg`,
 		});
 		await db.hunter.update({
 			data: {
