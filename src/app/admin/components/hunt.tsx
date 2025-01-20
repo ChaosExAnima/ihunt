@@ -3,6 +3,7 @@
 import HunterList from '@/components/hunter-list';
 import {
 	HuntModel,
+	HuntSchema,
 	huntSchema,
 	HuntStatus,
 	HuntStatusValues,
@@ -10,7 +11,6 @@ import {
 } from '@/lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Hunter } from '@prisma/client';
-import { PropsWithChildren } from 'react';
 import {
 	AutocompleteArrayInput,
 	AutocompleteArrayInputProps,
@@ -39,7 +39,31 @@ const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
 export function HuntCreate() {
 	return (
 		<Create transform={huntTransform}>
-			<HuntForm />
+			<SimpleForm resolver={zodResolver(huntSchema)}>
+				<div className="grid grid-cols-2 gap-4">
+					<TextInput required source="name" />
+					<TextInput
+						className="col-span-2"
+						multiline
+						required
+						source="description"
+					/>
+					<NumberInput min={0} source="payment" step={10} />
+					<NumberInput
+						defaultValue={1}
+						max={3}
+						min={1}
+						source="danger"
+					/>
+					<DateTimeInput source="scheduledAt" />
+					<NumberInput
+						defaultValue={4}
+						max={4}
+						min={1}
+						source="maxHunters"
+					/>
+				</div>
+			</SimpleForm>
 		</Create>
 	);
 }
@@ -47,7 +71,85 @@ export function HuntCreate() {
 export function HuntEdit() {
 	return (
 		<Edit transform={huntTransform}>
-			<HuntForm />
+			<SimpleForm resolver={zodResolver(huntSchema)}>
+				<div className="grid grid-cols-2 gap-4">
+					<TextInput required source="name" />
+					<SelectInput
+						choices={huntStatusChoices([])}
+						required
+						source="status"
+					/>
+					<TextInput
+						className="col-span-2"
+						multiline
+						required
+						source="description"
+					/>
+					<FormDataConsumer<HuntSchema>>
+						{({ formData: { status }, ...rest }) => {
+							const completed = status === HuntStatus.Complete;
+							return (
+								<>
+									<NumberInput
+										{...rest}
+										disabled={completed}
+										min={0}
+										source="payment"
+										step={10}
+									/>
+									<NumberInput
+										{...rest}
+										defaultValue={1}
+										disabled={completed}
+										max={3}
+										min={1}
+										source="danger"
+									/>
+									<DateTimeInput
+										{...rest}
+										disabled={completed}
+										source="scheduledAt"
+									/>
+									<NumberInput
+										{...rest}
+										defaultValue={4}
+										disabled={completed}
+										max={4}
+										min={1}
+										source="maxHunters"
+									/>
+									<EditHunters
+										{...rest}
+										className="col-span-2"
+										disabled={completed}
+									/>
+									{completed && (
+										<>
+											<DateTimeInput
+												{...rest}
+												source="completedAt"
+											/>
+											<NumberInput
+												{...rest}
+												defaultValue={5}
+												max={5}
+												min={1}
+												source="rating"
+											/>
+											<TextInput
+												{...rest}
+												className="col-span-2"
+												multiline
+												source="comment"
+											/>
+										</>
+									)}
+								</>
+							);
+						}}
+					</FormDataConsumer>
+				</div>
+			</SimpleForm>
 		</Edit>
 	);
 }
@@ -138,66 +240,5 @@ export function HuntList() {
 				/>
 			</Datagrid>
 		</List>
-	);
-}
-
-function HuntForm({ children }: PropsWithChildren) {
-	return (
-		<SimpleForm resolver={zodResolver(huntSchema)}>
-			<div className="grid grid-cols-2 gap-4">
-				<TextInput required source="name" />
-				<SelectInput
-					choices={huntStatusChoices([])}
-					required
-					source="status"
-				/>
-				<TextInput
-					className="col-span-2"
-					multiline
-					required
-					source="description"
-				/>
-				<NumberInput min={0} source="payment" step={10} />
-				<NumberInput defaultValue={1} max={3} min={1} source="danger" />
-				<DateTimeInput source="scheduledAt" />
-				<NumberInput
-					defaultValue={4}
-					max={4}
-					min={1}
-					source="maxHunters"
-				/>
-				<FormDataConsumer<Zod.infer<typeof huntSchema>>>
-					{({ formData, ...rest }) => {
-						if (formData.status === HuntStatus.Complete) {
-							return (
-								<>
-									<DateTimeInput
-										{...rest}
-										source="completedAt"
-									/>
-									<NumberInput
-										{...rest}
-										defaultValue={0}
-										max={5}
-										min={0}
-										source="rating"
-									/>
-									<TextInput
-										{...rest}
-										className="col-span-2"
-										multiline
-										source="comment"
-									/>
-								</>
-							);
-						} else {
-							return <EditHunters className="col-span-2" />;
-						}
-					}}
-				</FormDataConsumer>
-
-				{children}
-			</div>
-		</SimpleForm>
 	);
 }

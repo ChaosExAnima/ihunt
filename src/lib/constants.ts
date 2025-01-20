@@ -47,3 +47,4 @@ export const huntSchema = z.object({
 	scheduledAt: z.coerce.date().nullable().default(null),
 	status: huntStatus,
 });
+export type HuntSchema = Zod.infer<typeof huntSchema>;
