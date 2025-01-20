@@ -154,13 +154,12 @@ export function HuntEdit() {
 	);
 }
 
-function EditHunters(props: AutocompleteArrayInputProps<Hunter>) {
+function EditHunters(props: AutocompleteArrayInputProps) {
 	const { field } = useInput({ source: 'hunters' });
 	const { data = [] } = useGetList<Hunter>('hunter');
 
 	return (
-		// @ts-expect-error Minor difference in Hunter
-		<AutocompleteArrayInput<Hunter>
+		<AutocompleteArrayInput
 			{...props}
 			{...field}
 			choices={data}
