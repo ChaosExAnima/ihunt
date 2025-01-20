@@ -1,4 +1,3 @@
-import PhotoDisplay from '@/components/photo';
 import { Photo } from '@prisma/client';
 import {
 	BooleanField,
@@ -10,6 +9,8 @@ import {
 	TextField,
 	useRecordContext,
 } from 'react-admin';
+
+import PhotoDisplay from '@/components/photo';
 
 import { AdminHunter } from './hunter-list';
 

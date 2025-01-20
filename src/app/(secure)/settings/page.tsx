@@ -1,9 +1,10 @@
+import Link from 'next/link';
+
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { currencyFormatter } from '@/lib/constants';
 import { fetchCurrentUser } from '@/lib/user';
-import Link from 'next/link';
 
 import { AvatarReplaceButton, SettingBlock } from './components';
 

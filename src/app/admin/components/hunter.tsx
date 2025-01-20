@@ -1,10 +1,5 @@
 'use client';
 
-import Avatar from '@/components/avatar';
-import PhotoDisplay from '@/components/photo';
-import UploadPhoto from '@/components/upload-photo';
-import { fetchFromApi } from '@/lib/api';
-import { Locale } from '@/lib/constants';
 import { Prisma } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import {
@@ -23,6 +18,12 @@ import {
 	useEditController,
 	useRefresh,
 } from 'react-admin';
+
+import Avatar from '@/components/avatar';
+import PhotoDisplay from '@/components/photo';
+import UploadPhoto from '@/components/upload-photo';
+import { fetchFromApi } from '@/lib/api';
+import { Locale } from '@/lib/constants';
 
 import ChipListField from './chip-list';
 

@@ -1,6 +1,7 @@
-import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { defaultHandler } from 'ra-data-simple-prisma';
+
+import { db } from '@/lib/db';
 
 const handler = async (req: Request) => {
 	const body = await req.json();

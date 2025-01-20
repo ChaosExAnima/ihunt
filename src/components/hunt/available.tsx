@@ -1,7 +1,8 @@
-import { acceptHunt } from '@/lib/hunt';
-import { cn } from '@/lib/utils';
 import { CircleCheckBig, Skull, X } from 'lucide-react';
 import { useMemo } from 'react';
+
+import { acceptHunt } from '@/lib/hunt';
+import { cn } from '@/lib/utils';
 
 import DateDisplay from '../date';
 import Header from '../header';

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 
-import DevTools from '@/components/dev-tools';
+import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 
+import DevTools from '@/components/dev-tools';
 import { cn } from '@/lib/utils';
-import { Geist, Geist_Mono } from 'next/font/google';
 
 import { Providers } from './providers';
 

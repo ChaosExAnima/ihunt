@@ -1,8 +1,9 @@
 'use client';
 
-import { logInAs } from '@/lib/user';
 import { Hunter } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+
+import { logInAs } from '@/lib/user';
 
 import { Button } from './ui/button';
 

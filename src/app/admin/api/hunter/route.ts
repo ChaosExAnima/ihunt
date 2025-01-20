@@ -1,4 +1,3 @@
-import { db } from '@/lib/db';
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import {
@@ -7,6 +6,8 @@ import {
 	getOneHandler,
 	RaPayload,
 } from 'ra-data-simple-prisma';
+
+import { db } from '@/lib/db';
 
 const route = async (req: Request) => {
 	const body: RaPayload<Prisma.ModelName> = await req.json();

@@ -1,5 +1,6 @@
-import { db } from '@/lib/db';
 import { z } from 'zod';
+
+import { db } from '@/lib/db';
 
 const huntersSchema = z.object({
 	hunterId: z.coerce.number().min(1),

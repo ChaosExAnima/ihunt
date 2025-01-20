@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import HuntDisplay from '@/components/hunt';
 import {
 	Carousel,
@@ -10,7 +12,6 @@ import {
 import { HuntStatus } from '@/lib/constants';
 import { HuntModel } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
 
 interface HuntsCardsProps {
 	completed: HuntModel[];

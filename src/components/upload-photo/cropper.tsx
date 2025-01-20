@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import { cn } from '@/lib/utils';
 import { PropsWithChildren, RefObject, SyntheticEvent, useState } from 'react';
 import ReactCrop, {
 	centerCrop,
@@ -7,6 +6,9 @@ import ReactCrop, {
 	PercentCrop,
 	PixelCrop,
 } from 'react-image-crop';
+
+import { cn } from '@/lib/utils';
+
 import 'react-image-crop/dist/ReactCrop.css';
 
 interface UploadCropperProps extends PropsWithChildren {

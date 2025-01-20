@@ -1,7 +1,5 @@
 import type { CreateParams } from 'react-admin';
 
-import { huntSchema } from '@/lib/constants';
-import { db } from '@/lib/db';
 import { Hunt, Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import {
@@ -12,6 +10,9 @@ import {
 	RaPayload,
 	updateHandler,
 } from 'ra-data-simple-prisma';
+
+import { huntSchema } from '@/lib/constants';
+import { db } from '@/lib/db';
 
 const route = async (req: Request) => {
 	const body: RaPayload<'Hunt'> = await req.json();

@@ -1,8 +1,9 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { idSchemaCoerce } from '@/lib/api';
 import { db } from '@/lib/db';
 import { uploadPhoto } from '@/lib/photo';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 
 export async function POST(request: NextRequest) {
 	const params = request.nextUrl.searchParams;
