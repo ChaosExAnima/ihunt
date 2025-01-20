@@ -1,6 +1,7 @@
 'use client';
 
 import { fetchFromApi } from '@/lib/api';
+import { Locale } from '@/lib/constants';
 import { Prisma } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import {
@@ -132,7 +133,7 @@ export function HunterList() {
 					sortable={false}
 				/>
 				<NumberField
-					locales="de-DE"
+					locales={Locale}
 					options={{
 						currency: 'EUR',
 						maximumFractionDigits: 0,
@@ -155,7 +156,7 @@ export function HunterList() {
 	);
 }
 
-const numberFormatter = new Intl.NumberFormat('de-DE', {
+const numberFormatter = new Intl.NumberFormat(Locale, {
 	minimumFractionDigits: 1,
 });
 

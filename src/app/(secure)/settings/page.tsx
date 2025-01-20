@@ -1,16 +1,11 @@
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
+import { currencyFormatter } from '@/lib/constants';
 import { fetchCurrentUser } from '@/lib/user';
 import Link from 'next/link';
 
 import { AvatarReplaceButton, SettingBlock } from './components';
-
-const formatter = new Intl.NumberFormat('de-DE', {
-	currency: 'EUR',
-	maximumFractionDigits: 0,
-	style: 'currency',
-});
 
 export default async function SettingsPage() {
 	const user = await fetchCurrentUser();
@@ -22,7 +17,7 @@ export default async function SettingsPage() {
 					<p>{user.name}</p>
 				</SettingBlock>
 				<SettingBlock label="Cash">
-					<p>{formatter.format(user.money)}</p>
+					<p>{currencyFormatter.format(user.money)}</p>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					<Avatar hunter={user} />

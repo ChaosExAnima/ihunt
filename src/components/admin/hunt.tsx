@@ -5,14 +5,20 @@ import {
 	huntSchema,
 	HuntStatus,
 	HuntStatusValues,
+	Locale,
 } from '@/lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Hunter } from '@prisma/client';
+import { PropsWithChildren } from 'react';
 import {
+	AutocompleteArrayInput,
+	AutocompleteArrayInputProps,
 	Create,
 	Datagrid,
 	DateField,
 	DateTimeInput,
 	Edit,
+	FormDataConsumer,
 	FunctionField,
 	List,
 	NumberField,
@@ -22,35 +28,70 @@ import {
 	SimpleForm,
 	TextField,
 	TextInput,
+	useGetList,
+	useInput,
 } from 'react-admin';
 
 import HunterList from '../hunter-list';
 
-type HuntStatusNames = Array<keyof typeof HuntStatus>;
+type HuntStatusName = keyof typeof HuntStatus;
+const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
 
 export function HuntCreate() {
 	return (
-		<Create>
-			<HuntForm create />
+		<Create transform={huntTransform}>
+			<HuntForm />
 		</Create>
 	);
 }
 
 export function HuntEdit() {
 	return (
-		<Edit>
+		<Edit transform={huntTransform}>
 			<HuntForm />
 		</Edit>
 	);
 }
 
+function EditHunters(props: AutocompleteArrayInputProps<Hunter>) {
+	const { field } = useInput({ source: 'hunters' });
+	const { data = [] } = useGetList<Hunter>('hunter');
+
+	return (
+		// @ts-expect-error Minor difference in Hunter
+		<AutocompleteArrayInput<Hunter>
+			{...props}
+			{...field}
+			choices={data}
+			format={(hunters: Hunter[]) => hunters.map(({ id }) => id)}
+			onChange={(_v, records) => field.onChange(records)}
+			parse={(v: number[]) => data.filter(({ id }) => v.includes(id))}
+			source="hunters"
+		/>
+	);
+}
+
 function huntStatusChoices(disabled: HuntStatusValues[] = []) {
-	const statusNames = Object.keys(HuntStatus) as HuntStatusNames;
 	return statusNames.map((status) => ({
 		disabled: disabled.includes(HuntStatus[status]),
 		id: HuntStatus[status],
 		name: status,
 	}));
+}
+
+function huntTransform(
+	record: {
+		hunterIds: number[];
+		hunters?: { id: number }[];
+	} & Omit<HuntModel, 'hunters'>,
+) {
+	record.hunterIds = (record?.hunters ?? []).map(({ id }) => id);
+	delete record.hunters;
+	return record;
+}
+
+function renderHuntStatus(record: HuntModel) {
+	return statusNames.find((name) => HuntStatus[name] === record.status);
 }
 
 const listFilters = [
@@ -71,14 +112,14 @@ export function HuntList() {
 			>
 				<NumberField source="id" />
 				<TextField source="name" />
-				<TextField source="status" />
+				<FunctionField render={renderHuntStatus} source="status" />
 				<DateField
 					emptyText="Not scheduled"
 					label="Scheduled for"
 					source="scheduledAt"
 				/>
 				<NumberField
-					locales="de-DE"
+					locales={Locale}
 					options={{
 						currency: 'EUR',
 						maximumFractionDigits: 0,
@@ -101,7 +142,7 @@ export function HuntList() {
 	);
 }
 
-function HuntForm({}: { create?: boolean }) {
+function HuntForm({ children }: PropsWithChildren) {
 	return (
 		<SimpleForm resolver={zodResolver(huntSchema)}>
 			<div className="grid grid-cols-2 gap-4">
@@ -117,7 +158,7 @@ function HuntForm({}: { create?: boolean }) {
 					required
 					source="description"
 				/>
-				<NumberInput source="payment" />
+				<NumberInput min={0} source="payment" step={10} />
 				<NumberInput defaultValue={1} max={3} min={1} source="danger" />
 				<DateTimeInput source="scheduledAt" />
 				<NumberInput
@@ -126,9 +167,37 @@ function HuntForm({}: { create?: boolean }) {
 					min={1}
 					source="maxHunters"
 				/>
-				<DateTimeInput source="completedAt" />
-				<NumberInput max={5} min={0} source="rating" />
-				<TextInput className="col-span-2" multiline source="comment" />
+				<FormDataConsumer<Zod.infer<typeof huntSchema>>>
+					{({ formData, ...rest }) => {
+						if (formData.status === HuntStatus.Complete) {
+							return (
+								<>
+									<DateTimeInput
+										{...rest}
+										source="completedAt"
+									/>
+									<NumberInput
+										{...rest}
+										defaultValue={0}
+										max={5}
+										min={0}
+										source="rating"
+									/>
+									<TextInput
+										{...rest}
+										className="col-span-2"
+										multiline
+										source="comment"
+									/>
+								</>
+							);
+						} else {
+							return <EditHunters className="col-span-2" />;
+						}
+					}}
+				</FormDataConsumer>
+
+				{children}
 			</div>
 		</SimpleForm>
 	);
