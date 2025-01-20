@@ -1,5 +1,8 @@
 'use client';
 
+import Avatar from '@/components/avatar';
+import PhotoDisplay from '@/components/photo';
+import UploadPhoto from '@/components/upload-photo';
 import { fetchFromApi } from '@/lib/api';
 import { Locale } from '@/lib/constants';
 import { Prisma } from '@prisma/client';
@@ -21,9 +24,6 @@ import {
 	useRefresh,
 } from 'react-admin';
 
-import Avatar from '../avatar';
-import PhotoDisplay from '../photo';
-import UploadPhoto from '../upload-photo';
 import ChipListField from './chip-list';
 
 type HunterRow = Prisma.HunterGetPayload<{

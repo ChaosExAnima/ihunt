@@ -4,9 +4,9 @@ import { Crosshair, Image, UserRound } from 'lucide-react';
 import { dataProvider } from 'ra-data-simple-prisma';
 import { Admin, Resource } from 'react-admin';
 
-import { HuntCreate, HuntEdit, HuntList } from './hunt';
-import { HunterCreate, HunterEdit, HunterList } from './hunter';
-import { PhotoList } from './photo';
+import { HuntCreate, HuntEdit, HuntList } from './components/hunt';
+import { HunterCreate, HunterEdit, HunterList } from './components/hunter';
+import { PhotoList } from './components/photo';
 
 export default function AdminApp() {
 	return (

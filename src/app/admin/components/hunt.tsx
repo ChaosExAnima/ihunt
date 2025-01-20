@@ -1,5 +1,6 @@
 'use client';
 
+import HunterList from '@/components/hunter-list';
 import {
 	HuntModel,
 	huntSchema,
@@ -31,8 +32,6 @@ import {
 	useGetList,
 	useInput,
 } from 'react-admin';
-
-import HunterList from '../hunter-list';
 
 type HuntStatusName = keyof typeof HuntStatus;
 const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
