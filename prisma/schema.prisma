@@ -10,14 +10,18 @@ datasource db {
 model Hunt {
     id          Int       @id @default(autoincrement())
     createdAt   DateTime  @default(now())
+    scheduledAt DateTime?
     completedAt DateTime?
-    name        String    @default("")
+    name        String
     description String
-    status      String
-    maxHunters  Int
-    minRating   Float
+    status      String    @default("pending")
+    maxHunters  Int       @default(4)
+    danger      Int       @default(1)
     hunters     Hunter[]
     photos      Photo[]
+    rating      Float?
+    comment     String?
+    payment     Int
 
     @@index([status])
 }
@@ -25,18 +29,16 @@ model Hunt {
 model Hunter {
     id       Int     @id @default(autoincrement())
     name     String
-    rating   Float
     hunts    Hunt[]
-    userId   String  @unique
-    email    String
     photos   Photo[] @relation("Photos")
     avatar   Photo?  @relation("Avatar", fields: [avatarId], references: [id])
     avatarId Int?    @unique
+    money    Int     @default(0)
 }
 
 model Photo {
     id       Int     @id @default(autoincrement())
-    path     String
+    path     String  @unique
     width    Int
     height   Int
     blurry   String?

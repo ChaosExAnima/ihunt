@@ -10,8 +10,8 @@ import { fetchBlurry } from './image-loader';
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
-	hunterId?: number;
-	huntId?: number;
+	hunterId?: null | number;
+	huntId?: null | number;
 	name?: string;
 }
 
@@ -52,7 +52,12 @@ export async function uploadPhoto({
 	await b2.upload(buffer, fileName, fileType.mime);
 
 	// Fetch blurry version using Cloudflare image transforms
-	const blurryData = await fetchBlurry(fileName);
+	let blurryData: null | string = null;
+	try {
+		blurryData = await fetchBlurry(fileName);
+	} catch (err) {
+		console.warn(err);
+	}
 	return db.photo.create({
 		data: {
 			...dimensions,

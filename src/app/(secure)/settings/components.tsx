@@ -1,11 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { PropsWithChildren, useCallback } from 'react';
+import { z } from 'zod';
+
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import UploadPhoto from '@/components/upload-photo';
-import { useRouter } from 'next/navigation';
-import { PropsWithChildren, useCallback } from 'react';
-import 'react-image-crop/dist/ReactCrop.css';
+import { fetchFromApi } from '@/lib/api';
 
 interface SettingBlockProps extends PropsWithChildren {
 	id?: string;
@@ -16,15 +18,16 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	const router = useRouter();
 	const handleSubmit = useCallback(
 		async (blob: Blob) => {
-			const response = await fetch('/settings/avatar', {
-				body: blob,
-				method: 'POST',
-			});
-			if (!response.ok) {
-				console.error(response.status);
-				return;
-			}
-			const body = await response.json();
+			const body = await fetchFromApi(
+				'/settings/avatar',
+				{
+					body: blob,
+					method: 'POST',
+				},
+				z.object({
+					success: z.boolean(),
+				}),
+			);
 			router.refresh();
 			return body.success;
 		},

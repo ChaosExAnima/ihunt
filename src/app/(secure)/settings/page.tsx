@@ -1,8 +1,10 @@
+import Link from 'next/link';
+
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
+import { currencyFormatter } from '@/lib/constants';
 import { fetchCurrentUser } from '@/lib/user';
-import Link from 'next/link';
 
 import { AvatarReplaceButton, SettingBlock } from './components';
 
@@ -16,7 +18,7 @@ export default async function SettingsPage() {
 					<p>{user.name}</p>
 				</SettingBlock>
 				<SettingBlock label="Cash">
-					<p>$0</p>
+					<p>{currencyFormatter.format(user.money)}</p>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					<Avatar hunter={user} />

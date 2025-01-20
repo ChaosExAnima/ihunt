@@ -3,9 +3,11 @@
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
-import { HuntStatus } from './constants';
+import { HuntModel, HuntStatus } from './constants';
 import { db } from './db';
-import { fetchCurrentUser } from './user';
+import { fetchCurrentUser, forceAdmin } from './user';
+
+export type AdminHunts = { [key in HuntStatus]?: HuntModel[] };
 
 export async function acceptHunt(id: number) {
 	const user = await fetchCurrentUser();
@@ -37,7 +39,7 @@ export async function acceptHunt(id: number) {
 		});
 		console.log(`${user.name} canceled hunt with ID ${id}`);
 	} else {
-		const hunt = await db.hunt.update({
+		await db.hunt.update({
 			data: {
 				hunters: {
 					connect: {
@@ -45,21 +47,13 @@ export async function acceptHunt(id: number) {
 					},
 				},
 			},
-			include: {
-				hunters: { select: { id: true } },
-			},
 			where: { id },
 		});
-		if (hunt.hunters.length === hunt.maxHunters) {
-			await db.hunt.update({
-				data: { status: HuntStatus.Active },
-				where: { id },
-			});
-		}
 		console.log(`${user.name} accepted hunt with ID ${id}`);
 	}
 
-	revalidatePath(`/hunts`);
+	revalidatePath('/hunts');
+	revalidatePath('/admin/hunts');
 }
 
 export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
@@ -75,6 +69,36 @@ export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
 			status: HuntStatus.Active,
 		},
 	});
+}
+export async function fetchAdminHunts() {
+	await forceAdmin();
+	const hunts = await db.hunt.findMany({
+		include: {
+			hunters: {
+				include: {
+					avatar: true,
+				},
+			},
+			photos: true,
+		},
+		orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+		where: {
+			status: {
+				in: [
+					HuntStatus.Active,
+					HuntStatus.Available,
+					HuntStatus.Pending,
+				],
+			},
+		},
+	});
+	return hunts.reduce<AdminHunts>(
+		(prev, hunt) => ({
+			...prev,
+			[hunt.status]: (prev[hunt.status as HuntStatus] ?? []).concat(hunt),
+		}),
+		{},
+	);
 }
 
 export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
@@ -92,13 +116,9 @@ export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
 	});
 }
 export async function fetchOpenHunts(include: Prisma.HuntInclude = {}) {
-	const user = await fetchCurrentUser();
 	return db.hunt.findMany({
 		include,
 		where: {
-			minRating: {
-				lte: user.rating,
-			},
 			status: HuntStatus.Available,
 		},
 	});

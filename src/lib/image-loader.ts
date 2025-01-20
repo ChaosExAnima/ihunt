@@ -23,7 +23,9 @@ export async function fetchBlurry(src: string) {
 	});
 	const response = await fetch(url);
 	if (!response.ok) {
-		throw new Error(`Error from CloudFlare: ${response.status}`);
+		throw new Error(
+			`Error from CloudFlare: ${response.status} ${await response.text()}`,
+		);
 	}
 	const bytes = await response.arrayBuffer();
 	const buffer = Buffer.from(bytes);

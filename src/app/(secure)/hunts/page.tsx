@@ -1,4 +1,4 @@
-import { huntDisplayInclude, HuntModel } from '@/components/hunt/consts';
+import { huntDisplayInclude, HuntModel } from '@/lib/constants';
 import {
 	fetchAcceptedHunts,
 	fetchCompletedHunts,

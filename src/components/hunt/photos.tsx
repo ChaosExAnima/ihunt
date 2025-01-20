@@ -1,6 +1,7 @@
+import { HuntModel } from '@/lib/constants';
+
 import PhotoDisplay from '../photo';
 import { Carousel, CarouselItem } from '../ui/carousel';
-import { HuntModel } from './consts';
 
 export default function HuntPhotoDisplay({
 	photos,

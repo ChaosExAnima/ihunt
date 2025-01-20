@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 
-import DevTools from '@/components/dev-tools';
+import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 
-import { ThemeProvider } from '@/components/theme-provider';
+import DevTools from '@/components/dev-tools';
 import { cn } from '@/lib/utils';
-import { Geist, Geist_Mono } from 'next/font/google';
+
+import { Providers } from './providers';
 
 const geistSans = Geist({
 	subsets: ['latin'],
@@ -39,7 +40,7 @@ export default function RootLayout({
 					'antialiased bg-stone-200 dark:bg-black',
 				)}
 			>
-				<ThemeProvider
+				<Providers
 					attribute="class"
 					defaultTheme="system"
 					disableTransitionOnChange
@@ -49,7 +50,7 @@ export default function RootLayout({
 						{children}
 						{isDev && <DevTools />}
 					</div>
-				</ThemeProvider>
+				</Providers>
 			</body>
 		</html>
 	);

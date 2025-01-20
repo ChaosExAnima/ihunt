@@ -1,11 +1,11 @@
+import { CircleCheckBig, Skull, X } from 'lucide-react';
+import { useMemo } from 'react';
+
 import { acceptHunt } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
-import { CircleCheckBig, X } from 'lucide-react';
-import { useMemo } from 'react';
 
 import DateDisplay from '../date';
 import Header from '../header';
-import Rating from '../rating';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import HuntHuntersDisplay from './hunters';
@@ -31,18 +31,27 @@ export default function AvailableHunt({
 			<p className="text-stone-600 text-xs mb-2">
 				added <DateDisplay date={hunt.createdAt} />
 			</p>
-			<Header level={3}>{hunt.name}</Header>
-			<p className="my-4">{hunt.description}</p>
-			<p className="my-4">
-				Required rating:&nbsp;
-				<Rating rating={hunt.minRating} size="1em" />
-			</p>
+			<Header className="flex gap-2 items-center" level={3}>
+				<span>{hunt.name}</span>
+				<Skull />
+				<Skull />
+			</Header>
+			<p className="my-4 text-primary/60">{hunt.description}</p>
 			<HuntHuntersDisplay
 				hunterId={hunterId}
 				hunters={hunt.hunters}
 				isAccepted={isAccepted}
 				maxHunters={hunt.maxHunters}
 			/>
+			{hunt.maxHunters - hunt.hunters.length > 0 && !isAccepted && (
+				<p className="my-2 text-center">
+					You have 2 hunts left today.
+					<br />
+					<strong className="text-green-500">
+						Buy iHunt Premium to unlock more!
+					</strong>
+				</p>
+			)}
 			<HuntAcceptButton
 				isAccepted={isAccepted}
 				onAcceptAction={() => acceptHunt(hunt.id)}

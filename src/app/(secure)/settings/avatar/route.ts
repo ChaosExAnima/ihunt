@@ -1,8 +1,9 @@
+import { revalidatePath } from 'next/cache';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { db } from '@/lib/db';
 import { uploadPhoto } from '@/lib/photo';
 import { fetchCurrentUser } from '@/lib/user';
-import { revalidatePath } from 'next/cache';
-import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -12,7 +13,6 @@ export async function POST(request: NextRequest) {
 		const photo = await uploadPhoto({
 			buffer: body,
 			hunterId: user.id,
-			name: `avatar-${user.id}.jpg`,
 		});
 		await db.hunter.update({
 			data: {

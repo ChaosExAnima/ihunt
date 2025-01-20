@@ -1,42 +1,27 @@
-import Link from 'next/link';
+import { HuntModel } from '@/lib/constants';
 
-import { HuntProps } from '.';
-import Avatar from '../avatar';
-import { HuntModel } from './consts';
+import HunterList from '../hunter-list';
+import { HuntProps } from './index';
+
+interface HuntHuntersDisplayProps {
+	isAccepted?: boolean;
+}
 
 export default function HuntHuntersDisplay({
 	hunterId,
 	hunters,
-	isAccepted = false,
 	maxHunters,
-}: { isAccepted?: boolean } & Pick<HuntModel, 'hunters' | 'maxHunters'> &
+}: HuntHuntersDisplayProps &
+	Pick<HuntModel, 'hunters' | 'maxHunters'> &
 	Pick<HuntProps, 'hunterId'>) {
-	const spotsRemaining = maxHunters - hunters.length;
 	return (
-		<>
-			{hunters.length > 0 && (
-				<ul className="flex gap-4 items-center mb-4">
-					<li>Hunters:</li>
-					{hunters.map((hunter) => (
-						<li key={hunter.id}>
-							<Link
-								href={
-									hunter.id === hunterId
-										? '/settings'
-										: `/hunters/${hunter.id}`
-								}
-							>
-								<Avatar hunter={hunter} />
-							</Link>
-						</li>
-					))}
-				</ul>
-			)}
-			{spotsRemaining > 0 && !isAccepted && (
-				<p className="my-2 font-bold text-center">
-					{spotsRemaining} spot{spotsRemaining > 1 && 's'} remaining!
-				</p>
-			)}
-		</>
+		<div className="flex gap-4 mb-4 items-center">
+			<p>Hunters:</p>
+			<HunterList
+				currentHunterId={hunterId}
+				hunters={hunters}
+				max={maxHunters}
+			/>
+		</div>
 	);
 }
