@@ -38,7 +38,7 @@ const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
 
 export function HuntCreate() {
 	return (
-		<Create transform={huntTransform}>
+		<Create>
 			<SimpleForm resolver={zodResolver(huntSchema)}>
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
