@@ -11,6 +11,7 @@
 		"studio": "prisma studio"
 	},
 	"dependencies": {
+		"@auth/prisma-adapter": "^2.7.4",
 		"@hookform/resolvers": "^3.9.1",
 		"@prisma/client": "6.1.0",
 		"@radix-ui/react-dialog": "^1.1.4",
@@ -28,6 +29,7 @@
 		"image-dimensions": "^2.3.0",
 		"lucide-react": "^0.468.0",
 		"next": "15.1.2",
+		"next-auth": "5.0.0-beta.25",
 		"next-themes": "^0.4.4",
 		"ra-data-simple-prisma": "^5.2.1",
 		"react": "^19.0.0",
@@ -63,5 +65,8 @@
 	},
 	"prisma": {
 		"seed": "tsx prisma/seed.ts"
+	},
+	"volta": {
+		"node": "22.13.0"
 	}
 }

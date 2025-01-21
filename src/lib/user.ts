@@ -1,17 +1,11 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 import { db } from './db';
 
 export async function fetchCurrentUser() {
-	const cookieStore = await cookies();
-	const cookie = cookieStore.get('user');
-	if (!cookie) {
-		redirect('/');
-	}
-	const id = Number.parseInt(cookie.value);
+	const id = 1;
 	const user = await db.hunter.findFirstOrThrow({
 		include: {
 			avatar: true,

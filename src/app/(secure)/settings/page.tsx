@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
+import { signOut } from '@/lib/auth';
 import { currencyFormatter } from '@/lib/constants';
 import { fetchCurrentUser } from '@/lib/user';
 
@@ -28,9 +29,16 @@ export default async function SettingsPage() {
 			<Button asChild variant="secondary">
 				<Link href={`/hunters/${user.id}`}>Profile</Link>
 			</Button>
-			<Button asChild variant="destructive">
-				<Link href="/">Log out</Link>
-			</Button>
+			<form
+				action={async () => {
+					'use server';
+					await signOut({ redirectTo: '/' });
+				}}
+			>
+				<Button className="w-full" type="submit" variant="destructive">
+					Log out
+				</Button>
+			</form>
 		</>
 	);
 }
