@@ -5,12 +5,12 @@ import { revalidatePath } from 'next/cache';
 
 import { HuntModel, HuntStatus, HuntStatusValues } from './constants';
 import { db } from './db';
-import { fetchCurrentUser, forceAdmin } from './user';
+import { sessionToHunter, forceAdmin } from './user';
 
 export type AdminHunts = { [key in HuntStatusValues]?: HuntModel[] };
 
 export async function acceptHunt(id: number) {
-	const user = await fetchCurrentUser();
+	const user = await sessionToHunter();
 	const hunt = await db.hunt.findFirstOrThrow({
 		select: {
 			hunters: {
@@ -57,7 +57,7 @@ export async function acceptHunt(id: number) {
 }
 
 export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
-	const user = await fetchCurrentUser();
+	const user = await sessionToHunter();
 	return db.hunt.findMany({
 		include,
 		where: {
@@ -104,7 +104,7 @@ export async function fetchAdminHunts() {
 }
 
 export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
-	const user = await fetchCurrentUser();
+	const user = await sessionToHunter();
 	return db.hunt.findMany({
 		include,
 		where: {

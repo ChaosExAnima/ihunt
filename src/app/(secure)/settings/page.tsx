@@ -5,12 +5,12 @@ import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth';
 import { currencyFormatter } from '@/lib/constants';
-import { fetchCurrentUser } from '@/lib/user';
+import { sessionToHunter } from '@/lib/user';
 
 import { AvatarReplaceButton, SettingBlock } from './components';
 
 export default async function SettingsPage() {
-	const user = await fetchCurrentUser();
+	const user = await sessionToHunter();
 	return (
 		<>
 			<Header>Settings</Header>

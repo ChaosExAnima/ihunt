@@ -10,7 +10,7 @@ export default async function Home() {
 	const session = await auth();
 
 	if (session) {
-		throw redirect('/hunts');
+		redirect('/hunts');
 	}
 	return (
 		<main
@@ -22,9 +22,9 @@ export default async function Home() {
 		>
 			<Header>iHunt</Header>
 			<form
-				action={async (formData) => {
+				action={async () => {
 					'use server';
-					await signIn('discord', formData, {
+					await signIn('discord', {
 						redirectTo: '/hunts',
 					});
 				}}

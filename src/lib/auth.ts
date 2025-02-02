@@ -5,14 +5,11 @@ import Credentials from 'next-auth/providers/credentials';
 import Discord from 'next-auth/providers/discord';
 
 import { db } from './db';
-
-export function isDevMode() {
-	return process.env.NODE_ENV === 'development';
-}
+import { isDev } from './utils';
 
 const providers: Provider[] = [Discord];
 const devPassword = process.env.ADMIN_PASSWORD;
-if (isDevMode() && devPassword) {
+if (isDev() && devPassword) {
 	providers.push(
 		Credentials({
 			async authorize({ password }) {
