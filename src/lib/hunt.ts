@@ -3,11 +3,11 @@
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
-import { HuntModel, HuntStatus } from './constants';
+import { HuntModel, HuntStatus, HuntStatusValues } from './constants';
 import { db } from './db';
 import { fetchCurrentUser, forceAdmin } from './user';
 
-export type AdminHunts = { [key in HuntStatus]?: HuntModel[] };
+export type AdminHunts = { [key in HuntStatusValues]?: HuntModel[] };
 
 export async function acceptHunt(id: number) {
 	const user = await fetchCurrentUser();
@@ -95,7 +95,9 @@ export async function fetchAdminHunts() {
 	return hunts.reduce<AdminHunts>(
 		(prev, hunt) => ({
 			...prev,
-			[hunt.status]: (prev[hunt.status as HuntStatus] ?? []).concat(hunt),
+			[hunt.status]: (prev[hunt.status as HuntStatusValues] ?? []).concat(
+				hunt,
+			),
 		}),
 		{},
 	);

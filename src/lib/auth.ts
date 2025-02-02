@@ -2,16 +2,26 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import NextAuth from 'next-auth';
 import { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
+import Discord from 'next-auth/providers/discord';
 
 import { db } from './db';
 
-const providers: Provider[] = [];
+export function isDevMode() {
+	return process.env.NODE_ENV === 'development';
+}
+
+const providers: Provider[] = [Discord];
 const devPassword = process.env.ADMIN_PASSWORD;
-if (process.env.NODE_ENV === 'development' && devPassword) {
+if (isDevMode() && devPassword) {
 	providers.push(
 		Credentials({
 			async authorize({ password }) {
 				try {
+					console.log(
+						'Authorizing with dev password:',
+						password !== devPassword ? password : '***',
+					);
+
 					if (password !== devPassword) {
 						throw new Error('Wrong password');
 					}

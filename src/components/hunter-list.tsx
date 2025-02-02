@@ -26,7 +26,7 @@ export default function HunterList({
 	}, [max, hunters.length]);
 
 	return (
-		<ul className="flex gap-4">
+		<ul className="flex gap-2">
 			{hunters.map((hunter) => (
 				<li key={hunter.id}>
 					<Link

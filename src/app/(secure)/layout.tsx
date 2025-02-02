@@ -19,7 +19,7 @@ export default async function SecureLayout({
 			)}
 		>
 			<Navbar hunter={user} />
-			<main className="grow px-4 flex flex-col gap-4 pb-4">
+			<main className="grow px-4 flex flex-col gap-2 pb-4">
 				{children}
 			</main>
 		</div>

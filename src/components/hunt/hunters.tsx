@@ -15,7 +15,7 @@ export default function HuntHuntersDisplay({
 	Pick<HuntModel, 'hunters' | 'maxHunters'> &
 	Pick<HuntProps, 'hunterId'>) {
 	return (
-		<div className="flex gap-4 mb-4 items-center">
+		<div className="flex gap-2 items-center text-sm">
 			<p>Hunters:</p>
 			<HunterList
 				currentHunterId={hunterId}

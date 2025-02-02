@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { db } from './db';
 
 export async function fetchCurrentUser() {
-	const id = 1;
+	const id = 2;
 	const user = await db.hunter.findFirstOrThrow({
 		include: {
 			avatar: true,

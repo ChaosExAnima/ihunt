@@ -1,19 +1,19 @@
 import { LucideProps, Star, StarHalf } from 'lucide-react';
 import { memo } from 'react';
 
+import { cn } from '@/lib/utils';
+
 interface RatingProps {
 	rating: number;
 }
 
 function RatingBase({ rating, ...props }: LucideProps & RatingProps) {
 	return (
-		<span className="inline-flex items-center gap-1">
+		<span className={cn('inline-flex items-center gap-1')}>
 			{Array.from(Array(Math.floor(rating)).keys()).map((index) => (
-				<Star {...props} className="fill-primary" key={index} />
+				<Star {...props} key={index} />
 			))}
-			{rating - Math.floor(rating) >= 0.5 && (
-				<StarHalf {...props} className="fill-primary" />
-			)}
+			{rating - Math.floor(rating) >= 0.5 && <StarHalf {...props} />}
 		</span>
 	);
 }
