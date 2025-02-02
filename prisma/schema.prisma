@@ -35,7 +35,7 @@ model Hunter {
     avatarId Int?    @unique
     money    Int     @default(0)
     user     User    @relation(fields: [userId], references: [id])
-    userId   String
+    userId   String  @unique
 }
 
 model Photo {
@@ -64,7 +64,7 @@ model User {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    Hunter    Hunter[]
+    hunter    Hunter?
 }
 
 model Account {
