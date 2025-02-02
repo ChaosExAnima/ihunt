@@ -1,12 +1,13 @@
 'use client';
 
-import { Crosshair, Image, UserRound } from 'lucide-react';
+import { Crosshair, Image, Swords, UserRound } from 'lucide-react';
 import { dataProvider } from 'ra-data-simple-prisma';
 import { Admin, Resource } from 'react-admin';
 
 import { HuntCreate, HuntEdit, HuntList } from './components/hunt';
 import { HunterCreate, HunterEdit, HunterList } from './components/hunter';
 import { PhotoList } from './components/photo';
+import { UserEdit, UserList } from './components/user';
 
 export default function AdminApp() {
 	return (
@@ -14,7 +15,7 @@ export default function AdminApp() {
 			<Resource
 				create={HunterCreate}
 				edit={HunterEdit}
-				icon={UserRound}
+				icon={Swords}
 				list={HunterList}
 				name="hunter"
 				recordRepresentation="name"
@@ -32,6 +33,13 @@ export default function AdminApp() {
 				list={PhotoList}
 				name="photo"
 				recordRepresentation="path"
+			/>
+			<Resource
+				edit={UserEdit}
+				icon={UserRound}
+				list={UserList}
+				name="user"
+				recordRepresentation="email"
 			/>
 		</Admin>
 	);

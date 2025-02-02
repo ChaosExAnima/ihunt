@@ -11,6 +11,7 @@ import {
 	List,
 	NumberField,
 	NumberInput,
+	ReferenceInput,
 	SearchInput,
 	SimpleForm,
 	TextField,
@@ -27,8 +28,8 @@ import { Locale } from '@/lib/constants';
 
 import ChipListField from './chip-list';
 
-type HunterRow = Prisma.HunterGetPayload<{
-	include: { avatar: true; hunts: true };
+export type HunterRow = Prisma.HunterGetPayload<{
+	include: { avatar: true; hunts: true; user: true };
 }>;
 
 export function HunterCreate() {
@@ -88,6 +89,7 @@ export function HunterEdit() {
 					</figure>
 				)}
 				<UploadPhoto circular onCrop={mutateAsync} title="Avatar" />
+				<ReferenceInput reference="user" source="user.id" />
 			</SimpleForm>
 		</Edit>
 	);

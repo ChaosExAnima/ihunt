@@ -57,7 +57,7 @@ if (isDev() && devPassword) {
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
 	adapter: PrismaAdapter(db),
-	debug: process.env.NODE_ENV === 'development',
+	debug: isDev(),
 	providers,
 	session: {
 		strategy: 'jwt',

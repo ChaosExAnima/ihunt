@@ -21,6 +21,7 @@ const route = async (req: Request) => {
 					include: {
 						avatar: true,
 						hunts: true,
+						user: true,
 					},
 				},
 			);
@@ -34,6 +35,7 @@ const route = async (req: Request) => {
 					include: {
 						avatar: true,
 						photos: true,
+						user: true,
 					},
 				},
 			);
