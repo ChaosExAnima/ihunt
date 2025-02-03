@@ -7,6 +7,7 @@ import {
 	FunctionField,
 	ImageField,
 	List,
+	ReferenceField,
 	ReferenceInput,
 	SimpleForm,
 	TextField,
@@ -14,7 +15,6 @@ import {
 } from 'react-admin';
 import { z } from 'zod';
 
-import Avatar from '@/components/avatar';
 import { idSchema } from '@/lib/api';
 
 import { HunterRow } from './hunter';
@@ -72,19 +72,7 @@ export function UserList() {
 					render={(record) => record.name ?? record.id}
 				/>
 				<TextField emptyText="Not set" source="email" />
-				<FunctionField<UserRow>
-					label="Hunter"
-					render={(record) =>
-						record.hunter ? (
-							<div className="flex gap-2 items-center">
-								<Avatar hunter={record.hunter} />{' '}
-								<TextField source="hunter.name" />
-							</div>
-						) : (
-							<em>None</em>
-						)
-					}
-				/>
+				<ReferenceField reference="hunter" source="hunter.id" />
 			</Datagrid>
 		</List>
 	);

@@ -3,6 +3,7 @@
 import { Prisma } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import {
+	AutocompleteInput,
 	Create,
 	Datagrid,
 	DeleteButton,
@@ -89,7 +90,9 @@ export function HunterEdit() {
 					</figure>
 				)}
 				<UploadPhoto circular onCrop={mutateAsync} title="Avatar" />
-				<ReferenceInput reference="user" source="user.id" />
+				<ReferenceInput reference="user" source="user.id">
+					<AutocompleteInput label="User" />
+				</ReferenceInput>
 			</SimpleForm>
 		</Edit>
 	);
