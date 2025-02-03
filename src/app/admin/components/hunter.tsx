@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Prisma } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import {
@@ -20,6 +21,7 @@ import {
 	useEditController,
 	useRefresh,
 } from 'react-admin';
+import { z } from 'zod';
 
 import Avatar from '@/components/avatar';
 import PhotoDisplay from '@/components/photo';
@@ -32,6 +34,12 @@ import ChipListField from './chip-list';
 export type HunterRow = Prisma.HunterGetPayload<{
 	include: { avatar: true; hunts: true; user: true };
 }>;
+
+const hunterSchema = z.object({
+	money: z.number().int().min(0).default(0),
+	name: z.string().min(1),
+	user: z.object({ id: z.number().int() }),
+});
 
 export function HunterCreate() {
 	return (
@@ -68,9 +76,10 @@ export function HunterEdit() {
 			refresh();
 		},
 	});
+
 	return (
 		<Edit>
-			<SimpleForm>
+			<SimpleForm resolver={zodResolver(hunterSchema)}>
 				<TextInput source="name" />
 				<NumberInput source="money" />
 				{record?.avatar && (
