@@ -5,29 +5,55 @@ import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth';
 import { currencyFormatter } from '@/lib/constants';
+import { db } from '@/lib/db';
 import { sessionToHunter } from '@/lib/user';
 
-import { AvatarReplaceButton, SettingBlock } from './components';
+import { AvatarReplaceButton, BioBlock, SettingBlock } from './components';
 
 export default async function SettingsPage() {
-	const user = await sessionToHunter();
+	const hunter = await sessionToHunter();
+	const bioChangeAction = async (newBio: string) => {
+		'use server';
+		if (!newBio || newBio === hunter.bio) {
+			return;
+		}
+		await db.hunter.update({
+			data: { bio: newBio },
+			where: { id: hunter.id },
+		});
+	};
 	return (
 		<>
 			<Header>Settings</Header>
 			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-background rounded-md shadow-sm">
 				<SettingBlock label="Name">
-					<p>{user.name}</p>
+					<p>{hunter.name}</p>
 				</SettingBlock>
-				<SettingBlock label="Cash">
-					<p>{currencyFormatter.format(user.money)}</p>
+				<SettingBlock label="Pronouns">
+					<p>{hunter.pronouns ?? 'They/them'}</p>
+				</SettingBlock>
+				<SettingBlock
+					className="flex-col items-start gap-0"
+					label="Cash"
+				>
+					<p>{currencyFormatter.format(hunter.money)}</p>
+					<p className="text-xs text-stone-500">
+						Money will arrive the next business day
+					</p>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
-					<Avatar hunter={user} />
-					<AvatarReplaceButton existing={!!user.avatar} />
+					<Avatar hunter={hunter} />
+					<AvatarReplaceButton existing={!!hunter.avatar} />
+				</SettingBlock>
+				<SettingBlock label="Bio">
+					<BioBlock
+						bio={hunter.bio ?? ''}
+						onChange={bioChangeAction}
+					/>
 				</SettingBlock>
 			</section>
 			<Button asChild variant="secondary">
-				<Link href={`/hunters/${user.id}`}>Profile</Link>
+				<Link href={`/hunters/${hunter.id}`}>Profile</Link>
 			</Button>
 			<form
 				action={async () => {
