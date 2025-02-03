@@ -28,6 +28,11 @@ export default async function HunterPage({ params }: HunterPageProps) {
 				},
 			},
 			avatar: true,
+			followers: {
+				include: {
+					avatar: true,
+				},
+			},
 			hunts: {
 				where: {
 					status: HuntStatus.Complete,
@@ -64,19 +69,15 @@ export default async function HunterPage({ params }: HunterPageProps) {
 				<div className="absolute bottom-0 text-white p-2 bg-black/40 w-full text-sm">
 					<div className="flex gap-2 items-baseline">
 						<Header level={2}>{hunter.name}</Header>
-						<p>xhe/xer</p>
+						<p>{hunter.pronouns ?? 'They/them'}</p>
 					</div>
-					<p>@monst3rhun7er</p>
+					<p>@{hunter.handle}</p>
 				</div>
 			</div>
-			<p>
-				Bio: Bacon ipsum dolor amet venison swine pig drumstick, strip
-				steak ball tip frankfurter. Buffalo boudin meatball drumstick,
-				fatback tenderloin chicken capicola.
-			</p>
+			{hunter.bio && <p>{hunter.bio}</p>}
 			<p>Completed hunts: {hunter._count.hunts}</p>
 			<p>Hunt friends:</p>
-			<HunterList hunters={[]} />
+			<HunterList hunters={hunter.followers} />
 			<Header level={3}>Reviews</Header>
 			<ol>
 				{hunter.hunts.map((hunt) => (

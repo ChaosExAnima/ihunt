@@ -27,15 +27,21 @@ model Hunt {
 }
 
 model Hunter {
-    id       Int     @id @default(autoincrement())
-    name     String
-    hunts    Hunt[]
-    photos   Photo[] @relation("Photos")
-    avatar   Photo?  @relation("Avatar", fields: [avatarId], references: [id])
-    avatarId Int?    @unique
-    money    Int     @default(0)
-    user     User    @relation(fields: [userId], references: [id])
-    userId   String  @unique
+    id        Int      @id @default(autoincrement())
+    name      String
+    hunts     Hunt[]
+    photos    Photo[]  @relation("Photos")
+    avatar    Photo?   @relation("Avatar", fields: [avatarId], references: [id])
+    avatarId  Int?     @unique
+    money     Int      @default(0)
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String   @unique
+    bio       String?
+    pronouns  String?
+    handle    String?
+    follows   Hunter[] @relation("Follows")
+    followers Hunter[] @relation("Follows")
+    type      String?
 }
 
 model Photo {

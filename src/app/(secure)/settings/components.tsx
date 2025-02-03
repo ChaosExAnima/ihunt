@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { z } from 'zod';
 
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,8 +19,9 @@ import { useDebounceCallback } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 
 interface BioBlockProps {
-	bio: string;
-	onChange: (bio: string) => Promise<void>;
+	multiline?: boolean;
+	onChange: (value: string) => Promise<void>;
+	value: string;
 }
 
 interface SettingBlockProps extends PropsWithChildren {
@@ -57,15 +59,22 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	);
 }
 
-export function BioBlock({ bio, onChange }: BioBlockProps) {
-	const [value, setValue] = useState(bio);
-	const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
-		const newValue = event.target.value;
+export function EditableBlock({
+	multiline = false,
+	onChange,
+	value: initialValue,
+}: BioBlockProps) {
+	const [value, setValue] = useState(initialValue);
+	const handleChange: ChangeEventHandler<
+		HTMLInputElement | HTMLTextAreaElement
+	> = (event) => {
+		const newValue = event.target.value.trim();
 		setValue(newValue);
 	};
 	useDebounceCallback(onChange, value);
+	const Component = multiline ? Textarea : Input;
 
-	return <Textarea onChange={handleChange} value={value} />;
+	return <Component onChange={handleChange} value={value} />;
 }
 
 export function SettingBlock({

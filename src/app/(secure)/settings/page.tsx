@@ -8,7 +8,7 @@ import { currencyFormatter } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { sessionToHunter } from '@/lib/user';
 
-import { AvatarReplaceButton, BioBlock, SettingBlock } from './components';
+import { AvatarReplaceButton, EditableBlock, SettingBlock } from './components';
 
 export default async function SettingsPage() {
 	const hunter = await sessionToHunter();
@@ -19,6 +19,17 @@ export default async function SettingsPage() {
 		}
 		await db.hunter.update({
 			data: { bio: newBio },
+			where: { id: hunter.id },
+		});
+	};
+	const handleChangeAction = async (rawHandle: string) => {
+		'use server';
+		const newHandle = rawHandle.replaceAll(/^[a-z0-9\-_]/, '');
+		if (!rawHandle || newHandle === hunter.handle) {
+			return;
+		}
+		await db.hunter.update({
+			data: { handle: newHandle },
 			where: { id: hunter.id },
 		});
 	};
@@ -45,10 +56,18 @@ export default async function SettingsPage() {
 					<Avatar hunter={hunter} />
 					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
+				<SettingBlock className="gap-2" label="Handle">
+					@
+					<EditableBlock
+						onChange={handleChangeAction}
+						value={hunter.handle ?? ''}
+					/>
+				</SettingBlock>
 				<SettingBlock label="Bio">
-					<BioBlock
-						bio={hunter.bio ?? ''}
+					<EditableBlock
+						multiline
 						onChange={bioChangeAction}
+						value={hunter.bio ?? ''}
 					/>
 				</SettingBlock>
 			</section>
