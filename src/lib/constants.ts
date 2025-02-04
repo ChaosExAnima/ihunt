@@ -2,10 +2,13 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 import { idSchema } from './api';
+import { publicConfig } from './config';
 
-export const Locale = process.env.LOCALE ?? 'de-DE';
+const { currency, locale } = publicConfig;
+
+export const Locale = locale;
 export const currencyFormatter = new Intl.NumberFormat(Locale, {
-	currency: process.env.CURRENCY ?? 'EUR',
+	currency: currency,
 	maximumFractionDigits: 0,
 	style: 'currency',
 });

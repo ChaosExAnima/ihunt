@@ -122,7 +122,6 @@ export function HuntEdit() {
 									<EditHunters
 										{...rest}
 										className="col-span-2"
-										disabled={completed}
 									/>
 									{completed && (
 										<>

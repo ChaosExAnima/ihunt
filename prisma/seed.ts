@@ -1,5 +1,6 @@
-import { HuntStatus } from '@/lib/constants';
 import { PrismaClient } from '@prisma/client';
+
+import { HuntStatus } from '@/lib/constants';
 
 const db = new PrismaClient();
 
@@ -47,6 +48,30 @@ async function main() {
 				},
 			],
 		});
+
+		await db.user.createMany({
+			data: [{ id: 'user1' }, { id: 'user2' }, { id: 'user3' }],
+		});
+		await db.hunter.createMany({
+			data: [
+				{
+					id: 1,
+					name: 'Dean',
+					userId: 'user1',
+				},
+				{
+					id: 2,
+					name: 'Velma',
+					userId: 'user2',
+				},
+				{
+					id: 3,
+					name: 'Buffy',
+					userId: 'user3',
+				},
+			],
+		});
+
 		await db.photo.createMany({
 			data: [
 				{
@@ -72,49 +97,48 @@ async function main() {
 				},
 				{
 					height: 826,
+					hunterId: 2,
 					id: 4,
 					path: 'velma.png',
 					width: 844,
 				},
 				{
 					height: 1024,
+					hunterId: 1,
 					id: 5,
 					path: 'dean.png',
 					width: 1048,
 				},
 				{
 					height: 1086,
+					hunterId: 3,
 					id: 6,
 					path: 'buffy.jpg',
 					width: 1036,
 				},
 				{
 					height: 1024,
+					huntId: 4,
 					id: 7,
-					path: 'vampire.webp',
+					path: 'ash-vampire.webp',
 					width: 1024,
 				},
 			],
 		});
-		await db.hunter.createMany({
-			data: [
-				{
-					avatarId: 5,
-					id: 1,
-					name: 'Dean',
-				},
-				{
-					avatarId: 4,
-					id: 2,
-					name: 'Velma',
-				},
-				{
-					avatarId: 6,
-					id: 3,
-					name: 'Buffy',
-				},
-			],
-		});
+		await Promise.all([
+			db.hunter.update({
+				data: { avatarId: 5 },
+				where: { id: 1 },
+			}),
+			db.hunter.update({
+				data: { avatarId: 4 },
+				where: { id: 2 },
+			}),
+			db.hunter.update({
+				data: { avatarId: 6 },
+				where: { id: 3 },
+			}),
+		]);
 		await db.hunt.update({
 			data: {
 				hunters: {

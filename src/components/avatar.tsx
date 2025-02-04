@@ -11,11 +11,16 @@ export type AvatarHunter = Prisma.HunterGetPayload<{
 }>;
 
 interface AvatarProps {
+	className?: string;
 	hunter: Pick<AvatarHunter, 'avatar' | 'id' | 'name'>;
 	link?: boolean;
 }
 
-export default function Avatar({ hunter, link = false }: AvatarProps) {
+export default function Avatar({
+	className,
+	hunter,
+	link = false,
+}: AvatarProps) {
 	const pic = hunter.avatar;
 
 	if (link) {
@@ -31,6 +36,7 @@ export default function Avatar({ hunter, link = false }: AvatarProps) {
 			className={cn(
 				'border border-stone-400 dark:border-stone-800',
 				'relative flex size-10 shrink-0 overflow-hidden rounded-full',
+				className,
 			)}
 		>
 			{pic && <PhotoDisplay photo={pic} />}

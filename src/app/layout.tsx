@@ -5,7 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 
 import DevTools from '@/components/dev-tools';
-import { cn } from '@/lib/utils';
+import { cn, isDev } from '@/lib/utils';
 
 import { Providers } from './providers';
 
@@ -29,7 +29,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const isDev = process.env.NODE_ENV === 'development';
+	const devMode = isDev();
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head />
@@ -48,7 +48,7 @@ export default function RootLayout({
 				>
 					<div className="flex flex-col">
 						{children}
-						{isDev && <DevTools />}
+						{devMode && <DevTools />}
 					</div>
 				</Providers>
 			</body>

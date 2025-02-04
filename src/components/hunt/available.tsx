@@ -1,10 +1,16 @@
-import { CircleCheckBig, Skull, X } from 'lucide-react';
+import {
+	CircleAlert,
+	CircleCheckBig,
+	Clock,
+	MapPin,
+	Skull,
+	X,
+} from 'lucide-react';
 import { useMemo } from 'react';
 
 import { acceptHunt } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
 
-import DateDisplay from '../date';
 import Header from '../header';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -27,16 +33,44 @@ export default function AvailableHunt({
 	);
 	return (
 		<Card className={cn(className)} slot="article">
-			<HuntPhotoDisplay photos={hunt.photos} />
-			<p className="text-stone-600 text-xs mb-2">
-				added <DateDisplay date={hunt.createdAt} />
-			</p>
-			<Header className="flex gap-2 items-center" level={3}>
-				<span>{hunt.name}</span>
-				<Skull />
-				<Skull />
-			</Header>
-			<p className="my-4 text-primary/60">{hunt.description}</p>
+			<div className="relative rounded-lg overflow-hidden">
+				<HuntPhotoDisplay photos={hunt.photos} />
+				<div className="top-0 left-0 absolute p-2">
+					<div className="flex text-rose-700">
+						<Skull />
+						<Skull />
+					</div>
+					<span className="text-white font-semibold">1.000€</span>
+				</div>
+				<div className="absolute p-2 bottom-0 bg-black/40 w-full">
+					<Header
+						className="flex gap-2 items-center text-white"
+						level={3}
+					>
+						{hunt.name}
+					</Header>
+					<p className="text-rose-600 text-xs">
+						<MapPin
+							className="inline-block align-text-bottom"
+							size="1em"
+						/>
+						Königsforst,&nbsp;
+						<Clock
+							className="inline-block align-text-bottom"
+							size="1em"
+						/>
+						14:00
+					</p>
+				</div>
+			</div>
+			<div className="flex">
+				<p className="my-2 text-primary/60 text-sm grow">
+					{hunt.description} {hunt.description}
+				</p>
+				<Button className="text-rose-600" size="icon" variant="ghost">
+					<CircleAlert />
+				</Button>
+			</div>
 			<HuntHuntersDisplay
 				hunterId={hunterId}
 				hunters={hunt.hunters}
@@ -44,7 +78,7 @@ export default function AvailableHunt({
 				maxHunters={hunt.maxHunters}
 			/>
 			{hunt.maxHunters - hunt.hunters.length > 0 && !isAccepted && (
-				<p className="my-2 text-center">
+				<p className="my-2 text-center text-sm">
 					You have 2 hunts left today.
 					<br />
 					<strong className="text-green-500">

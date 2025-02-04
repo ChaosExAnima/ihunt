@@ -1,5 +1,8 @@
+import 'server-only';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
+
+import config from './config';
 
 class B2 {
 	protected API_PATH = 'b2api/v3';
@@ -8,16 +11,6 @@ class B2 {
 	private apiRoot = '';
 	private authToken = '';
 	private bucketId = '';
-
-	public constructor() {
-		if (
-			!process.env.BACKBLAZE_BUCKET ||
-			!process.env.BACKBLAZE_ID ||
-			!process.env.BACKBLAZE_KEY
-		) {
-			throw new Error('Missing Backblaze credentials!');
-		}
-	}
 
 	public async upload(
 		file: Uint8Array<ArrayBufferLike>,
@@ -61,9 +54,10 @@ class B2 {
 		if (this.authToken && this.apiRoot) {
 			return;
 		}
-		const authCode = Buffer.from(
-			`${process.env.BACKBLAZE_ID}:${process.env.BACKBLAZE_KEY}`,
-		).toString('base64');
+		const { backblazeId, backblazeKey } = config();
+		const authCode = Buffer.from(`${backblazeId}:${backblazeKey}`).toString(
+			'base64',
+		);
 		const response = await this.fetchWithSchema(this.AUTH_URL, {
 			headers: {
 				Authorization: `Basic ${authCode}`,

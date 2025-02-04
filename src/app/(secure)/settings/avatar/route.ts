@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
 import { uploadPhoto } from '@/lib/photo';
-import { fetchCurrentUser } from '@/lib/user';
+import { sessionToHunter } from '@/lib/user';
 
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.bytes();
-		const user = await fetchCurrentUser();
+		const user = await sessionToHunter();
 
 		const photo = await uploadPhoto({
 			buffer: body,

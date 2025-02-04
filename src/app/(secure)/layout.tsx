@@ -1,5 +1,8 @@
+import Header from '@/components/header';
 import Navbar from '@/components/navbar';
-import { fetchCurrentUser } from '@/lib/user';
+import { Button } from '@/components/ui/button';
+import { signOut } from '@/lib/auth';
+import { sessionToHunter } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
 
 export default async function SecureLayout({
@@ -7,7 +10,27 @@ export default async function SecureLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const user = await fetchCurrentUser();
+	let hunter;
+	try {
+		hunter = await sessionToHunter();
+	} catch (err) {
+		console.error('Error with session:', err);
+		return (
+			<main className="p-4 flex flex-col gap-4 text-center max-w-screen-sm mx-auto">
+				<Header level={1}>No hunter</Header>
+				<p>You do not have a hunter assigned yet.</p>
+				<Button
+					onClick={async () => {
+						'use server';
+						await signOut({ redirectTo: '/' });
+					}}
+					variant="secondary"
+				>
+					Log out
+				</Button>
+			</main>
+		);
+	}
 	const devMode = isDev();
 	// TODO: Check auth information here
 	return (
@@ -18,8 +41,8 @@ export default async function SecureLayout({
 				devMode && 'w-[360px] min-h-[687px] mx-auto mt-4',
 			)}
 		>
-			<Navbar hunter={user} />
-			<main className="grow px-4 flex flex-col gap-4 pb-4">
+			<Navbar hunter={hunter} />
+			<main className="grow px-4 flex flex-col gap-2 pb-4">
 				{children}
 			</main>
 		</div>

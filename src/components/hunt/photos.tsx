@@ -6,7 +6,7 @@ import { Carousel, CarouselItem } from '../ui/carousel';
 export default function HuntPhotoDisplay({
 	photos,
 }: Pick<HuntModel, 'photos'>) {
-	const className = 'rounded-lg max-w-full mb-2 aspect-square';
+	const className = 'rounded-lg max-w-full object-cover object-top';
 	if (!photos || !photos.length) {
 		return null;
 	}

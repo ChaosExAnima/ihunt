@@ -1,8 +1,10 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Prisma } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import {
+	AutocompleteInput,
 	Create,
 	Datagrid,
 	DeleteButton,
@@ -11,6 +13,7 @@ import {
 	List,
 	NumberField,
 	NumberInput,
+	ReferenceInput,
 	SearchInput,
 	SimpleForm,
 	TextField,
@@ -18,6 +21,7 @@ import {
 	useEditController,
 	useRefresh,
 } from 'react-admin';
+import { z } from 'zod';
 
 import Avatar from '@/components/avatar';
 import PhotoDisplay from '@/components/photo';
@@ -27,9 +31,15 @@ import { Locale } from '@/lib/constants';
 
 import ChipListField from './chip-list';
 
-type HunterRow = Prisma.HunterGetPayload<{
-	include: { avatar: true; hunts: true };
+export type HunterRow = Prisma.HunterGetPayload<{
+	include: { avatar: true; hunts: true; user: true };
 }>;
+
+const hunterSchema = z.object({
+	money: z.number().int().min(0).default(0),
+	name: z.string().min(1),
+	user: z.object({ id: z.number().int() }),
+});
 
 export function HunterCreate() {
 	return (
@@ -66,9 +76,10 @@ export function HunterEdit() {
 			refresh();
 		},
 	});
+
 	return (
 		<Edit>
-			<SimpleForm>
+			<SimpleForm resolver={zodResolver(hunterSchema)}>
 				<TextInput source="name" />
 				<NumberInput source="money" />
 				{record?.avatar && (
@@ -88,6 +99,9 @@ export function HunterEdit() {
 					</figure>
 				)}
 				<UploadPhoto circular onCrop={mutateAsync} title="Avatar" />
+				<ReferenceInput reference="user" source="user.id">
+					<AutocompleteInput label="Player" />
+				</ReferenceInput>
 			</SimpleForm>
 		</Edit>
 	);

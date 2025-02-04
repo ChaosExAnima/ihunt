@@ -4,7 +4,7 @@ import {
 	fetchCompletedHunts,
 	fetchOpenHunts,
 } from '@/lib/hunt';
-import { fetchCurrentUser } from '@/lib/user';
+import { sessionToHunter } from '@/lib/user';
 
 import { HuntsCards } from './components';
 
@@ -20,7 +20,7 @@ export default async function HuntsPage() {
 	} else {
 		hunts = [...open];
 	}
-	const user = await fetchCurrentUser();
+	const user = await sessionToHunter();
 
 	return (
 		<HuntsCards

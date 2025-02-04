@@ -1,5 +1,7 @@
 import type { ImageLoaderProps } from 'next/image';
 
+import { publicConfig } from './config';
+
 // Docs: https://developers.cloudflare.com/images/transform-images
 export default function cloudflareLoader({
 	format = 'auto',
@@ -12,7 +14,8 @@ export default function cloudflareLoader({
 		`quality=${quality || 75}`,
 		`format=${format}`,
 	];
-	return `https://${process.env.NEXT_PUBLIC_IMAGE_HOST}/cdn-cgi/image/${params.join(',')}/${src}`;
+	const { imageHost } = publicConfig;
+	return `https://${imageHost}/cdn-cgi/image/${params.join(',')}/${src}`;
 }
 
 export async function fetchBlurry(src: string) {
