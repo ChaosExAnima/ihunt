@@ -14,10 +14,11 @@ export interface HuntProps {
 	className?: string;
 	hunt: HuntModel;
 	hunterId: number;
+	remainingHunts?: number;
 }
 
 export default function HuntDisplay(props: HuntProps) {
-	const { hunt, hunterId } = props;
+	const { hunt, hunterId, remainingHunts } = props;
 	const isAccepted = useMemo(
 		() => hunt.hunters.some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
@@ -33,20 +34,21 @@ export default function HuntDisplay(props: HuntProps) {
 				</HuntBase>
 			);
 		case HuntStatus.Available:
+			const huntersLeft = hunt.maxHunters - hunt.hunters.length > 0;
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
-					{hunt.maxHunters - hunt.hunters.length > 0 &&
-						!isAccepted && (
-							<p className="text-center text-sm">
-								You have 2 hunts left today.
-								<br />
-								<strong className="text-green-500">
-									Buy iHunt Premium to unlock more!
-								</strong>
-							</p>
-						)}
+					{huntersLeft && !isAccepted && (
+						<p className="text-center text-sm">
+							You have {remainingHunts || 'no'} hunts left today.
+							<br />
+							<strong className="text-green-500">
+								Buy iHunt Premium to unlock more!
+							</strong>
+						</p>
+					)}
 					<Button
 						className="flex mx-auto rounded-full font-bold self-center"
+						disabled={!huntersLeft && !isAccepted}
 						onClick={() => acceptHunt(hunt.id)}
 						variant={isAccepted ? 'destructive' : 'success'}
 					>

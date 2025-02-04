@@ -23,6 +23,7 @@ export const HuntStatus = {
 } as const;
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
+export const huntMaxPerDay = 2;
 export const huntStatus = z.nativeEnum(HuntStatus).default(HuntStatus.Pending);
 
 export type HuntModel = Prisma.HuntGetPayload<{

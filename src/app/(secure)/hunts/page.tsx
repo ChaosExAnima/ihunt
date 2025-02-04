@@ -9,6 +9,7 @@ import { sessionToHunter } from '@/lib/user';
 import { HuntsCards } from './components';
 
 export default async function HuntsPage() {
+	const user = await sessionToHunter();
 	const [accepted, open, completed] = await Promise.all([
 		fetchAcceptedHunts(huntDisplayInclude),
 		fetchOpenHunts(huntDisplayInclude),
@@ -20,7 +21,6 @@ export default async function HuntsPage() {
 	} else {
 		hunts = [...open];
 	}
-	const user = await sessionToHunter();
 
 	return (
 		<HuntsCards

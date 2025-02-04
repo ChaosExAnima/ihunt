@@ -85,6 +85,7 @@ export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
 		},
 	});
 }
+
 export async function fetchOpenHunts(include: Prisma.HuntInclude = {}) {
 	return db.hunt.findMany({
 		include,
