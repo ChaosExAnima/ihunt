@@ -1,6 +1,7 @@
 import { Clock, MapPin, Skull } from 'lucide-react';
+import { useMemo } from 'react';
 
-import { currencyFormatter, dateFormatter, HuntModel } from '@/lib/constants';
+import { currencyFormatter, HuntModel, Locale } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 import Header from '../header';
@@ -39,6 +40,7 @@ export default function HuntHeader(hunt: HuntHeaderProps) {
 				className="absolute bottom-0"
 				date={hunt.completedAt ?? hunt.scheduledAt ?? undefined}
 				name={hunt.name}
+				place={hunt.place}
 			/>
 		</div>
 	);
@@ -48,23 +50,41 @@ export function HuntMeta({
 	className,
 	date,
 	name,
-}: { date?: Date } & Pick<HuntHeaderProps, 'className' | 'name'>) {
+	place,
+}: { date?: Date } & Pick<HuntHeaderProps, 'className' | 'name' | 'place'>) {
+	const formattedDate = useMemo(() => {
+		if (!date) {
+			return '';
+		}
+		const now = new Date();
+		const today =
+			now.getFullYear() === date.getFullYear() &&
+			now.getMonth() === date.getMonth() &&
+			now.getDate() === date.getDate();
+		const formatter = new Intl.DateTimeFormat(Locale, {
+			timeStyle: today ? 'short' : undefined,
+		});
+		return formatter.format(date);
+	}, [date]);
 	return (
 		<div className={cn('p-2 bg-black/40 w-full', className)}>
 			<Header className="flex gap-2 items-center text-white" level={3}>
 				{name}
 			</Header>
-			<p className="text-rose-600 text-xs">
-				<MapPin className="inline-block align-text-bottom" size="1em" />
-				Königsforst
-				{date && (
+			<p className="text-rose-600 text-xs align-text-bottom">
+				{place && (
 					<>
-						{', '}
-						<Clock
-							className="inline-block align-text-bottom"
-							size="1em"
-						/>
-						{dateFormatter.format(date)}
+						<MapPin className="inline-block" size="1em" />
+						&nbsp;
+						{place}
+					</>
+				)}
+				{formattedDate && (
+					<>
+						{place && ', '}
+						<Clock className="inline-block" size="1em" />
+						&nbsp;
+						{formattedDate}
 					</>
 				)}
 			</p>

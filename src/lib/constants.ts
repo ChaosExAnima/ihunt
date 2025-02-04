@@ -12,7 +12,6 @@ export const currencyFormatter = new Intl.NumberFormat(Locale, {
 	maximumFractionDigits: 0,
 	style: 'currency',
 });
-export const dateFormatter = new Intl.DateTimeFormat(Locale, {});
 
 export const HuntStatus = {
 	Active: 'active',
