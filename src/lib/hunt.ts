@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 import { HuntModel, HuntStatus, HuntStatusValues } from './constants';
 import { db } from './db';
-import { sessionToHunter, forceAdmin } from './user';
+import { sessionToHunter } from './user';
 
 export type AdminHunts = { [key in HuntStatusValues]?: HuntModel[] };
 
@@ -69,38 +69,6 @@ export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
 			status: HuntStatus.Active,
 		},
 	});
-}
-export async function fetchAdminHunts() {
-	await forceAdmin();
-	const hunts = await db.hunt.findMany({
-		include: {
-			hunters: {
-				include: {
-					avatar: true,
-				},
-			},
-			photos: true,
-		},
-		orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
-		where: {
-			status: {
-				in: [
-					HuntStatus.Active,
-					HuntStatus.Available,
-					HuntStatus.Pending,
-				],
-			},
-		},
-	});
-	return hunts.reduce<AdminHunts>(
-		(prev, hunt) => ({
-			...prev,
-			[hunt.status]: (prev[hunt.status as HuntStatusValues] ?? []).concat(
-				hunt,
-			),
-		}),
-		{},
-	);
 }
 
 export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
