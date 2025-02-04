@@ -4,16 +4,25 @@ import { Provider } from 'next-auth/providers';
 import Discord from 'next-auth/providers/discord';
 import NodeEmailer from 'next-auth/providers/nodemailer';
 
+import config from './config';
 import { db } from './db';
 import { isDev } from './utils';
 
-const providers: Provider[] = [Discord];
-if (process.env.EMAIL_SERVER && process.env.EMAIL_FROM) {
+const { authSecret, discordId, discordSecret, emailFrom, emailServer } =
+	config();
+
+const providers: Provider[] = [
+	Discord({
+		clientId: discordId,
+		clientSecret: discordSecret,
+	}),
+];
+if (emailFrom && emailServer) {
 	providers.push(
 		NodeEmailer({
-			from: process.env.EMAIL_FROM,
+			from: emailFrom,
 			name: 'email',
-			server: process.env.EMAIL_SERVER,
+			server: emailServer,
 		}),
 	);
 }
@@ -22,4 +31,5 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 	adapter: PrismaAdapter(db),
 	debug: isDev(),
 	providers,
+	secret: authSecret,
 });

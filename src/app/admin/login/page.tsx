@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-import { logIn } from './actions';
+import { logIn } from '../actions';
 
 export default function AdminPage() {
 	const [state, formAction] = useActionState(logIn, {});

@@ -1,27 +1,20 @@
 import { getIronSession } from 'iron-session';
-import { NextRequest, NextResponse } from 'next/server';
+import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server';
 
-import type { AdminSessionState } from './app/admin/auth';
+import appConfig from '@/lib/config';
+
+import { type AdminSessionState } from './app/admin/actions';
 
 export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
-	if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-		if (!process.env.AUTH_SECRET) {
-			return NextResponse.json(
-				{
-					message: 'Server misconfigured',
-					success: false,
-				},
-				{ status: 500 },
-			);
-		}
+	if (pathname.startsWith('/admin')) {
 		const response = NextResponse.next();
 		const session = await getIronSession<AdminSessionState>(
 			request,
 			response,
 			{
 				cookieName: 'admin-session',
-				password: process.env.AUTH_SECRET,
+				password: appConfig().authSecret,
 			},
 		);
 		if (!session.loggedIn) {
@@ -32,3 +25,7 @@ export async function middleware(request: NextRequest) {
 		return response;
 	}
 }
+
+export const config: MiddlewareConfig = {
+	matcher: ['/(admin)', '/(admin/api/.+)'],
+};

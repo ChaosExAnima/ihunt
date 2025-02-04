@@ -1,9 +1,11 @@
 'use client';
 
-import { Crosshair, Image, Swords, UserRound } from 'lucide-react';
+import { Crosshair, Image, LogOut, Swords, UserRound } from 'lucide-react';
 import { dataProvider } from 'ra-data-simple-prisma';
-import { Admin, Resource } from 'react-admin';
+import { PropsWithChildren } from 'react';
+import { Admin, Button, Layout, Menu, Resource } from 'react-admin';
 
+import { logOut } from './actions';
 import { HuntCreate, HuntEdit, HuntList } from './components/hunt';
 import { HunterCreate, HunterEdit, HunterList } from './components/hunter';
 import { PhotoList } from './components/photo';
@@ -11,7 +13,7 @@ import { UserEdit, UserList } from './components/user';
 
 export default function AdminApp() {
 	return (
-		<Admin dataProvider={dataProvider('/admin/api')}>
+		<Admin dataProvider={dataProvider('/admin/api')} layout={AdminLayout}>
 			<Resource
 				create={HunterCreate}
 				edit={HunterEdit}
@@ -29,18 +31,33 @@ export default function AdminApp() {
 				recordRepresentation="name"
 			/>
 			<Resource
+				edit={UserEdit}
+				icon={UserRound}
+				list={UserList}
+				name="player"
+				recordRepresentation="email"
+			/>
+			<Resource
 				icon={Image}
 				list={PhotoList}
 				name="photo"
 				recordRepresentation="path"
 			/>
-			<Resource
-				edit={UserEdit}
-				icon={UserRound}
-				list={UserList}
-				name="user"
-				recordRepresentation="email"
-			/>
 		</Admin>
+	);
+}
+
+function AdminLayout({ children }: PropsWithChildren) {
+	return <Layout menu={AdminMenu}>{children}</Layout>;
+}
+
+function AdminMenu() {
+	return (
+		<Menu>
+			<Menu.ResourceItems />
+			<Button onClick={() => logOut()} sx={{ borderRadius: 0 }}>
+				<LogOut />
+			</Button>
+		</Menu>
 	);
 }
