@@ -86,6 +86,7 @@ export function HuntEdit() {
 						required
 						source="description"
 					/>
+					<TextInput source="place" />
 					<FormDataConsumer<HuntSchema>>
 						{({ formData: { status }, ...rest }) => {
 							const completed = status === HuntStatus.Complete;
