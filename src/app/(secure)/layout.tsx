@@ -16,7 +16,7 @@ export default async function SecureLayout({
 	} catch (err) {
 		console.error('Error with session:', err);
 		return (
-			<main className="p-4 flex flex-col gap-4 text-center max-w-screen-sm mx-auto">
+			<main className="p-4 flex flex-col gap-4 text-center max-w-(--breakpoint-sm) mx-auto">
 				<Header level={1}>No hunter</Header>
 				<p>You do not have a hunter assigned yet.</p>
 				<Button

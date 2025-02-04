@@ -36,7 +36,7 @@ export default async function SettingsPage() {
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-background rounded-md shadow-sm">
+			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-background rounded-md shadow-xs">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
