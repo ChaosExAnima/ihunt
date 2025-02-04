@@ -32,7 +32,7 @@ export default function AvailableHunt({
 		[hunt.hunters, hunterId],
 	);
 	return (
-		<Card className={cn(className)} slot="article">
+		<Card className={cn(className, 'flex flex-col')}>
 			<div className="relative rounded-lg overflow-hidden">
 				<HuntPhotoDisplay photos={hunt.photos} />
 				<div className="top-0 left-0 absolute p-2">
@@ -63,9 +63,9 @@ export default function AvailableHunt({
 					</p>
 				</div>
 			</div>
-			<div className="flex">
+			<div className="flex grow">
 				<p className="my-2 text-primary/60 text-sm grow">
-					{hunt.description} {hunt.description}
+					{hunt.description}
 				</p>
 				<Button className="text-rose-600" size="icon" variant="ghost">
 					<CircleAlert />

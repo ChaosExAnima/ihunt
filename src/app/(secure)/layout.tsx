@@ -38,7 +38,7 @@ export default async function SecureLayout({
 			className={cn(
 				'grow flex flex-col w-full justify-stretch',
 				devMode && 'border border-stone-400 dark:border-stone-800',
-				devMode && 'w-[360px] min-h-[687px] mx-auto mt-4',
+				devMode && 'w-[360px] h-[687px] mx-auto mt-4',
 			)}
 		>
 			<Navbar hunter={hunter} />
