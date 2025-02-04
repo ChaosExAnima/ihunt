@@ -47,6 +47,7 @@ export const huntSchema = z.object({
 	maxHunters: z.number().int().min(1).max(4).default(1),
 	name: z.string().min(1),
 	payment: z.number().int().min(0).default(0),
+	place: z.string().optional(),
 	rating: z.number().int().min(0).max(5).default(0),
 	scheduledAt: z.coerce.date().nullable().default(null),
 	status: huntStatus,
