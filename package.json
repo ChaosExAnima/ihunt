@@ -27,6 +27,7 @@
 		"embla-carousel-react": "^8.5.1",
 		"file-type": "^19.6.0",
 		"image-dimensions": "^2.3.0",
+		"iron-session": "^8.0.4",
 		"lucide-react": "^0.468.0",
 		"next": "15.1.2",
 		"next-auth": "5.0.0-beta.25",

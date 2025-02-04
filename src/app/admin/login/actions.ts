@@ -1,7 +1,8 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+
+import { getSession } from '../auth';
 
 export interface LogInState {
 	success?: boolean;
@@ -11,14 +12,36 @@ export async function logIn(
 	prevState: LogInState,
 	formData: FormData,
 ): Promise<LogInState> {
-	const password = formData.get('password');
-	if (password === process.env.ADMIN_PASSWORD) {
-		const cookieStore = await cookies();
-		cookieStore.set('admin', 'yes');
-		throw redirect('/admin/hunts');
+	if (!process.env.AUTH_SECRET) {
+		return {
+			success: false,
+		};
 	}
+	const password = formData.get('password');
+	if (password !== process.env.ADMIN_PASSWORD) {
+		return {
+			success: false,
+		};
+	}
+	try {
+		const session = await getSession();
+		session.loggedIn = true;
+		await session.save();
+	} catch (err) {
+		console.error(err);
+		return {
+			success: false,
+		};
+	}
+	throw redirect('/admin');
+}
 
-	return {
-		success: false,
-	};
+export async function logOut() {
+	try {
+		const session = await getSession();
+		await session.destroy();
+	} catch (err) {
+		console.error(err);
+	}
+	throw redirect('/admin/login');
 }
