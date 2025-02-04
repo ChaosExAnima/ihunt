@@ -26,7 +26,7 @@ export default function HuntDisplay(props: HuntProps) {
 		return null;
 	}
 	return (
-		<Card className={cn(className)} slot="article">
+		<Card className={cn(className, 'flex flex-col')} slot="article">
 			<HuntPhotoDisplay photos={hunt.photos} />
 			<p className="text-stone-600 text-xs mb-2">
 				{hunt.status === HuntStatus.Complete ? 'finished' : 'added'}
@@ -34,7 +34,7 @@ export default function HuntDisplay(props: HuntProps) {
 				<DateDisplay date={hunt.completedAt || hunt.createdAt} />
 			</p>
 			<Header level={3}>{hunt.name}</Header>
-			<p className="my-4">{hunt.description}</p>
+			<p className="my-4 grow">{hunt.description}</p>
 			<HuntHuntersDisplay
 				hunterId={hunterId}
 				hunters={hunt.hunters}
