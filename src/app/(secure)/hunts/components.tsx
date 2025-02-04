@@ -1,12 +1,14 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import HuntDisplay from '@/components/hunt';
 import {
 	Carousel,
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { HuntModel } from '@/lib/constants';
+import { huntMaxPerDay, HuntModel, HuntStatus } from '@/lib/constants';
 
 interface HuntsCardsProps {
 	completed: HuntModel[];
@@ -15,6 +17,16 @@ interface HuntsCardsProps {
 }
 
 export function HuntsCards({ completed = [], hunts, userId }: HuntsCardsProps) {
+	const acceptedToday = useMemo(
+		() =>
+			hunts.filter(
+				({ hunters, status }) =>
+					(status === HuntStatus.Active ||
+						status === HuntStatus.Available) &&
+					hunters.find(({ id }) => id === userId),
+			).length,
+		[hunts, userId],
+	);
 	return (
 		<Carousel className="-mx-4 flex flex-col grow">
 			<CarouselContent className="h-full">
@@ -24,6 +36,7 @@ export function HuntsCards({ completed = [], hunts, userId }: HuntsCardsProps) {
 							className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
 							hunt={hunt}
 							hunterId={userId}
+							remainingHunts={huntMaxPerDay - acceptedToday}
 						/>
 					</CarouselItem>
 				))}
