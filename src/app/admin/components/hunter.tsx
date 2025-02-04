@@ -100,7 +100,7 @@ export function HunterEdit() {
 				)}
 				<UploadPhoto circular onCrop={mutateAsync} title="Avatar" />
 				<ReferenceInput reference="user" source="user.id">
-					<AutocompleteInput label="User" />
+					<AutocompleteInput label="Player" />
 				</ReferenceInput>
 			</SimpleForm>
 		</Edit>

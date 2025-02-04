@@ -34,8 +34,9 @@ export default function AdminApp() {
 				edit={UserEdit}
 				icon={UserRound}
 				list={UserList}
-				name="player"
-				recordRepresentation="email"
+				name="user"
+				options={{ label: 'Players' }}
+				recordRepresentation={(record) => record.name ?? record.email}
 			/>
 			<Resource
 				icon={Image}

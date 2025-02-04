@@ -12,6 +12,7 @@ import {
 	SimpleForm,
 	TextField,
 	TextInput,
+	useEditController,
 } from 'react-admin';
 import { z } from 'zod';
 
@@ -32,8 +33,13 @@ const userSchema = z.object({
 type UserInput = z.infer<typeof userSchema>;
 
 export function UserEdit() {
+	const { record } = useEditController<UserRow>();
 	return (
-		<Edit mutationMode="pessimistic" transform={editTransform}>
+		<Edit
+			mutationMode="pessimistic"
+			title={`Player ${record?.name ?? record?.email ?? ''}`}
+			transform={editTransform}
+		>
 			<SimpleForm resolver={zodResolver(userSchema)}>
 				<TextInput isRequired source="name" />
 				<TextInput isRequired source="email" />
