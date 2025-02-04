@@ -123,27 +123,23 @@ export function HuntEdit() {
 										{...rest}
 										className="col-span-2"
 									/>
-									{completed && (
-										<>
-											<DateTimeInput
-												{...rest}
-												source="completedAt"
-											/>
-											<NumberInput
-												{...rest}
-												defaultValue={5}
-												max={5}
-												min={1}
-												source="rating"
-											/>
-											<TextInput
-												{...rest}
-												className="col-span-2"
-												multiline
-												source="comment"
-											/>
-										</>
-									)}
+									<DateTimeInput
+										{...rest}
+										source="completedAt"
+									/>
+									<NumberInput
+										{...rest}
+										defaultValue={5}
+										max={5}
+										min={1}
+										source="rating"
+									/>
+									<TextInput
+										{...rest}
+										className="col-span-2"
+										multiline
+										source="comment"
+									/>
 								</>
 							);
 						}}
