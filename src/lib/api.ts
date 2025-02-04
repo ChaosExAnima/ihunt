@@ -29,6 +29,14 @@ export async function fetchFromApi<Data>(
 	return body as Data;
 }
 
+export async function parseRequestBody<Data>(
+	req: Request,
+	schema: z.ZodSchema<Data>,
+): Promise<Data> {
+	const body = await req.json();
+	return schema.parse(body);
+}
+
 export const fetchFn = async <Data>(
 	...args: Parameters<typeof fetchFromApi<Data>>
 ) => {
