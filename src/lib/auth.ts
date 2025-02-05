@@ -4,10 +4,10 @@ import NextAuth from 'next-auth';
 import { Provider } from 'next-auth/providers';
 import Discord from 'next-auth/providers/discord';
 import NodeEmailer from 'next-auth/providers/nodemailer';
+import { redirect } from 'next/navigation';
 
 import config from './config';
 import { db } from './db';
-import { isDev } from './utils';
 
 const { authSecret, discordId, discordSecret, emailFrom, emailServer } =
 	config();
@@ -30,7 +30,18 @@ if (emailFrom && emailServer) {
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
 	adapter: PrismaAdapter(db),
-	debug: isDev(),
+	callbacks: {
+		async authorized({ auth }) {
+			return auth !== null;
+		},
+	},
 	providers,
 	secret: authSecret,
 });
+
+export async function ensureLoggedIn() {
+	const session = await auth();
+	if (!session) {
+		redirect('/');
+	}
+}
