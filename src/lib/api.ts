@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { isPlainObject } from './utils';
@@ -42,6 +43,20 @@ export const fetchFn = async <Data>(
 ) => {
 	return () => fetchFromApi<Data>(...args);
 };
+
+export function returnError(
+	message: string = 'An error occurred',
+	status: number = 500,
+) {
+	return NextResponse.json(
+		{
+			message,
+			status,
+			success: false,
+		},
+		{ status },
+	);
+}
 
 export const idSchema = z.number().int().positive().min(1);
 export const idSchemaCoerce = z.preprocess(

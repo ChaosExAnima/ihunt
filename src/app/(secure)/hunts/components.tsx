@@ -1,16 +1,17 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { PropsWithChildren, useMemo } from 'react';
 import { z } from 'zod';
 
 import HuntDisplay from '@/components/hunt';
+import { Card } from '@/components/ui/card';
 import {
 	Carousel,
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { fetchFromApi } from '@/lib/api';
+import { fetchFromApi, idSchema } from '@/lib/api';
 import {
 	huntMaxPerDay,
 	HuntSchema,
@@ -19,26 +20,29 @@ import {
 } from '@/lib/constants';
 
 interface HuntsCardsProps {
-	completed: HuntSchema[];
 	hunts: HuntSchema[];
 	userId: number;
 }
 
-export function HuntsCards({ userId, ...initialHunts }: HuntsCardsProps) {
-	const {
-		data: { completed, hunts },
-	} = useQuery({
+const acceptHuntSchema = z.object({
+	accepted: z.boolean(),
+	huntId: idSchema,
+	success: z.literal(true),
+});
+
+export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
+	const { data: hunts } = useQuery({
 		initialData: initialHunts,
-		queryFn: () =>
-			fetchFromApi<Pick<HuntsCardsProps, 'completed' | 'hunts'>>(
+		queryFn: () => fetchFromApi('/api/hunts', {}, z.array(huntSchema)),
+		queryKey: ['hunts'],
+	});
+	const { mutate } = useMutation({
+		mutationFn: (id: number) =>
+			fetchFromApi(
 				'/api/hunts',
-				{},
-				z.object({
-					completed: z.array(huntSchema),
-					hunts: z.array(huntSchema),
-				}),
+				{ body: { id }, method: 'POST' },
+				acceptHuntSchema,
 			),
-		queryKey: ['hunts', userId],
 	});
 	const acceptedToday = useMemo(
 		() =>
@@ -50,42 +54,41 @@ export function HuntsCards({ userId, ...initialHunts }: HuntsCardsProps) {
 			).length,
 		[hunts, userId],
 	);
-	return (
-		<Carousel className="-mx-4 flex flex-col grow">
-			<CarouselContent className="h-full">
-				{hunts.map((hunt) => (
-					<CarouselItem key={hunt.id}>
-						<HuntDisplay
-							className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
-							hunt={hunt}
-							hunterId={userId}
-							remainingHunts={huntMaxPerDay - acceptedToday}
-						/>
-					</CarouselItem>
-				))}
-				<CompletedHunts completed={completed} userId={userId} />
-			</CarouselContent>
-		</Carousel>
-	);
+	return hunts.map((hunt) => (
+		<CarouselItem key={hunt.id}>
+			<HuntDisplay
+				className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+				hunt={hunt}
+				hunterId={userId}
+				onAcceptHunt={(id) => mutate(id)}
+				remainingHunts={huntMaxPerDay - acceptedToday}
+			/>
+		</CarouselItem>
+	));
 }
 
-function CompletedHunts({
-	completed,
-	userId,
-}: Pick<HuntsCardsProps, 'completed' | 'userId'>) {
-	if (completed.length === 0) {
+export function HuntsCompleted({ hunts }: HuntsCardsProps) {
+	if (hunts.length === 0) {
 		return null;
 	}
 	return (
-		<CarouselItem className="flex flex-col gap-4">
-			{completed.map((hunt) => (
-				<HuntDisplay
-					className="mx-4 border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
-					hunt={hunt}
-					hunterId={userId}
+		<CarouselItem>
+			{hunts.map((hunt) => (
+				<Card
+					className="flex flex-col mx-4 border border-stone-400 dark:border-stone-800 gap-4 p-4 shadow-lg"
 					key={hunt.id}
-				/>
+				>
+					{hunt.name}
+				</Card>
 			))}
 		</CarouselItem>
+	);
+}
+
+export function HuntsWrapper({ children }: PropsWithChildren) {
+	return (
+		<Carousel className="-mx-4 flex flex-col grow">
+			<CarouselContent className="h-full">{children}</CarouselContent>
+		</Carousel>
 	);
 }

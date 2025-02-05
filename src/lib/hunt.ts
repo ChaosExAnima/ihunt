@@ -1,7 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-
 import {
 	huntDisplayInclude,
 	HuntSchema,
@@ -42,22 +40,20 @@ export async function acceptHunt(id: number) {
 			where: { id },
 		});
 		console.log(`${user.name} canceled hunt with ID ${id}`);
-	} else {
-		await db.hunt.update({
-			data: {
-				hunters: {
-					connect: {
-						id: user.id,
-					},
+		return { accepted: false, huntId: id };
+	}
+	await db.hunt.update({
+		data: {
+			hunters: {
+				connect: {
+					id: user.id,
 				},
 			},
-			where: { id },
-		});
-		console.log(`${user.name} accepted hunt with ID ${id}`);
-	}
-
-	revalidatePath('/hunts');
-	revalidatePath('/admin/hunts');
+		},
+		where: { id },
+	});
+	console.log(`${user.name} accepted hunt with ID ${id}`);
+	return { accepted: true, huntId: id };
 }
 
 export async function fetchAcceptedHunts(): Promise<HuntSchema[]> {
