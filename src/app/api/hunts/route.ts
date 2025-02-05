@@ -1,12 +1,21 @@
 import { NextResponse } from 'next/server';
 
+import { auth } from '@/lib/auth';
 import {
 	fetchAcceptedHunts,
 	fetchCompletedHunts,
 	fetchOpenHunts,
 } from '@/lib/hunt';
 
-export async function GET() {
+export const GET = auth(async (req) => {
+	if (!req.auth) {
+		return NextResponse.json(
+			{ message: 'Not authorized' },
+			{
+				status: 401,
+			},
+		);
+	}
 	const [accepted, open, completed] = await Promise.all([
 		fetchAcceptedHunts(),
 		fetchOpenHunts(),
@@ -23,4 +32,4 @@ export async function GET() {
 		completed,
 		hunts,
 	});
-}
+});
