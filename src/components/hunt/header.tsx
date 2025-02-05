@@ -1,14 +1,14 @@
 import { Clock, MapPin, Skull } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { currencyFormatter, HuntModel, Locale } from '@/lib/constants';
+import { currencyFormatter, HuntSchema, Locale } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 import Header from '../header';
 import PhotoDisplay from '../photo';
 import { Carousel, CarouselItem } from '../ui/carousel';
 
-type HuntHeaderProps = { className?: string } & HuntModel;
+type HuntHeaderProps = { className?: string } & HuntSchema;
 
 export function HuntDanger({ className = '', danger = 1, payment = 0 }) {
 	return (

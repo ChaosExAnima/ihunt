@@ -13,14 +13,14 @@ import {
 import { fetchFromApi } from '@/lib/api';
 import {
 	huntMaxPerDay,
-	HuntModel,
+	HuntSchema,
 	huntSchema,
 	HuntStatus,
 } from '@/lib/constants';
 
 interface HuntsCardsProps {
-	completed: HuntModel[];
-	hunts: HuntModel[];
+	completed: HuntSchema[];
+	hunts: HuntSchema[];
 	userId: number;
 }
 
@@ -30,7 +30,7 @@ export function HuntsCards({ userId, ...initialHunts }: HuntsCardsProps) {
 	} = useQuery({
 		initialData: initialHunts,
 		queryFn: () =>
-			fetchFromApi(
+			fetchFromApi<Pick<HuntsCardsProps, 'completed' | 'hunts'>>(
 				'/api/hunts',
 				{},
 				z.object({
@@ -43,7 +43,7 @@ export function HuntsCards({ userId, ...initialHunts }: HuntsCardsProps) {
 	const acceptedToday = useMemo(
 		() =>
 			hunts.filter(
-				({ hunters, status }) =>
+				({ hunters = [], status }) =>
 					(status === HuntStatus.Active ||
 						status === HuntStatus.Available) &&
 					hunters.find(({ id }) => id === userId),

@@ -26,7 +26,6 @@ import {
 
 import HunterList from '@/components/hunter-list';
 import {
-	HuntModel,
 	HuntSchema,
 	huntSchema,
 	HuntStatus,
@@ -180,14 +179,14 @@ function huntTransform(
 	record: {
 		hunterIds: number[];
 		hunters?: { id: number }[];
-	} & Omit<HuntModel, 'hunters'>,
+	} & Omit<HuntSchema, 'hunters'>,
 ) {
 	record.hunterIds = (record?.hunters ?? []).map(({ id }) => id);
 	delete record.hunters;
 	return record;
 }
 
-function renderHuntStatus(record: HuntModel) {
+function renderHuntStatus(record: HuntSchema) {
 	return statusNames.find((name) => HuntStatus[name] === record.status);
 }
 
@@ -226,9 +225,9 @@ export function HuntList() {
 				/>
 				<NumberField source="danger" />
 				<FunctionField
-					render={(record: HuntModel) => (
+					render={(record: HuntSchema) => (
 						<HunterList
-							hunters={record.hunters}
+							hunters={record.hunters ?? []}
 							max={record.maxHunters}
 						/>
 					)}

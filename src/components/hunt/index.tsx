@@ -3,7 +3,7 @@
 import { CircleCheckBig, Crosshair, X } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { HuntModel, HuntStatus } from '@/lib/constants';
+import { HuntSchema, HuntStatus } from '@/lib/constants';
 import { acceptHunt } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ import HuntBase from './base';
 
 export interface HuntProps {
 	className?: string;
-	hunt: HuntModel;
+	hunt: HuntSchema;
 	hunterId: number;
 	remainingHunts?: number;
 }
@@ -20,7 +20,7 @@ export interface HuntProps {
 export default function HuntDisplay(props: HuntProps) {
 	const { hunt, hunterId, remainingHunts } = props;
 	const isAccepted = useMemo(
-		() => hunt.hunters.some((hunter) => hunter.id === hunterId),
+		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
 	);
 	switch (hunt.status) {
@@ -34,7 +34,8 @@ export default function HuntDisplay(props: HuntProps) {
 				</HuntBase>
 			);
 		case HuntStatus.Available:
-			const huntersLeft = hunt.maxHunters - hunt.hunters.length > 0;
+			const huntersLeft =
+				hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
 					{huntersLeft && !isAccepted && (

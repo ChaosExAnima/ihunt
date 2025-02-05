@@ -1,7 +1,7 @@
 import { CircleAlert } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
-import { HuntModel } from '@/lib/constants';
+import { HuntSchema } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
@@ -11,7 +11,7 @@ import HuntHuntersDisplay from './hunters';
 
 interface HuntBaseProps {
 	className?: string;
-	hunt: HuntModel;
+	hunt: HuntSchema;
 	hunterId: number;
 	isAccepted: boolean;
 }

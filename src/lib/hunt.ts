@@ -1,13 +1,17 @@
 'use server';
 
-import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
-import { HuntModel, HuntStatus, HuntStatusValues } from './constants';
+import {
+	huntDisplayInclude,
+	HuntSchema,
+	HuntStatus,
+	HuntStatusValues,
+} from './constants';
 import { db } from './db';
 import { sessionToHunter } from './user';
 
-export type AdminHunts = { [key in HuntStatusValues]?: HuntModel[] };
+export type AdminHunts = { [key in HuntStatusValues]?: HuntSchema[] };
 
 export async function acceptHunt(id: number) {
 	const user = await sessionToHunter();
@@ -56,10 +60,10 @@ export async function acceptHunt(id: number) {
 	revalidatePath('/admin/hunts');
 }
 
-export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
+export async function fetchAcceptedHunts(): Promise<HuntSchema[]> {
 	const user = await sessionToHunter();
 	return db.hunt.findMany({
-		include,
+		include: huntDisplayInclude,
 		where: {
 			hunters: {
 				some: {
@@ -71,10 +75,10 @@ export async function fetchAcceptedHunts(include: Prisma.HuntInclude = {}) {
 	});
 }
 
-export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
+export async function fetchCompletedHunts(): Promise<HuntSchema[]> {
 	const user = await sessionToHunter();
 	return db.hunt.findMany({
-		include,
+		include: huntDisplayInclude,
 		where: {
 			hunters: {
 				some: {
@@ -86,9 +90,9 @@ export async function fetchCompletedHunts(include: Prisma.HuntInclude = {}) {
 	});
 }
 
-export async function fetchOpenHunts(include: Prisma.HuntInclude = {}) {
+export async function fetchOpenHunts(): Promise<HuntSchema[]> {
 	return db.hunt.findMany({
-		include,
+		include: huntDisplayInclude,
 		where: {
 			status: HuntStatus.Available,
 		},

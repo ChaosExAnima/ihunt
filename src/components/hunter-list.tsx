@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import Avatar, { AvatarEmpty, AvatarHunter } from './avatar';
+import { HunterSchema } from '@/lib/constants';
+
+import Avatar, { AvatarEmpty } from './avatar';
 
 interface HunterListProps {
 	currentHunterId?: number;
-	hunters: AvatarHunter[];
+	hunters: HunterSchema[];
 	max?: number;
 }
 

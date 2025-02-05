@@ -1,14 +1,15 @@
 import { Link, useCreatePath } from 'react-admin';
 
-import Avatar, { AvatarHunter } from '@/components/avatar';
+import Avatar from '@/components/avatar';
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { HunterSchema } from '@/lib/constants';
 
-export function AdminHunter({ hunter }: { hunter: AvatarHunter }) {
+export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 	const createPath = useCreatePath();
 	if (!hunter) {
 		return null;
