@@ -1,7 +1,7 @@
 import Header from '@/components/header';
 import Navbar from '@/components/navbar';
 import { Button } from '@/components/ui/button';
-import { signOut } from '@/lib/auth';
+import { ensureLoggedIn, signOut } from '@/lib/auth';
 import { sessionToHunter } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
 
@@ -10,6 +10,7 @@ export default async function SecureLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	await ensureLoggedIn();
 	let hunter;
 	try {
 		hunter = await sessionToHunter();
@@ -32,7 +33,6 @@ export default async function SecureLayout({
 		);
 	}
 	const devMode = isDev();
-	// TODO: Check auth information here
 	return (
 		<div
 			className={cn(
