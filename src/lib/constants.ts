@@ -38,12 +38,37 @@ export const huntDisplayInclude = {
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
 
+export type HunterModel = Prisma.HunterGetPayload<{
+	include: { avatar: true };
+}>;
+
+export const hunterSchema = z.object({
+	avatar: z
+		.object({
+			blurry: z.string().optional(),
+			height: z.number().int().positive(),
+			hunterId: idSchema.optional(),
+			huntId: idSchema.optional(),
+			id: idSchema,
+			path: z.string(),
+			width: z.number().int().positive(),
+		})
+		.optional(),
+	avatarId: idSchema.optional(),
+	id: idSchema,
+	name: z.string(),
+	pronouns: z.string().optional(),
+	type: z.string().optional(),
+});
+export type HunterSchema = Zod.infer<typeof hunterSchema>;
+
 export const huntSchema = z.object({
 	comment: z.string().nullable(),
 	completedAt: z.coerce.date().nullable().default(null),
 	danger: z.number().int().min(1).max(3).default(1),
 	description: z.string().default(''),
-	hunters: z.array(z.object({ id: idSchema })).default([]),
+	hunters: z.array(hunterSchema).default([]),
+	id: idSchema,
 	maxHunters: z.number().int().min(1).max(4).default(1),
 	name: z.string().min(1),
 	payment: z.number().int().min(0).default(0),

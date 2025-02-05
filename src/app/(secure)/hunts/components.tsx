@@ -1,6 +1,8 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { z } from 'zod';
 
 import HuntDisplay from '@/components/hunt';
 import {
@@ -8,7 +10,13 @@ import {
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { huntMaxPerDay, HuntModel, HuntStatus } from '@/lib/constants';
+import { fetchFromApi } from '@/lib/api';
+import {
+	huntMaxPerDay,
+	HuntModel,
+	huntSchema,
+	HuntStatus,
+} from '@/lib/constants';
 
 interface HuntsCardsProps {
 	completed: HuntModel[];
@@ -16,7 +24,22 @@ interface HuntsCardsProps {
 	userId: number;
 }
 
-export function HuntsCards({ completed = [], hunts, userId }: HuntsCardsProps) {
+export function HuntsCards({ userId, ...initialHunts }: HuntsCardsProps) {
+	const {
+		data: { completed, hunts },
+	} = useQuery({
+		initialData: initialHunts,
+		queryFn: () =>
+			fetchFromApi(
+				'/api/hunts',
+				{},
+				z.object({
+					completed: z.array(huntSchema),
+					hunts: z.array(huntSchema),
+				}),
+			),
+		queryKey: ['hunts', userId],
+	});
 	const acceptedToday = useMemo(
 		() =>
 			hunts.filter(
