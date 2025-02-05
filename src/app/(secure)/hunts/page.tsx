@@ -5,7 +5,7 @@ import {
 } from '@/lib/hunt';
 import { sessionToHunter } from '@/lib/user';
 
-import { HuntsCards } from './components';
+import { HuntsCards, HuntsCompleted, HuntsWrapper } from './components';
 
 export default async function HuntsPage() {
 	const user = await sessionToHunter();
@@ -16,10 +16,15 @@ export default async function HuntsPage() {
 	]);
 	let hunts = [];
 	if (accepted.length > 0) {
-		hunts = [...accepted];
+		hunts = accepted;
 	} else {
-		hunts = [...open];
+		hunts = open;
 	}
 
-	return <HuntsCards completed={completed} hunts={hunts} userId={user.id} />;
+	return (
+		<HuntsWrapper>
+			<HuntsCards hunts={hunts} userId={user.id} />
+			<HuntsCompleted hunts={completed} userId={user.id} />
+		</HuntsWrapper>
+	);
 }

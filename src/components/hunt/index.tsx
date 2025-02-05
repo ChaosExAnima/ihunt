@@ -4,7 +4,6 @@ import { CircleCheckBig, Crosshair, X } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { HuntSchema, HuntStatus } from '@/lib/constants';
-import { acceptHunt } from '@/lib/hunt';
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
@@ -14,11 +13,12 @@ export interface HuntProps {
 	className?: string;
 	hunt: HuntSchema;
 	hunterId: number;
+	onAcceptHunt: (id: number) => void;
 	remainingHunts?: number;
 }
 
 export default function HuntDisplay(props: HuntProps) {
-	const { hunt, hunterId, remainingHunts } = props;
+	const { hunt, hunterId, onAcceptHunt, remainingHunts } = props;
 	const isAccepted = useMemo(
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
@@ -50,7 +50,7 @@ export default function HuntDisplay(props: HuntProps) {
 					<Button
 						className="flex mx-auto rounded-full font-bold self-center"
 						disabled={!huntersLeft && !isAccepted}
-						onClick={() => acceptHunt(hunt.id)}
+						onClick={() => onAcceptHunt(hunt.id)}
 						variant={isAccepted ? 'destructive' : 'success'}
 					>
 						{isAccepted ? (
