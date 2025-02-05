@@ -1,8 +1,9 @@
-import { Photo } from '@prisma/client';
 import Image, { ImageProps } from 'next/image';
 
+import { PhotoSchema } from '@/lib/constants';
+
 interface PhotoDisplayProps extends Partial<ImageProps> {
-	photo: Photo;
+	photo: PhotoSchema;
 }
 
 export default function PhotoDisplay({

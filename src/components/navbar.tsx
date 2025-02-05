@@ -3,10 +3,12 @@ import type { JSX, PropsWithChildren } from 'react';
 import { Crosshair, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
-import Avatar, { AvatarHunter } from './avatar';
+import { HunterSchema } from '@/lib/constants';
+
+import Avatar from './avatar';
 
 export interface NavbarProps {
-	hunter: AvatarHunter;
+	hunter: HunterSchema;
 }
 
 interface NavbarItemProps {

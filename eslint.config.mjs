@@ -10,6 +10,9 @@ const compat = new FlatCompat({
 	baseDirectory: __dirname,
 });
 
+/**
+ * @type {import('eslint').Linter.Config}
+ */
 const eslintConfig = [
 	perfectionist.configs['recommended-alphabetical'],
 	...compat.extends('next/core-web-vitals', 'next/typescript'),
@@ -22,6 +25,9 @@ const eslintConfig = [
 				},
 			],
 		},
+	},
+	{
+		ignores: ['src/schemas/zod.ts'],
 	},
 ];
 

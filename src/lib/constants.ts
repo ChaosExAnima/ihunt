@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Hunt, Photo, Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 import { idSchema } from './api';
@@ -23,11 +23,7 @@ export const HuntStatus = {
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
 export const huntMaxPerDay = 2;
-export const huntStatus = z.nativeEnum(HuntStatus).default(HuntStatus.Pending);
-
-export type HuntModel = Prisma.HuntGetPayload<{
-	include: typeof huntDisplayInclude;
-}>;
+export const huntStatus = z.nativeEnum(HuntStatus);
 
 export const huntDisplayInclude = {
 	hunters: {
@@ -42,39 +38,51 @@ export type HunterModel = Prisma.HunterGetPayload<{
 	include: { avatar: true };
 }>;
 
-export const hunterSchema = z.object({
-	avatar: z
-		.object({
-			blurry: z.string().optional(),
-			height: z.number().int().positive(),
-			hunterId: idSchema.optional(),
-			huntId: idSchema.optional(),
-			id: idSchema,
-			path: z.string(),
-			width: z.number().int().positive(),
-		})
-		.optional(),
-	avatarId: idSchema.optional(),
+export const photoSchema: Zod.ZodType<Omit<Photo, 'hunterId' | 'huntId'>> =
+	z.object({
+		blurry: z.string().nullable(),
+		height: z.number().int().positive(),
+		id: idSchema,
+		path: z.string(),
+		width: z.number().int().positive(),
+	});
+export type PhotoSchema = Zod.infer<typeof photoSchema>;
+
+export const hunterSchema: z.ZodType<
+	{ avatar: null | PhotoSchema } & Omit<
+		HunterModel,
+		'avatar' | 'avatarId' | 'userId'
+	>
+> = z.object({
+	avatar: photoSchema.nullable(),
+	bio: z.string().nullable(),
+	handle: z.string().nullable(),
 	id: idSchema,
+	money: z.coerce.number().int().min(0),
 	name: z.string(),
-	pronouns: z.string().optional(),
-	type: z.string().optional(),
+	pronouns: z.string().nullable(),
+	type: z.string().nullable(),
 });
 export type HunterSchema = Zod.infer<typeof hunterSchema>;
 
-export const huntSchema = z.object({
+export const huntSchema: z.ZodType<
+	{ hunters?: HunterSchema[]; photos?: PhotoSchema[] } & Omit<
+		Hunt,
+		'createdAt'
+	>
+> = z.object({
 	comment: z.string().nullable(),
-	completedAt: z.coerce.date().nullable().default(null),
-	danger: z.number().int().min(1).max(3).default(1),
-	description: z.string().default(''),
+	completedAt: z.coerce.date().nullable(),
+	danger: z.number().int().min(1).max(3),
+	description: z.string(),
 	hunters: z.array(hunterSchema).default([]),
 	id: idSchema,
-	maxHunters: z.number().int().min(1).max(4).default(1),
+	maxHunters: z.number().int().min(1).max(4),
 	name: z.string().min(1),
-	payment: z.number().int().min(0).default(0),
-	place: z.string().optional(),
-	rating: z.number().int().min(0).max(5).default(0),
-	scheduledAt: z.coerce.date().nullable().default(null),
+	payment: z.number().int().min(0),
+	place: z.string().nullable(),
+	rating: z.number().int().min(0).max(5),
+	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
 });
 export type HuntSchema = Zod.infer<typeof huntSchema>;

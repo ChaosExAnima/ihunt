@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-import { huntDisplayInclude } from '@/lib/constants';
 import {
 	fetchAcceptedHunts,
 	fetchCompletedHunts,
@@ -9,9 +8,9 @@ import {
 
 export async function GET() {
 	const [accepted, open, completed] = await Promise.all([
-		fetchAcceptedHunts(huntDisplayInclude),
-		fetchOpenHunts(huntDisplayInclude),
-		fetchCompletedHunts(huntDisplayInclude),
+		fetchAcceptedHunts(),
+		fetchOpenHunts(),
+		fetchCompletedHunts(),
 	]);
 	let hunts = [];
 	if (accepted.length > 0) {

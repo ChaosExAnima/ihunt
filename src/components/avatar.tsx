@@ -1,18 +1,14 @@
-import { Prisma } from '@prisma/client';
 import { UserRound } from 'lucide-react';
 import Link from 'next/link';
 
+import { HunterSchema } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 import PhotoDisplay from './photo';
 
-export type AvatarHunter = Prisma.HunterGetPayload<{
-	include: { avatar: true };
-}>;
-
 interface AvatarProps {
 	className?: string;
-	hunter: Pick<AvatarHunter, 'avatar' | 'id' | 'name'>;
+	hunter: Pick<HunterSchema, 'avatar' | 'id' | 'name'>;
 	link?: boolean;
 }
 
