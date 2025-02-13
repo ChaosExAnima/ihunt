@@ -38,22 +38,16 @@ export type HunterModel = Prisma.HunterGetPayload<{
 	include: { avatar: true };
 }>;
 
-export const photoSchema: Zod.ZodType<Omit<Photo, 'hunterId' | 'huntId'>> =
-	z.object({
-		blurry: z.string().nullable(),
-		height: z.number().int().positive(),
-		id: idSchema,
-		path: z.string(),
-		width: z.number().int().positive(),
-	});
+export const photoSchema = z.object({
+	blurry: z.string().nullable(),
+	height: z.number().int().positive(),
+	id: idSchema,
+	path: z.string(),
+	width: z.number().int().positive(),
+}) satisfies Zod.ZodType<Omit<Photo, 'hunterId' | 'huntId'>>;
 export type PhotoSchema = Zod.infer<typeof photoSchema>;
 
-export const hunterSchema: z.ZodType<
-	{ avatar: null | PhotoSchema } & Omit<
-		HunterModel,
-		'avatar' | 'avatarId' | 'userId'
-	>
-> = z.object({
+export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
 	handle: z.string().nullable(),
@@ -62,15 +56,15 @@ export const hunterSchema: z.ZodType<
 	name: z.string(),
 	pronouns: z.string().nullable(),
 	type: z.string().nullable(),
-});
+}) satisfies z.ZodType<
+	{ avatar: null | PhotoSchema } & Omit<
+		HunterModel,
+		'avatar' | 'avatarId' | 'userId'
+	>
+>;
 export type HunterSchema = Zod.infer<typeof hunterSchema>;
 
-export const huntSchema: z.ZodType<
-	{ hunters?: HunterSchema[]; photos?: PhotoSchema[] } & Omit<
-		Hunt,
-		'createdAt'
-	>
-> = z.object({
+export const huntSchema = z.object({
 	comment: z.string().nullable(),
 	completedAt: z.coerce.date().nullable(),
 	danger: z.number().int().min(1).max(3),
@@ -86,5 +80,10 @@ export const huntSchema: z.ZodType<
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
 	warnings: z.string().nullable(),
-});
+}) satisfies z.ZodType<
+	{ hunters?: HunterSchema[]; photos?: PhotoSchema[] } & Omit<
+		Hunt,
+		'createdAt'
+	>
+>;
 export type HuntSchema = Zod.infer<typeof huntSchema>;

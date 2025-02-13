@@ -1,6 +1,6 @@
 import type { CreateParams } from 'react-admin';
 
-import { Hunt, Prisma } from '@prisma/client';
+import { Hunt, Hunter, Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import {
 	createHandler,
@@ -55,6 +55,9 @@ const route = async (req: Request) => {
 							hunters: true,
 						},
 					},
+				);
+				result.data.hunters = result.data.hunters.map(
+					(h: Hunter) => h.id,
 				);
 				return NextResponse.json(result);
 			}
