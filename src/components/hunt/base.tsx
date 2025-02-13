@@ -1,5 +1,7 @@
+'use client';
+
 import { CircleAlert } from 'lucide-react';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useState } from 'react';
 
 import { HuntSchema } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -23,6 +25,7 @@ export default function HuntBase({
 	hunterId,
 	isAccepted,
 }: PropsWithChildren<HuntBaseProps>) {
+	const [showCW, setShowCW] = useState(false);
 	return (
 		<Card className={cn(className, 'flex flex-col gap-2')}>
 			<HuntHeader {...hunt} />
@@ -36,11 +39,18 @@ export default function HuntBase({
 
 			<div className="flex grow">
 				<p className="text-primary/60 text-sm grow">
-					{hunt.description}
+					{showCW ? `CWs: ${hunt.warnings}` : hunt.description}
 				</p>
-				<Button className="text-rose-700" size="icon" variant="ghost">
-					<CircleAlert />
-				</Button>
+				{!!hunt.warnings && (
+					<Button
+						className="text-rose-700 shrink-0"
+						onClick={() => setShowCW(!showCW)}
+						size="icon"
+						variant="ghost"
+					>
+						<CircleAlert />
+					</Button>
+				)}
 			</div>
 
 			{children}

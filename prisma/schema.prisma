@@ -23,6 +23,7 @@ model Hunt {
     comment     String?
     payment     Int
     place       String?
+    warnings    String?
 
     @@index([status])
 }

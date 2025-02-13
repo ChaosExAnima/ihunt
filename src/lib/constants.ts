@@ -85,5 +85,6 @@ export const huntSchema: z.ZodType<
 	rating: z.number().int().min(0).max(5).nullable(),
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
+	warnings: z.string().nullable(),
 });
 export type HuntSchema = Zod.infer<typeof huntSchema>;
