@@ -48,13 +48,14 @@ export function HuntCreate() {
 						required
 						source="description"
 					/>
-					<NumberInput min={0} source="payment" step={10} />
+					<TextInput source="warnings" />
 					<NumberInput
 						defaultValue={1}
 						max={3}
 						min={1}
 						source="danger"
 					/>
+					<NumberInput min={0} source="payment" step={10} />
 					<DateTimeInput source="scheduledAt" />
 					<NumberInput
 						defaultValue={4}
@@ -85,18 +86,15 @@ export function HuntEdit() {
 						required
 						source="description"
 					/>
-					<TextInput source="place" />
 					<FormDataConsumer<HuntSchema>>
 						{({ formData: { status }, ...rest }) => {
 							const completed = status === HuntStatus.Complete;
 							return (
 								<>
-									<NumberInput
+									<TextInput
 										{...rest}
 										disabled={completed}
-										min={0}
-										source="payment"
-										step={10}
+										source="warnings"
 									/>
 									<NumberInput
 										{...rest}
@@ -105,6 +103,17 @@ export function HuntEdit() {
 										max={3}
 										min={1}
 										source="danger"
+									/>
+									<TextInput
+										disabled={completed}
+										source="place"
+									/>
+									<NumberInput
+										{...rest}
+										disabled={completed}
+										min={0}
+										source="payment"
+										step={10}
 									/>
 									<DateTimeInput
 										{...rest}
