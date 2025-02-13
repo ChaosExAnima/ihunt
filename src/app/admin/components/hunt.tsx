@@ -158,10 +158,10 @@ export function HuntEdit() {
 									/>
 									<NumberInput
 										{...rest}
-										defaultValue={5}
 										max={5}
 										min={1}
 										source="rating"
+										step={0.5}
 									/>
 									<TextInput
 										{...rest}
