@@ -14,8 +14,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import UploadPhoto from '@/components/upload-photo';
+import { useDebounceCallback } from '@/hooks/use-debounce-callback';
 import { fetchFromApi } from '@/lib/api';
-import { useDebounceCallback } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 
 interface BioBlockProps {
