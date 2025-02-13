@@ -1,6 +1,7 @@
 import Header from '@/components/header';
 import Navbar from '@/components/navbar';
 import { Button } from '@/components/ui/button';
+import { Toaster } from '@/components/ui/toaster';
 import { ensureLoggedIn, signOut } from '@/lib/auth';
 import { sessionToHunter } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
@@ -26,6 +27,7 @@ export default async function SecureLayout({
 				<main className="grow px-4 flex flex-col gap-2 pb-4">
 					{children}
 				</main>
+				<Toaster />
 			</div>
 		);
 	} catch (err) {
