@@ -25,7 +25,12 @@ export async function fetchFromApi<Data>(
 	}
 	const body = await response.json();
 	if (schema) {
-		return schema.parseAsync(body);
+		try {
+			return schema.parse(body);
+		} catch (err) {
+			console.error(err);
+			throw err;
+		}
 	}
 	return body as Data;
 }

@@ -80,8 +80,9 @@ export const huntSchema: z.ZodType<
 	maxHunters: z.number().int().min(1).max(4),
 	name: z.string().min(1),
 	payment: z.number().int().min(0),
+	photos: z.array(photoSchema).default([]),
 	place: z.string().nullable(),
-	rating: z.number().int().min(0).max(5),
+	rating: z.number().int().min(0).max(5).nullable(),
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
 });

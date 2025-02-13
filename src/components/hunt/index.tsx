@@ -17,7 +17,7 @@ export interface HuntProps {
 	remainingHunts?: number;
 }
 
-export default function HuntDisplay(props: HuntProps) {
+export function HuntDisplay(props: HuntProps) {
 	const { hunt, hunterId, onAcceptHunt, remainingHunts } = props;
 	const isAccepted = useMemo(
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),

@@ -1,10 +1,11 @@
 'use client';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PropsWithChildren, useMemo } from 'react';
 import { z } from 'zod';
 
-import HuntDisplay from '@/components/hunt';
+import { HuntDisplay } from '@/components/hunt';
+import { HuntLoading } from '@/components/hunt/loading';
 import { Card } from '@/components/ui/card';
 import {
 	Carousel,
@@ -31,11 +32,13 @@ const acceptHuntSchema = z.object({
 });
 
 export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
-	const { data: hunts } = useQuery({
+	const { data: hunts, isLoading } = useQuery({
 		initialData: initialHunts,
 		queryFn: () => fetchFromApi('/api/hunts', {}, z.array(huntSchema)),
 		queryKey: ['hunts'],
+		structuralSharing: false,
 	});
+	const queryClient = useQueryClient();
 	const { mutate } = useMutation({
 		mutationFn: (id: number) =>
 			fetchFromApi(
@@ -43,10 +46,15 @@ export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
 				{ body: { id }, method: 'POST' },
 				acceptHuntSchema,
 			),
+		async onSuccess() {
+			await queryClient.invalidateQueries({
+				queryKey: ['hunts'],
+			});
+		},
 	});
 	const acceptedToday = useMemo(
 		() =>
-			hunts.filter(
+			(hunts ?? []).filter(
 				({ hunters = [], status }) =>
 					(status === HuntStatus.Active ||
 						status === HuntStatus.Available) &&
@@ -54,6 +62,13 @@ export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
 			).length,
 		[hunts, userId],
 	);
+	if (!hunts || isLoading) {
+		return (
+			<CarouselItem>
+				<HuntLoading className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg" />
+			</CarouselItem>
+		);
+	}
 	return hunts.map((hunt) => (
 		<CarouselItem key={hunt.id}>
 			<HuntDisplay
