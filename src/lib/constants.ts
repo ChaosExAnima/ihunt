@@ -76,7 +76,7 @@ export const huntSchema = z.object({
 	payment: z.number().int().min(0),
 	photos: z.array(photoSchema).default([]),
 	place: z.string().nullable(),
-	rating: z.number().int().min(0).max(5).nullable(),
+	rating: z.number().min(0).max(5).nullable(),
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
 	warnings: z.string().nullable(),
