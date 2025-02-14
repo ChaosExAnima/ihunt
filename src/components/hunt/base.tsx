@@ -27,7 +27,7 @@ export default function HuntBase({
 }: PropsWithChildren<HuntBaseProps>) {
 	const [showCW, setShowCW] = useState(false);
 	return (
-		<Card className={cn(className, 'flex flex-col gap-2')}>
+		<Card className={cn(className, 'flex flex-col gap-2 p-4')}>
 			<HuntHeader {...hunt} />
 
 			<HuntHuntersDisplay

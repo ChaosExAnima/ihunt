@@ -8,16 +8,16 @@ import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
 import HuntBase from './base';
+import type { PropsWithClassName } from '@/lib/types';
 
 export interface HuntProps {
-	className?: string;
 	hunt: HuntSchema;
 	hunterId: number;
-	onAcceptHunt: (id: number) => void;
+	onAcceptHunt?: (id: number) => void;
 	remainingHunts?: number;
 }
 
-export function HuntDisplay(props: HuntProps) {
+export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 	const { hunt, hunterId, onAcceptHunt, remainingHunts } = props;
 	const isAccepted = useMemo(
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
@@ -50,7 +50,7 @@ export function HuntDisplay(props: HuntProps) {
 					<Button
 						className="flex mx-auto rounded-full font-bold self-center"
 						disabled={!huntersLeft && !isAccepted}
-						onClick={() => onAcceptHunt(hunt.id)}
+						onClick={() => onAcceptHunt?.(hunt.id)}
 						variant={isAccepted ? 'destructive' : 'success'}
 					>
 						{isAccepted ? (
@@ -70,7 +70,7 @@ export function HuntDisplay(props: HuntProps) {
 				<HuntBase {...props} isAccepted={isAccepted}>
 					<div
 						className={cn(
-							'flex mt-4 gap-2 items-center justify-center font-semibold self-center',
+							'flex my-4 gap-2 items-center justify-center font-semibold self-center',
 							'text-green-500',
 						)}
 					>

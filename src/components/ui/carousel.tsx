@@ -8,6 +8,8 @@ import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Slot } from '@radix-ui/react-slot';
+import { AttributesWithAsChild } from '@/lib/types';
 
 type CarouselApi = UseEmblaCarouselType[1];
 type CarouselContextProps = {
@@ -175,12 +177,13 @@ CarouselContent.displayName = 'CarouselContent';
 
 const CarouselItem = React.forwardRef<
 	HTMLDivElement,
-	React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+	AttributesWithAsChild<HTMLDivElement>
+>(({ className, asChild = false, ...props }, ref) => {
 	const { orientation } = useCarousel();
+	const Wrapper = asChild ? Slot : 'div';
 
 	return (
-		<div
+		<Wrapper
 			aria-roledescription="slide"
 			className={cn(
 				'min-w-0 shrink-0 grow-0 basis-full',
