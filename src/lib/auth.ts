@@ -28,6 +28,8 @@ if (emailFrom && emailServer) {
 	);
 }
 
+export type ProviderName = 'discord' | 'email';
+
 export const { auth, handlers, signIn, signOut } = NextAuth({
 	adapter: PrismaAdapter(db),
 	callbacks: {
