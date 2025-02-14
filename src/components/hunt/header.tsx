@@ -1,7 +1,9 @@
 import { Clock, MapPin, Skull } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { currencyFormatter, HuntSchema, Locale } from '@/lib/constants';
+import { Locale } from '@/lib/constants';
+import { useCurrencyFormat } from '@/lib/formats';
+import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import Header from '../header';
@@ -11,6 +13,7 @@ import { Carousel, CarouselItem } from '../ui/carousel';
 type HuntHeaderProps = { className?: string } & HuntSchema;
 
 export function HuntDanger({ className = '', danger = 1, payment = 0 }) {
+	const paymentFormatted = useCurrencyFormat(payment);
 	return (
 		<div className={cn('p-2', className)}>
 			<div className="flex text-rose-700 mb-2">
@@ -20,7 +23,7 @@ export function HuntDanger({ className = '', danger = 1, payment = 0 }) {
 			</div>
 			{payment > 0 && (
 				<span className="text-white font-semibold text-xl">
-					{currencyFormatter.format(payment)}
+					{paymentFormatted}
 				</span>
 			)}
 		</div>

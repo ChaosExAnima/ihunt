@@ -1,13 +1,8 @@
 'use server';
 
-import {
-	huntDisplayInclude,
-	HuntSchema,
-	huntsSchema,
-	HuntStatus,
-	HuntStatusValues,
-} from './constants';
+import { huntDisplayInclude, HuntStatus, HuntStatusValues } from './constants';
 import { db } from './db';
+import { HuntSchema, huntsSchema } from './schemas';
 import { sessionToHunter } from './user';
 
 export type AdminHunts = { [key in HuntStatusValues]?: HuntSchema[] };

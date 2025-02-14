@@ -62,9 +62,3 @@ export function returnError(
 		{ status },
 	);
 }
-
-export const idSchema = z.number().int().positive().min(1);
-export const idSchemaCoerce = z.preprocess(
-	(arg) => (typeof arg === 'string' ? Number.parseInt(arg) : arg),
-	idSchema,
-);

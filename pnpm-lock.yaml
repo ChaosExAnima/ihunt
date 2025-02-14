@@ -141,6 +141,9 @@ importers:
       eslint-plugin-perfectionist:
         specifier: ^4.4.0
         version: 4.4.0(eslint@9.17.0(jiti@2.4.2))(typescript@5.7.2)
+      eslint-plugin-react-hooks:
+        specifier: ^5.1.0
+        version: 5.1.0(eslint@9.17.0(jiti@2.4.2))
       postcss:
         specifier: ^8
         version: 8.4.49
@@ -156,6 +159,9 @@ importers:
       tailwindcss:
         specifier: ^4.0.0
         version: 4.0.0
+      ts-toolbelt:
+        specifier: ^9.6.0
+        version: 9.6.0
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
@@ -3206,6 +3212,9 @@ packages:
     engines: {node: '>=16'}
     peerDependencies:
       typescript: '>=4.2.0'
+
+  ts-toolbelt@9.6.0:
+    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
 
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
@@ -6548,6 +6557,8 @@ snapshots:
   ts-api-utils@1.4.3(typescript@5.7.2):
     dependencies:
       typescript: 5.7.2
+
+  ts-toolbelt@9.6.0: {}
 
   tsconfig-paths@3.15.0:
     dependencies:

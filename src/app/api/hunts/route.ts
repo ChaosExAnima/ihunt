@@ -2,9 +2,10 @@ import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { idSchema, parseRequestBody, returnError } from '@/lib/api';
+import { parseRequestBody, returnError } from '@/lib/api';
 import { auth } from '@/lib/auth';
 import { acceptHunt, fetchAcceptedHunts, fetchOpenHunts } from '@/lib/hunt';
+import { idSchema } from '@/lib/schemas';
 
 export const GET = auth(async (req) => {
 	if (!req.auth) {

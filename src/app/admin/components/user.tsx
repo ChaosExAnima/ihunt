@@ -16,7 +16,7 @@ import {
 } from 'react-admin';
 import { z } from 'zod';
 
-import { idSchema } from '@/lib/api';
+import { idSchema } from '@/lib/schemas';
 
 import { HunterRow } from './hunter';
 

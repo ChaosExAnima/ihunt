@@ -1,5 +1,6 @@
 'use client';
 
+import { Slot } from '@radix-ui/react-slot';
 import useEmblaCarousel, {
 	type UseEmblaCarouselType,
 } from 'embla-carousel-react';
@@ -7,9 +8,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Slot } from '@radix-ui/react-slot';
 import { AttributesWithAsChild } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 type CarouselApi = UseEmblaCarouselType[1];
 type CarouselContextProps = {
@@ -178,7 +178,7 @@ CarouselContent.displayName = 'CarouselContent';
 const CarouselItem = React.forwardRef<
 	HTMLDivElement,
 	AttributesWithAsChild<HTMLDivElement>
->(({ className, asChild = false, ...props }, ref) => {
+>(({ asChild = false, className, ...props }, ref) => {
 	const { orientation } = useCarousel();
 	const Wrapper = asChild ? Slot : 'div';
 

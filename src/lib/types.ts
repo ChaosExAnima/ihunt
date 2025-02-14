@@ -1,8 +1,8 @@
 import { HTMLAttributes } from 'react';
 
-export type PropsWithClassName<T = unknown> = { className?: string } & T;
+export type AttributesWithAsChild<E extends HTMLElement, EProps = object> = {
+	asChild?: boolean;
+} & EProps &
+	Omit<HTMLAttributes<E>, keyof EProps>;
 
-export type AttributesWithAsChild<E extends HTMLElement, EProps = {}> = EProps &
-	Omit<HTMLAttributes<E>, keyof EProps> & {
-		asChild?: boolean;
-	};
+export type PropsWithClassName<T = unknown> = { className?: string } & T;
