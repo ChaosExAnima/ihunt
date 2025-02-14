@@ -1,6 +1,6 @@
 import Image, { ImageProps } from 'next/image';
 
-import { PhotoSchema } from '@/lib/constants';
+import { PhotoSchema } from '@/lib/schemas';
 
 interface PhotoDisplayProps extends Partial<ImageProps> {
 	photo: PhotoSchema;

@@ -1,7 +1,7 @@
 import { UserRound } from 'lucide-react';
 import Link from 'next/link';
 
-import { HunterSchema } from '@/lib/constants';
+import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import PhotoDisplay from './photo';

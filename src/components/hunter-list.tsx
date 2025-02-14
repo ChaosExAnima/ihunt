@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import { HunterSchema } from '@/lib/constants';
+import { HunterSchema } from '@/lib/schemas';
 
 import Avatar, { AvatarEmpty } from './avatar';
 

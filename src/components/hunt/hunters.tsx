@@ -1,4 +1,4 @@
-import { HuntSchema } from '@/lib/constants';
+import { HuntSchema } from '@/lib/schemas';
 
 import HunterList from '../hunter-list';
 import { HuntProps } from './index';

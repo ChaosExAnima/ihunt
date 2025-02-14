@@ -3,7 +3,7 @@
 import { CircleAlert } from 'lucide-react';
 import { PropsWithChildren, useState } from 'react';
 
-import { HuntSchema } from '@/lib/constants';
+import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
