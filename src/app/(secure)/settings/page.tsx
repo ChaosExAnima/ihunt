@@ -4,8 +4,8 @@ import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth';
-import { currencyFormatter } from '@/lib/constants';
 import { db } from '@/lib/db';
+import { currencyFormatter } from '@/lib/formats';
 import { sessionToHunter } from '@/lib/user';
 
 import { AvatarReplaceButton, EditableBlock, SettingBlock } from './components';

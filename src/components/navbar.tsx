@@ -3,7 +3,7 @@ import type { JSX, PropsWithChildren } from 'react';
 import { Crosshair, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
-import { HunterSchema } from '@/lib/constants';
+import { HunterSchema } from '@/lib/schemas';
 
 import Avatar from './avatar';
 

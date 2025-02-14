@@ -39,14 +39,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-	currencyFormatter,
-	HuntSchema,
-	huntSchema,
-	HuntStatus,
-	HuntStatusValues,
-	Locale,
-} from '@/lib/constants';
+import { HuntStatus, HuntStatusValues, Locale } from '@/lib/constants';
+import { useCurrencyFormat } from '@/lib/formats';
+import { HuntSchema, huntSchema } from '@/lib/schemas';
 
 type HuntStatusName = keyof typeof HuntStatus;
 const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
@@ -315,6 +310,8 @@ function HuntCompleteDialog() {
 						: parseFloat(event.target.value),
 			}));
 
+	const formattedPayment = useCurrencyFormat(modalData.payment);
+
 	return (
 		<Dialog onOpenChange={setModalOpen} open={modalOpen}>
 			<DialogTrigger asChild>
@@ -328,8 +325,8 @@ function HuntCompleteDialog() {
 				</DialogHeader>
 				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
 					<p>
-						You are paying the hunters&nbsp;
-						{currencyFormatter.format(modalData.payment)}.
+						{`You are paying the hunter
+						${formattedPayment}.`}
 					</p>
 					<Input
 						min={0}

@@ -7,7 +7,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { HunterSchema } from '@/lib/constants';
+import { HunterSchema } from '@/lib/schemas';
 
 export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 	const createPath = useCreatePath();
