@@ -90,9 +90,12 @@ export function HuntsCompleted({ hunts }: HuntsCardsProps) {
 	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {
 		const huntsByDate = new Map<string, HuntSchema[]>();
 		for (const hunt of hunts) {
-			const { completedAt: date } = hunt;
-			const key = dateFormat(date ?? new Date(0));
-			huntsByDate.set(key, [...(huntsByDate.get(key) ?? []), hunt]);
+			const { completedAt, scheduledAt } = hunt;
+			const date = scheduledAt ?? completedAt ?? new Date(0);
+			const key = dateFormat(date);
+			const huntsInDate = huntsByDate.get(key) ?? [];
+			huntsInDate.push(hunt);
+			huntsByDate.set(key, huntsInDate);
 		}
 
 		return [...huntsByDate];
