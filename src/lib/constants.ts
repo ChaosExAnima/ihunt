@@ -69,12 +69,12 @@ export const huntSchema = z.object({
 	completedAt: z.coerce.date().nullable(),
 	danger: z.number().int().min(1).max(3),
 	description: z.string(),
-	hunters: z.array(hunterSchema).default([]),
+	hunters: z.array(hunterSchema),
 	id: idSchema,
 	maxHunters: z.number().int().min(1).max(4),
 	name: z.string().min(1),
 	payment: z.number().int().min(0),
-	photos: z.array(photoSchema).default([]),
+	photos: z.array(photoSchema),
 	place: z.string().nullable(),
 	rating: z.number().min(0).max(5).nullable(),
 	scheduledAt: z.coerce.date().nullable(),
@@ -87,3 +87,4 @@ export const huntSchema = z.object({
 	>
 >;
 export type HuntSchema = Zod.infer<typeof huntSchema>;
+export const huntsSchema = z.array(huntSchema);

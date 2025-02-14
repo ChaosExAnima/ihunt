@@ -3,6 +3,7 @@
 import {
 	huntDisplayInclude,
 	HuntSchema,
+	huntsSchema,
 	HuntStatus,
 	HuntStatusValues,
 } from './constants';
@@ -58,39 +59,45 @@ export async function acceptHunt(id: number) {
 
 export async function fetchAcceptedHunts(): Promise<HuntSchema[]> {
 	const user = await sessionToHunter();
-	return db.hunt.findMany({
-		include: huntDisplayInclude,
-		where: {
-			hunters: {
-				some: {
-					id: user.id,
+	return huntsSchema.parse(
+		await db.hunt.findMany({
+			include: huntDisplayInclude,
+			where: {
+				hunters: {
+					some: {
+						id: user.id,
+					},
 				},
+				status: HuntStatus.Active,
 			},
-			status: HuntStatus.Active,
-		},
-	});
+		}),
+	);
 }
 
 export async function fetchCompletedHunts(): Promise<HuntSchema[]> {
 	const user = await sessionToHunter();
-	return db.hunt.findMany({
-		include: huntDisplayInclude,
-		where: {
-			hunters: {
-				some: {
-					id: user.id,
+	return huntsSchema.parse(
+		await db.hunt.findMany({
+			include: huntDisplayInclude,
+			where: {
+				hunters: {
+					some: {
+						id: user.id,
+					},
 				},
+				status: HuntStatus.Complete,
 			},
-			status: HuntStatus.Complete,
-		},
-	});
+		}),
+	);
 }
 
 export async function fetchOpenHunts(): Promise<HuntSchema[]> {
-	return db.hunt.findMany({
-		include: huntDisplayInclude,
-		where: {
-			status: HuntStatus.Available,
-		},
-	});
+	return huntsSchema.parse(
+		await db.hunt.findMany({
+			include: huntDisplayInclude,
+			where: {
+				status: HuntStatus.Available,
+			},
+		}),
+	);
 }

@@ -10,16 +10,9 @@ export const GET = auth(async (req) => {
 	if (!req.auth) {
 		return returnError('Not authorized', 401);
 	}
-	const [accepted, open] = await Promise.all([
-		fetchAcceptedHunts(),
-		fetchOpenHunts(),
-	]);
-	let hunts = [];
-	if (accepted.length > 0) {
-		hunts = accepted;
-	} else {
-		hunts = open;
-	}
+	const hunts = (
+		await Promise.all([fetchAcceptedHunts(), fetchOpenHunts()])
+	).flatMap((hunts) => hunts);
 
 	return NextResponse.json(hunts);
 });
