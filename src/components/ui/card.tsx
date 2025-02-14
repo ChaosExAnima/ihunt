@@ -1,13 +1,13 @@
+import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
 import { AttributesWithAsChild } from '@/lib/types';
-import { Slot } from '@radix-ui/react-slot';
+import { cn } from '@/lib/utils';
 
 const Card = React.forwardRef<
 	HTMLDivElement,
 	AttributesWithAsChild<HTMLDivElement>
->(({ className, asChild = false, ...props }, ref) => {
+>(({ asChild = false, className, ...props }, ref) => {
 	const Wrapper = asChild ? Slot : 'div';
 	return (
 		<Wrapper

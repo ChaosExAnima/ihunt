@@ -1,6 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { PropsWithChildren, useMemo } from 'react';
 import { z } from 'zod';
 
@@ -12,16 +14,10 @@ import {
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { fetchFromApi, idSchema } from '@/lib/api';
-import {
-	currencyFormatter,
-	huntMaxPerDay,
-	HuntSchema,
-	huntSchema,
-	HuntStatus,
-} from '@/lib/constants';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { fetchFromApi } from '@/lib/api';
+import { huntMaxPerDay, HuntStatus } from '@/lib/constants';
+import { dateFormat, useCurrencyFormat } from '@/lib/formats';
+import { huntSchema, HuntSchema, idSchema } from '@/lib/schemas';
 
 interface HuntsCardsProps {
 	hunts: HuntSchema[];
@@ -91,26 +87,33 @@ export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
 }
 
 export function HuntsCompleted({ hunts }: HuntsCardsProps) {
+	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {
+		const huntsByDate = new Map<string, HuntSchema[]>();
+		for (const hunt of hunts) {
+			const { completedAt: date } = hunt;
+			const key = dateFormat(date ?? new Date(0));
+			huntsByDate.set(key, [...(huntsByDate.get(key) ?? []), hunt]);
+		}
+
+		return [...huntsByDate];
+	}, [hunts]);
 	if (hunts.length === 0) {
 		return null;
 	}
 	return (
-		<CarouselItem className="flex flex-col gap-4" asChild>
-			<ul>
-				{hunts.map((hunt) => (
-					<li key={hunt.id}>
-						<Card
-							className="block mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
-							asChild
-						>
-							<Link href={`/hunts/${hunt.id}`}>
-								{`${hunt.name} ‒ ${currencyFormatter.format(hunt.payment)}`}
-								<ArrowRight className="float-right" />
-							</Link>
-						</Card>
+		<CarouselItem asChild>
+			<ol>
+				{huntsByDate.map(([date, hunts]) => (
+					<li className="mx-4 mb-4" key={date}>
+						<p className="mb-4">{date}</p>
+						<ul className="flex flex-col gap-4">
+							{hunts.map((hunt) => (
+								<CompletedHunt hunt={hunt} key={hunt.id} />
+							))}
+						</ul>
 					</li>
 				))}
-			</ul>
+			</ol>
 		</CarouselItem>
 	);
 }
@@ -122,5 +125,22 @@ export function HuntsWrapper({ children }: PropsWithChildren) {
 				{children}
 			</CarouselContent>
 		</Carousel>
+	);
+}
+
+function CompletedHunt({ hunt }: { hunt: HuntSchema }) {
+	const payment = useCurrencyFormat(hunt.payment);
+	return (
+		<li>
+			<Card
+				asChild
+				className="block border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+			>
+				<Link href={`/hunts/${hunt.id}`}>
+					{`${hunt.name} ‒ ${payment}`}
+					<ArrowRight className="float-right" />
+				</Link>
+			</Card>
+		</li>
 	);
 }

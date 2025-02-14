@@ -3,12 +3,14 @@
 import { CircleCheckBig, Crosshair, X } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { HuntSchema, HuntStatus } from '@/lib/constants';
+import type { PropsWithClassName } from '@/lib/types';
+
+import { HuntStatus } from '@/lib/constants';
+import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
 import HuntBase from './base';
-import type { PropsWithClassName } from '@/lib/types';
 
 export interface HuntProps {
 	hunt: HuntSchema;
