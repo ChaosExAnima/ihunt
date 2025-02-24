@@ -16,7 +16,8 @@ export const HuntStatus = {
 } as const;
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
-export const huntMaxPerDay = 2;
+export const HUNT_MAX_PER_DAY = 2;
+export const HUNT_MAX_DANGER = 5;
 
 export const huntDisplayInclude = {
 	hunters: {
