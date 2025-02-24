@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import type { PropsWithClassName } from '@/lib/types';
 
 import { HuntStatus } from '@/lib/constants';
+import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
 	);
+	const payment = useCurrencyFormat(hunt.payment);
 	switch (hunt.status) {
 		case HuntStatus.Active:
 			return (
@@ -70,6 +72,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 		case HuntStatus.Complete:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
+					<p>You earned {payment}!</p>
 					<div
 						className={cn(
 							'flex my-4 gap-2 items-center justify-center font-semibold self-center',

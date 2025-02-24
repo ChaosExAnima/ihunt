@@ -2,7 +2,7 @@ import type { Hunt, Photo } from '@prisma/client';
 
 import { z } from 'zod';
 
-import { HunterModel, HuntStatus } from './constants';
+import { HUNT_MAX_DANGER, HunterModel, HuntStatus } from './constants';
 
 export const idSchema = z.number().int().positive().min(1);
 export const idSchemaCoerce = z.preprocess(
@@ -41,7 +41,7 @@ export type HunterSchema = Zod.infer<typeof hunterSchema>;
 export const huntSchema = z.object({
 	comment: z.string().nullable(),
 	completedAt: z.coerce.date().nullable(),
-	danger: z.number().int().min(1).max(3),
+	danger: z.number().int().min(1).max(HUNT_MAX_DANGER),
 	description: z.string(),
 	hunters: z.array(hunterSchema),
 	id: idSchema,

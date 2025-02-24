@@ -15,7 +15,7 @@ import {
 	CarouselItem,
 } from '@/components/ui/carousel';
 import { fetchFromApi } from '@/lib/api';
-import { huntMaxPerDay, HuntStatus } from '@/lib/constants';
+import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
 import { dateFormat, useCurrencyFormat } from '@/lib/formats';
 import { huntSchema, HuntSchema, idSchema } from '@/lib/schemas';
 
@@ -80,7 +80,7 @@ export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
 				hunt={hunt as HuntSchema}
 				hunterId={userId}
 				onAcceptHunt={(id) => mutate(id)}
-				remainingHunts={huntMaxPerDay - acceptedToday}
+				remainingHunts={HUNT_MAX_PER_DAY - acceptedToday}
 			/>
 		</CarouselItem>
 	));
@@ -124,7 +124,7 @@ export function HuntsCompleted({ hunts }: HuntsCardsProps) {
 export function HuntsWrapper({ children }: PropsWithChildren) {
 	return (
 		<Carousel className="-mx-4 flex flex-col grow">
-			<CarouselContent className="max-h-full" slot="ul">
+			<CarouselContent className="min-h-full" slot="ul">
 				{children}
 			</CarouselContent>
 		</Carousel>

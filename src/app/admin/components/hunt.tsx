@@ -46,9 +46,11 @@ import { HuntSchema, huntSchema } from '@/lib/schemas';
 type HuntStatusName = keyof typeof HuntStatus;
 const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
 
-const huntSchemaWithIds = huntSchema.extend({
-	hunters: z.array(z.number()),
-});
+const huntSchemaWithIds = huntSchema
+	.extend({
+		hunters: z.array(z.number()),
+	})
+	.omit({ photos: true });
 export function HuntCreate() {
 	return (
 		<Create>
@@ -100,8 +102,11 @@ export function HuntEdit() {
 						source="description"
 					/>
 					<FormDataConsumer<HuntSchema>>
-						{({ formData: { status }, ...rest }) => {
-							const completed = status === HuntStatus.Complete;
+						{({ formData, ...rest }) => {
+							console.log('data:', formData, rest);
+
+							const completed =
+								formData.status === HuntStatus.Complete;
 							return (
 								<>
 									<TextInput
