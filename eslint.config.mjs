@@ -24,6 +24,12 @@ const eslintConfig = [
 					internalPattern: ['^@/.+'],
 				},
 			],
+			'perfectionist/sort-modules': [
+				'error',
+				{
+					partitionByLine: true,
+				},
+			],
 		},
 	},
 	{
