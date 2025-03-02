@@ -24,7 +24,7 @@ export default async function SettingsPage() {
 	};
 	const handleChangeAction = async (rawHandle: string) => {
 		'use server';
-		const newHandle = rawHandle.replaceAll(/^[a-z0-9\-_]/, '');
+		const newHandle = rawHandle.replaceAll(/^[a-z0-9\-_]/g, '');
 		if (!rawHandle || newHandle === hunter.handle) {
 			return;
 		}
@@ -57,10 +57,11 @@ export default async function SettingsPage() {
 					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
 				<SettingBlock className="gap-2" label="Handle">
-					@
 					<EditableBlock
 						onChange={handleChangeAction}
 						value={hunter.handle ?? ''}
+						placeholder="@handle"
+						prefix="@"
 					/>
 				</SettingBlock>
 				<SettingBlock label="Bio">
@@ -68,6 +69,7 @@ export default async function SettingsPage() {
 						multiline
 						onChange={bioChangeAction}
 						value={hunter.bio ?? ''}
+						placeholder="Tell us about yourself!"
 					/>
 				</SettingBlock>
 			</section>
