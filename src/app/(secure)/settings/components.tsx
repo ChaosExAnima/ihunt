@@ -1,12 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import {
-	ChangeEventHandler,
-	PropsWithChildren,
-	useCallback,
-	useState,
-} from 'react';
+import React from 'react';
 import { z } from 'zod';
 
 import { Input } from '@/components/ui/input';
@@ -18,21 +13,9 @@ import { useDebounceCallback } from '@/hooks/use-debounce-callback';
 import { fetchFromApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
-interface BioBlockProps {
-	multiline?: boolean;
-	onChange: (value: string) => Promise<void>;
-	value: string;
-}
-
-interface SettingBlockProps extends PropsWithChildren {
-	className?: string;
-	id?: string;
-	label: string;
-}
-
 export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	const router = useRouter();
-	const handleSubmit = useCallback(
+	const handleSubmit = React.useCallback(
 		async (blob: Blob) => {
 			const body = await fetchFromApi(
 				'/settings/avatar',
@@ -59,24 +42,45 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	);
 }
 
+type EditableBlockBaseProps = {
+	multiline?: boolean;
+	onChange: (value: string) => Promise<void>;
+	value: string;
+	prefix?: string;
+};
+type EditableBlockProps = EditableBlockBaseProps &
+	Omit<
+		React.ComponentProps<'input'> & React.ComponentProps<'textarea'>,
+		keyof EditableBlockBaseProps
+	>;
 export function EditableBlock({
 	multiline = false,
 	onChange,
 	value: initialValue,
-}: BioBlockProps) {
-	const [value, setValue] = useState(initialValue);
-	const handleChange: ChangeEventHandler<
+	prefix,
+	...props
+}: EditableBlockProps) {
+	const [value, setValue] = React.useState(initialValue);
+	const handleChange: React.ChangeEventHandler<
 		HTMLInputElement | HTMLTextAreaElement
 	> = (event) => {
-		const newValue = event.target.value.trim();
+		let newValue = event.target.value.trim();
+		if (newValue && prefix && !newValue.startsWith(prefix)) {
+			newValue = prefix + newValue;
+		}
 		setValue(newValue);
 	};
 	useDebounceCallback(onChange, value);
 	const Component = multiline ? Textarea : Input;
 
-	return <Component onChange={handleChange} value={value} />;
+	return <Component {...props} onChange={handleChange} value={value} />;
 }
 
+interface SettingBlockProps extends React.PropsWithChildren {
+	className?: string;
+	id?: string;
+	label: string;
+}
 export function SettingBlock({
 	children,
 	className,
