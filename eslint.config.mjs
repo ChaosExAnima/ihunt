@@ -27,7 +27,7 @@ const eslintConfig = [
 			'perfectionist/sort-modules': [
 				'error',
 				{
-					partitionByLine: true,
+					partitionByNewLine: true,
 				},
 			],
 		},
