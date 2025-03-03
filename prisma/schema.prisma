@@ -69,6 +69,8 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    run           Int       @default(1)
+    hideMoney     Boolean   @default(false)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
