@@ -45,8 +45,8 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 type EditableBlockBaseProps = {
 	multiline?: boolean;
 	onChange: (value: string) => Promise<void>;
-	value: string;
 	prefix?: string;
+	value: string;
 };
 type EditableBlockProps = EditableBlockBaseProps &
 	Omit<
@@ -56,8 +56,8 @@ type EditableBlockProps = EditableBlockBaseProps &
 export function EditableBlock({
 	multiline = false,
 	onChange,
-	value: initialValue,
 	prefix,
+	value: initialValue,
 	...props
 }: EditableBlockProps) {
 	const [value, setValue] = React.useState(initialValue);
