@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
 import HuntBase from './base';
+import { HuntPics } from './pics';
 
 export interface HuntProps {
 	hunt: HuntSchema;
@@ -31,9 +32,10 @@ export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 		case HuntStatus.Active:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
-					<div className="flex mt-4 gap-2 items-center justify-center text-blue-500 text-center font-semibold">
+					{isAccepted && <HuntPics />}
+					<div className="flex mt-4 gap-2 items-center justify-center text-rose-700 text-center font-semibold">
 						<Crosshair className="size-4 shrink-0" />
-						Ongoing
+						{isAccepted ? 'Good hunting!' : 'Ongoing'}
 					</div>
 				</HuntBase>
 			);
