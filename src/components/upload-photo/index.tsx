@@ -5,12 +5,13 @@ import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
 import UploadCropper from './cropper';
-import UploadDialog from './dialog';
+import UploadDialog, { UploadDialogProps } from './dialog';
 import { blobToDataUrl, imageToBlob } from './functions';
 
 interface UploadPhotoProps {
 	aspect?: number;
 	circular?: boolean;
+	dialogProps?: Partial<UploadDialogProps>;
 	onCrop: (blob: Blob) => Promise<boolean>;
 	title: string;
 }
@@ -18,6 +19,7 @@ interface UploadPhotoProps {
 export default function UploadPhoto({
 	aspect,
 	circular = false,
+	dialogProps,
 	onCrop,
 	title,
 }: UploadPhotoProps) {
@@ -99,6 +101,7 @@ export default function UploadPhoto({
 				type="file"
 			/>
 			<UploadDialog
+				{...dialogProps}
 				disabled={disabled}
 				onConfirm={handleDialogConfirm}
 				open={open}
