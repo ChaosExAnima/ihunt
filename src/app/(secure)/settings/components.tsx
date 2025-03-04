@@ -64,7 +64,7 @@ export function EditableBlock({
 	const handleChange: React.ChangeEventHandler<
 		HTMLInputElement | HTMLTextAreaElement
 	> = (event) => {
-		let newValue = event.target.value.trim();
+		let newValue = event.target.value;
 		if (newValue && prefix && !newValue.startsWith(prefix)) {
 			newValue = prefix + newValue;
 		}

@@ -4,13 +4,14 @@ import { useMemo } from 'react';
 import { Locale } from '@/lib/constants';
 import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
+import { PropsWithClassName } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import Header from '../header';
 import PhotoDisplay from '../photo';
 import { Carousel, CarouselItem } from '../ui/carousel';
 
-type HuntHeaderProps = { className?: string } & HuntSchema;
+type HuntHeaderProps = PropsWithClassName<HuntSchema>;
 
 export function HuntDanger({ className = '', danger = 1, payment = 0 }) {
 	const paymentFormatted = useCurrencyFormat(payment);

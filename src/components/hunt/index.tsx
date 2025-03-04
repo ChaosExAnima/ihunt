@@ -72,7 +72,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 		case HuntStatus.Complete:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
-					<p>You earned {payment}!</p>
+					{payment && <p>You earned {payment}!</p>}
 					<div
 						className={cn(
 							'flex my-4 gap-2 items-center justify-center font-semibold self-center',

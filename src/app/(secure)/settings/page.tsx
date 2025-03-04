@@ -25,8 +25,9 @@ export default async function SettingsPage() {
 	};
 
 	const hunter = await sessionToHunter();
-	const bioChangeAction = async (newBio: string) => {
+	const bioChangeAction = async (rawBio: string) => {
 		'use server';
+		const newBio = rawBio.trim();
 		if (!newBio || newBio === hunter.bio) {
 			return;
 		}
@@ -49,7 +50,7 @@ export default async function SettingsPage() {
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-foreground rounded-md shadow-xs">
+			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-background rounded-md shadow-xs">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
@@ -58,7 +59,7 @@ export default async function SettingsPage() {
 				</SettingBlock>
 				<SettingBlock className="" label="Cash">
 					<div className="flex-col items-start gap-0 grow">
-						{user.hideMoney ? (
+						{!user.hideMoney ? (
 							<>
 								<p>{currencyFormatter.format(hunter.money)}</p>
 								<p className="text-xs text-muted-foreground">
