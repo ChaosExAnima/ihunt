@@ -17,7 +17,7 @@ export default function Avatar({
 	hunter,
 	link = false,
 }: AvatarProps) {
-	const pic = hunter.avatar;
+	const photo = hunter.avatar;
 
 	if (link) {
 		return (
@@ -35,7 +35,7 @@ export default function Avatar({
 				className,
 			)}
 		>
-			{pic && <PhotoDisplay photo={pic} />}
+			{photo && <PhotoDisplay photo={photo} />}
 			<span className="uppercase flex h-full w-full items-center justify-center rounded-full bg-muted">
 				{hunter.name.slice(0, 2)}
 			</span>
