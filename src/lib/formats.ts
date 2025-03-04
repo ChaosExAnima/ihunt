@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { usePlayerSettings } from '@/components/providers/player';
+
 import { Currency, Locale } from './constants';
 
 // Dates and times
@@ -34,7 +36,12 @@ export function dateFormat(date: Date) {
 }
 
 export function useCurrencyFormat(amount: number) {
-	return useMemo(() => currencyFormatter.format(amount), [amount]);
+	const { hideMoney } = usePlayerSettings();
+	const formatted = useMemo(() => currencyFormatter.format(amount), [amount]);
+	if (hideMoney) {
+		return '';
+	}
+	return formatted;
 }
 
 export function useDateFormat(date: Date) {
