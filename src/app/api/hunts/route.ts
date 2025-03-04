@@ -4,16 +4,14 @@ import { z } from 'zod';
 
 import { parseRequestBody, returnError } from '@/lib/api';
 import { auth } from '@/lib/auth';
-import { acceptHunt, fetchAcceptedHunts, fetchOpenHunts } from '@/lib/hunt';
+import { acceptHunt, fetchAllPublicHunts } from '@/lib/hunt';
 import { idSchema } from '@/lib/schemas';
 
 export const GET = auth(async (req) => {
 	if (!req.auth) {
 		return returnError('Not authorized', 401);
 	}
-	const hunts = (
-		await Promise.all([fetchAcceptedHunts(), fetchOpenHunts()])
-	).flatMap((hunts) => hunts);
+	const hunts = await fetchAllPublicHunts();
 
 	return NextResponse.json(hunts);
 });

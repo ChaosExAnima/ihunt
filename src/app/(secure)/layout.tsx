@@ -1,12 +1,13 @@
+import ActionButton from '@/components/action-button';
 import Header from '@/components/header';
 import Navbar from '@/components/navbar';
 import {
 	PlayerSettings,
 	PlayerSettingsProvider,
 } from '@/components/providers/player';
-import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
 import { ensureLoggedIn, signOut } from '@/lib/auth';
+import { isHuntActive } from '@/lib/hunt';
 import { sessionToHunter, sessionToUser } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
 
@@ -26,6 +27,7 @@ export default async function SecureLayout({
 			hunter,
 			loggedIn: true,
 		};
+		const huntActive = await isHuntActive();
 
 		return (
 			<div
@@ -36,7 +38,7 @@ export default async function SecureLayout({
 				)}
 			>
 				<PlayerSettingsProvider settings={settings}>
-					<Navbar hunter={hunter} />
+					<Navbar hunter={hunter} isHuntActive={huntActive} />
 					<main className="grow px-4 flex flex-col gap-2 pb-4">
 						{children}
 					</main>
@@ -55,15 +57,12 @@ function NoHunter() {
 		<main className="p-4 flex flex-col gap-4 text-center max-w-(--breakpoint-sm) mx-auto">
 			<Header level={1}>No hunter</Header>
 			<p>You do not have a hunter assigned yet.</p>
-			<Button
-				onClick={async () => {
-					'use server';
-					await signOut({ redirectTo: '/' });
-				}}
+			<ActionButton
+				onChange={() => signOut({ redirectTo: '/' })}
 				variant="secondary"
 			>
 				Log out
-			</Button>
+			</ActionButton>
 		</main>
 	);
 }
