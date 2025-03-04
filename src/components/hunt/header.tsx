@@ -9,11 +9,45 @@ import { cn } from '@/lib/utils';
 
 import Header from '../header';
 import PhotoDisplay from '../photo';
-import { Carousel, CarouselItem } from '../ui/carousel';
 
 type HuntHeaderProps = PropsWithClassName<HuntSchema>;
 
-export function HuntDanger({ className = '', danger = 1, payment = 0 }) {
+export default function HuntHeader(hunt: HuntHeaderProps) {
+	const mainPhoto = hunt.photos.at(0);
+	if (!mainPhoto) {
+		return null;
+	}
+
+	return (
+		<div className="relative rounded-lg overflow-hidden">
+			<PhotoDisplay
+				className="max-w-full object-cover object-top"
+				photo={mainPhoto}
+			/>
+			<HuntDanger
+				className="top-0 left-0 absolute"
+				danger={hunt.danger}
+				payment={hunt.payment}
+			/>
+			<HuntMeta
+				className="absolute bottom-0"
+				date={hunt.completedAt ?? hunt.scheduledAt ?? undefined}
+				name={hunt.name}
+				place={hunt.place}
+			/>
+		</div>
+	);
+}
+
+interface HuntDangerProps {
+	danger?: number;
+	payment?: number;
+}
+export function HuntDanger({
+	className,
+	danger = 1,
+	payment = 0,
+}: PropsWithClassName<HuntDangerProps>) {
 	const paymentFormatted = useCurrencyFormat(payment);
 	return (
 		<div className={cn('p-2', className)}>
@@ -27,25 +61,6 @@ export function HuntDanger({ className = '', danger = 1, payment = 0 }) {
 					{paymentFormatted}
 				</span>
 			)}
-		</div>
-	);
-}
-
-export default function HuntHeader(hunt: HuntHeaderProps) {
-	return (
-		<div className="relative rounded-lg overflow-hidden">
-			<HuntPhotoDisplay photos={hunt.photos} />
-			<HuntDanger
-				className="top-0 left-0 absolute"
-				danger={hunt.danger}
-				payment={hunt.payment}
-			/>
-			<HuntMeta
-				className="absolute bottom-0"
-				date={hunt.completedAt ?? hunt.scheduledAt ?? undefined}
-				name={hunt.name}
-				place={hunt.place}
-			/>
 		</div>
 	);
 }
@@ -93,30 +108,5 @@ export function HuntMeta({
 				)}
 			</p>
 		</div>
-	);
-}
-
-export function HuntPhotoDisplay({
-	className: parentClassName,
-	photos,
-}: Pick<HuntHeaderProps, 'className' | 'photos'>) {
-	const className = cn(
-		'rounded-lg max-w-full object-cover object-top',
-		parentClassName,
-	);
-	if (!photos || !photos.length) {
-		return null;
-	}
-	if (photos.length === 1) {
-		return <PhotoDisplay className={className} photo={photos[0]} />;
-	}
-	return (
-		<Carousel>
-			{photos.map((photo) => (
-				<CarouselItem key={photo.id}>
-					<PhotoDisplay className={className} photo={photo} />
-				</CarouselItem>
-			))}
-		</Carousel>
 	);
 }
