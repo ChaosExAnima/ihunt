@@ -4,6 +4,7 @@ import { Crosshair, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import { HunterSchema } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 import Avatar from './avatar';
 
@@ -23,11 +24,13 @@ interface NavbarItemProps {
 export default function Navbar({
 	children,
 	hunter,
+	isHuntActive,
 }: PropsWithChildren<NavbarProps>) {
 	return (
 		<nav className="border-b border-stone-400 dark:border-stone-800 bg-background shadow-md mb-4 sticky">
 			<ol className="flex gap-2 justify-start items-center">
 				<NavbarItemLink
+					className={cn(isHuntActive && 'text-rose-700')}
 					href="/hunts"
 					icon={<Crosshair />}
 					name="Hunts"
