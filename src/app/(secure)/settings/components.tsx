@@ -18,7 +18,7 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	const handleSubmit = React.useCallback(
 		async (blob: Blob) => {
 			const body = await fetchFromApi(
-				'/settings/avatar',
+				'/api/settings/avatar',
 				{
 					body: blob,
 					method: 'POST',
