@@ -1,25 +1,14 @@
-import {
-	fetchAcceptedHunts,
-	fetchCompletedHunts,
-	fetchOpenHunts,
-} from '@/lib/hunt';
+import { fetchAllPublicHunts, fetchCompletedHunts } from '@/lib/hunt';
 import { sessionToHunter } from '@/lib/user';
 
 import { HuntsCards, HuntsCompleted, HuntsWrapper } from './components';
 
 export default async function HuntsPage() {
 	const user = await sessionToHunter();
-	const [accepted, open, completed] = await Promise.all([
-		fetchAcceptedHunts(),
-		fetchOpenHunts(),
+	const [hunts, completed] = await Promise.all([
+		fetchAllPublicHunts(),
 		fetchCompletedHunts(),
 	]);
-	let hunts = [];
-	if (accepted.length > 0) {
-		hunts = accepted;
-	} else {
-		hunts = open;
-	}
 
 	return (
 		<HuntsWrapper>

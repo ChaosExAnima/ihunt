@@ -9,6 +9,7 @@ import Avatar from './avatar';
 
 export interface NavbarProps {
 	hunter: HunterSchema;
+	isHuntActive: boolean;
 }
 
 interface NavbarItemProps {
