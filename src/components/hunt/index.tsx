@@ -32,7 +32,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 		case HuntStatus.Active:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
-					{isAccepted && <HuntPics />}
+					{isAccepted && <HuntPics huntId={hunt.id} />}
 					<div className="flex mt-4 gap-2 items-center justify-center text-rose-700 text-center font-semibold">
 						<Crosshair className="size-4 shrink-0" />
 						{isAccepted ? 'Good hunting!' : 'Ongoing'}
