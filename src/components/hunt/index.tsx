@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleCheckBig, Crosshair, X } from 'lucide-react';
+import { CircleCheckBig, X } from 'lucide-react';
 import { useMemo } from 'react';
 
 import type { PropsWithClassName } from '@/lib/types';
@@ -11,17 +11,17 @@ import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
+import { HuntDisplayActive } from './active';
 import HuntBase from './base';
-import { HuntPics } from './pics';
 
-export interface HuntProps {
+export interface HuntDisplayProps {
 	hunt: HuntSchema;
 	hunterId: number;
 	onAcceptHunt?: (id: number) => void;
 	remainingHunts?: number;
 }
 
-export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
+export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 	const { hunt, hunterId, onAcceptHunt, remainingHunts } = props;
 	const isAccepted = useMemo(
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
@@ -31,13 +31,11 @@ export function HuntDisplay(props: PropsWithClassName<HuntProps>) {
 	switch (hunt.status) {
 		case HuntStatus.Active:
 			return (
-				<HuntBase {...props} isAccepted={isAccepted}>
-					{isAccepted && <HuntPics huntId={hunt.id} />}
-					<div className="flex mt-4 gap-2 items-center justify-center text-rose-700 text-center font-semibold">
-						<Crosshair className="size-4 shrink-0" />
-						{isAccepted ? 'Good hunting!' : 'Ongoing'}
-					</div>
-				</HuntBase>
+				<HuntDisplayActive
+					hunt={hunt}
+					hunterId={hunterId}
+					isAccepted={isAccepted}
+				/>
 			);
 		case HuntStatus.Available:
 			const huntersLeft =

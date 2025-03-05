@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
 import { uploadPhoto } from '@/lib/photo';
+import { idSchemaCoerce } from '@/lib/schemas';
 import { sessionToHunter } from '@/lib/user';
 
 type HuntPhotosRouteParams = {
@@ -19,20 +20,49 @@ export async function POST(
 		const body = await request.bytes();
 		const user = await sessionToHunter();
 
-		const photo = await uploadPhoto({
+		await uploadPhoto({
 			buffer: body,
 			hunterId: user.id,
 			huntId: Number.parseInt(huntId, 10),
 		});
-		await db.hunter.update({
-			data: {
-				avatarId: photo.id,
-			},
-			where: { id: user.id },
-		});
 	} catch (err: unknown) {
 		if (err instanceof Error) {
 			console.error('Error with upload:', err.stack);
+		}
+		return NextResponse.json({
+			success: false,
+		});
+	}
+
+	return NextResponse.json({
+		success: true,
+	});
+}
+
+export async function DELETE(
+	request: NextRequest,
+	{ params }: HuntPhotosRouteParams,
+) {
+	try {
+		const { huntId } = await params;
+		const photoId = idSchemaCoerce.parse(
+			request.nextUrl.searchParams.get('photoId'),
+		);
+		if (!photoId) {
+			throw new Error('No photoId');
+		}
+		const hunter = await sessionToHunter();
+
+		await db.photo.delete({
+			where: {
+				hunterId: hunter.id,
+				huntId: idSchemaCoerce.parse(huntId),
+				id: photoId,
+			},
+		});
+	} catch (err: unknown) {
+		if (err instanceof Error) {
+			console.error('Error with deletion:', err.stack);
 		}
 		return NextResponse.json({
 			success: false,

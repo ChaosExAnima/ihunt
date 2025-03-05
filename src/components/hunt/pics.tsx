@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Camera } from 'lucide-react';
 import { useCallback } from 'react';
 import { z } from 'zod';
@@ -8,6 +9,7 @@ import { Button } from '../ui/button';
 import UploadPhoto from '../upload-photo';
 
 export function HuntPics({ huntId }: { huntId: number }) {
+	const queryClient = useQueryClient();
 	const handleCrop = useCallback(
 		async (image: Blob) => {
 			const { success } = await fetchFromApi(
@@ -20,18 +22,23 @@ export function HuntPics({ huntId }: { huntId: number }) {
 					success: z.boolean(),
 				}),
 			);
+			if (success) {
+				await queryClient.invalidateQueries({ queryKey: ['hunts'] });
+			}
 			return success;
 		},
-		[huntId],
+		[huntId, queryClient],
+	);
+	const button = (
+		<Button variant="ghost">
+			Upload photos
+			<Camera />
+		</Button>
 	);
 	return (
 		<UploadPhoto
 			dialogProps={{
-				button: (
-					<Button size="icon" variant="ghost">
-						<Camera />
-					</Button>
-				),
+				button,
 			}}
 			onCrop={handleCrop}
 			title="Upload a pic"
