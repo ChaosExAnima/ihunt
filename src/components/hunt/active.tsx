@@ -24,7 +24,7 @@ export function HuntDisplayActive({
 }: HuntDisplayActiveProps) {
 	const [index, setIndex] = useState(-1);
 	const handlePicPick = (newIndex: number) =>
-		setIndex((oldIndex) => (oldIndex === newIndex ? -1 : newIndex));
+		setIndex((oldIndex) => (oldIndex === newIndex ? 0 : newIndex));
 	return (
 		<HuntBase
 			afterHeader={
@@ -36,7 +36,7 @@ export function HuntDisplayActive({
 				/>
 			}
 			className="mx-4"
-			hideHeader={index >= 0}
+			hideHeader={index > 0}
 			hunt={hunt}
 			hunterId={hunterId}
 			isAccepted={isAccepted}
@@ -61,21 +61,23 @@ function HuntPicPicker({
 	hunterId,
 	onPick,
 }: HuntPicsPicker & Pick<HuntDisplayActiveProps, 'hunt' | 'hunterId'>) {
-	const photos = hunt.photos.slice(1);
+	const photos = hunt.photos;
 	const currentPhoto = photos[activeIndex];
 
+	const showPhoto = activeIndex >= 1;
+
 	useEffect(() => {
-		if (!currentPhoto && activeIndex >= 0) {
-			onPick(-1);
+		if (!currentPhoto && activeIndex >= 1) {
+			onPick(0);
 		}
 	}, [activeIndex, currentPhoto, onPick]);
 
-	if (!photos.length) {
+	if (photos.length <= 1) {
 		return null;
 	}
 	return (
 		<div className="">
-			{!!currentPhoto && (
+			{!!currentPhoto && showPhoto && (
 				<ActivePhoto
 					hunterId={hunterId}
 					hunters={hunt.hunters}

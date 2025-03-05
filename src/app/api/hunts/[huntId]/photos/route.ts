@@ -53,7 +53,10 @@ export async function DELETE(
 		}
 		const hunter = await sessionToHunter();
 
-		await db.photo.delete({
+		await db.photo.update({
+			data: {
+				huntId: null,
+			},
 			where: {
 				hunterId: hunter.id,
 				huntId: idSchemaCoerce.parse(huntId),
