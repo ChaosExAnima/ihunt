@@ -15,6 +15,7 @@ export const huntStatus = z.nativeEnum(HuntStatus);
 export const photoSchema = z.object({
 	blurry: z.string().nullable(),
 	height: z.number().int().positive(),
+	hunterId: idSchema.nullable(),
 	id: idSchema,
 	path: z.string(),
 	width: z.number().int().positive(),

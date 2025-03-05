@@ -1,7 +1,7 @@
 import { HuntSchema } from '@/lib/schemas';
 
 import HunterList from '../hunter-list';
-import { HuntProps } from './index';
+import { HuntDisplayProps } from './index';
 
 interface HuntHuntersDisplayProps {
 	isAccepted?: boolean;
@@ -12,7 +12,7 @@ export default function HuntHuntersDisplay({
 	hunters,
 	maxHunters,
 }: HuntHuntersDisplayProps &
-	Pick<HuntProps, 'hunterId'> &
+	Pick<HuntDisplayProps, 'hunterId'> &
 	Pick<HuntSchema, 'hunters' | 'maxHunters'>) {
 	return (
 		<div className="flex gap-2 items-center text-sm">
