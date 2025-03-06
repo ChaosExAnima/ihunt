@@ -140,7 +140,8 @@ function CompletedHunt({ hunt }: { hunt: HuntSchema }) {
 				className="block border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
 			>
 				<Link href={`/hunts/${hunt.id}`}>
-					{`${hunt.name} ‒ ${payment}`}
+					{hunt.name}
+					{payment && `‒ ${payment}`}
 					<ArrowRight className="float-right" />
 				</Link>
 			</Card>
