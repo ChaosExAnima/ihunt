@@ -49,12 +49,12 @@ export function HuntPics({
 					photo={currentPhoto}
 				/>
 			)}
-			<ul className="flex flex-wrap gap-2 mb-2">
+			<ul className="grid grid-cols-6 gap-2 mb-2">
 				{photos.map((photo, index) => (
 					<li key={photo.id}>
 						<PhotoDisplay
 							className={cn(
-								'size-10 rounded-md cursor-pointer border border-transparent',
+								'aspect-square w-full rounded-md cursor-pointer border border-transparent',
 								index === activeIndex && 'border-rose-700',
 							)}
 							onClick={() => onPick(index)}
@@ -83,7 +83,7 @@ function ActivePhoto({ hunterId, hunters, huntId, photo }: ActivePhotoProps) {
 	const isCurrentHunter = currentHunter?.id === hunterId;
 	return (
 		<div className="mb-2 rounded-md overflow-hidden relative">
-			<PhotoDisplay photo={photo} />
+			<PhotoDisplay className="w-full" photo={photo} />
 			{!!currentHunter && !isCurrentHunter && (
 				<span className="absolute right-0 bottom-0 p-2 text-white text-sm flex gap-2 items-center bg-black/40 rounded-tl-md">
 					Uploaded by:
