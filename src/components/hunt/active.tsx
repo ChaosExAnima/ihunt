@@ -22,7 +22,7 @@ export function HuntDisplayActive({
 	hunterId,
 	isAccepted,
 }: HuntDisplayActiveProps) {
-	const [index, setIndex] = useState(-1);
+	const [index, setIndex] = useState(0);
 	const handlePicPick = (newIndex: number) =>
 		setIndex((oldIndex) => (oldIndex === newIndex ? 0 : newIndex));
 	return (
