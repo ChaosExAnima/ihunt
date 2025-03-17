@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist_Mono, Kanit } from 'next/font/google';
 
 import './globals.css';
 
@@ -9,9 +9,10 @@ import { cn, isDev } from '@/lib/utils';
 
 import { Providers } from './providers';
 
-const geistSans = Geist({
+const kanit = Kanit({
 	subsets: ['latin'],
-	variable: '--font-geist-sans',
+	variable: '--font-kanit',
+	weight: ['400', '700'],
 });
 
 const geistMono = Geist_Mono({
@@ -35,7 +36,7 @@ export default function RootLayout({
 			<head />
 			<body
 				className={cn(
-					geistSans.variable,
+					kanit.variable,
 					geistMono.variable,
 					'antialiased bg-stone-200 dark:bg-black',
 				)}
