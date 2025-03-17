@@ -13,7 +13,7 @@ import PhotoDisplay from '../photo';
 type HuntHeaderProps = PropsWithClassName<HuntSchema>;
 
 export default function HuntHeader(hunt: HuntHeaderProps) {
-	const mainPhoto = hunt.photos.at(0);
+	const mainPhoto = hunt.photos?.at(0);
 	if (!mainPhoto) {
 		return null;
 	}
@@ -57,7 +57,7 @@ export function HuntDanger({
 				))}
 			</div>
 			{payment > 0 && (
-				<span className="text-white font-semibold text-xl">
+				<span className="text-white font-semibold text-xl text-shadow">
 					{paymentFormatted}
 				</span>
 			)}
