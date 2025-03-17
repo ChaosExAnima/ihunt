@@ -50,16 +50,16 @@ export const huntSchema = z.object({
 	name: z.string().min(1),
 	payment: z.number().int().min(0),
 	photos: z.array(photoSchema),
-	place: z.string().nullable(),
-	rating: z.number().min(0).max(5).nullable(),
+	place: z.string().nullish(),
+	rating: z.coerce.number().min(0).max(5),
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
-	warnings: z.string().nullable(),
-}) satisfies z.ZodType<
-	{ hunters?: HunterSchema[]; photos?: PhotoSchema[] } & Omit<
-		Hunt,
-		'createdAt'
-	>
+	warnings: z.string().nullish(),
+}) as z.ZodType<
+	{
+		hunters?: HunterSchema[];
+		photos?: PhotoSchema[];
+	} & Omit<Hunt, 'createdAt'>
 >;
 export type HuntSchema = Zod.infer<typeof huntSchema>;
 export const huntsSchema = z.array(huntSchema);
