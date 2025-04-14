@@ -3,7 +3,7 @@ import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server';
 
 import appConfig from '@/lib/config';
 
-import { type AdminSessionState } from './app/admin/actions';
+import { type AdminSessionState } from './admin/actions';
 
 export async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
