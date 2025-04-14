@@ -1,6 +1,6 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
 
-import { Button, ButtonProps } from '../ui/button';
+import { Button } from '../ui/button';
 import {
 	Dialog,
 	DialogClose,
@@ -11,26 +11,26 @@ import {
 } from '../ui/dialog';
 import { DialogDescription, DialogFooter, DialogHeader } from '../ui/dialog';
 
-interface UploadDialogProps extends PropsWithChildren {
-	buttonProps?: ButtonProps;
+export interface UploadDialogProps {
+	button?: ReactElement;
 	disabled?: boolean;
 	onConfirm: () => Promise<boolean>;
 	open: boolean;
 	setOpen: (open: boolean) => void;
 	title: string;
-	triggerText?: string;
 }
 
+const defaultButton = <Button variant="secondary">Replace</Button>;
+
 export default function UploadDialog({
-	buttonProps = {},
+	button = defaultButton,
 	children,
 	disabled = false,
 	onConfirm,
 	open,
 	setOpen,
 	title,
-	triggerText = 'Replace',
-}: UploadDialogProps) {
+}: PropsWithChildren<UploadDialogProps>) {
 	const handleChange = (open: boolean) => {
 		setOpen(open);
 	};
@@ -41,11 +41,7 @@ export default function UploadDialog({
 	};
 	return (
 		<Dialog onOpenChange={handleChange} open={open}>
-			<DialogTrigger asChild>
-				<Button variant="secondary" {...buttonProps}>
-					{triggerText}
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{button}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
@@ -54,11 +50,15 @@ export default function UploadDialog({
 					</DialogDescription>
 				</DialogHeader>
 				{children}
-				<DialogFooter>
+				<DialogFooter className="gap-2">
 					<DialogClose asChild disabled={disabled}>
 						<Button variant="destructive">Cancel</Button>
 					</DialogClose>
-					<Button disabled={disabled} onClick={handleConfirm}>
+					<Button
+						disabled={disabled}
+						onClick={handleConfirm}
+						variant="success"
+					>
 						Confirm
 					</Button>
 				</DialogFooter>

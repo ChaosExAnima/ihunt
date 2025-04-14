@@ -1,7 +1,7 @@
-import { HuntModel } from '@/lib/constants';
+import { HuntSchema } from '@/lib/schemas';
 
 import HunterList from '../hunter-list';
-import { HuntProps } from './index';
+import { HuntDisplayProps } from './index';
 
 interface HuntHuntersDisplayProps {
 	isAccepted?: boolean;
@@ -12,14 +12,14 @@ export default function HuntHuntersDisplay({
 	hunters,
 	maxHunters,
 }: HuntHuntersDisplayProps &
-	Pick<HuntModel, 'hunters' | 'maxHunters'> &
-	Pick<HuntProps, 'hunterId'>) {
+	Pick<HuntDisplayProps, 'hunterId'> &
+	Pick<HuntSchema, 'hunters' | 'maxHunters'>) {
 	return (
 		<div className="flex gap-2 items-center text-sm">
 			<p>Hunters:</p>
 			<HunterList
 				currentHunterId={hunterId}
-				hunters={hunters}
+				hunters={hunters ?? []}
 				max={maxHunters}
 			/>
 		</div>

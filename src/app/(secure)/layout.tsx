@@ -1,8 +1,14 @@
+import ActionButton from '@/components/action-button';
 import Header from '@/components/header';
 import Navbar from '@/components/navbar';
-import { Button } from '@/components/ui/button';
-import { signOut } from '@/lib/auth';
-import { sessionToHunter } from '@/lib/user';
+import {
+	PlayerSettings,
+	PlayerSettingsProvider,
+} from '@/components/providers/player';
+import { Toaster } from '@/components/ui/toaster';
+import { ensureLoggedIn, signOut } from '@/lib/auth';
+import { isHuntActive } from '@/lib/hunt';
+import { sessionToHunter, sessionToUser } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
 
 export default async function SecureLayout({
@@ -10,41 +16,53 @@ export default async function SecureLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	let hunter;
+	await ensureLoggedIn();
 	try {
-		hunter = await sessionToHunter();
+		const user = await sessionToUser();
+		const hunter = await sessionToHunter();
+		const devMode = isDev();
+
+		const settings: PlayerSettings = {
+			hideMoney: user.hideMoney,
+			hunter,
+			loggedIn: true,
+		};
+		const huntActive = await isHuntActive();
+
+		return (
+			<div
+				className={cn(
+					'grow flex flex-col w-full justify-stretch',
+					devMode && 'border border-stone-400 dark:border-stone-800',
+					devMode && 'w-[360px] min-h-[687px] mx-auto mt-4',
+				)}
+			>
+				<PlayerSettingsProvider settings={settings}>
+					<Navbar hunter={hunter} isHuntActive={huntActive} />
+					<main className="grow px-4 flex flex-col gap-2 pb-4">
+						{children}
+					</main>
+					<Toaster />
+				</PlayerSettingsProvider>
+			</div>
+		);
 	} catch (err) {
 		console.error('Error with session:', err);
-		return (
-			<main className="p-4 flex flex-col gap-4 text-center max-w-(--breakpoint-sm) mx-auto">
-				<Header level={1}>No hunter</Header>
-				<p>You do not have a hunter assigned yet.</p>
-				<Button
-					onClick={async () => {
-						'use server';
-						await signOut({ redirectTo: '/' });
-					}}
-					variant="secondary"
-				>
-					Log out
-				</Button>
-			</main>
-		);
 	}
-	const devMode = isDev();
-	// TODO: Check auth information here
+	return <NoHunter />;
+}
+
+function NoHunter() {
 	return (
-		<div
-			className={cn(
-				'grow flex flex-col w-full justify-stretch',
-				devMode && 'border border-stone-400 dark:border-stone-800',
-				devMode && 'w-[360px] min-h-[687px] mx-auto mt-4',
-			)}
-		>
-			<Navbar hunter={hunter} />
-			<main className="grow px-4 flex flex-col gap-2 pb-4">
-				{children}
-			</main>
-		</div>
+		<main className="p-4 flex flex-col gap-4 text-center max-w-(--breakpoint-sm) mx-auto">
+			<Header level={1}>No hunter</Header>
+			<p>You do not have a hunter assigned yet.</p>
+			<ActionButton
+				onChange={() => signOut({ redirectTo: '/' })}
+				variant="secondary"
+			>
+				Log out
+			</ActionButton>
+		</main>
 	);
 }

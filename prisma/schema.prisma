@@ -22,6 +22,8 @@ model Hunt {
     rating      Float?
     comment     String?
     payment     Int
+    place       String?
+    warnings    String?
 
     @@index([status])
 }
@@ -67,6 +69,8 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    run           Int       @default(1)
+    hideMoney     Boolean   @default(false)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

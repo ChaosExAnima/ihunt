@@ -1,100 +1,150 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { PropsWithChildren, useMemo } from 'react';
+import { z } from 'zod';
 
-import HuntDisplay from '@/components/hunt';
+import { HuntDisplay } from '@/components/hunt';
+import { HuntLoading } from '@/components/hunt/loading';
+import { Card } from '@/components/ui/card';
 import {
 	Carousel,
-	CarouselApi,
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { HuntStatus } from '@/lib/constants';
-import { HuntModel } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { fetchFromApi } from '@/lib/api';
+import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
+import { dateFormat, useCurrencyFormat } from '@/lib/formats';
+import { huntSchema, HuntSchema, idSchema } from '@/lib/schemas';
 
 interface HuntsCardsProps {
-	completed: HuntModel[];
-	hunts: HuntModel[];
+	hunts: HuntSchema[];
 	userId: number;
 }
 
-export function HuntsCards({ completed = [], hunts, userId }: HuntsCardsProps) {
-	const [current, setCurrent] = useState(0);
-	const [api, setApi] = useState<CarouselApi>();
-	useEffect(() => {
-		if (!api) {
-			return;
-		}
+const acceptHuntSchema = z.object({
+	accepted: z.boolean(),
+	huntId: idSchema,
+	success: z.literal(true),
+});
 
-		setCurrent(api.selectedScrollSnap());
-		api.on('select', () => {
-			setCurrent(api.selectedScrollSnap());
-		});
-	}, [api]);
-	return (
-		<>
-			<Carousel className="-mx-4 flex flex-col" setApi={setApi}>
-				<CarouselContent className="grow">
-					{hunts.map((hunt) => (
-						<CarouselItem key={hunt.id}>
-							<HuntDisplay
-								className="mx-4 border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
-								hunt={hunt}
-								hunterId={userId}
-							/>
-						</CarouselItem>
-					))}
-					<CompletedHunts completed={completed} userId={userId} />
-				</CarouselContent>
-			</Carousel>
-			<HuntSlider current={current} hunts={hunts} />
-		</>
+export function HuntsCards({ hunts: initialHunts, userId }: HuntsCardsProps) {
+	const { data: hunts, isLoading } = useQuery({
+		initialData: initialHunts,
+		queryFn: () =>
+			fetchFromApi(
+				'/api/hunts',
+				{},
+				z.array(huntSchema.required({ hunters: true })),
+			),
+		queryKey: ['hunts'],
+		structuralSharing: false,
+	});
+	const queryClient = useQueryClient();
+	const { mutate } = useMutation({
+		mutationFn: (id: number) =>
+			fetchFromApi(
+				'/api/hunts',
+				{ body: { id }, method: 'POST' },
+				acceptHuntSchema,
+			),
+		async onSuccess() {
+			await queryClient.invalidateQueries({
+				queryKey: ['hunts'],
+			});
+		},
+	});
+	const acceptedToday = useMemo(
+		() =>
+			(hunts ?? []).filter(
+				({ hunters = [], status }) =>
+					(status === HuntStatus.Active ||
+						status === HuntStatus.Available) &&
+					hunters.find(({ id }) => id === userId),
+			).length,
+		[hunts, userId],
 	);
+	if (!hunts || isLoading) {
+		return (
+			<CarouselItem>
+				<HuntLoading className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg" />
+			</CarouselItem>
+		);
+	}
+	return hunts.map((hunt) => (
+		<CarouselItem key={hunt.id}>
+			<HuntDisplay
+				className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+				hunt={hunt as HuntSchema}
+				hunterId={userId}
+				onAcceptHunt={(id) => mutate(id)}
+				remainingHunts={HUNT_MAX_PER_DAY - acceptedToday}
+			/>
+		</CarouselItem>
+	));
 }
 
-function CompletedHunts({
-	completed,
-	userId,
-}: Pick<HuntsCardsProps, 'completed' | 'userId'>) {
-	if (completed.length === 0) {
+export function HuntsCompleted({ hunts }: HuntsCardsProps) {
+	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {
+		const huntsByDate = new Map<string, HuntSchema[]>();
+		for (const hunt of hunts) {
+			const { completedAt, scheduledAt } = hunt;
+			const date = scheduledAt ?? completedAt ?? new Date(0);
+			const key = dateFormat(date);
+			const huntsInDate = huntsByDate.get(key) ?? [];
+			huntsInDate.push(hunt);
+			huntsByDate.set(key, huntsInDate);
+		}
+
+		return [...huntsByDate];
+	}, [hunts]);
+	if (hunts.length === 0) {
 		return null;
 	}
 	return (
-		<CarouselItem className="flex flex-col gap-4">
-			{completed.map((hunt) => (
-				<HuntDisplay
-					className="mx-4 border border-stone-400 dark:border-stone-800 p-4 rounded-xl shadow-lg"
-					hunt={hunt}
-					hunterId={userId}
-					key={hunt.id}
-				/>
-			))}
+		<CarouselItem asChild>
+			<ol>
+				{huntsByDate.map(([date, hunts]) => (
+					<li className="mx-4 mb-4" key={date}>
+						<p className="mb-4">{date}</p>
+						<ul className="flex flex-col gap-4">
+							{hunts.map((hunt) => (
+								<CompletedHunt hunt={hunt} key={hunt.id} />
+							))}
+						</ul>
+					</li>
+				))}
+			</ol>
 		</CarouselItem>
 	);
 }
 
-function HuntSlider({
-	current,
-	hunts,
-}: { current: number } & Pick<HuntsCardsProps, 'hunts'>) {
-	if (hunts.length <= 1) {
-		return null;
-	}
+export function HuntsWrapper({ children }: PropsWithChildren) {
 	return (
-		<div className="flex p-2 gap-1 self-center mx-auto rounded-full bg-stone-300 dark:bg-stone-900">
-			{hunts.map((hunt, index) => (
-				<span
-					className={cn(
-						'size-2 rounded-full transition-colors duration-500',
-						'bg-stone-400 dark:bg-stone-700',
-						hunt.status === HuntStatus.Active &&
-							'bg-green-400 dark:bg-green-600',
-						current === index && 'bg-white dark:bg-stone-200',
-					)}
-					key={hunt.id}
-				/>
-			))}
-		</div>
+		<Carousel className="-mx-4 flex flex-col grow">
+			<CarouselContent className="min-h-full" slot="ul">
+				{children}
+			</CarouselContent>
+		</Carousel>
+	);
+}
+
+function CompletedHunt({ hunt }: { hunt: HuntSchema }) {
+	const payment = useCurrencyFormat(hunt.payment);
+	return (
+		<li>
+			<Card
+				asChild
+				className="block border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+			>
+				<Link href={`/hunts/${hunt.id}`}>
+					{hunt.name}
+					{payment && `‒ ${payment}`}
+					<ArrowRight className="float-right" />
+				</Link>
+			</Card>
+		</li>
 	);
 }

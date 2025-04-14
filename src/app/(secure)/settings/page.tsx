@@ -1,19 +1,33 @@
+import { Eye, EyeClosed } from 'lucide-react';
+import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 
+import ActionButton from '@/components/action-button';
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth';
-import { currencyFormatter } from '@/lib/constants';
 import { db } from '@/lib/db';
-import { sessionToHunter } from '@/lib/user';
+import { currencyFormatter } from '@/lib/formats';
+import { sessionToHunter, sessionToUser } from '@/lib/user';
 
 import { AvatarReplaceButton, EditableBlock, SettingBlock } from './components';
 
 export default async function SettingsPage() {
-	const hunter = await sessionToHunter();
-	const bioChangeAction = async (newBio: string) => {
+	const user = await sessionToUser();
+	const hideCashChangeAction = async () => {
 		'use server';
+		await db.user.update({
+			data: { hideMoney: !user.hideMoney },
+			where: { id: user.id },
+		});
+		revalidatePath('/settings');
+	};
+
+	const hunter = await sessionToHunter();
+	const bioChangeAction = async (rawBio: string) => {
+		'use server';
+		const newBio = rawBio.trim();
 		if (!newBio || newBio === hunter.bio) {
 			return;
 		}
@@ -24,7 +38,7 @@ export default async function SettingsPage() {
 	};
 	const handleChangeAction = async (rawHandle: string) => {
 		'use server';
-		const newHandle = rawHandle.replaceAll(/^[a-z0-9\-_]/, '');
+		const newHandle = rawHandle.replaceAll(/^[a-z0-9\-_]/g, '');
 		if (!rawHandle || newHandle === hunter.handle) {
 			return;
 		}
@@ -43,23 +57,39 @@ export default async function SettingsPage() {
 				<SettingBlock label="Pronouns">
 					<p>{hunter.pronouns ?? 'They/them'}</p>
 				</SettingBlock>
-				<SettingBlock
-					className="flex-col items-start gap-0"
-					label="Cash"
-				>
-					<p>{currencyFormatter.format(hunter.money)}</p>
-					<p className="text-xs text-stone-500">
-						Money will arrive the next business day
-					</p>
+				<SettingBlock className="" label="Cash">
+					<div className="flex-col items-start gap-0 grow">
+						{!user.hideMoney ? (
+							<>
+								<p>{currencyFormatter.format(hunter.money)}</p>
+								<p className="text-xs text-muted-foreground">
+									Money will arrive the next business day
+								</p>
+							</>
+						) : (
+							<p className="text-sm text-muted-foreground italic">
+								Money is hidden
+							</p>
+						)}
+					</div>
+					<ActionButton
+						className="text-muted-foreground self-start"
+						onChange={hideCashChangeAction}
+						size="icon"
+						variant="ghost"
+					>
+						{!user.hideMoney ? <Eye /> : <EyeClosed />}
+					</ActionButton>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					<Avatar hunter={hunter} />
 					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
 				<SettingBlock className="gap-2" label="Handle">
-					@
 					<EditableBlock
 						onChange={handleChangeAction}
+						placeholder="@handle"
+						prefix="@"
 						value={hunter.handle ?? ''}
 					/>
 				</SettingBlock>
@@ -67,6 +97,7 @@ export default async function SettingsPage() {
 					<EditableBlock
 						multiline
 						onChange={bioChangeAction}
+						placeholder="Tell us about yourself!"
 						value={hunter.bio ?? ''}
 					/>
 				</SettingBlock>

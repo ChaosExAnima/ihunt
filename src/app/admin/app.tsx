@@ -15,19 +15,19 @@ export default function AdminApp() {
 	return (
 		<Admin dataProvider={dataProvider('/admin/api')} layout={AdminLayout}>
 			<Resource
-				create={HunterCreate}
-				edit={HunterEdit}
-				icon={Swords}
-				list={HunterList}
-				name="hunter"
-				recordRepresentation="name"
-			/>
-			<Resource
 				create={HuntCreate}
 				edit={HuntEdit}
 				icon={Crosshair}
 				list={HuntList}
 				name="hunt"
+				recordRepresentation="name"
+			/>
+			<Resource
+				create={HunterCreate}
+				edit={HunterEdit}
+				icon={Swords}
+				list={HunterList}
+				name="hunter"
 				recordRepresentation="name"
 			/>
 			<Resource

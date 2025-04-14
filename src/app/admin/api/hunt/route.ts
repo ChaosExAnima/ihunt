@@ -1,6 +1,6 @@
 import type { CreateParams } from 'react-admin';
 
-import { Hunt, Prisma } from '@prisma/client';
+import { Hunt, Hunter, Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import {
 	createHandler,
@@ -11,8 +11,8 @@ import {
 	updateHandler,
 } from 'ra-data-simple-prisma';
 
-import { huntSchema } from '@/lib/constants';
 import { db } from '@/lib/db';
+import { huntSchema } from '@/lib/schemas';
 
 const route = async (req: Request) => {
 	const body: RaPayload<'Hunt'> = await req.json();
@@ -55,6 +55,9 @@ const route = async (req: Request) => {
 							hunters: true,
 						},
 					},
+				);
+				result.data.hunters = result.data.hunters.map(
+					(h: Hunter) => h.id,
 				);
 				return NextResponse.json(result);
 			}

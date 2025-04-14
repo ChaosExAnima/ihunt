@@ -1,46 +1,66 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import Avatar, { AvatarEmpty, AvatarHunter } from './avatar';
+import { HunterSchema } from '@/lib/schemas';
+
+import Avatar, { AvatarEmpty } from './avatar';
 
 interface HunterListProps {
 	currentHunterId?: number;
-	hunters: AvatarHunter[];
+	hunters: HunterSchema[];
 	max?: number;
 }
+
+const MAX_HUNTERS = 4;
 
 export default function HunterList({
 	currentHunterId,
 	hunters,
-	max,
+	max = 0,
 }: HunterListProps) {
-	const emptyAvatars = useMemo(() => {
-		if (!max || max <= hunters.length) {
-			return null;
-		}
-		return Array.from(Array(max - hunters.length)).map((_, index) => (
-			<li key={index}>
-				<AvatarEmpty />
-			</li>
-		));
-	}, [max, hunters.length]);
+	const slots = useMemo(
+		() => Array.from(Array(Math.min(max, MAX_HUNTERS))),
+		[max],
+	);
 
 	return (
 		<ul className="flex gap-2">
-			{hunters.map((hunter) => (
-				<li key={hunter.id}>
-					<Link
-						href={
-							hunter.id === currentHunterId
-								? '/settings'
-								: `/hunters/${hunter.id}`
-						}
-					>
-						<Avatar hunter={hunter} />
-					</Link>
-				</li>
+			{slots.map((_, index) => (
+				<HunterSlot
+					currentHunterId={currentHunterId}
+					hunter={hunters[index]}
+					key={index}
+				/>
 			))}
-			{emptyAvatars}
 		</ul>
+	);
+}
+
+function HunterSlot({
+	currentHunterId,
+	hunter,
+}: {
+	currentHunterId?: number;
+	hunter?: HunterSchema;
+}) {
+	if (!hunter) {
+		return (
+			<li>
+				<AvatarEmpty />
+			</li>
+		);
+	}
+	return (
+		<li>
+			<Link
+				href={
+					hunter.id === currentHunterId
+						? '/settings'
+						: `/hunters/${hunter.id}`
+				}
+			>
+				<Avatar hunter={hunter} />
+			</Link>
+		</li>
 	);
 }

@@ -1,17 +1,11 @@
 import { Prisma } from '@prisma/client';
-import { z } from 'zod';
 
-import { idSchema } from './api';
 import { publicConfig } from './config';
 
 const { currency, locale } = publicConfig;
 
 export const Locale = locale;
-export const currencyFormatter = new Intl.NumberFormat(Locale, {
-	currency: currency,
-	maximumFractionDigits: 0,
-	style: 'currency',
-});
+export const Currency = currency;
 
 export const HuntStatus = {
 	Active: 'active',
@@ -22,11 +16,8 @@ export const HuntStatus = {
 } as const;
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
-export const huntStatus = z.nativeEnum(HuntStatus).default(HuntStatus.Pending);
-
-export type HuntModel = Prisma.HuntGetPayload<{
-	include: typeof huntDisplayInclude;
-}>;
+export const HUNT_MAX_PER_DAY = 2;
+export const HUNT_MAX_DANGER = 5;
 
 export const huntDisplayInclude = {
 	hunters: {
@@ -37,17 +28,14 @@ export const huntDisplayInclude = {
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
 
-export const huntSchema = z.object({
-	comment: z.string().nullable(),
-	completedAt: z.coerce.date().nullable().default(null),
-	danger: z.number().int().min(1).max(3).default(1),
-	description: z.string().default(''),
-	hunters: z.array(z.object({ id: idSchema })).default([]),
-	maxHunters: z.number().int().min(1).max(4).default(1),
-	name: z.string().min(1),
-	payment: z.number().int().min(0).default(0),
-	rating: z.number().int().min(0).max(5).default(0),
-	scheduledAt: z.coerce.date().nullable().default(null),
-	status: huntStatus,
-});
-export type HuntSchema = Zod.infer<typeof huntSchema>;
+export type HunterModel = Prisma.HunterGetPayload<{
+	include: { avatar: true };
+}>;
+
+export const HunterTypes = {
+	Evileena: 'evileena',
+	Knight: 'knight',
+	Phooey: 'phooey',
+	SixtySix: 'sixty-six',
+} as const;
+export type HunterTypesValues = (typeof HunterTypes)[keyof typeof HunterTypes];

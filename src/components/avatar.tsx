@@ -1,18 +1,14 @@
-import { Prisma } from '@prisma/client';
 import { UserRound } from 'lucide-react';
 import Link from 'next/link';
 
+import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import PhotoDisplay from './photo';
 
-export type AvatarHunter = Prisma.HunterGetPayload<{
-	include: { avatar: true };
-}>;
-
 interface AvatarProps {
 	className?: string;
-	hunter: Pick<AvatarHunter, 'avatar' | 'id' | 'name'>;
+	hunter: Pick<HunterSchema, 'avatar' | 'id' | 'name'>;
 	link?: boolean;
 }
 
@@ -21,7 +17,7 @@ export default function Avatar({
 	hunter,
 	link = false,
 }: AvatarProps) {
-	const pic = hunter.avatar;
+	const photo = hunter.avatar;
 
 	if (link) {
 		return (
@@ -39,7 +35,7 @@ export default function Avatar({
 				className,
 			)}
 		>
-			{pic && <PhotoDisplay photo={pic} />}
+			{photo && <PhotoDisplay photo={photo} />}
 			<span className="uppercase flex h-full w-full items-center justify-center rounded-full bg-muted">
 				{hunter.name.slice(0, 2)}
 			</span>

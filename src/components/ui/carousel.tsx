@@ -1,5 +1,6 @@
 'use client';
 
+import { Slot } from '@radix-ui/react-slot';
 import useEmblaCarousel, {
 	type UseEmblaCarouselType,
 } from 'embla-carousel-react';
@@ -7,6 +8,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { AttributesWithAsChild } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 type CarouselApi = UseEmblaCarouselType[1];
@@ -158,7 +160,7 @@ const CarouselContent = React.forwardRef<
 	const { carouselRef, orientation } = useCarousel();
 
 	return (
-		<div className="overflow-hidden" ref={carouselRef}>
+		<div className="overflow-hidden grow" ref={carouselRef}>
 			<div
 				className={cn(
 					'flex',
@@ -175,12 +177,13 @@ CarouselContent.displayName = 'CarouselContent';
 
 const CarouselItem = React.forwardRef<
 	HTMLDivElement,
-	React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+	AttributesWithAsChild<HTMLDivElement>
+>(({ asChild = false, className, ...props }, ref) => {
 	const { orientation } = useCarousel();
+	const Wrapper = asChild ? Slot : 'div';
 
 	return (
-		<div
+		<Wrapper
 			aria-roledescription="slide"
 			className={cn(
 				'min-w-0 shrink-0 grow-0 basis-full',
