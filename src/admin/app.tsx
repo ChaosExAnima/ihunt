@@ -6,10 +6,15 @@ import { PropsWithChildren } from 'react';
 import { Admin, Button, Layout, Menu, Resource } from 'react-admin';
 
 import { logOut } from './actions';
-import { HuntCreate, HuntEdit, HuntList } from './components/hunt';
-import { HunterCreate, HunterEdit, HunterList } from './components/hunter';
-import { PhotoList } from './components/photo';
-import { UserEdit, UserList } from './components/user';
+import { HuntCreate } from './hunt/create';
+import { HuntEdit } from './hunt/edit';
+import { HuntList } from './hunt/list';
+import { HunterCreate } from './hunter/create';
+import { HunterEdit } from './hunter/edit';
+import { HunterList } from './hunter/list';
+import { PhotoList } from './photo/list';
+import { UserEdit } from './user/edit';
+import { UserList } from './user/list';
 
 export default function AdminApp() {
 	return (

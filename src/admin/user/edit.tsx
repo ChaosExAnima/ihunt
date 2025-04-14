@@ -2,35 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Prisma } from '@prisma/client';
 import {
 	AutocompleteInput,
-	Datagrid,
 	Edit,
-	FunctionField,
-	ImageField,
-	List,
-	ReferenceField,
 	ReferenceInput,
 	SimpleForm,
-	TextField,
 	TextInput,
 	useEditController,
 } from 'react-admin';
-import { z } from 'zod';
 
-import { idSchema } from '@/lib/schemas';
-
-import { HunterRow } from './hunter';
-
-type UserRow = Prisma.UserGetPayload<{
-	include: { hunter: { include: { avatar: true } } };
-}>;
-
-const userSchema = z.object({
-	email: z.string().email(),
-	hunter: z.object({ id: idSchema.nullable() }),
-	name: z.string(),
-});
-
-type UserInput = z.infer<typeof userSchema>;
+import { HunterRow } from '../hunter/common';
+import { UserInput, UserRow, userSchema } from './common';
 
 export function UserEdit() {
 	const { record } = useEditController<UserRow>();
@@ -57,32 +37,7 @@ export function UserEdit() {
 		</Edit>
 	);
 }
-export function UserList() {
-	return (
-		<List>
-			<Datagrid>
-				<ImageField
-					label="Avatar"
-					source="image"
-					sx={{
-						'& .RaImageField-image': {
-							borderRadius: '50%',
-							height: 50,
-							overflow: 'hidden',
-							width: 50,
-						},
-					}}
-				/>
-				<FunctionField<UserRow>
-					label="Name"
-					render={(record) => record.name ?? record.id}
-				/>
-				<TextField emptyText="Not set" source="email" />
-				<ReferenceField reference="hunter" source="hunter.id" />
-			</Datagrid>
-		</List>
-	);
-}
+
 function editTransform({
 	hunter,
 	...record
