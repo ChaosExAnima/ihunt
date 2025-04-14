@@ -1,11 +1,10 @@
-import { BookOpenText } from 'lucide-react';
-
 import Header from '@/components/header';
 import HunterList from '@/components/hunter-list';
 import PhotoDisplay from '@/components/photo';
 import Rating from '@/components/rating';
 import { HuntStatus } from '@/lib/constants';
 import { db } from '@/lib/db';
+import { hunterTypeIcon } from '@/lib/hunter';
 
 interface HunterPageProps {
 	params: Promise<{
@@ -54,6 +53,8 @@ export default async function HunterPage({ params }: HunterPageProps) {
 		},
 	});
 
+	const HunterType = hunterTypeIcon(hunter.type);
+
 	return (
 		<>
 			<div className="relative rounded-lg overflow-hidden">
@@ -62,8 +63,9 @@ export default async function HunterPage({ params }: HunterPageProps) {
 						className="text-white fill-white"
 						rating={rating._avg.rating ?? 1}
 					/>
-					{/* <Swords className="text-white" size="2em" /> */}
-					<BookOpenText className="text-white" size="2em" />
+					{HunterType && (
+						<HunterType className="text-white" size="2em" />
+					)}
 				</div>
 				{!!hunter.avatar && <PhotoDisplay photo={hunter.avatar} />}
 				<div className="absolute bottom-0 text-white p-2 bg-black/40 w-full text-sm">

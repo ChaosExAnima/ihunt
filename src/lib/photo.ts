@@ -1,4 +1,3 @@
-import 'server-only';
 import { fileTypeFromBuffer } from 'file-type';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';

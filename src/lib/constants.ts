@@ -31,3 +31,11 @@ export const huntDisplayInclude = {
 export type HunterModel = Prisma.HunterGetPayload<{
 	include: { avatar: true };
 }>;
+
+export const HunterTypes = {
+	Evileena: 'evileena',
+	Knight: 'knight',
+	Phooey: 'phooey',
+	SixtySix: 'sixty-six',
+} as const;
+export type HunterTypesValues = (typeof HunterTypes)[keyof typeof HunterTypes];
