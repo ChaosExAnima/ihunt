@@ -62,10 +62,8 @@
 		"prettier-eslint": "^16.3.0",
 		"prisma": "^6.5.0",
 		"tailwindcss": "^4.0.0",
-		"ts-toolbelt": "^9.6.0",
 		"tsx": "^4.19.3",
-		"typescript": "^5",
-		"zod-prisma-types": "^3.2.3"
+		"typescript": "^5"
 	},
 	"prettier": {
 		"singleQuote": true
