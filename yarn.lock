@@ -2739,6 +2739,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@trpc/client@npm:^11.4.3":
+  version: 11.4.3
+  resolution: "@trpc/client@npm:11.4.3"
+  peerDependencies:
+    "@trpc/server": 11.4.3
+    typescript: ">=5.7.2"
+  checksum: 10c0/7ce11fc99f9238a2dad4755f320516f9afb4bce3f1b38508b076a88dfa2d8f340f2576b8b8a9a3fc06bb7073638d8cc29154bcc061a208c2a3a6b17b718cefd2
+  languageName: node
+  linkType: hard
+
+"@trpc/server@npm:^11.4.3":
+  version: 11.4.3
+  resolution: "@trpc/server@npm:11.4.3"
+  peerDependencies:
+    typescript: ">=5.7.2"
+  checksum: 10c0/3d3fd2a52cb36de5a02c3454d66ac5c739ba53442546aa9a06c79e277951a31827f21b9c135f551c98a197d28f1d6c87aba590dc08c98c15b8ba7a4b9a7653d2
+  languageName: node
+  linkType: hard
+
+"@trpc/tanstack-react-query@npm:^11.4.3":
+  version: 11.4.3
+  resolution: "@trpc/tanstack-react-query@npm:11.4.3"
+  peerDependencies:
+    "@tanstack/react-query": ^5.80.3
+    "@trpc/client": 11.4.3
+    "@trpc/server": 11.4.3
+    react: ">=18.2.0"
+    react-dom: ">=18.2.0"
+    typescript: ">=5.7.2"
+  checksum: 10c0/ebbd90a973e85ddd0a9b25a251db54bc07ff61ea620a6123fcf23274c78c9e9b2beadae0f08a5819ad706c68f868047fdffd9fe4b91643efdf997a7a67fa6795
+  languageName: node
+  linkType: hard
+
 "@tybys/wasm-util@npm:^0.10.0":
   version: 0.10.0
   resolution: "@tybys/wasm-util@npm:0.10.0"
@@ -5078,6 +5111,9 @@ __metadata:
     "@tanstack/react-router": "npm:^1.128.4"
     "@tanstack/react-router-devtools": "npm:^1.128.4"
     "@tanstack/router-plugin": "npm:^1.128.4"
+    "@trpc/client": "npm:^11.4.3"
+    "@trpc/server": "npm:^11.4.3"
+    "@trpc/tanstack-react-query": "npm:^11.4.3"
     "@types/backblaze-b2": "npm:^1.5.6"
     "@types/node": "npm:^24.0.15"
     "@types/react": "npm:^19.1.8"

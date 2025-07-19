@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HuntsHuntIdRouteImport } from './routes/hunts/$huntId'
 import { Route as HuntersHunterIdRouteImport } from './routes/hunters/$hunterId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HuntsHuntIdRoute = HuntsHuntIdRouteImport.update({
+  id: '/hunts/$huntId',
+  path: '/hunts/$huntId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HuntersHunterIdRoute = HuntersHunterIdRouteImport.update({
@@ -26,27 +32,31 @@ const HuntersHunterIdRoute = HuntersHunterIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/hunters/$hunterId': typeof HuntersHunterIdRoute
+  '/hunts/$huntId': typeof HuntsHuntIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/hunters/$hunterId': typeof HuntersHunterIdRoute
+  '/hunts/$huntId': typeof HuntsHuntIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/hunters/$hunterId': typeof HuntersHunterIdRoute
+  '/hunts/$huntId': typeof HuntsHuntIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/hunters/$hunterId'
+  fullPaths: '/' | '/hunters/$hunterId' | '/hunts/$huntId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/hunters/$hunterId'
-  id: '__root__' | '/' | '/hunters/$hunterId'
+  to: '/' | '/hunters/$hunterId' | '/hunts/$huntId'
+  id: '__root__' | '/' | '/hunters/$hunterId' | '/hunts/$huntId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HuntersHunterIdRoute: typeof HuntersHunterIdRoute
+  HuntsHuntIdRoute: typeof HuntsHuntIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hunts/$huntId': {
+      id: '/hunts/$huntId'
+      path: '/hunts/$huntId'
+      fullPath: '/hunts/$huntId'
+      preLoaderRoute: typeof HuntsHuntIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hunters/$hunterId': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HuntersHunterIdRoute: HuntersHunterIdRoute,
+  HuntsHuntIdRoute: HuntsHuntIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

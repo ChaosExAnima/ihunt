@@ -1,7 +1,5 @@
 import {
-	MutationCache,
 	onlineManager,
-	QueryClient,
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -15,24 +13,17 @@ import DevTools from '@/components/dev-tools';
 import { toast } from '@/hooks/use-toast';
 import { isDev } from '@/lib/utils';
 
-import { routeTree } from './routeTree.gen';
-
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
 
-const queryClient = new QueryClient({
-	mutationCache: new MutationCache({
-		onError(err) {
-			toast({ description: err.message, title: 'Error' });
-		},
-	}),
-});
+import { queryClient } from './lib/api';
+import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({
 	context: {
-		auth: undefined!,
 		queryClient,
+		user: false,
 	},
 	defaultPreload: 'intent',
 	// Since we're using React Query, we don't want loader calls to ever be stale
@@ -73,10 +64,10 @@ export function App() {
 	});
 	return (
 		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
-			<ReactQueryDevtools />
-			<TanStackRouterDevtools router={router} />
-			{devMode && <DevTools />}
+				<RouterProvider router={router} />
+				<ReactQueryDevtools />
+				<TanStackRouterDevtools router={router} />
+				{devMode && <DevTools />}
 		</QueryClientProvider>
 	);
 }

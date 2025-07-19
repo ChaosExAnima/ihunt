@@ -1,8 +1,5 @@
-'use client';
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
 import { PropsWithChildren, useMemo } from 'react';
 import { z } from 'zod';
 

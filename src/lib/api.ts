@@ -1,57 +1,33 @@
-import { z } from 'zod';
+import { MutationCache, QueryClient } from '@tanstack/react-query';
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import {
+	createTRPCOptionsProxy,
+} from '@trpc/tanstack-react-query';
 
-import { isPlainObject } from './utils';
+import { toast } from '@/hooks/use-toast';
 
-interface FetchOptions extends Omit<RequestInit, 'body'> {
-	body?: BodyInit | null | object;
-}
+import type { AppRouter } from '../../server';
 
-export async function fetchFromApi<Data>(
-	path: string,
-	opts: FetchOptions = {},
-	schema?: z.ZodSchema<Data>,
-): Promise<Data> {
-	if (isPlainObject(opts.body)) {
-		opts.body = JSON.stringify(opts.body);
-		opts.headers = {
-			...opts.headers,
-			'Content-Type': 'application/json',
-		};
-	}
-	const response = await fetch(path, opts as RequestInit);
-	if (!response.ok) {
-		throw new Error(`Could not fetch ${path}`);
-	}
-	const body = (await response.json()) as unknown;
-	if (schema) {
-		try {
-			return schema.parse(body);
-		} catch (err) {
-			console.error(err);
-			throw err;
-		}
-	}
-	return body as Data;
-}
-
-export async function parseRequestBody<Data>(
-	req: Request,
-	schema: z.ZodSchema<Data>,
-): Promise<Data> {
-	const body = (await req.json()) as unknown;
-	return schema.parse(body);
-}
-
-export function returnError(
-	message: string = 'An error occurred',
-	status: number = 500,
-) {
-	return Response.json(
-		{
-			message,
-			status,
-			success: false,
+export const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			// With SSR, we usually want to set some default staleTime
+			// above 0 to avoid refetching immediately on the client
+			staleTime: 60 * 1000,
 		},
-		{ status },
-	);
-}
+	},
+	mutationCache: new MutationCache({
+		onError(err) {
+			toast({ description: err.message, title: 'Error' });
+		},
+	}),
+});
+
+const trpcClient = createTRPCClient<AppRouter>({
+	links: [httpBatchLink({ url: '/trpc' })],
+});
+
+export const trpc = createTRPCOptionsProxy<AppRouter>({
+	client: trpcClient,
+	queryClient,
+});

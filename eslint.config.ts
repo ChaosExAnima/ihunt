@@ -30,4 +30,9 @@ export default tseslint.config([
 		},
 	},
 	pluginReact.configs.flat['jsx-runtime'],
+	{
+		rules: {
+			'@typescript-eslint/no-unsafe-return': 'off',
+		},
+	},
 ]);
