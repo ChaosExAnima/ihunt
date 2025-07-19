@@ -71,7 +71,7 @@ export default async function HunterPage({ params }: HunterPageProps) {
 				<div className="absolute bottom-0 text-white p-2 bg-black/40 w-full text-sm">
 					<div className="flex gap-2 items-baseline">
 						<Header level={2}>{hunter.name}</Header>
-						<p>{hunter.pronouns ?? 'They/them'}</p>
+						<p>{hunter.pronouns ?? 'they/them'}</p>
 					</div>
 					<p>@{hunter.handle}</p>
 				</div>

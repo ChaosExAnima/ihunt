@@ -18,7 +18,7 @@ const route = async (req: Request) => {
 			case 'getList': {
 				const result = await getListHandler<Prisma.HunterFindManyArgs>(
 					body,
-					db.hunter,
+					db,
 					{
 						include: {
 							avatar: true,
@@ -32,7 +32,7 @@ const route = async (req: Request) => {
 			case 'getOne': {
 				const result = await getOneHandler<Prisma.HunterFindUniqueArgs>(
 					body,
-					db.hunter,
+					db,
 					{
 						include: {
 							avatar: true,
@@ -46,7 +46,7 @@ const route = async (req: Request) => {
 			case 'update': {
 				const result = await updateHandler<Prisma.HunterUpdateArgs>(
 					body,
-					db.hunter,
+					db,
 				);
 				return NextResponse.json(result);
 			}

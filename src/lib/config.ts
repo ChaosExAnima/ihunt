@@ -32,7 +32,7 @@ export default function config() {
 	} catch (err) {
 		if (err instanceof z.ZodError) {
 			console.error(
-				`Missing config:\n${err.errors.map((e) => e.path[0]).join('\n')}`,
+				`Missing config:\n${z.treeifyError(err)}`,
 			);
 		}
 		throw err;

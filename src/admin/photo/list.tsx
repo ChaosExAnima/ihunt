@@ -12,7 +12,7 @@ import {
 
 import PhotoDisplay from '@/components/photo';
 
-import { AdminHunter } from './hunter-list';
+import { AdminHunter } from '../components/hunter-list';
 
 export function PhotoList() {
 	return (
