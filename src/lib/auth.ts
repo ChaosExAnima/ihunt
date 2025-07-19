@@ -1,9 +1,4 @@
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import NextAuth from 'next-auth';
-import { Provider } from 'next-auth/providers';
-import Discord from 'next-auth/providers/discord';
-import NodeEmailer from 'next-auth/providers/nodemailer';
-import { redirect } from 'next/navigation';
 
 import config from './config';
 import { db } from './db';

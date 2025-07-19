@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { isPlainObject } from './utils';
@@ -53,7 +52,7 @@ export function returnError(
 	message: string = 'An error occurred',
 	status: number = 500,
 ) {
-	return NextResponse.json(
+	return Response.json(
 		{
 			message,
 			status,

@@ -8,7 +8,7 @@ export const idSchemaCoerce = z.preprocess(
 	idSchema,
 );
 
-export const huntStatus = z.nativeEnum(HuntStatus);
+export const huntStatus = z.enum(HuntStatus);
 
 export const photoSchema = z.object({
 	blurry: z.string().nullable(),

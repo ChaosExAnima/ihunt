@@ -1,5 +1,3 @@
-import type { ImageLoaderProps } from 'next/image';
-
 import { publicConfig } from './config';
 
 // Docs: https://developers.cloudflare.com/images/transform-images
@@ -8,7 +6,9 @@ export default function cloudflareLoader({
 	quality,
 	src,
 	width,
-}: { format?: string } & ImageLoaderProps) {
+}: {
+	format?: string;
+}) {
 	const params = [
 		`width=${width}`,
 		`quality=${quality || 75}`,
