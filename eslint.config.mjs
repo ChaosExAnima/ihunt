@@ -15,7 +15,7 @@ const compat = new FlatCompat({
  */
 const eslintConfig = [
 	perfectionist.configs['recommended-alphabetical'],
-	...compat.extends('next/core-web-vitals', 'next/typescript'),
+	// ...compat.extends('next/core-web-vitals', 'next/typescript'),
 	{
 		rules: {
 			'perfectionist/sort-imports': [
@@ -31,9 +31,6 @@ const eslintConfig = [
 				},
 			],
 		},
-	},
-	{
-		ignores: ['src/schemas/zod.ts'],
 	},
 ];
 
