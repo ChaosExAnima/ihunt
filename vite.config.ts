@@ -7,8 +7,6 @@ export default defineConfig({
 	plugins: [
 		tanstackRouter({
 			autoCodeSplitting: true,
-			generatedRouteTree: 'client/routeTree.gen.ts',
-			routesDirectory: 'client/routes',
 			target: 'react',
 		}),
 		tailwindcss(),
