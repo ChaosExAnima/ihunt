@@ -10,10 +10,14 @@
 		"lint": "next lint",
 		"studio": "prisma studio"
 	},
+	"engines": {
+		"node": ">=24.0.0"
+	},
+	"packageManager": "yarn@4.9.2",
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.7.4",
-		"@hookform/resolvers": "^3.9.1",
-		"@prisma/client": "6.5.0",
+		"@hookform/resolvers": "^5.1.1",
+		"@prisma/client": "^6.12.0",
 		"@radix-ui/react-dialog": "^1.1.4",
 		"@radix-ui/react-label": "^2.1.1",
 		"@radix-ui/react-popover": "^1.1.4",
@@ -26,23 +30,23 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"embla-carousel-react": "^8.5.1",
-		"file-type": "^19.6.0",
+		"file-type": "^21.0.0",
 		"image-dimensions": "^2.3.0",
 		"iron-session": "^8.0.4",
-		"lucide-react": "^0.468.0",
-		"next": "15.2.4",
+		"lucide-react": "^0.525.0",
+		"next": "15.4.2",
 		"next-auth": "5.0.0-beta.25",
 		"next-themes": "^0.4.4",
-		"nodemailer": "^6.10.0",
-		"ra-data-simple-prisma": "^5.2.1",
+		"nodemailer": "^7.0.5",
+		"ra-data-simple-prisma": "^6.4.3",
 		"react": "^19.0.0",
 		"react-admin": "^5.4.4",
 		"react-dom": "^19.0.0",
 		"react-hook-form": "^7.54.1",
 		"react-image-crop": "^11.0.7",
-		"tailwind-merge": "^2.5.5",
+		"tailwind-merge": "^3.3.1",
 		"tailwindcss-animate": "^1.0.7",
-		"zod": "^3.24.1"
+		"zod": "^4.0.5"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
@@ -50,11 +54,11 @@
 		"@tanstack/eslint-plugin-query": "^5.62.16",
 		"@tanstack/react-query-devtools": "^5.63.0",
 		"@types/backblaze-b2": "^1.5.6",
-		"@types/node": "^20",
+		"@types/node": "^24.0.15",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"eslint": "^9",
-		"eslint-config-next": "15.1.1",
+		"eslint-config-next": "^15.4.2",
 		"eslint-plugin-perfectionist": "^4.4.0",
 		"eslint-plugin-react-hooks": "^5.1.0",
 		"postcss": "^8",
@@ -70,8 +74,5 @@
 	},
 	"prisma": {
 		"seed": "tsx prisma/seed.ts"
-	},
-	"volta": {
-		"node": "22.13.0"
 	}
 }
