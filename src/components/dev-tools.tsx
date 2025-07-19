@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import {
 	Database,
 	DatabaseZap,
@@ -9,9 +10,7 @@ import {
 	Home,
 	Puzzle,
 } from 'lucide-react';
-import Link from 'next/link';
 import { PropsWithChildren } from 'react';
-
 import {
 	Tooltip,
 	TooltipContent,
@@ -90,7 +89,7 @@ function ExternalLink({ children, href, name }: PropsWithChildren<LinkProps>) {
 		<li>
 			<Link
 				className="text-stone-400 hover:text-stone-500 dark:text-stone-700 dark:hover:text-stone-400 transition-colors"
-				href={href}
+				to={href}
 				target={href.startsWith('/') ? '_self' : '_blank'}
 			>
 				{children}
