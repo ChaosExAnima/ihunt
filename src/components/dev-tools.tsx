@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import {
 	Database,
 	DatabaseZap,
@@ -11,6 +10,7 @@ import {
 	Puzzle,
 } from 'lucide-react';
 import { PropsWithChildren } from 'react';
+
 import {
 	Tooltip,
 	TooltipContent,
@@ -34,12 +34,6 @@ export default function DevTools() {
 			</ExternalLink>
 			<ExternalLink href="/admin" name="Admin">
 				<FileLock2 />
-			</ExternalLink>
-			<ExternalLink
-				href="https://nextjs.org/docs/app/building-your-application"
-				name="NextJS"
-			>
-				<FileCode />
 			</ExternalLink>
 			<ExternalLink
 				href="https://www.prisma.io/docs/orm/prisma-client"
@@ -87,13 +81,14 @@ function ExternalLink({ children, href, name }: PropsWithChildren<LinkProps>) {
 	}
 	return (
 		<li>
-			<Link
+			<a
 				className="text-stone-400 hover:text-stone-500 dark:text-stone-700 dark:hover:text-stone-400 transition-colors"
-				to={href}
+				href={href}
+				rel="noreferrer"
 				target={href.startsWith('/') ? '_self' : '_blank'}
 			>
 				{children}
-			</Link>
+			</a>
 		</li>
 	);
 }

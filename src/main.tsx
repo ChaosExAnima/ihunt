@@ -14,6 +14,7 @@ import ReactDOM from 'react-dom/client';
 import DevTools from '@/components/dev-tools';
 import { toast } from '@/hooks/use-toast';
 import { isDev } from '@/lib/utils';
+
 import { routeTree } from './routeTree.gen';
 
 import '@fontsource-variable/geist-mono';
@@ -29,15 +30,16 @@ const queryClient = new QueryClient({
 
 // Create a new router instance
 const router = createRouter({
-	routeTree,
+	context: {
+		auth: undefined!,
+		queryClient,
+	},
 	defaultPreload: 'intent',
 	// Since we're using React Query, we don't want loader calls to ever be stale
 	// This will ensure that the loader is always called when the route is preloaded or visited
 	defaultPreloadStaleTime: 0,
+	routeTree,
 	scrollRestoration: true,
-	context: {
-		queryClient,
-	},
 });
 
 // Register the router instance for type safety
@@ -73,7 +75,7 @@ export function App() {
 		<QueryClientProvider client={queryClient}>
 			<RouterProvider router={router} />
 			<ReactQueryDevtools />
-			<TanStackRouterDevtools />
+			<TanStackRouterDevtools router={router} />
 			{devMode && <DevTools />}
 		</QueryClientProvider>
 	);
