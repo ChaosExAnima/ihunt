@@ -5,9 +5,6 @@ import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	resolve: {
-		alias: [{ find: '@', replacement: resolve(__dirname, './src') }],
-	},
 	plugins: [
 		tanstackRouter({
 			autoCodeSplitting: true,
@@ -16,5 +13,8 @@ export default defineConfig({
 		tailwindcss(),
 		react(),
 	],
+	resolve: {
+		alias: [{ find: '@', replacement: resolve(__dirname, './src') }],
+	},
 	root: 'src',
 });

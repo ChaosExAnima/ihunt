@@ -32,7 +32,7 @@ export async function uploadPhoto({
 	}
 
 	// Get image dimensions
-	const dimensions = await imageDimensionsFromData(buffer);
+	const dimensions = imageDimensionsFromData(buffer);
 	if (!dimensions) {
 		throw new Error('Could not extract dimensions');
 	}

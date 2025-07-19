@@ -19,10 +19,7 @@
 		"useEditorconfig": true
 	},
 	"linter": {
-		"enabled": false,
-		"rules": {
-			"recommended": true
-		}
+		"enabled": false
 	},
 	"javascript": {
 		"formatter": {
@@ -46,7 +43,7 @@
 		"enabled": true,
 		"actions": {
 			"source": {
-				"organizeImports": "on"
+				"organizeImports": "off"
 			}
 		}
 	}

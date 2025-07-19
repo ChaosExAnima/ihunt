@@ -22,7 +22,7 @@ export async function fetchFromApi<Data>(
 	if (!response.ok) {
 		throw new Error(`Could not fetch ${path}`);
 	}
-	const body = await response.json();
+	const body = (await response.json()) as unknown;
 	if (schema) {
 		try {
 			return schema.parse(body);
@@ -38,15 +38,9 @@ export async function parseRequestBody<Data>(
 	req: Request,
 	schema: z.ZodSchema<Data>,
 ): Promise<Data> {
-	const body = await req.json();
+	const body = (await req.json()) as unknown;
 	return schema.parse(body);
 }
-
-export const fetchFn = async <Data>(
-	...args: Parameters<typeof fetchFromApi<Data>>
-) => {
-	return () => fetchFromApi<Data>(...args);
-};
 
 export function returnError(
 	message: string = 'An error occurred',

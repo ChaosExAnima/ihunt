@@ -11,10 +11,6 @@ export const huntSchemaWithIds = z.object({
 	hunters: z.array(z.number()),
 });
 
-export function renderHuntStatus(record: HuntSchema) {
-	return statusNames.find((name) => HuntStatus[name] === record.status);
-}
-
 export function huntStatusChoices(disabled: HuntStatusValues[] = []) {
 	return statusNames.map((status) => ({
 		disabled: disabled.includes(HuntStatus[status]),
@@ -27,4 +23,8 @@ export function huntTransformer(data: Partial<HuntSchema>) {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { hunters, photos, ...rest } = data;
 	return rest;
+}
+
+export function renderHuntStatus(record: HuntSchema) {
+	return statusNames.find((name) => HuntStatus[name] === record.status);
 }

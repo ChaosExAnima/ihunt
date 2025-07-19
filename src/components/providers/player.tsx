@@ -17,10 +17,6 @@ const defaultSettings: PlayerSettings = {
 
 const PlayerSettingsContext = createContext(defaultSettings);
 
-export function usePlayerSettings() {
-	return useContext(PlayerSettingsContext);
-}
-
 export function PlayerSettingsProvider({
 	children,
 	settings,
@@ -30,4 +26,8 @@ export function PlayerSettingsProvider({
 			{children}
 		</PlayerSettingsContext.Provider>
 	);
+}
+
+export function usePlayerSettings() {
+	return useContext(PlayerSettingsContext);
 }

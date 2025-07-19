@@ -52,19 +52,21 @@ export async function acceptHunt(id: number) {
 	return { accepted: true, huntId: id };
 }
 
-export async function isHuntActive(): Promise<boolean> {
+export async function fetchActiveHunts(): Promise<HuntSchema[]> {
 	const user = await sessionToHunter();
-	const activeHunt = await db.hunt.findFirst({
-		where: {
-			hunters: {
-				some: {
-					id: user.id,
+	return huntsSchema.parse(
+		await db.hunt.findMany({
+			include: huntDisplayInclude,
+			where: {
+				hunters: {
+					some: {
+						id: user.id,
+					},
 				},
+				status: HuntStatus.Active,
 			},
-			status: HuntStatus.Active,
-		},
-	});
-	return activeHunt !== null;
+		}),
+	);
 }
 
 export async function fetchAllPublicHunts(): Promise<HuntSchema[]> {
@@ -83,23 +85,6 @@ export async function fetchAllPublicHunts(): Promise<HuntSchema[]> {
 				status: {
 					in: [HuntStatus.Active, HuntStatus.Available],
 				},
-			},
-		}),
-	);
-}
-
-export async function fetchActiveHunts(): Promise<HuntSchema[]> {
-	const user = await sessionToHunter();
-	return huntsSchema.parse(
-		await db.hunt.findMany({
-			include: huntDisplayInclude,
-			where: {
-				hunters: {
-					some: {
-						id: user.id,
-					},
-				},
-				status: HuntStatus.Active,
 			},
 		}),
 	);
@@ -131,4 +116,19 @@ export async function fetchOpenHunts(): Promise<HuntSchema[]> {
 			},
 		}),
 	);
+}
+
+export async function isHuntActive(): Promise<boolean> {
+	const user = await sessionToHunter();
+	const activeHunt = await db.hunt.findFirst({
+		where: {
+			hunters: {
+				some: {
+					id: user.id,
+				},
+			},
+			status: HuntStatus.Active,
+		},
+	});
+	return activeHunt !== null;
 }

@@ -15,7 +15,7 @@ export function isPlainObject(value: unknown): value is object {
 	if (Object.prototype.toString.call(value) !== '[object Object]')
 		return false;
 
-	const proto = Object.getPrototypeOf(value);
+	const proto = Object.getPrototypeOf(value) as null | object;
 	if (proto === null) return true;
 
 	const Ctor =

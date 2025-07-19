@@ -77,7 +77,7 @@ class B2 {
 
 	protected async fetchWithSchema<Schema extends z.ZodSchema>(
 		url: string | URL,
-		options: { schema: Schema } & RequestInit,
+		options: RequestInit & { schema: Schema },
 	): Promise<z.infer<Schema>>;
 	protected async fetchWithSchema(
 		url: string | URL,
@@ -85,7 +85,7 @@ class B2 {
 	): Promise<unknown>;
 	protected async fetchWithSchema<Schema extends z.ZodSchema>(
 		url: string | URL,
-		options: { schema?: Schema } & RequestInit = {},
+		options: RequestInit & { schema?: Schema } = {},
 	) {
 		if (this.authToken) {
 			options.headers = {

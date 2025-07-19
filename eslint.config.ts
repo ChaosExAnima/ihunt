@@ -1,5 +1,4 @@
 import js from '@eslint/js';
-import json from '@eslint/json';
 import pluginRouter from '@tanstack/eslint-plugin-router';
 import perfectionist from 'eslint-plugin-perfectionist';
 import pluginReact from 'eslint-plugin-react';
@@ -19,11 +18,16 @@ export default tseslint.config([
 		languageOptions: { globals: { ...globals.browser, ...globals.node } },
 	},
 	tseslint.configs.recommendedTypeChecked,
-	pluginReact.configs.flat.recommended,
 	{
-		extends: [json.configs.recommended],
-		files: ['**/*.json', '**/*.jsonc'],
-		language: 'json/json',
-		plugins: { json },
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname,
+			},
+		},
 	},
+	pluginReact.configs.flat['jsx-runtime'],
 ]);

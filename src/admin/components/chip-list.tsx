@@ -56,7 +56,7 @@ function ChipFieldDeletable({
 	hunterId,
 	isLoading,
 	onDelete,
-}: { hunterId: number } & Required<Omit<ChipListProps, 'empty'>>) {
+}: Required<Omit<ChipListProps, 'empty'>> & { hunterId: number }) {
 	const record = useRecordContext<RaRecord<number>>();
 	const [open, setOpen] = useState(false);
 	const refresh = useRefresh();

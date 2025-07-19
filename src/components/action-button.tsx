@@ -1,12 +1,10 @@
-'use client';
-
 import { useState } from 'react';
 
 import { Button, ButtonProps } from './ui/button';
 
-type ActionButtonProps = {
+type ActionButtonProps = Omit<ButtonProps, 'onChange'> & {
 	onChange: () => Promise<void>;
-} & Omit<ButtonProps, 'onChange'>;
+};
 
 export default function ActionButton({
 	onChange,
@@ -18,5 +16,11 @@ export default function ActionButton({
 		await onChange();
 		setSaving(false);
 	};
-	return <Button {...props} disabled={saving} onClick={handleClick} />;
+	return (
+		<Button
+			{...props}
+			disabled={saving}
+			onClick={() => void handleClick()}
+		/>
+	);
 }

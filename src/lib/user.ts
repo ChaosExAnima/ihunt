@@ -1,20 +1,6 @@
 import { auth } from './auth';
 import { db } from './db';
 
-export async function sessionToUser() {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Not logged in');
-	}
-
-	const user = await db.user.findFirstOrThrow({
-		where: {
-			id: session.user.id,
-		},
-	});
-	return user;
-}
-
 export async function sessionToHunter() {
 	const session = await auth();
 	if (!session?.user) {
@@ -30,4 +16,18 @@ export async function sessionToHunter() {
 		},
 	});
 	return hunter;
+}
+
+export async function sessionToUser() {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Not logged in');
+	}
+
+	const user = await db.user.findFirstOrThrow({
+		where: {
+			id: session.user.id,
+		},
+	});
+	return user;
 }
