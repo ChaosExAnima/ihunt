@@ -25,7 +25,7 @@ const route = async (req: Request) => {
 				body.params.data = data;
 				const result = await createHandler<Prisma.HuntCreateArgs>(
 					body,
-					db.hunt,
+					db,
 				);
 
 				return NextResponse.json(result);
@@ -33,7 +33,7 @@ const route = async (req: Request) => {
 			case 'getList': {
 				const result = await getListHandler<Prisma.HuntFindManyArgs>(
 					body,
-					db.hunt,
+					db,
 					{
 						include: {
 							hunters: {
@@ -49,7 +49,7 @@ const route = async (req: Request) => {
 			case 'getOne': {
 				const result = await getOneHandler<Prisma.HuntFindFirstArgs>(
 					body,
-					db.hunt,
+					db,
 					{
 						include: {
 							hunters: true,
@@ -62,7 +62,7 @@ const route = async (req: Request) => {
 				return NextResponse.json(result);
 			}
 			case 'update': {
-				const result = await updateHandler(body, db.hunt, {
+				const result = await updateHandler(body, db, {
 					set: {
 						hunterIds: {
 							hunters: 'id',

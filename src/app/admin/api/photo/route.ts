@@ -15,7 +15,7 @@ const route = async (req: Request) => {
 		case 'getList': {
 			const result = await getListHandler<Prisma.PhotoFindManyArgs>(
 				body,
-				db.photo,
+				db,
 				{
 					include: {
 						hunter: {

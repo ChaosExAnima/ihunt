@@ -1,4 +1,4 @@
-import { Create, SimpleForm, TextInput, NumberInput } from 'react-admin';
+import { Create, NumberInput, SimpleForm, TextInput } from 'react-admin';
 
 export function HunterCreate() {
 	return (

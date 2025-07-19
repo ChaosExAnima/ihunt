@@ -1,8 +1,6 @@
-import type { Hunt, Photo } from '@prisma/client';
-
 import { z } from 'zod';
 
-import { HUNT_MAX_DANGER, HunterModel, HuntStatus } from './constants';
+import { HUNT_MAX_DANGER, HuntStatus } from './constants';
 
 export const idSchema = z.number().int().positive().min(1);
 export const idSchemaCoerce = z.preprocess(
@@ -19,8 +17,8 @@ export const photoSchema = z.object({
 	id: idSchema,
 	path: z.string(),
 	width: z.number().int().positive(),
-}) satisfies Zod.ZodType<Omit<Photo, 'hunterId' | 'huntId'>>;
-export type PhotoSchema = Zod.infer<typeof photoSchema>;
+});
+export type PhotoSchema = z.infer<typeof photoSchema>;
 
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
@@ -31,13 +29,8 @@ export const hunterSchema = z.object({
 	name: z.string(),
 	pronouns: z.string().nullable(),
 	type: z.string().nullable(),
-}) satisfies z.ZodType<
-	{ avatar: null | PhotoSchema } & Omit<
-		HunterModel,
-		'avatar' | 'avatarId' | 'userId'
-	>
->;
-export type HunterSchema = Zod.infer<typeof hunterSchema>;
+});
+export type HunterSchema = z.infer<typeof hunterSchema>;
 
 export const huntSchema = z.object({
 	comment: z.string().nullable(),
@@ -55,11 +48,6 @@ export const huntSchema = z.object({
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
 	warnings: z.string().nullish(),
-}) as z.ZodType<
-	{
-		hunters?: HunterSchema[];
-		photos?: PhotoSchema[];
-	} & Omit<Hunt, 'createdAt'>
->;
-export type HuntSchema = Zod.infer<typeof huntSchema>;
+});
+export type HuntSchema = z.infer<typeof huntSchema>;
 export const huntsSchema = z.array(huntSchema);

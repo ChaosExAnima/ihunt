@@ -67,8 +67,7 @@ export default function HuntCompleteDialog() {
 				</DialogHeader>
 				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
 					<p>
-						{`You are paying the hunter
-						${formattedPayment}.`}
+						{`You are paying the hunter ${formattedPayment}.`}
 					</p>
 					<Input
 						min={0}

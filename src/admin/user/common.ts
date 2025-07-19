@@ -8,7 +8,7 @@ export type UserRow = Prisma.UserGetPayload<{
 }>;
 
 export const userSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	hunter: z.object({ id: idSchema.nullable() }),
 	name: z.string(),
 });

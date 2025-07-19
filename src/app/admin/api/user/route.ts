@@ -17,7 +17,7 @@ const handler = async (req: Request) => {
 			case 'getList': {
 				const list = await getListHandler<Prisma.UserFindManyArgs>(
 					body,
-					db.user,
+					db,
 					{
 						include: {
 							hunter: {
@@ -33,7 +33,7 @@ const handler = async (req: Request) => {
 			case 'getOne': {
 				const result = await getOneHandler<Prisma.UserFindFirstArgs>(
 					body,
-					db.user,
+					db,
 					{
 						include: {
 							hunter: true,
@@ -45,7 +45,7 @@ const handler = async (req: Request) => {
 			case 'update': {
 				const result = await updateHandler<Prisma.UserUpdateArgs>(
 					body,
-					db.user,
+					db,
 					{
 						allowJsonUpdate: {
 							hunter: true,
