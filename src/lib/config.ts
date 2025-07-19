@@ -31,9 +31,7 @@ export default function config() {
 		return configSchema.parse(configVars);
 	} catch (err) {
 		if (err instanceof z.ZodError) {
-			console.error(
-				`Missing config:\n${z.treeifyError(err)}`,
-			);
+			console.error(`Missing config:\n${z.treeifyError(err)}`);
 		}
 		throw err;
 	}

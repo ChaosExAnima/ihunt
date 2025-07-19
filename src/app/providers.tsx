@@ -4,13 +4,12 @@ import {
 	MutationCache,
 	onlineManager,
 	QueryClient,
-	QueryClientConfig,
+	type QueryClientConfig,
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { WifiOff } from 'lucide-react';
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { ComponentProps, useMemo, useState } from 'react';
+import { type PropsWithChildren, useMemo, useState } from 'react';
 
 import { toast } from '@/hooks/use-toast';
 
@@ -22,10 +21,7 @@ const config: QueryClientConfig = {
 	}),
 };
 
-export function Providers({
-	children,
-	...props
-}: ComponentProps<typeof NextThemesProvider>) {
+export function Providers({ children }: PropsWithChildren) {
 	const client = useMemo(() => new QueryClient(config), []);
 	const [offlineToast, setToast] = useState<null | ReturnType<typeof toast>>(
 		null,
@@ -48,11 +44,9 @@ export function Providers({
 		}
 	});
 	return (
-		<NextThemesProvider {...props}>
-			<QueryClientProvider client={client}>
-				{children}
-				<ReactQueryDevtools />
-			</QueryClientProvider>
-		</NextThemesProvider>
+		<QueryClientProvider client={client}>
+			{children}
+			<ReactQueryDevtools />
+		</QueryClientProvider>
 	);
 }

@@ -41,12 +41,7 @@ export default function RootLayout({
 					'antialiased bg-stone-200 dark:bg-black',
 				)}
 			>
-				<Providers
-					attribute="class"
-					defaultTheme="system"
-					disableTransitionOnChange
-					enableSystem
-				>
+				<Providers>
 					<div className="flex flex-col">
 						{children}
 						{devMode && <DevTools />}
