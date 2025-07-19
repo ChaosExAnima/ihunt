@@ -1,9 +1,9 @@
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+	root: 'client',
   plugins: [
 	tanstackRouter({
 		autoCodeSplitting: true,
@@ -13,5 +13,4 @@ export default defineConfig({
 	}),
     react(),
   ],
-  root: resolve(import.meta.dirname, 'client'),
 });
