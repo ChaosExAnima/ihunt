@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HuntsHuntIdRouteImport } from './routes/hunts/$huntId'
 import { Route as HuntersHunterIdRouteImport } from './routes/hunters/$hunterId'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +37,47 @@ const HuntersHunterIdRoute = HuntersHunterIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRoute
   '/hunters/$hunterId': typeof HuntersHunterIdRoute
   '/hunts/$huntId': typeof HuntsHuntIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRoute
   '/hunters/$hunterId': typeof HuntersHunterIdRoute
   '/hunts/$huntId': typeof HuntsHuntIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRoute
   '/hunters/$hunterId': typeof HuntersHunterIdRoute
   '/hunts/$huntId': typeof HuntsHuntIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/hunters/$hunterId' | '/hunts/$huntId'
+  fullPaths: '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/hunters/$hunterId' | '/hunts/$huntId'
-  id: '__root__' | '/' | '/hunters/$hunterId' | '/hunts/$huntId'
+  to: '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId'
+  id: '__root__' | '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SettingsRoute: typeof SettingsRoute
   HuntersHunterIdRoute: typeof HuntersHunterIdRoute
   HuntsHuntIdRoute: typeof HuntsHuntIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SettingsRoute: SettingsRoute,
   HuntersHunterIdRoute: HuntersHunterIdRoute,
   HuntsHuntIdRoute: HuntsHuntIdRoute,
 }

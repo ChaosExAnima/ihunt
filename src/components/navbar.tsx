@@ -1,7 +1,6 @@
 import type { JSX, PropsWithChildren } from 'react';
 
 import { Crosshair, MessageCircle } from 'lucide-react';
-import Link from 'next/link';
 
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';

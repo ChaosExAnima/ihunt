@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { Button, ButtonProps } from './ui/button';
 
 type ActionButtonProps = Omit<ButtonProps, 'onChange'> & {
-	onChange: () => Promise<void>;
+	isActing?: boolean;
+	onChange: () => Promise<void> | void;
 };
 
 export default function ActionButton({
+	isActing,
 	onChange,
 	...props
 }: ActionButtonProps) {
@@ -19,7 +21,7 @@ export default function ActionButton({
 	return (
 		<Button
 			{...props}
-			disabled={saving}
+			disabled={saving || isActing === true}
 			onClick={() => void handleClick()}
 		/>
 	);

@@ -4,7 +4,6 @@ import { useCallback } from 'react';
 import { useEffect, useMemo } from 'react';
 import { z } from 'zod';
 
-import { fetchFromApi } from '@/lib/api';
 import { HunterSchema, PhotoSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 

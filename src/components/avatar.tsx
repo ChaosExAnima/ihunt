@@ -21,7 +21,10 @@ export default function Avatar({
 
 	if (link) {
 		return (
-			<Link to={`/hunters/${hunter.id}`}>
+			<Link
+				params={{ hunterId: hunter.id.toString() }}
+				to="/hunters/$hunterId"
+			>
 				<Avatar hunter={hunter} />
 			</Link>
 		);
