@@ -1,9 +1,9 @@
+import { ImgHTMLAttributes } from 'react';
+
 import { PhotoSchema } from '@/lib/schemas';
 
-interface PhotoDisplayProps {
-	alt?: string;
+interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
 	blurDataURL?: string;
-	className?: string;
 	photo: PhotoSchema;
 }
 
@@ -14,10 +14,9 @@ export default function PhotoDisplay({
 }: PhotoDisplayProps) {
 	if (photo.blurry) {
 		props.blurDataURL = `data:image/jpeg;base64,${photo.blurry}`;
-		props.placeholder = 'blur';
 	}
 	return (
-		<Image
+		<img
 			{...props}
 			alt={alt}
 			height={photo.height}

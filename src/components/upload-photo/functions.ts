@@ -4,7 +4,8 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
 	return new Promise((result, reject) => {
 		const reader = new FileReader();
 		reader.onload = () => result(reader.result as string);
-		reader.onerror = () => reject(reader.error);
+		reader.onerror = () =>
+			reject(reader.error ?? new Error('Unknown error'));
 		reader.onabort = () => reject(new Error('Read aborted'));
 		reader.readAsDataURL(blob);
 	});

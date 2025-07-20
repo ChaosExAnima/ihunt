@@ -8,10 +8,6 @@ export const settingsRouter = router({
 		return hunter;
 	}),
 
-	logOut: userProcedure.mutation(({ ctx: { session } }) => {
-		session.destroy();
-	}),
-
 	updateBio: userProcedure
 		.input(z.string().trim().max(500).min(1))
 		.mutation(async ({ ctx: { hunter }, input }) => {

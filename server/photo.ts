@@ -2,7 +2,8 @@ import { fileTypeFromBuffer } from 'file-type';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
 
-import { fetchBlurry } from '../lib/image-loader';
+import { fetchBlurry } from '@/lib/image-loader';
+
 import { db } from './db';
 
 interface UploadPhotoArgs {

@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Camera, Trash } from 'lucide-react';
 import { useCallback } from 'react';
 import { useEffect, useMemo } from 'react';
-import { z } from 'zod';
 
+import { trpc } from '@/lib/api';
 import { HunterSchema, PhotoSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -81,25 +81,21 @@ export function HuntPics({
 
 export function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 	const queryClient = useQueryClient();
-	const handleCrop = useCallback(
-		async (image: Blob) => {
-			const { success } = await fetchFromApi(
-				`/api/hunts/${huntId}/photos`,
-				{
-					body: image,
-					method: 'POST',
-				},
-				z.object({
-					success: z.boolean(),
-				}),
-			);
-			if (success) {
+	const { mutateAsync } = useMutation(
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		trpc.hunt.uploadPhoto.mutationOptions({
+			async onSuccess() {
 				await queryClient.invalidateQueries({ queryKey: ['hunts'] });
-			}
-			return success;
-		},
-		[huntId, queryClient],
+			},
+		}),
 	);
+	const handleCrop = useCallback(async (blob: Blob) => {
+		const formData = new FormData();
+		formData.append('photo', blob);
+		formData.append('huntId', String(huntId));
+		const result = await mutateAsync(formData);
+		return !!result.id;
+	}, []);
 	const button = (
 		<Button className="w-full" variant="secondary">
 			Upload photos

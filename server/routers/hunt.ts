@@ -1,9 +1,10 @@
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
+import { uploadPhoto } from '../photo';
 import { router, userProcedure } from '../trpc';
 
 export const huntRouter = router({
@@ -138,5 +139,41 @@ export const huntRouter = router({
 			});
 			console.log(`${currentHunter.name} accepted hunt with ID ${id}`);
 			return { accepted: true, huntId: id };
+		}),
+
+	uploadPhoto: userProcedure
+		.input(
+			z.instanceof(FormData).transform((fd) => {
+				return z
+					.object({
+						huntId: idSchema.optional(),
+						name: z.string().min(1).optional(),
+						photo: z.instanceof(File),
+					})
+					.parse(Object.fromEntries(fd.entries()));
+			}),
+			// z.preprocess(
+			// 	(input: FormData) =>
+			// 		input instanceof FormData
+			// 			? Object.fromEntries(input.entries())
+			// 			: input,
+			// z.object({
+			// 	huntId: idSchemaCoerce.optional(),
+			// 	name: z.string().min(1).optional(),
+			// 	// photo: z.file().min(1),
+			// }),
+			// ),
+		)
+		.mutation(async ({ ctx: { hunter }, input }) => {
+			const { huntId, name, photo } = input;
+			const bytes = await photo.bytes();
+			const result = await uploadPhoto({
+				buffer: bytes,
+				hunterId: hunter.id,
+				huntId,
+				name,
+			});
+
+			return { id: result.id };
 		}),
 });
