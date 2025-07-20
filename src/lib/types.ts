@@ -1,9 +1,12 @@
 import { ComponentProps, HTMLAttributes, JSX } from 'react';
 
-export type AttributesWithAsChild<E extends HTMLElement, EProps = object> = EProps & Omit<HTMLAttributes<E>, keyof EProps> &
-	{
-	asChild?: boolean;
-};
+export type AttributesWithAsChild<
+	E extends HTMLElement,
+	EProps = object,
+> = EProps &
+	Omit<HTMLAttributes<E>, keyof EProps> & {
+		asChild?: boolean;
+	};
 
 export type ComponentPropsWithoutProps<
 	E extends keyof JSX.IntrinsicElements,

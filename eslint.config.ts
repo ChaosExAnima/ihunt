@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import pluginRouter from '@tanstack/eslint-plugin-router';
 import perfectionist from 'eslint-plugin-perfectionist';
+import pluginPrettier from 'eslint-plugin-prettier/recommended';
 import pluginReact from 'eslint-plugin-react';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -35,4 +36,5 @@ export default tseslint.config([
 			'@typescript-eslint/no-unsafe-return': 'off',
 		},
 	},
+	pluginPrettier,
 ]);

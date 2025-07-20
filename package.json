@@ -56,7 +56,6 @@
 		"zod": "^4.0.5"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.1.2",
 		"@eslint/eslintrc": "^3.3.1",
 		"@eslint/js": "^9.31.0",
 		"@tailwindcss/postcss": "^4.1.11",
@@ -70,11 +69,15 @@
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^4.7.0",
 		"eslint": "^9.31.0",
+		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-perfectionist": "^4.15.0",
+		"eslint-plugin-prettier": "^5.5.3",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^5.2.0",
 		"globals": "^16.3.0",
 		"postcss": "^8.5.6",
+		"prettier": "^3.6.2",
+		"prettier-eslint": "^16.4.2",
 		"prisma": "^6.12.0",
 		"tailwindcss": "^4.1.11",
 		"tsx": "^4.20.3",

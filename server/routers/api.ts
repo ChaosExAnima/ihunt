@@ -7,4 +7,4 @@ export const apiRouter = router({
 			status: 'ok',
 		};
 	}),
-})
+});

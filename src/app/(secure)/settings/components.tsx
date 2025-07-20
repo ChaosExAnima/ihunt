@@ -1,6 +1,3 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
 import React from 'react';
 import { z } from 'zod';
 
@@ -13,6 +10,23 @@ import { useDebounceCallback } from '@/hooks/use-debounce-callback';
 import { fetchFromApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
+type EditableBlockBaseProps = {
+	multiline?: boolean;
+	onChange: (value: string) => Promise<void>;
+	prefix?: string;
+	value: string;
+};
+
+type EditableBlockProps = EditableBlockBaseProps &
+	Omit<
+		React.ComponentProps<'input'> & React.ComponentProps<'textarea'>,
+		keyof EditableBlockBaseProps
+	>;
+interface SettingBlockProps extends React.PropsWithChildren {
+	className?: string;
+	id?: string;
+	label: string;
+}
 export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	const router = useRouter();
 	const handleSubmit = React.useCallback(
@@ -42,17 +56,6 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	);
 }
 
-type EditableBlockBaseProps = {
-	multiline?: boolean;
-	onChange: (value: string) => Promise<void>;
-	prefix?: string;
-	value: string;
-};
-type EditableBlockProps = EditableBlockBaseProps &
-	Omit<
-		React.ComponentProps<'input'> & React.ComponentProps<'textarea'>,
-		keyof EditableBlockBaseProps
-	>;
 export function EditableBlock({
 	multiline = false,
 	onChange,
@@ -74,12 +77,6 @@ export function EditableBlock({
 	const Component = multiline ? Textarea : Input;
 
 	return <Component {...props} onChange={handleChange} value={value} />;
-}
-
-interface SettingBlockProps extends React.PropsWithChildren {
-	className?: string;
-	id?: string;
-	label: string;
 }
 export function SettingBlock({
 	children,

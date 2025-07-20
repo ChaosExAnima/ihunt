@@ -1,7 +1,4 @@
-import {
-	onlineManager,
-	QueryClientProvider,
-} from '@tanstack/react-query';
+import { onlineManager, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
@@ -64,10 +61,10 @@ export function App() {
 	});
 	return (
 		<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
-				<ReactQueryDevtools />
-				<TanStackRouterDevtools router={router} />
-				{devMode && <DevTools />}
+			<RouterProvider router={router} />
+			<ReactQueryDevtools />
+			<TanStackRouterDevtools router={router} />
+			{devMode && <DevTools />}
 		</QueryClientProvider>
 	);
 }

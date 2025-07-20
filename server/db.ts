@@ -7,16 +7,18 @@ import { PrismaClient } from '@prisma/client';
 import { config } from './config';
 
 const prismaGlobal = globalThis as typeof globalThis & {
-  db?: PrismaClient;
+	db?: PrismaClient;
 };
 
 export const db: PrismaClient =
-  prismaGlobal.db ??
-  new PrismaClient({
-    log:
-      config.nodeEnv === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  });
+	prismaGlobal.db ??
+	new PrismaClient({
+		log:
+			config.nodeEnv === 'development'
+				? ['query', 'error', 'warn']
+				: ['error'],
+	});
 
 if (config.nodeEnv !== 'production') {
-  prismaGlobal.db = db;
+	prismaGlobal.db = db;
 }

@@ -20,12 +20,13 @@ export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 export const Route = createFileRoute('/hunters/$hunterId')({
 	component: RouteComponent,
 	loader({ params }) {
-		return hunterPageSchema.parse(params)
+		return hunterPageSchema.parse(params);
 	},
 });
 
 function RouteComponent() {
-	const { friends, huntCount, hunts, rating, ...hunter } = Route.useLoaderData();
+	const { friends, huntCount, hunts, rating, ...hunter } =
+		Route.useLoaderData();
 	const HunterType = hunterTypeIcon(hunter.type);
 	return (
 		<>

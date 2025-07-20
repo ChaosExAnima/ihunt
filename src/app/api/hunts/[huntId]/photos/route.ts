@@ -11,34 +11,6 @@ type HuntPhotosRouteParams = {
 	}>;
 };
 
-export async function POST(
-	request: NextRequest,
-	{ params }: HuntPhotosRouteParams,
-) {
-	try {
-		const { huntId } = await params;
-		const body = await request.bytes();
-		const user = await sessionToHunter();
-
-		await uploadPhoto({
-			buffer: body,
-			hunterId: user.id,
-			huntId: Number.parseInt(huntId, 10),
-		});
-	} catch (err: unknown) {
-		if (err instanceof Error) {
-			console.error('Error with upload:', err.stack);
-		}
-		return NextResponse.json({
-			success: false,
-		});
-	}
-
-	return NextResponse.json({
-		success: true,
-	});
-}
-
 export async function DELETE(
 	request: NextRequest,
 	{ params }: HuntPhotosRouteParams,
@@ -66,6 +38,34 @@ export async function DELETE(
 	} catch (err: unknown) {
 		if (err instanceof Error) {
 			console.error('Error with deletion:', err.stack);
+		}
+		return NextResponse.json({
+			success: false,
+		});
+	}
+
+	return NextResponse.json({
+		success: true,
+	});
+}
+
+export async function POST(
+	request: NextRequest,
+	{ params }: HuntPhotosRouteParams,
+) {
+	try {
+		const { huntId } = await params;
+		const body = await request.bytes();
+		const user = await sessionToHunter();
+
+		await uploadPhoto({
+			buffer: body,
+			hunterId: user.id,
+			huntId: Number.parseInt(huntId, 10),
+		});
+	} catch (err: unknown) {
+		if (err instanceof Error) {
+			console.error('Error with upload:', err.stack);
 		}
 		return NextResponse.json({
 			success: false,

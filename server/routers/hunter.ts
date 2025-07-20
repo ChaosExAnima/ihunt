@@ -57,6 +57,6 @@ export const hunterRouter = router({
 			return {
 				...hunter,
 				rating: rating._avg.rating ?? 0,
-			}
+			};
 		}),
 });

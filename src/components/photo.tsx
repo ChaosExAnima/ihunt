@@ -1,8 +1,9 @@
-import Image, { ImageProps } from 'next/image';
-
 import { PhotoSchema } from '@/lib/schemas';
 
-interface PhotoDisplayProps extends Partial<ImageProps> {
+interface PhotoDisplayProps {
+	alt?: string;
+	blurDataURL?: string;
+	className?: string;
 	photo: PhotoSchema;
 }
 

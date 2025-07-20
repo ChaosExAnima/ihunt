@@ -1,8 +1,6 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query';
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
-import {
-	createTRPCOptionsProxy,
-} from '@trpc/tanstack-react-query';
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 
 import { toast } from '@/hooks/use-toast';
 
