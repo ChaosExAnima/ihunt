@@ -11,3 +11,11 @@ interface ImportMetaEnv {
 interface ViteTypeOptions {
 	strictImportMetaEnv: unknown;
 }
+
+declare module '@fastify/vite/plugin' {
+	export function viteFastify(options?: {
+		clientModule?: string;
+		spa?: boolean;
+	}): Plugin;
+	export default viteFastify;
+}

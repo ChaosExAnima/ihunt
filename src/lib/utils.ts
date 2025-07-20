@@ -6,7 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function isDev() {
-	return import.meta.env.DEV || process.env.NODE_ENV === 'development';
+	if (typeof process !== 'undefined') {
+		return process.env.NODE_ENV === 'development';
+	}
+	return import.meta.env.DEV;
 }
 
 export function isPlainObject(value: unknown): value is object {

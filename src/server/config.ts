@@ -1,11 +1,9 @@
 import { z } from 'zod';
+import 'dotenv/config';
 
 const configSchema = z.object({
 	adminPassword: z.string(),
 	authSecret: z.string(),
-	backblazeBucket: z.string(),
-	backblazeId: z.string(),
-	backblazeKey: z.string(),
 	discordId: z.string(),
 	discordSecret: z.string(),
 	emailFrom: z.string().optional(),
@@ -13,8 +11,10 @@ const configSchema = z.object({
 	imageHost: z.string(),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 });
+
 const configVars: Record<string, string | undefined> = {};
-for (const key in import.meta.env) {
+
+for (const key in process.env) {
 	const camelCaseKey = key
 		.replace('VITE_', '')
 		.toLowerCase()
