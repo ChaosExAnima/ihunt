@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { parseRequestBody, returnError } from '@/lib/api';
-import { auth } from '@/lib/auth';
-import { acceptHunt, fetchAllPublicHunts } from '@/lib/hunt';
 import { idSchema } from '@/lib/schemas';
+import { auth } from '@/server/auth';
+import { acceptHunt, fetchAllPublicHunts } from '@/server/hunt';
 
 export const GET = auth(async (req) => {
 	if (!req.auth) {

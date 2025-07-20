@@ -6,10 +6,10 @@ import ActionButton from '@/components/action-button';
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
-import { signOut } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { currencyFormatter } from '@/lib/formats';
-import { sessionToHunter, sessionToUser } from '@/lib/user';
+import { signOut } from '@/server/auth';
+import { sessionToHunter, sessionToUser } from '@/server/user';
 
 import { AvatarReplaceButton, EditableBlock, SettingBlock } from './components';
 

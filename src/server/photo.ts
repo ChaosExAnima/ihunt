@@ -2,9 +2,8 @@ import { fileTypeFromBuffer } from 'file-type';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
 
-import { b2 } from './b2';
+import { fetchBlurry } from '../lib/image-loader';
 import { db } from './db';
-import { fetchBlurry } from './image-loader';
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
@@ -47,7 +46,7 @@ export async function uploadPhoto({
 	}
 
 	// Send it to B2
-	await b2.upload(buffer, fileName, fileType.mime);
+	// await b2.upload(buffer, fileName, fileType.mime);
 
 	// Fetch blurry version using Cloudflare image transforms
 	let blurryData: null | string = null;

@@ -2,8 +2,8 @@ import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
-import { uploadPhoto } from '@/lib/photo';
-import { sessionToHunter } from '@/lib/user';
+import { uploadPhoto } from '@/server/photo';
+import { sessionToHunter } from '@/server/user';
 
 export async function POST(request: NextRequest) {
 	try {

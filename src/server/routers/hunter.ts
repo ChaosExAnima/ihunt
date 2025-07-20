@@ -1,20 +1,20 @@
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
-import { db } from '@/lib/db';
 import { idSchema } from '@/lib/schemas';
 
-import { authedProcedure, router } from '../trpc';
+import { db } from '../db';
+import { router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
-	getOne: authedProcedure
+	getOne: userProcedure
 		.input(
 			z.object({
-				id: idSchema,
+				hunterId: idSchema,
 			}),
 		)
 		.query(async ({ input }) => {
-			const { id } = input;
+			const { hunterId: id } = input;
 
 			const hunter = await db.hunter.findFirstOrThrow({
 				include: {
@@ -56,7 +56,7 @@ export const hunterRouter = router({
 
 			return {
 				...hunter,
-				rating: rating._avg.rating ?? 0,
+				rating: rating._avg.rating ?? 1,
 			};
 		}),
 });

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
-import { uploadPhoto } from '@/lib/photo';
 import { idSchemaCoerce } from '@/lib/schemas';
-import { sessionToHunter } from '@/lib/user';
+import { uploadPhoto } from '@/server/photo';
+import { sessionToHunter } from '@/server/user';
 
 type HuntPhotosRouteParams = {
 	params: Promise<{

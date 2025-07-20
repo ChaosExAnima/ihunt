@@ -1,7 +1,7 @@
 'use client';
 
-import { type ProviderName } from '@/lib/auth';
 import { cn } from '@/lib/utils';
+import { type ProviderName } from '@/server/auth';
 
 import Header from './header';
 import { Button } from './ui/button';

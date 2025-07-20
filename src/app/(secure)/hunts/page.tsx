@@ -1,5 +1,5 @@
-import { fetchAllPublicHunts, fetchCompletedHunts } from '@/lib/hunt';
-import { sessionToHunter } from '@/lib/user';
+import { fetchAllPublicHunts, fetchCompletedHunts } from '@/server/hunt';
+import { sessionToHunter } from '@/server/user';
 
 import { HuntsCards, HuntsCompleted, HuntsWrapper } from './components';
 

@@ -1,20 +1,19 @@
-import { publicConfig } from './config';
+interface ImageLoaderArgs {
+	format?: string;
+	quality?: number;
+	src: string;
+	width: number;
+}
 
 // Docs: https://developers.cloudflare.com/images/transform-images
 export default function cloudflareLoader({
 	format = 'auto',
-	quality,
+	quality = 75,
 	src,
 	width,
-}: {
-	format?: string;
-}) {
-	const params = [
-		`width=${width}`,
-		`quality=${quality || 75}`,
-		`format=${format}`,
-	];
-	const { imageHost } = publicConfig;
+}: ImageLoaderArgs) {
+	const params = [`width=${width}`, `quality=${quality}`, `format=${format}`];
+	const imageHost = import.meta.env.VITE_IMAGE_HOST;
 	return `https://${imageHost}/cdn-cgi/image/${params.join(',')}/${src}`;
 }
 

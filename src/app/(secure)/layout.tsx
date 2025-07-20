@@ -6,10 +6,10 @@ import {
 	PlayerSettingsProvider,
 } from '@/components/providers/player';
 import { Toaster } from '@/components/ui/toaster';
-import { ensureLoggedIn, signOut } from '@/lib/auth';
-import { isHuntActive } from '@/lib/hunt';
-import { sessionToHunter, sessionToUser } from '@/lib/user';
 import { cn, isDev } from '@/lib/utils';
+import { ensureLoggedIn, signOut } from '@/server/auth';
+import { isHuntActive } from '@/server/hunt';
+import { sessionToHunter, sessionToUser } from '@/server/user';
 
 export default async function SecureLayout({
 	children,

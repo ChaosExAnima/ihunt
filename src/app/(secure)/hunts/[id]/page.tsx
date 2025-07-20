@@ -2,7 +2,7 @@ import { HuntDisplay } from '@/components/hunt';
 import { huntDisplayInclude } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { huntSchema } from '@/lib/schemas';
-import { sessionToHunter } from '@/lib/user';
+import { sessionToHunter } from '@/server/user';
 
 interface HuntPageProps {
 	params: Promise<{

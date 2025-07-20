@@ -1,8 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 
-interface Context {
-	user: null | true;
-}
+import { Context } from './auth';
 
 /**
  * Initialization of tRPC backend
@@ -17,13 +15,31 @@ const t = initTRPC.context<Context>().create();
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-export const authedProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
 	if (!ctx.user) {
+		throw new TRPCError({ code: 'UNAUTHORIZED' });
+	}
+	if (!ctx.hunter) {
+		throw new TRPCError({
+			code: 'FORBIDDEN',
+			message: 'Admin context requires hunter',
+		});
+	}
+	return next({
+		ctx: {
+			hunter: ctx.hunter,
+			user: ctx.user,
+		},
+	});
+});
+
+export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
+	if (!ctx.admin) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
 	return next({
 		ctx: {
-			user: ctx.user,
+			admin: ctx.admin,
 		},
 	});
 });
