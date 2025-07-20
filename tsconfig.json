@@ -14,7 +14,8 @@
 		"jsx": "preserve",
 		"incremental": true,
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@/server": ["./server/index.ts"]
 		},
 		"types": ["./global.d.ts"]
 	},

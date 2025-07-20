@@ -18,6 +18,10 @@ export default defineConfig({
 	resolve: {
 		alias: [
 			{ find: '@', replacement: resolve(import.meta.dirname, './src') },
+			{
+				find: '@/server',
+				replacement: resolve(import.meta.dirname, './server/index.ts'),
+			},
 		],
 	},
 	root: 'src',
