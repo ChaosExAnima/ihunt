@@ -10,6 +10,7 @@ const configSchema = z.object({
 	emailServer: z.string().optional(),
 	imageHost: z.string(),
 	nodeEnv: z.enum(['development', 'production', 'test']),
+	port: z.coerce.number().int().min(1).default(4000),
 });
 
 const configVars: Record<string, string | undefined> = {};
@@ -26,7 +27,7 @@ const _config = configSchema.safeParse(configVars);
 if (!_config.success) {
 	throw new Error(
 		'❌ Invalid environment variables: ' +
-			JSON.stringify(z.treeifyError(_config.error), null, 4),
+			JSON.stringify(_config.error.flatten(), null, 4),
 	);
 }
 export const config = _config.data;

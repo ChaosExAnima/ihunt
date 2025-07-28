@@ -9,10 +9,16 @@ import { resolve } from 'path';
 import { isDev } from '@/lib/utils';
 
 import { createAuthContext } from './auth';
+import { config } from './config';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
 	const server = fastify({
+		logger: {
+			transport: {
+				target: '@fastify/one-line-logger',
+			},
+		},
 		maxParamLength: 5000,
 	});
 
@@ -42,7 +48,7 @@ async function startServer() {
 	});
 	try {
 		await server.vite.ready();
-		await server.listen({ port: 3000 });
+		await server.listen({ port: config.port });
 	} catch (err) {
 		console.error(err);
 		process.exit(1);

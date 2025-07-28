@@ -25,4 +25,7 @@ export default defineConfig({
 		],
 	},
 	root: 'src',
+	server: {
+		allowedHosts: ['ihunt.local'],
+	},
 });

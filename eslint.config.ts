@@ -33,7 +33,10 @@ export default tseslint.config([
 	pluginReact.configs.flat['jsx-runtime'],
 	{
 		rules: {
+			'@typescript-eslint/no-unsafe-assignment': 'warn',
+			'@typescript-eslint/no-unsafe-call': 'warn',
 			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/only-throw-error': 'off',
 		},
 	},
 	pluginPrettier,
