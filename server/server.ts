@@ -33,7 +33,7 @@ async function startServer() {
 
 	await server.register(fastifyVite, {
 		dev: isDev(),
-		root: resolve(import.meta.dirname, '../..'),
+		root: resolve(import.meta.dirname, '..'),
 		spa: true,
 	});
 

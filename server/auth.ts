@@ -17,10 +17,7 @@ export async function createAuthContext({
 	req,
 	res,
 }: CreateFastifyContextOptions) {
-	const session = await getIronSession<SessionData>(req.raw, res.raw, {
-		cookieName: 'ihunt-session',
-		password: authSecret,
-	});
+	const session = await getSession({ req, res });
 
 	if (session.isAdmin) {
 		return { admin: true, req, res, session };
@@ -45,4 +42,14 @@ export async function createAuthContext({
 		},
 	});
 	return { hunter, req, res, session, user };
+}
+
+export function getSession({
+	req,
+	res,
+}: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
+	return getIronSession<SessionData>(req.raw, res.raw, {
+		cookieName: 'ihunt-session',
+		password: authSecret,
+	});
 }
