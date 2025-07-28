@@ -4,7 +4,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { HuntDisplay } from '@/components/hunt';
 import { trpc } from '@/lib/api';
 
-export const Route = createFileRoute('/hunts/$huntId')({
+export const Route = createFileRoute('/_auth/hunts/$huntId')({
 	component: RouteComponent,
 	async loader({ context: { queryClient }, params: { huntId } }) {
 		await queryClient.ensureQueryData(

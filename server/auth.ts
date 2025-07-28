@@ -26,22 +26,21 @@ export async function createAuthContext({
 	if (!session.userId) {
 		return { req, res, session };
 	}
-	const user = await db.user.findFirstOrThrow({
-		where: {
-			id: session.userId,
-		},
-	});
-	const hunter = await db.hunter.findFirst({
-		include: {
-			avatar: true,
-		},
-		where: {
-			user: {
-				id: user.id,
+	try {
+		const { hunter, ...user } = await db.user.findFirstOrThrow({
+			include: {
+				hunter: true,
 			},
-		},
-	});
-	return { hunter, req, res, session, user };
+			where: {
+				id: session.userId,
+			},
+		});
+		return { hunter, req, res, session, user };
+	} catch (err) {
+		console.warn(`Error logging in user ${session.userId}:`, err);
+		session.destroy();
+	}
+	return { req, res, session };
 }
 
 export function getSession({

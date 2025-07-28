@@ -1,12 +1,23 @@
 import { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 
+import { PlayerSettings } from '@/components/providers/player';
+import { cn, isDev } from '@/lib/utils';
+
+const devMode = isDev();
+
 export const Route = createRootRouteWithContext<{
 	queryClient: QueryClient;
-	user: boolean;
+	settings: null | PlayerSettings;
 }>()({
 	component: () => (
-		<div className="flex flex-col">
+		<div
+			className={cn(
+				'flex flex-col',
+				devMode && 'border border-stone-400 dark:border-stone-800',
+				devMode && 'w-full sm:w-[360px] min-h-[687px] mx-auto mt-4',
+			)}
+		>
 			<Outlet />
 		</div>
 	),

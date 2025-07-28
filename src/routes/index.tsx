@@ -1,22 +1,28 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { useMutation } from '@tanstack/react-query';
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 
 import Welcome from '@/components/welcome';
-import { cn, isDev } from '@/lib/utils';
+import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/')({
+	beforeLoad({ context }) {
+		if (context.settings) {
+			throw redirect({
+				to: '/hunts',
+			});
+		}
+	},
 	component: Index,
 });
 
-const devMode = isDev();
-
 function Index() {
-	return (
-		<Welcome
-			className={cn(
-				devMode && 'border border-stone-400 dark:border-stone-800',
-				devMode && 'w-full sm:w-[360px] min-h-[687px] mx-auto mt-4',
-			)}
-			logInAction={() => Promise.resolve()}
-		/>
+	const router = useRouter();
+	const { isPending, mutate } = useMutation(
+		trpc.auth.logIn.mutationOptions({
+			async onSuccess() {
+				await router.navigate({ to: '/hunts' });
+			},
+		}),
 	);
+	return <Welcome loggingIn={isPending} logInAction={() => mutate()} />;
 }

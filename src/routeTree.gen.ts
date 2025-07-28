@@ -10,13 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as HuntsHuntIdRouteImport } from './routes/hunts/$huntId'
-import { Route as HuntersHunterIdRouteImport } from './routes/hunters/$hunterId'
+import { Route as AuthHuntsIndexRouteImport } from './routes/_auth/hunts/index'
+import { Route as AuthHuntsHuntIdRouteImport } from './routes/_auth/hunts/$huntId'
+import { Route as AuthHuntersHunterIdRouteImport } from './routes/_auth/hunters/$hunterId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -24,49 +30,69 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HuntsHuntIdRoute = HuntsHuntIdRouteImport.update({
+const AuthHuntsIndexRoute = AuthHuntsIndexRouteImport.update({
+  id: '/hunts/',
+  path: '/hunts/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthHuntsHuntIdRoute = AuthHuntsHuntIdRouteImport.update({
   id: '/hunts/$huntId',
   path: '/hunts/$huntId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRoute,
 } as any)
-const HuntersHunterIdRoute = HuntersHunterIdRouteImport.update({
+const AuthHuntersHunterIdRoute = AuthHuntersHunterIdRouteImport.update({
   id: '/hunters/$hunterId',
   path: '/hunters/$hunterId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
-  '/hunters/$hunterId': typeof HuntersHunterIdRoute
-  '/hunts/$huntId': typeof HuntsHuntIdRoute
+  '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
+  '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
+  '/hunts': typeof AuthHuntsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
-  '/hunters/$hunterId': typeof HuntersHunterIdRoute
-  '/hunts/$huntId': typeof HuntsHuntIdRoute
+  '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
+  '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
+  '/hunts': typeof AuthHuntsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_auth': typeof AuthRouteWithChildren
   '/settings': typeof SettingsRoute
-  '/hunters/$hunterId': typeof HuntersHunterIdRoute
-  '/hunts/$huntId': typeof HuntsHuntIdRoute
+  '/_auth/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
+  '/_auth/hunts/$huntId': typeof AuthHuntsHuntIdRoute
+  '/_auth/hunts/': typeof AuthHuntsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId'
+  fullPaths:
+    | '/'
+    | '/settings'
+    | '/hunters/$hunterId'
+    | '/hunts/$huntId'
+    | '/hunts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId'
-  id: '__root__' | '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId'
+  to: '/' | '/settings' | '/hunters/$hunterId' | '/hunts/$huntId' | '/hunts'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/settings'
+    | '/_auth/hunters/$hunterId'
+    | '/_auth/hunts/$huntId'
+    | '/_auth/hunts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRouteWithChildren
   SettingsRoute: typeof SettingsRoute
-  HuntersHunterIdRoute: typeof HuntersHunterIdRoute
-  HuntsHuntIdRoute: typeof HuntsHuntIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,6 +104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -85,28 +118,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/hunts/$huntId': {
-      id: '/hunts/$huntId'
+    '/_auth/hunts/': {
+      id: '/_auth/hunts/'
+      path: '/hunts'
+      fullPath: '/hunts'
+      preLoaderRoute: typeof AuthHuntsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/hunts/$huntId': {
+      id: '/_auth/hunts/$huntId'
       path: '/hunts/$huntId'
       fullPath: '/hunts/$huntId'
-      preLoaderRoute: typeof HuntsHuntIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthHuntsHuntIdRouteImport
+      parentRoute: typeof AuthRoute
     }
-    '/hunters/$hunterId': {
-      id: '/hunters/$hunterId'
+    '/_auth/hunters/$hunterId': {
+      id: '/_auth/hunters/$hunterId'
       path: '/hunters/$hunterId'
       fullPath: '/hunters/$hunterId'
-      preLoaderRoute: typeof HuntersHunterIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthHuntersHunterIdRouteImport
+      parentRoute: typeof AuthRoute
     }
   }
 }
 
+interface AuthRouteChildren {
+  AuthHuntersHunterIdRoute: typeof AuthHuntersHunterIdRoute
+  AuthHuntsHuntIdRoute: typeof AuthHuntsHuntIdRoute
+  AuthHuntsIndexRoute: typeof AuthHuntsIndexRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthHuntersHunterIdRoute: AuthHuntersHunterIdRoute,
+  AuthHuntsHuntIdRoute: AuthHuntsHuntIdRoute,
+  AuthHuntsIndexRoute: AuthHuntsIndexRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRouteWithChildren,
   SettingsRoute: SettingsRoute,
-  HuntersHunterIdRoute: HuntersHunterIdRoute,
-  HuntsHuntIdRoute: HuntsHuntIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

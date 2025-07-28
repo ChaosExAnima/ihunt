@@ -1,26 +1,14 @@
-'use client';
+import { inferOutput } from '@trpc/tanstack-react-query';
+import { createContext, PropsWithChildren, useContext, useState } from 'react';
 
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { trpc } from '@/lib/api';
 
-import { HunterSchema } from '@/lib/schemas';
+export type PlayerSettings = inferOutput<typeof trpc.auth.me>;
 
-export interface PlayerSettings {
-	hideMoney: boolean;
-	hunter?: HunterSchema;
-	loggedIn: boolean;
-}
+const PlayerSettingsContext = createContext<null | PlayerSettings>(null);
 
-const defaultSettings: PlayerSettings = {
-	hideMoney: false,
-	loggedIn: false,
-};
-
-const PlayerSettingsContext = createContext(defaultSettings);
-
-export function PlayerSettingsProvider({
-	children,
-	settings,
-}: PropsWithChildren<{ settings: PlayerSettings }>) {
+export function PlayerSettingsProvider({ children }: PropsWithChildren) {
+	const [settings, setSettings] = useState<null | PlayerSettings>(null);
 	return (
 		<PlayerSettingsContext.Provider value={settings}>
 			{children}

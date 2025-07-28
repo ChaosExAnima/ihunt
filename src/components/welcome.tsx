@@ -7,15 +7,21 @@ import { Button } from './ui/button';
 
 interface WelcomeProps {
 	className?: string;
-	logInAction: () => Promise<void>;
+	loggingIn: boolean;
+	logInAction: () => void;
 }
 
-export default function Welcome({ className, logInAction }: WelcomeProps) {
+export default function Welcome({
+	className,
+	loggingIn,
+	logInAction,
+}: WelcomeProps) {
 	return (
 		<main className={cn('p-4 flex flex-col gap-4 text-center', className)}>
 			<Header>iHunt</Header>
 			<Button
-				onClick={() => void logInAction()}
+				disabled={loggingIn}
+				onClick={logInAction}
 				size="lg"
 				variant="success"
 			>

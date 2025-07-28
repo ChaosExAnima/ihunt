@@ -13,6 +13,10 @@ import { isDev } from '@/lib/utils';
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
 
+import {
+	PlayerSettingsProvider,
+	usePlayerSettings,
+} from './components/providers/player';
 import { queryClient } from './lib/api';
 import { routeTree } from './routeTree.gen';
 
@@ -20,7 +24,7 @@ import { routeTree } from './routeTree.gen';
 const router = createRouter({
 	context: {
 		queryClient,
-		user: false,
+		settings: null,
 	},
 	defaultPreload: 'intent',
 	// Since we're using React Query, we don't want loader calls to ever be stale
@@ -37,7 +41,7 @@ declare module '@tanstack/react-router' {
 	}
 }
 
-export function App() {
+function App() {
 	const devMode = isDev();
 	const [offlineToast, setToast] = useState<null | ReturnType<typeof toast>>(
 		null,
@@ -61,12 +65,19 @@ export function App() {
 	});
 	return (
 		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
+			<PlayerSettingsProvider>
+				<Router />
+			</PlayerSettingsProvider>
 			<ReactQueryDevtools />
 			<TanStackRouterDevtools router={router} />
 			{devMode && <DevTools />}
 		</QueryClientProvider>
 	);
+}
+
+function Router() {
+	const settings = usePlayerSettings();
+	return <RouterProvider context={{ settings }} router={router} />;
 }
 
 // Render the app

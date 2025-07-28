@@ -17,7 +17,7 @@ export const hunterPageSchema = z.object({
 });
 export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 
-export const Route = createFileRoute('/hunters/$hunterId')({
+export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
 	loader({ params }) {
 		return hunterPageSchema.parse(params);
