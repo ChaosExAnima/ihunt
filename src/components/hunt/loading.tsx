@@ -1,7 +1,7 @@
 import { PropsWithClassName } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import HunterList from '../hunter-list';
+import { HunterList } from '../hunter-list';
 import { Card } from '../ui/card';
 
 export function HuntLoading({ className }: PropsWithClassName) {

@@ -1,5 +1,5 @@
 import Header from '@/components/header';
-import HunterList from '@/components/hunter-list';
+import { HunterList } from '@/components/hunter-list';
 import PhotoDisplay from '@/components/photo';
 import Rating from '@/components/rating';
 import { HuntStatus } from '@/lib/constants';

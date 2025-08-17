@@ -14,7 +14,7 @@ import {
 	useUpdate,
 } from 'react-admin';
 
-import HunterList from '@/components/hunter-list';
+import { HunterList } from '@/components/hunter-list';
 import { HuntStatus, Locale } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
 

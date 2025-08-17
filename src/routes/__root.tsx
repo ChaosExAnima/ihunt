@@ -1,5 +1,9 @@
 import { QueryClient } from '@tanstack/react-query';
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
+import {
+	createRootRouteWithContext,
+	ErrorComponent,
+	Outlet,
+} from '@tanstack/react-router';
 
 import { PlayerSettings } from '@/components/providers/player';
 import { cn, isDev } from '@/lib/utils';
@@ -21,4 +25,5 @@ export const Route = createRootRouteWithContext<{
 			<Outlet />
 		</div>
 	),
+	errorComponent: ErrorComponent,
 });

@@ -1,7 +1,7 @@
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { idSchema, idSchemaCoerce } from '@/lib/schemas';
+import { huntStatus, idSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
@@ -73,8 +73,8 @@ export const huntRouter = router({
 			});
 		}),
 
-	getPublic: userProcedure.query(() => {
-		return db.hunt.findMany({
+	getPublic: userProcedure.query(async () => {
+		const hunts = await db.hunt.findMany({
 			include: huntDisplayInclude,
 			orderBy: [
 				{
@@ -90,6 +90,10 @@ export const huntRouter = router({
 				},
 			},
 		});
+		return hunts.map((hunt) => ({
+			...hunt,
+			status: huntStatus.parse(hunt.status),
+		}));
 	}),
 
 	join: userProcedure

@@ -1,13 +1,13 @@
 import { HuntSchema } from '@/lib/schemas';
 
-import HunterList from '../hunter-list';
+import { HunterList } from '../hunter-list';
 import { HuntDisplayProps } from './index';
 
 interface HuntHuntersDisplayProps {
 	isAccepted?: boolean;
 }
 
-export default function HuntHuntersDisplay({
+export function HuntHuntersDisplay({
 	hunterId,
 	hunters,
 	maxHunters,

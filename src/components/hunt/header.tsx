@@ -38,7 +38,8 @@ export function HuntDanger({
 		</div>
 	);
 }
-export default function HuntHeader(hunt: HuntHeaderProps) {
+
+export function HuntHeader(hunt: HuntHeaderProps) {
 	const mainPhoto = hunt.photos?.at(0);
 	if (!mainPhoto) {
 		return null;
@@ -72,7 +73,7 @@ export function HuntMeta({
 	place,
 }: Pick<HuntHeaderProps, 'className' | 'name' | 'place'> & { date?: Date }) {
 	const formattedDate = useMemo(() => {
-		if (!date) {
+		if (!(date instanceof Date)) {
 			return '';
 		}
 		const now = new Date();
