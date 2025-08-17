@@ -7,8 +7,8 @@ import { cn, isDev } from '@/lib/utils';
 const devMode = isDev();
 
 export const Route = createRootRouteWithContext<{
+	me: null | PlayerSettings;
 	queryClient: QueryClient;
-	settings: null | PlayerSettings;
 }>()({
 	component: () => (
 		<div

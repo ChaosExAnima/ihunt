@@ -23,8 +23,8 @@ import { routeTree } from './routeTree.gen';
 // Create a new router instance
 const router = createRouter({
 	context: {
+		me: null,
 		queryClient,
-		settings: null,
 	},
 	defaultPreload: 'intent',
 	// Since we're using React Query, we don't want loader calls to ever be stale
@@ -76,8 +76,8 @@ function App() {
 }
 
 function Router() {
-	const settings = usePlayerSettings();
-	return <RouterProvider context={{ settings }} router={router} />;
+	const me = usePlayerSettings();
+	return <RouterProvider context={{ me }} router={router} />;
 }
 
 // Render the app

@@ -9,18 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSettingsRouteImport } from './routes/_auth/settings'
 import { Route as AuthHuntsIndexRouteImport } from './routes/_auth/hunts/index'
 import { Route as AuthHuntsHuntIdRouteImport } from './routes/_auth/hunts/$huntId'
 import { Route as AuthHuntersHunterIdRouteImport } from './routes/_auth/hunters/$hunterId'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
@@ -29,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSettingsRoute = AuthSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthHuntsIndexRoute = AuthHuntsIndexRouteImport.update({
   id: '/hunts/',
@@ -48,14 +48,14 @@ const AuthHuntersHunterIdRoute = AuthHuntersHunterIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/settings': typeof SettingsRoute
+  '/settings': typeof AuthSettingsRoute
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/hunts': typeof AuthHuntsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/settings': typeof SettingsRoute
+  '/settings': typeof AuthSettingsRoute
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/hunts': typeof AuthHuntsIndexRoute
@@ -64,7 +64,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
-  '/settings': typeof SettingsRoute
+  '/_auth/settings': typeof AuthSettingsRoute
   '/_auth/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/_auth/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/_auth/hunts/': typeof AuthHuntsIndexRoute
@@ -83,7 +83,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_auth'
-    | '/settings'
+    | '/_auth/settings'
     | '/_auth/hunters/$hunterId'
     | '/_auth/hunts/$huntId'
     | '/_auth/hunts/'
@@ -92,18 +92,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
-  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -117,6 +109,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/settings': {
+      id: '/_auth/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthSettingsRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/hunts/': {
       id: '/_auth/hunts/'
@@ -143,12 +142,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteChildren {
+  AuthSettingsRoute: typeof AuthSettingsRoute
   AuthHuntersHunterIdRoute: typeof AuthHuntersHunterIdRoute
   AuthHuntsHuntIdRoute: typeof AuthHuntsHuntIdRoute
   AuthHuntsIndexRoute: typeof AuthHuntsIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthSettingsRoute: AuthSettingsRoute,
   AuthHuntersHunterIdRoute: AuthHuntersHunterIdRoute,
   AuthHuntsHuntIdRoute: AuthHuntsHuntIdRoute,
   AuthHuntsIndexRoute: AuthHuntsIndexRoute,
@@ -159,7 +160,6 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
-  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
