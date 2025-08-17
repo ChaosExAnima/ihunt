@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import z from 'zod';
 
@@ -5,6 +6,7 @@ import Header from '@/components/header';
 import { HunterList } from '@/components/hunter-list';
 import PhotoDisplay from '@/components/photo';
 import Rating from '@/components/rating';
+import { trpc } from '@/lib/api';
 import { hunterTypeIcon } from '@/lib/hunter';
 import { hunterSchema, huntSchema } from '@/lib/schemas';
 
@@ -19,14 +21,25 @@ export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
-	loader({ params }) {
-		return hunterPageSchema.parse(params);
+	async loader({ context: { queryClient }, params: { hunterId } }) {
+		await queryClient.ensureQueryData(
+			trpc.hunter.getOne.queryOptions({
+				hunterId: Number.parseInt(hunterId),
+			}),
+		);
 	},
 });
 
 function RouteComponent() {
-	const { friends, huntCount, hunts, rating, ...hunter } =
-		Route.useLoaderData();
+	const { hunterId } = Route.useParams();
+	const { data: hunter } = useQuery(
+		trpc.hunter.getOne.queryOptions({
+			hunterId: Number.parseInt(hunterId),
+		}),
+	);
+	if (!hunter) {
+		return null;
+	}
 	const HunterType = hunterTypeIcon(hunter.type);
 	return (
 		<>
@@ -34,7 +47,7 @@ function RouteComponent() {
 				<div className="absolute top-0 p-2 flex justify-between w-full">
 					<Rating
 						className="text-white fill-white"
-						rating={rating ?? 1}
+						rating={hunter.rating ?? 1}
 					/>
 					{HunterType && (
 						<HunterType className="text-white" size="2em" />
@@ -50,12 +63,12 @@ function RouteComponent() {
 				</div>
 			</div>
 			{hunter.bio && <p>{hunter.bio}</p>}
-			<p>Completed hunts: {huntCount}</p>
+			<p>Completed hunts: {hunter.count}</p>
 			<p>Hunt friends:</p>
-			<HunterList hunters={friends} />
+			<HunterList hunters={hunter.followers} />
 			<Header level={3}>Reviews</Header>
 			<ol>
-				{hunts.map((hunt) => (
+				{hunter.hunts.map((hunt) => (
 					<li key={hunt.id}>
 						<Rating rating={hunt.rating ?? 1} size="1em" /> &ldquo;
 						{hunt.comment}&rdquo;

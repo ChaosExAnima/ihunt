@@ -16,7 +16,10 @@ export const hunterRouter = router({
 		.query(async ({ input }) => {
 			const { hunterId: id } = input;
 
-			const hunter = await db.hunter.findFirstOrThrow({
+			const {
+				_count: { hunts: count },
+				...hunter
+			} = await db.hunter.findFirstOrThrow({
 				include: {
 					_count: {
 						select: {
@@ -56,6 +59,7 @@ export const hunterRouter = router({
 
 			return {
 				...hunter,
+				count,
 				rating: rating._avg.rating ?? 1,
 			};
 		}),
