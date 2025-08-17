@@ -1,5 +1,6 @@
 import { ImgHTMLAttributes } from 'react';
 
+import cloudflareLoader from '@/lib/image-loader';
 import { PhotoSchema } from '@/lib/schemas';
 
 interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -20,7 +21,10 @@ export default function PhotoDisplay({
 			{...props}
 			alt={alt}
 			height={photo.height}
-			src={`/${photo.path}`}
+			src={cloudflareLoader({
+				src: photo.path,
+				width: photo.width,
+			})}
 			width={photo.width}
 		/>
 	);

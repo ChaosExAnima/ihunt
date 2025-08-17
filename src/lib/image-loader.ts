@@ -14,7 +14,7 @@ export default function cloudflareLoader({
 }: ImageLoaderArgs) {
 	const params = [`width=${width}`, `quality=${quality}`, `format=${format}`];
 	const imageHost = import.meta.env.VITE_IMAGE_HOST;
-	return `https://${imageHost}/cdn-cgi/image/${params.join(',')}/${src}`;
+	return `https://${imageHost}/cdn-cgi/image/${encodeURIComponent(params.join(','))}/${src}`;
 }
 
 export async function fetchBlurry(src: string) {
