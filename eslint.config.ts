@@ -31,13 +31,15 @@ export default tseslint.config([
 		},
 	},
 	pluginReact.configs.flat['jsx-runtime'],
+	pluginPrettier,
 	{
 		rules: {
+			'@typescript-eslint/no-unsafe-argument': 'warn',
 			'@typescript-eslint/no-unsafe-assignment': 'warn',
 			'@typescript-eslint/no-unsafe-call': 'warn',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/only-throw-error': 'off',
+			'prettier/prettier': 'warn',
 		},
 	},
-	pluginPrettier,
 ]);
