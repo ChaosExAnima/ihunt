@@ -14,11 +14,18 @@ export const Route = createFileRoute('/')({
 		}
 		return {};
 	},
-	beforeLoad({ context, search }) {
-		if (context.me) {
-			throw redirect({
-				to: search.redirect ?? '/hunts',
-			});
+	async beforeLoad({ context: { queryClient }, search }) {
+		try {
+			const player = await queryClient.fetchQuery(
+				trpc.auth.me.queryOptions(),
+			);
+			if (player) {
+				throw redirect({
+					to: search.redirect ?? '/hunts',
+				});
+			}
+		} catch {
+			// Nothing
 		}
 	},
 	component: Index,

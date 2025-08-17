@@ -13,17 +13,12 @@ import { isDev } from '@/lib/utils';
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
 
-import {
-	PlayerSettingsProvider,
-	usePlayerSettings,
-} from './components/providers/player';
 import { queryClient } from './lib/api';
 import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({
 	context: {
-		me: null,
 		queryClient,
 	},
 	defaultPreload: 'intent',
@@ -65,19 +60,12 @@ function App() {
 	});
 	return (
 		<QueryClientProvider client={queryClient}>
-			<PlayerSettingsProvider>
-				<Router />
-			</PlayerSettingsProvider>
+			<RouterProvider router={router} />
 			<ReactQueryDevtools />
 			<TanStackRouterDevtools router={router} />
 			{devMode && <DevTools />}
 		</QueryClientProvider>
 	);
-}
-
-function Router() {
-	const me = usePlayerSettings();
-	return <RouterProvider context={{ me }} router={router} />;
 }
 
 // Render the app

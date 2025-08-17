@@ -5,13 +5,11 @@ import {
 	Outlet,
 } from '@tanstack/react-router';
 
-import { PlayerSettings } from '@/components/providers/player';
 import { cn, isDev } from '@/lib/utils';
 
 const devMode = isDev();
 
 export const Route = createRootRouteWithContext<{
-	me: null | PlayerSettings;
 	queryClient: QueryClient;
 }>()({
 	component: () => (
