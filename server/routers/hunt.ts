@@ -1,7 +1,12 @@
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { huntStatus, idSchema, idSchemaCoerce } from '@/lib/schemas';
+import {
+	huntSchema,
+	huntStatus,
+	idSchema,
+	idSchemaCoerce,
+} from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
@@ -44,8 +49,8 @@ export const huntRouter = router({
 		});
 	}),
 
-	getCompleted: userProcedure.query(({ ctx: { hunter } }) => {
-		return db.hunt.findMany({
+	getCompleted: userProcedure.query(async ({ ctx: { hunter } }) => {
+		const hunts = await db.hunt.findMany({
 			include: huntDisplayInclude,
 			where: {
 				hunters: {
@@ -56,6 +61,7 @@ export const huntRouter = router({
 				status: HuntStatus.Complete,
 			},
 		});
+		return z.array(huntSchema).parse(hunts);
 	}),
 
 	getOne: userProcedure
@@ -64,13 +70,21 @@ export const huntRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.query(({ input }) => {
+		.query(async ({ input }) => {
 			const { huntId: id } = input;
 
-			return db.hunt.findUnique({
+			const hunt = await db.hunt.findUnique({
 				include: huntDisplayInclude,
 				where: { id },
 			});
+			if (!hunt) {
+				return null;
+			}
+			return {
+				...hunt,
+				rating: hunt.rating ?? 0,
+				status: huntStatus.parse(hunt.status),
+			};
 		}),
 
 	getPublic: userProcedure.query(async () => {
@@ -90,10 +104,7 @@ export const huntRouter = router({
 				},
 			},
 		});
-		return hunts.map((hunt) => ({
-			...hunt,
-			status: huntStatus.parse(hunt.status),
-		}));
+		return z.array(huntSchema).parse(hunts);
 	}),
 
 	join: userProcedure

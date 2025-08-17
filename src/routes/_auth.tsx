@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
+import { PlayerSettingsProvider } from '@/components/providers/player';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
@@ -16,5 +17,12 @@ export const Route = createFileRoute('/_auth')({
 		}
 		throw redirect({ search: { redirect: location.href }, to: '/' });
 	},
-	component: () => <Outlet />,
+	component: () => {
+		const { player } = Route.useRouteContext();
+		return (
+			<PlayerSettingsProvider settings={player}>
+				<Outlet />
+			</PlayerSettingsProvider>
+		);
+	},
 });

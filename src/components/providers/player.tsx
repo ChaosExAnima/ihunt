@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import { inferOutput } from '@trpc/tanstack-react-query';
 import { createContext, PropsWithChildren, useContext } from 'react';
 
@@ -8,8 +7,10 @@ export type PlayerSettings = inferOutput<typeof trpc.auth.me>;
 
 const PlayerSettingsContext = createContext<null | PlayerSettings>(null);
 
-export function PlayerSettingsProvider({ children }: PropsWithChildren) {
-	const { data: settings } = useQuery(trpc.auth.me.queryOptions());
+export function PlayerSettingsProvider({
+	children,
+	settings,
+}: PropsWithChildren<{ settings: PlayerSettings }>) {
 	return (
 		<PlayerSettingsContext.Provider value={settings ?? null}>
 			{children}
