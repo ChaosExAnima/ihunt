@@ -29,7 +29,11 @@ export async function createAuthContext({
 	try {
 		const { hunter, ...user } = await db.user.findFirstOrThrow({
 			include: {
-				hunter: true,
+				hunter: {
+					include: {
+						avatar: true,
+					},
+				},
 			},
 			where: {
 				id: session.userId,

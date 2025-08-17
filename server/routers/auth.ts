@@ -1,9 +1,7 @@
-import { Photo } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
-import { omit } from '@/lib/utils';
+import { hunterSchema } from '@/lib/schemas';
 
-import { db } from '../db';
 import { publicProcedure, router, userProcedure } from '../trpc';
 
 export const authRouter = router({
@@ -25,22 +23,13 @@ export const authRouter = router({
 		session.destroy();
 	}),
 
-	me: userProcedure.query(async ({ ctx: { hunter, user } }) => {
-		let avatar: null | Omit<Photo, 'hunterId' | 'huntId' | 'id'> = null;
-		if (hunter.avatarId) {
-			const photo = await db.photo.findFirst({
-				where: { id: hunter.avatarId },
-			});
-			if (photo) {
-				avatar = omit(photo, 'id', 'huntId', 'hunterId');
-			}
-		}
-		return {
-			avatar,
-			hunter: omit(hunter, 'userId', 'avatarId'),
-			settings: {
-				hideMoney: user.hideMoney,
-			},
-		} as const;
-	}),
+	me: userProcedure.query(
+		({ ctx: { hunter, user } }) =>
+			({
+				hunter: hunterSchema.parse(hunter),
+				settings: {
+					hideMoney: user.hideMoney,
+				},
+			}) as const,
+	),
 });
