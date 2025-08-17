@@ -104,7 +104,7 @@ function RouteComponent() {
 	);
 
 	return (
-		<Carousel className="my-4 flex flex-col grow">
+		<Carousel className="-mx-4 flex flex-col grow">
 			<CarouselContent className="min-h-full" slot="ul">
 				{isLoadingHunts && (
 					<CarouselItem>

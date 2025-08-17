@@ -1,5 +1,6 @@
 import type { JSX, PropsWithChildren } from 'react';
 
+import { Link, LinkProps } from '@tanstack/react-router';
 import { Crosshair, MessageCircle } from 'lucide-react';
 
 import { HunterSchema } from '@/lib/schemas';
@@ -14,7 +15,6 @@ export interface NavbarProps {
 
 interface NavbarItemProps {
 	className?: string;
-	href: string;
 	icon: JSX.Element;
 	name: string;
 	noLabel?: boolean;
@@ -30,9 +30,9 @@ export default function Navbar({
 			<ol className="flex gap-2 justify-start items-center">
 				<NavbarItemLink
 					className={cn(isHuntActive && 'text-rose-700')}
-					href="/hunts"
 					icon={<Crosshair />}
 					name="Hunts"
+					to="/hunts"
 				/>
 				{/** See: https://gist.github.com/ghostrider-05/8f1a0bfc27c7c4509b4ea4e8ce718af0 */}
 				<NavbarItemLink
@@ -42,10 +42,10 @@ export default function Navbar({
 				/>
 				<NavbarItemLink
 					className="ml-auto"
-					href="/settings"
 					icon={<Avatar hunter={hunter} />}
 					name="Settings"
 					noLabel
+					to="/settings"
 				/>
 				{children ? <li>{children}</li> : null}
 			</ol>
@@ -55,17 +55,17 @@ export default function Navbar({
 
 function NavbarItemLink({
 	className,
-	href,
 	icon,
 	name,
 	noLabel,
-}: NavbarItemProps) {
+	...props
+}: LinkProps & NavbarItemProps) {
 	return (
 		<li className={className}>
 			<Link
+				{...props}
 				aria-label={name}
 				className="p-4 w-full text-center flex gap-2"
-				href={href}
 			>
 				{icon}
 				{!noLabel && <span className="hidden sm:block">{name}</span>}

@@ -1,8 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
 
 import ActionButton from '@/components/action-button';
+import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
@@ -13,13 +14,12 @@ import { useCurrencyFormat } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth/settings')({
 	component: Settings,
-	async loader({ context: { queryClient } }) {
-		await queryClient.ensureQueryData(trpc.auth.me.queryOptions());
-	},
 });
 
 function Settings() {
-	const { data: me, isLoading } = useQuery(trpc.auth.me.queryOptions());
+	const {
+		player: { hunter },
+	} = Route.useRouteContext();
 	const { mutate: updateMoney } = useMutation(
 		trpc.settings.updateMoney.mutationOptions(),
 	);
@@ -31,12 +31,8 @@ function Settings() {
 	);
 	const { mutate: logOut } = useMutation(trpc.auth.logOut.mutationOptions());
 
-	const money = useCurrencyFormat(me?.hunter?.money ?? 0);
+	const money = useCurrencyFormat(hunter?.money ?? 0);
 
-	if (isLoading || !me) {
-		return null;
-	}
-	const { hunter } = me;
 	return (
 		<>
 			<Header>Settings</Header>
@@ -72,8 +68,8 @@ function Settings() {
 					</ActionButton>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
-					{/* <Avatar hunter={{ avatar, ...hunter }} /> */}
-					<AvatarReplaceButton existing={!!me.avatar} />
+					<Avatar hunter={hunter} />
+					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
 				<SettingBlock className="gap-2" label="Handle">
 					<EditableBlock
