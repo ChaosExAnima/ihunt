@@ -82,7 +82,6 @@ export function HuntPics({
 export function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 	const queryClient = useQueryClient();
 	const { mutateAsync } = useMutation(
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		trpc.hunt.uploadPhoto.mutationOptions({
 			async onSuccess() {
 				await queryClient.invalidateQueries({ queryKey: ['hunts'] });

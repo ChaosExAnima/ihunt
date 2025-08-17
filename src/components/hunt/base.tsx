@@ -1,5 +1,3 @@
-'use client';
-
 import { CircleAlert } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
