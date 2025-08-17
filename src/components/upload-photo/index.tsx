@@ -1,5 +1,3 @@
-'use client';
-
 import { LoaderCircle } from 'lucide-react';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
