@@ -15,9 +15,16 @@ export const Route = createFileRoute('/_auth/hunts/$huntId')({
 
 function RouteComponent() {
 	const { huntId } = Route.useParams();
+	const { player } = Route.useRouteContext();
 	const { data: hunt } = useQuery(trpc.hunt.getOne.queryOptions({ huntId }));
-	if (!hunt) {
+	if (!hunt || !player?.hunter) {
 		return null;
 	}
-	return <HuntDisplay className="h-full" hunt={hunt} hunterId={hunter.id} />;
+	return (
+		<HuntDisplay
+			className="h-full"
+			hunt={hunt}
+			hunterId={player?.hunter.id}
+		/>
+	);
 }

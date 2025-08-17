@@ -13,7 +13,7 @@ export default function PhotoDisplay({
 	...props
 }: PhotoDisplayProps) {
 	if (photo.blurry) {
-		props.blurDataURL = `data:image/jpeg;base64,${photo.blurry}`;
+		// props.blurDataURL = `data:image/jpeg;base64,${photo.blurry}`;
 	}
 	return (
 		<img
