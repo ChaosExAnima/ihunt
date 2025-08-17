@@ -22,7 +22,7 @@ export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
 	if (!ctx.hunter) {
 		throw new TRPCError({
 			code: 'FORBIDDEN',
-			message: 'Admin context requires hunter',
+			message: 'User has no hunter',
 		});
 	}
 	return next({

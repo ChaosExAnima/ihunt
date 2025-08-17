@@ -4,10 +4,6 @@ import { db } from '../db';
 import { router, userProcedure } from '../trpc';
 
 export const settingsRouter = router({
-	getHunter: userProcedure.query(({ ctx: { hunter } }) => {
-		return hunter;
-	}),
-
 	updateBio: userProcedure
 		.input(z.string().trim().max(500).min(1))
 		.mutation(async ({ ctx: { hunter }, input }) => {
