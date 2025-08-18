@@ -1,5 +1,3 @@
-'use client';
-
 import { LoaderCircle } from 'lucide-react';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
@@ -96,7 +94,7 @@ export default function UploadPhoto({
 				accept="image/*"
 				className="hidden"
 				disabled={disabled}
-				onChange={handleFileChange}
+				onChange={(event) => void handleFileChange(event)}
 				ref={inputRef}
 				type="file"
 			/>

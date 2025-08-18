@@ -10,9 +10,36 @@ import { cn } from '@/lib/utils';
 import Header from '../header';
 import PhotoDisplay from '../photo';
 
+interface HuntDangerProps {
+	danger?: number;
+	payment?: number;
+}
+
 type HuntHeaderProps = PropsWithClassName<HuntSchema>;
 
-export default function HuntHeader(hunt: HuntHeaderProps) {
+export function HuntDanger({
+	className,
+	danger = 1,
+	payment = 0,
+}: PropsWithClassName<HuntDangerProps>) {
+	const paymentFormatted = useCurrencyFormat(payment);
+	return (
+		<div className={cn('p-2', className)}>
+			<div className="flex text-rose-700 mb-2">
+				{Array.from({ length: danger }).map((_, i) => (
+					<Skull key={i} />
+				))}
+			</div>
+			{payment > 0 && (
+				<span className="text-white font-semibold text-xl text-shadow">
+					{paymentFormatted}
+				</span>
+			)}
+		</div>
+	);
+}
+
+export function HuntHeader(hunt: HuntHeaderProps) {
 	const mainPhoto = hunt.photos?.at(0);
 	if (!mainPhoto) {
 		return null;
@@ -39,40 +66,14 @@ export default function HuntHeader(hunt: HuntHeaderProps) {
 	);
 }
 
-interface HuntDangerProps {
-	danger?: number;
-	payment?: number;
-}
-export function HuntDanger({
-	className,
-	danger = 1,
-	payment = 0,
-}: PropsWithClassName<HuntDangerProps>) {
-	const paymentFormatted = useCurrencyFormat(payment);
-	return (
-		<div className={cn('p-2', className)}>
-			<div className="flex text-rose-700 mb-2">
-				{Array.from({ length: danger }).map((_, i) => (
-					<Skull key={i} />
-				))}
-			</div>
-			{payment > 0 && (
-				<span className="text-white font-semibold text-xl text-shadow">
-					{paymentFormatted}
-				</span>
-			)}
-		</div>
-	);
-}
-
 export function HuntMeta({
 	className,
 	date,
 	name,
 	place,
-}: { date?: Date } & Pick<HuntHeaderProps, 'className' | 'name' | 'place'>) {
+}: Pick<HuntHeaderProps, 'className' | 'name' | 'place'> & { date?: Date }) {
 	const formattedDate = useMemo(() => {
-		if (!date) {
+		if (!(date instanceof Date)) {
 			return '';
 		}
 		const now = new Date();

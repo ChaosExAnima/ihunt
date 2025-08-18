@@ -1,5 +1,3 @@
-'use client';
-
 import { CircleCheckBig, X } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -28,6 +26,8 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		[hunt.hunters, hunterId],
 	);
 	const payment = useCurrencyFormat(hunt.payment);
+	const huntersLeft =
+		hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
 	switch (hunt.status) {
 		case HuntStatus.Active:
 			return (
@@ -38,8 +38,6 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 				/>
 			);
 		case HuntStatus.Available:
-			const huntersLeft =
-				hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
 					{huntersLeft && !isAccepted && (

@@ -1,5 +1,5 @@
+import { Link } from '@tanstack/react-router';
 import { UserRound } from 'lucide-react';
-import Link from 'next/link';
 
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,10 @@ export default function Avatar({
 
 	if (link) {
 		return (
-			<Link href={`/hunters/${hunter.id}`}>
+			<Link
+				params={{ hunterId: hunter.id.toString() }}
+				to="/hunters/$hunterId"
+			>
 				<Avatar hunter={hunter} />
 			</Link>
 		);

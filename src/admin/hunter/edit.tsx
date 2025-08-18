@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import {
 	AutocompleteInput,
 	DeleteButton,
 	Edit,
 	NumberInput,
 	ReferenceInput,
-	SimpleForm,
 	TextInput,
 	useEditController,
 	useRefresh,
@@ -14,34 +14,25 @@ import {
 
 import PhotoDisplay from '@/components/photo';
 import UploadPhoto from '@/components/upload-photo';
-import { fetchFromApi } from '@/lib/api';
+import { trpc } from '@/lib/api';
 
+import { SimpleForm } from '../components/simple-form';
 import { HunterRow, hunterSchema } from './common';
 
 export function HunterEdit() {
 	const { record } = useEditController<HunterRow>();
 	const refresh = useRefresh();
-	const { mutateAsync } = useMutation({
-		async mutationFn(blob: Blob) {
-			if (!record?.id) {
-				throw new Error('No record ID');
-			}
-			const { success } = await fetchFromApi<{ success: boolean }>(
-				`/admin/api/photo/upload?avatar=true&hunterId=${record.id}`,
-				{
-					body: blob,
-					method: 'POST',
-				},
-			);
-			if (!success) {
-				throw new Error('Not able to upload image');
-			}
-			return true;
-		},
-		onSuccess() {
-			refresh();
-		},
-	});
+	const { mutateAsync } = useMutation(
+		trpc.hunter.updateAvatar.mutationOptions({
+			onSuccess: () => refresh(),
+		}),
+	);
+	const handleCrop = useCallback(async (blob: Blob) => {
+		const formData = new FormData();
+		formData.append('photo', blob);
+		const result = await mutateAsync(formData);
+		return result.success;
+	}, []);
 
 	return (
 		<Edit>
@@ -64,7 +55,7 @@ export function HunterEdit() {
 						</figcaption>
 					</figure>
 				)}
-				<UploadPhoto circular onCrop={mutateAsync} title="Avatar" />
+				<UploadPhoto circular onCrop={handleCrop} title="Avatar" />
 				<ReferenceInput reference="user" source="user.id">
 					<AutocompleteInput label="Player" />
 				</ReferenceInput>

@@ -56,18 +56,20 @@ function ChipFieldDeletable({
 	hunterId,
 	isLoading,
 	onDelete,
-}: { hunterId: number } & Required<Omit<ChipListProps, 'empty'>>) {
+}: Required<Omit<ChipListProps, 'empty'>> & { hunterId: number }) {
 	const record = useRecordContext<RaRecord<number>>();
 	const [open, setOpen] = useState(false);
 	const refresh = useRefresh();
 
-	const handleConfirm = async () => {
-		if (!record) {
-			throw new Error('No record found!');
-		}
-		await onDelete(hunterId, record.id);
-		refresh();
-		setOpen(false);
+	const handleConfirm = () => {
+		void (async () => {
+			if (!record) {
+				throw new Error('No record found!');
+			}
+			await onDelete(hunterId, record.id);
+			refresh();
+			setOpen(false);
+		})();
 	};
 	const handleClick = (event: SyntheticEvent) => {
 		event.preventDefault();
@@ -77,12 +79,12 @@ function ChipFieldDeletable({
 		<>
 			<ChipField clickable onDelete={handleClick} source={fieldSource} />
 			<Confirm
-				content={`Are you sure?`}
+				content="Are you sure?"
 				isOpen={open}
 				loading={isLoading}
 				onClose={() => setOpen(false)}
 				onConfirm={handleConfirm}
-				title={`Delete?`}
+				title="Delete?"
 			/>
 		</>
 	);

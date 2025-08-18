@@ -1,8 +1,10 @@
-import Image, { ImageProps } from 'next/image';
+import { ImgHTMLAttributes } from 'react';
 
+import { cloudflareLoader } from '@/lib/images';
 import { PhotoSchema } from '@/lib/schemas';
 
-interface PhotoDisplayProps extends Partial<ImageProps> {
+interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
+	blurDataURL?: string;
 	photo: PhotoSchema;
 }
 
@@ -12,15 +14,17 @@ export default function PhotoDisplay({
 	...props
 }: PhotoDisplayProps) {
 	if (photo.blurry) {
-		props.blurDataURL = `data:image/jpeg;base64,${photo.blurry}`;
-		props.placeholder = 'blur';
+		// props.blurDataURL = `data:image/jpeg;base64,${photo.blurry}`;
 	}
 	return (
-		<Image
+		<img
 			{...props}
 			alt={alt}
 			height={photo.height}
-			src={`/${photo.path}`}
+			src={cloudflareLoader({
+				src: photo.path,
+				width: photo.width,
+			})}
 			width={photo.width}
 		/>
 	);

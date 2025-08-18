@@ -1,11 +1,7 @@
 import { Prisma } from '@prisma/client';
 
-import { publicConfig } from './config';
-
-const { currency, locale } = publicConfig;
-
-export const Locale = locale;
-export const Currency = currency;
+export const Locale = 'de-DE';
+export const Currency = 'EUR';
 
 export const HuntStatus = {
 	Active: 'active',

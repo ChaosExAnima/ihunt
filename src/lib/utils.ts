@@ -6,7 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function isDev() {
-	return process.env.NODE_ENV === 'development';
+	if (typeof process !== 'undefined') {
+		return process.env.NODE_ENV === 'development';
+	}
+	return import.meta.env.DEV;
 }
 
 export function isPlainObject(value: unknown): value is object {
@@ -15,7 +18,7 @@ export function isPlainObject(value: unknown): value is object {
 	if (Object.prototype.toString.call(value) !== '[object Object]')
 		return false;
 
-	const proto = Object.getPrototypeOf(value);
+	const proto = Object.getPrototypeOf(value) as null | object;
 	if (proto === null) return true;
 
 	const Ctor =
@@ -26,4 +29,13 @@ export function isPlainObject(value: unknown): value is object {
 		Ctor instanceof Ctor &&
 		Function.prototype.call(Ctor) === Function.prototype.call(value)
 	);
+}
+
+export function omit<T extends object, K extends keyof T>(
+	obj: T,
+	...keys: K[]
+): Omit<T, K> {
+	const _ = { ...obj };
+	keys.forEach((key) => delete _[key]);
+	return _;
 }

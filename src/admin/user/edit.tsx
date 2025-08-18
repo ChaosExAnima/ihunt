@@ -4,11 +4,11 @@ import {
 	AutocompleteInput,
 	Edit,
 	ReferenceInput,
-	SimpleForm,
 	TextInput,
 	useEditController,
 } from 'react-admin';
 
+import { SimpleForm } from '../components/simple-form';
 import { HunterRow } from '../hunter/common';
 import { UserInput, UserRow, userSchema } from './common';
 

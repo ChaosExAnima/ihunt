@@ -1,5 +1,5 @@
-import { db } from '@/lib/db';
-import cloudflareLoader from '@/lib/image-loader';
+import { cloudflareLoader } from '@/lib/images';
+import { db } from '@/server/db';
 
 async function main() {
 	const force = process.argv.includes('-f');
@@ -41,4 +41,4 @@ async function main() {
 	);
 }
 
-main();
+void main();

@@ -2,9 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Camera, Trash } from 'lucide-react';
 import { useCallback } from 'react';
 import { useEffect, useMemo } from 'react';
-import { z } from 'zod';
 
-import { fetchFromApi } from '@/lib/api';
+import { trpc } from '@/lib/api';
 import { HunterSchema, PhotoSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +12,18 @@ import PhotoDisplay from '../photo';
 import { Button } from '../ui/button';
 import UploadPhoto from '../upload-photo';
 import { HuntDisplayProps } from './index';
+
+interface ActivePhotoProps {
+	hunterId: number;
+	hunters: HunterSchema[];
+	huntId: number;
+	photo: PhotoSchema;
+}
+
+interface DeletePhotoButtonProps {
+	huntId: number;
+	photoId: number;
+}
 
 interface HuntPics {
 	activeIndex: number;
@@ -68,13 +79,38 @@ export function HuntPics({
 	);
 }
 
-interface ActivePhotoProps {
-	hunterId: number;
-	hunters: HunterSchema[];
-	huntId: number;
-	photo: PhotoSchema;
+export function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
+	const queryClient = useQueryClient();
+	const { mutateAsync } = useMutation(
+		trpc.hunt.uploadPhoto.mutationOptions({
+			async onSuccess() {
+				await queryClient.invalidateQueries({ queryKey: ['hunts'] });
+			},
+		}),
+	);
+	const handleCrop = useCallback(async (blob: Blob) => {
+		const formData = new FormData();
+		formData.append('photo', blob);
+		formData.append('huntId', String(huntId));
+		const result = await mutateAsync(formData);
+		return !!result.id;
+	}, []);
+	const button = (
+		<Button className="w-full" variant="secondary">
+			Upload photos
+			<Camera />
+		</Button>
+	);
+	return (
+		<UploadPhoto
+			dialogProps={{
+				button,
+			}}
+			onCrop={handleCrop}
+			title="Upload a pic"
+		/>
+	);
 }
-
 function ActivePhoto({ hunterId, hunters, huntId, photo }: ActivePhotoProps) {
 	const currentHunter = useMemo(
 		() => hunters.find((hunter) => hunter.id === photo.hunterId),
@@ -97,10 +133,6 @@ function ActivePhoto({ hunterId, hunters, huntId, photo }: ActivePhotoProps) {
 	);
 }
 
-interface DeletePhotoButtonProps {
-	huntId: number;
-	photoId: number;
-}
 function DeletePhotoButton({ huntId, photoId }: DeletePhotoButtonProps) {
 	const queryClient = useQueryClient();
 	const { mutate } = useMutation({
@@ -119,43 +151,5 @@ function DeletePhotoButton({ huntId, photoId }: DeletePhotoButtonProps) {
 		>
 			<Trash />
 		</Button>
-	);
-}
-
-export function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
-	const queryClient = useQueryClient();
-	const handleCrop = useCallback(
-		async (image: Blob) => {
-			const { success } = await fetchFromApi(
-				`/api/hunts/${huntId}/photos`,
-				{
-					body: image,
-					method: 'POST',
-				},
-				z.object({
-					success: z.boolean(),
-				}),
-			);
-			if (success) {
-				await queryClient.invalidateQueries({ queryKey: ['hunts'] });
-			}
-			return success;
-		},
-		[huntId, queryClient],
-	);
-	const button = (
-		<Button className="w-full" variant="secondary">
-			Upload photos
-			<Camera />
-		</Button>
-	);
-	return (
-		<UploadPhoto
-			dialogProps={{
-				button,
-			}}
-			onCrop={handleCrop}
-			title="Upload a pic"
-		/>
 	);
 }

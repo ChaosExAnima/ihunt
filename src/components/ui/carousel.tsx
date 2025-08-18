@@ -1,5 +1,3 @@
-'use client';
-
 import { Slot } from '@radix-ui/react-slot';
 import useEmblaCarousel, {
 	type UseEmblaCarouselType,
@@ -12,14 +10,14 @@ import { AttributesWithAsChild } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 type CarouselApi = UseEmblaCarouselType[1];
-type CarouselContextProps = {
+type CarouselContextProps = CarouselProps & {
 	api: ReturnType<typeof useEmblaCarousel>[1];
 	canScrollNext: boolean;
 	canScrollPrev: boolean;
 	carouselRef: ReturnType<typeof useEmblaCarousel>[0];
 	scrollNext: () => void;
 	scrollPrev: () => void;
-} & CarouselProps;
+};
 type CarouselOptions = UseCarouselParameters[0];
 type CarouselPlugin = UseCarouselParameters[1];
 

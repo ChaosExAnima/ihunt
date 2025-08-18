@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { basename } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { uploadPhoto } from '@/lib/photo';
+import { uploadPhoto } from '@/server/photo';
 
 async function main() {
 	const { positionals, values } = parseArgs({

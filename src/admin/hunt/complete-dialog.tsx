@@ -32,7 +32,7 @@ export default function HuntCompleteDialog() {
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
 		event.preventDefault();
-		update('hunt', {
+		void update('hunt', {
 			data: {
 				...modalData,
 				completedAt: new Date(),
@@ -66,9 +66,7 @@ export default function HuntCompleteDialog() {
 					<DialogTitle>Complete hunt</DialogTitle>
 				</DialogHeader>
 				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-					<p>
-						{`You are paying the hunter ${formattedPayment}.`}
-					</p>
+					<p>{`You are paying the hunter ${formattedPayment}.`}</p>
 					<Input
 						min={0}
 						onChange={createFieldHandler('payment')}

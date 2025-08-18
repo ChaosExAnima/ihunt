@@ -1,4 +1,3 @@
-'use client';
 import { Edit, Play } from 'lucide-react';
 import {
 	Datagrid,
@@ -14,7 +13,7 @@ import {
 	useUpdate,
 } from 'react-admin';
 
-import HunterList from '@/components/hunter-list';
+import { HunterList } from '@/components/hunter-list';
 import { HuntStatus, Locale } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
 
@@ -80,7 +79,7 @@ function HuntActions() {
 	}
 
 	const handleStart = () => {
-		update('hunt', {
+		void update('hunt', {
 			data: { status: HuntStatus.Active },
 			id: hunt.id,
 			previousData: hunt,

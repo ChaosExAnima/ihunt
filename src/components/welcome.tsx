@@ -1,30 +1,28 @@
-'use client';
-
-import { type ProviderName } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
 import Header from './header';
 import { Button } from './ui/button';
 
 interface WelcomeProps {
-	devMode?: boolean;
-	logInAction: (method?: ProviderName) => Promise<void>;
+	className?: string;
+	loggingIn: boolean;
+	logInAction: () => void;
 }
 
 export default function Welcome({
-	devMode = false,
+	className,
+	loggingIn,
 	logInAction,
 }: WelcomeProps) {
 	return (
-		<main
-			className={cn(
-				'p-4 flex flex-col gap-4 text-center',
-				devMode && 'border border-stone-400 dark:border-stone-800',
-				devMode && 'w-full sm:w-[360px] min-h-[687px] mx-auto mt-4',
-			)}
-		>
+		<main className={cn('p-4 flex flex-col gap-4 text-center', className)}>
 			<Header>iHunt</Header>
-			<Button onClick={() => logInAction()} size="lg" variant="success">
+			<Button
+				disabled={loggingIn}
+				onClick={logInAction}
+				size="lg"
+				variant="success"
+			>
 				Log In
 			</Button>
 		</main>

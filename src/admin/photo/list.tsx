@@ -11,6 +11,7 @@ import {
 } from 'react-admin';
 
 import PhotoDisplay from '@/components/photo';
+import { HunterSchema } from '@/lib/schemas';
 
 import { AdminHunter } from '../components/hunter-list';
 
@@ -27,7 +28,9 @@ export function PhotoList() {
 				<NumberField source="height" />
 				<BooleanField looseValue source="blurry" />
 				<FunctionField
-					render={(record) => <AdminHunter hunter={record?.hunter} />}
+					render={(record: { hunter: HunterSchema }) => (
+						<AdminHunter hunter={record.hunter} />
+					)}
 					source="hunter"
 				/>
 				<ReferenceField reference="hunt" source="huntId" />

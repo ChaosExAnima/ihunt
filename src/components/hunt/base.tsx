@@ -1,5 +1,3 @@
-'use client';
-
 import { CircleAlert } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
@@ -8,8 +6,8 @@ import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
-import HuntHeader from './header';
-import HuntHuntersDisplay from './hunters';
+import { HuntHeader } from './header';
+import { HuntHuntersDisplay } from './hunters';
 
 interface HuntBaseProps {
 	afterHeader?: ReactNode;

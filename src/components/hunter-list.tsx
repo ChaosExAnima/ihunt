@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
 import { HunterSchema } from '@/lib/schemas';
@@ -13,7 +13,7 @@ interface HunterListProps {
 
 const MAX_HUNTERS = 4;
 
-export default function HunterList({
+export function HunterList({
 	currentHunterId,
 	hunters,
 	max = 0,
@@ -53,10 +53,11 @@ function HunterSlot({
 	return (
 		<li>
 			<Link
-				href={
+				params={{ hunterId: hunter.id }}
+				to={
 					hunter.id === currentHunterId
 						? '/settings'
-						: `/hunters/${hunter.id}`
+						: '/hunters/$hunterId'
 				}
 			>
 				<Avatar hunter={hunter} />
