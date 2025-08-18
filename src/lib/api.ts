@@ -3,7 +3,7 @@ import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
 
-import type { AppRouter } from '@/server';
+import type { AppRouter } from '@/server/index';
 
 import { toast } from '@/hooks/use-toast';
 

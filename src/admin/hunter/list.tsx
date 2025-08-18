@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import {
 	Datagrid,
 	FunctionField,
@@ -9,7 +10,7 @@ import {
 } from 'react-admin';
 
 import Avatar from '@/components/avatar';
-import { fetchFromApi } from '@/lib/api';
+import { trpc } from '@/lib/api';
 import { Locale } from '@/lib/constants';
 
 import ChipListField from '../components/chip-list';
@@ -18,25 +19,15 @@ import { HunterRow } from './common';
 const listFilters = [<SearchInput alwaysOn key="1" source="name" />];
 
 export function HunterList() {
-	const { isPending, mutate } = useMutation({
-		mutationFn: ({
-			hunterId,
-			huntId,
-		}: {
-			hunterId: number;
-			huntId: number;
-		}) =>
-			fetchFromApi('/admin/api/hunt/hunters', {
-				body: {
-					hunterId,
-					huntId,
-				},
-				method: 'DELETE',
-			}),
-	});
-	const handleDelete = async (hunterId: number, huntId: number) => {
-		await mutate({ hunterId, huntId });
-	};
+	const { isPending, mutateAsync } = useMutation(
+		trpc.hunt.remove.mutationOptions(),
+	);
+	const handleDelete = useCallback(
+		async (hunterId: number, huntId: number) => {
+			await mutateAsync({ hunterId, huntId });
+		},
+		[],
+	);
 	return (
 		<List filters={listFilters}>
 			<Datagrid

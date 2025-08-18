@@ -1,10 +1,11 @@
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
-import { idSchema } from '@/lib/schemas';
+import { hunterSchema, idSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
-import { router, userProcedure } from '../trpc';
+import { uploadPhoto } from '../photo';
+import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
 	getOne: userProcedure
@@ -58,9 +59,34 @@ export const hunterRouter = router({
 			});
 
 			return {
-				...hunter,
+				...hunterSchema.parse(hunter),
 				count,
 				rating: rating._avg.rating ?? 1,
 			};
+		}),
+
+	updateAvatar: adminProcedure
+		.input(
+			z.instanceof(FormData).transform((fd) =>
+				z
+					.object({
+						hunterId: idSchemaCoerce,
+						photo: z.instanceof(File),
+					})
+					.parse(Object.fromEntries(fd.entries())),
+			),
+		)
+		.mutation(async ({ input: { hunterId, photo } }) => {
+			try {
+				const result = await uploadPhoto({
+					buffer: await photo.bytes(),
+					hunterId,
+					name: photo.name,
+				});
+				return { success: true, ...result };
+			} catch (error) {
+				console.error('Error uploading avatar:', error);
+				return { success: false };
+			}
 		}),
 });

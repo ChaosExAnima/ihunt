@@ -1,4 +1,3 @@
-'use client';
 import { Edit, Play } from 'lucide-react';
 import {
 	Datagrid,
@@ -80,7 +79,7 @@ function HuntActions() {
 	}
 
 	const handleStart = () => {
-		update('hunt', {
+		void update('hunt', {
 			data: { status: HuntStatus.Active },
 			id: hunt.id,
 			previousData: hunt,

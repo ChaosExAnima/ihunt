@@ -10,7 +10,7 @@ interface UploadPhotoProps {
 	aspect?: number;
 	circular?: boolean;
 	dialogProps?: Partial<UploadDialogProps>;
-	onCrop: (blob: Blob) => boolean;
+	onCrop: (blob: Blob) => Promise<boolean>;
 	title: string;
 }
 
@@ -74,7 +74,7 @@ export default function UploadPhoto({
 		setDisabled(true);
 		try {
 			const blob = await imageToBlob(imageRef.current, tempCrop);
-			const result = onCrop(blob);
+			const result = await onCrop(blob);
 			if (result) {
 				reset();
 				return true;

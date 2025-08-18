@@ -6,8 +6,7 @@ import { HuntSchema, huntSchema } from '@/lib/schemas';
 type HuntStatusName = keyof typeof HuntStatus;
 export const statusNames = Object.keys(HuntStatus) as HuntStatusName[];
 
-export const huntSchemaWithIds = z.object({
-	...huntSchema.omit({ photos: true }),
+export const huntSchemaWithIds = huntSchema.omit({ photos: true }).extend({
 	hunters: z.array(z.number()),
 });
 

@@ -32,7 +32,7 @@ export default function HuntCompleteDialog() {
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
 		event.preventDefault();
-		update('hunt', {
+		void update('hunt', {
 			data: {
 				...modalData,
 				completedAt: new Date(),

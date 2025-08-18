@@ -10,7 +10,7 @@ import {
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
-import { router, userProcedure } from '../trpc';
+import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const huntRouter = router({
 	getActive: userProcedure.query(({ ctx: { hunter } }) => {
@@ -156,28 +156,33 @@ export const huntRouter = router({
 			return { accepted: true, huntId: id };
 		}),
 
+	remove: adminProcedure
+		.input(z.object({ hunterId: idSchemaCoerce, huntId: idSchemaCoerce }))
+		.mutation(async ({ input }) => {
+			await db.hunt.update({
+				data: {
+					hunters: {
+						disconnect: {
+							id: input.hunterId,
+						},
+					},
+				},
+				where: { id: input.huntId },
+			});
+			return { success: true };
+		}),
+
 	uploadPhoto: userProcedure
 		.input(
-			z.instanceof(FormData).transform((fd) => {
-				return z
+			z.instanceof(FormData).transform((fd) =>
+				z
 					.object({
 						huntId: idSchema.optional(),
 						name: z.string().min(1).optional(),
 						photo: z.instanceof(File),
 					})
-					.parse(Object.fromEntries(fd.entries()));
-			}),
-			// z.preprocess(
-			// 	(input: FormData) =>
-			// 		input instanceof FormData
-			// 			? Object.fromEntries(input.entries())
-			// 			: input,
-			// z.object({
-			// 	huntId: idSchemaCoerce.optional(),
-			// 	name: z.string().min(1).optional(),
-			// 	// photo: z.file().min(1),
-			// }),
-			// ),
+					.parse(Object.fromEntries(fd.entries())),
+			),
 		)
 		.mutation(async ({ ctx: { hunter }, input }) => {
 			const { huntId, name, photo } = input;
