@@ -15,7 +15,7 @@
 		"incremental": true,
 		"paths": {
 			"@/*": ["./src/*"],
-			"@/server": ["./server/index.ts"]
+			"@/server/*": ["./server/*"]
 		},
 		"types": ["./global.d.ts"]
 	},

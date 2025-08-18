@@ -6,7 +6,7 @@ interface ImageLoaderArgs {
 }
 
 // Docs: https://developers.cloudflare.com/images/transform-images
-export default function cloudflareLoader({
+export function cloudflareLoader({
 	format = 'auto',
 	quality = 75,
 	src,

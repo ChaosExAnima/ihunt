@@ -1,6 +1,6 @@
 import { ImgHTMLAttributes } from 'react';
 
-import cloudflareLoader from '@/lib/image-loader';
+import { cloudflareLoader } from '@/lib/images';
 import { PhotoSchema } from '@/lib/schemas';
 
 interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
