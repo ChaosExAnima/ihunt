@@ -1,7 +1,7 @@
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
-import { hunterSchema, idSchema, idSchemaCoerce } from '@/lib/schemas';
+import { idSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
@@ -59,7 +59,7 @@ export const hunterRouter = router({
 			});
 
 			return {
-				...hunterSchema.parse(hunter),
+				...hunter,
 				count,
 				rating: rating._avg.rating ?? 1,
 			};

@@ -6,10 +6,10 @@ import {
 	NumberInput,
 	ReferenceArrayInput,
 	SelectInput,
-	SimpleForm,
 	TextInput,
 } from 'react-admin';
 
+import { SimpleForm } from '../components/simple-form';
 import {
 	huntSchemaWithIds,
 	huntStatusChoices,

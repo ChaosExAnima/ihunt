@@ -7,7 +7,6 @@ import {
 	Edit,
 	NumberInput,
 	ReferenceInput,
-	SimpleForm,
 	TextInput,
 	useEditController,
 	useRefresh,
@@ -17,6 +16,7 @@ import PhotoDisplay from '@/components/photo';
 import UploadPhoto from '@/components/upload-photo';
 import { trpc } from '@/lib/api';
 
+import { SimpleForm } from '../components/simple-form';
 import { HunterRow, hunterSchema } from './common';
 
 export function HunterEdit() {

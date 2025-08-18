@@ -1,12 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-	Create,
-	DateTimeInput,
-	NumberInput,
-	SimpleForm,
-	TextInput,
-} from 'react-admin';
+import { Create, DateTimeInput, NumberInput, TextInput } from 'react-admin';
 
+import { SimpleForm } from '../components/simple-form';
 import { huntSchemaWithIds } from './common';
 
 export function HuntCreate() {
