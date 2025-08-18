@@ -1,11 +1,8 @@
-'use client';
-
 import { Crosshair, Image, LogOut, Swords, UserRound } from 'lucide-react';
 import { dataProvider } from 'ra-data-simple-prisma';
 import { PropsWithChildren } from 'react';
 import { Admin, Button, Layout, Menu, Resource } from 'react-admin';
 
-import { logOut } from './actions';
 import { HuntCreate } from './hunt/create';
 import { HuntEdit } from './hunt/edit';
 import { HuntList } from './hunt/list';
@@ -16,7 +13,7 @@ import { PhotoList } from './photo/list';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
 
-export default function AdminApp() {
+export function App() {
 	return (
 		<Admin dataProvider={dataProvider('/admin/api')} layout={AdminLayout}>
 			<Resource
@@ -61,9 +58,9 @@ function AdminMenu() {
 	return (
 		<Menu>
 			<Menu.ResourceItems />
-			<Button onClick={() => logOut()} sx={{ borderRadius: 0 }}>
+			{/* <Button onClick={() => logOut()} sx={{ borderRadius: 0 }}>
 				<LogOut />
-			</Button>
+			</Button> */}
 		</Menu>
 	);
 }
