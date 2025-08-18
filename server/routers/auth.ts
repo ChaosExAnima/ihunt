@@ -3,6 +3,7 @@ import z from 'zod';
 
 import { hunterSchema } from '@/lib/schemas';
 
+import { db } from '../db';
 import {
 	adminProcedure,
 	publicProcedure,
@@ -22,17 +23,24 @@ export const authRouter = router({
 			return { success: true };
 		}),
 
-	logIn: publicProcedure.mutation(async ({ ctx: { session } }) => {
-		try {
-			// TODO: Actually implement login logic
-			const userId = 'cm6o4i77i00008m6tudr8ry8t';
-			session.userId = userId;
-			await session.save();
-			return { success: true };
-		} catch (err) {
-			throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
-		}
-	}),
+	logIn: publicProcedure
+		.input(
+			z.object({
+				password: z.string().min(3),
+			}),
+		)
+		.mutation(async ({ ctx: { session }, input: { password } }) => {
+			try {
+				const user = await db.user.findFirstOrThrow({
+					where: { password: password.toLowerCase() },
+				});
+				session.userId = user.id;
+				await session.save();
+				return { success: true };
+			} catch (err) {
+				throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
+			}
+		}),
 
 	logOut: userProcedure.mutation(({ ctx: { session } }) => {
 		session.destroy();

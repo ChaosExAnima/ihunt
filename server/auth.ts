@@ -10,7 +10,7 @@ export type Context = Awaited<ReturnType<typeof createAuthContext>>;
 
 interface SessionData {
 	isAdmin?: boolean;
-	userId?: string;
+	userId?: number;
 }
 
 export async function createAuthContext({

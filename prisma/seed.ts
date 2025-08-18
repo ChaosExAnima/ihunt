@@ -50,24 +50,28 @@ async function main() {
 		});
 
 		await db.user.createMany({
-			data: [{ id: 'user1' }, { id: 'user2' }, { id: 'user3' }],
+			data: [
+				{ id: 1, password: 'bob' },
+				{ id: 2, password: 'ali' },
+				{ id: 3, password: 'cha' },
+			],
 		});
 		await db.hunter.createMany({
 			data: [
 				{
 					id: 1,
 					name: 'Dean',
-					userId: 'user1',
+					userId: 1,
 				},
 				{
 					id: 2,
 					name: 'Velma',
-					userId: 'user2',
+					userId: 2,
 				},
 				{
 					id: 3,
 					name: 'Buffy',
-					userId: 'user3',
+					userId: 3,
 				},
 			],
 		});
@@ -160,4 +164,4 @@ async function main() {
 	}
 }
 
-main();
+void main();
