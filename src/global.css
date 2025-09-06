@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @plugin 'tailwindcss-animate';
 
@@ -74,7 +74,7 @@
 		--primary-foreground: hsl(60 9.1% 97.8%);
 		--secondary: hsl(60 4.8% 95.9%);
 		--secondary-foreground: hsl(24 9.8% 10%);
-		--muted: hsl(60 4.8% 95.9%);
+		--muted: var(--color-stone-600);
 		--muted-foreground: hsl(25 5.3% 44.7%);
 		--accent: hsl(60 4.8% 95.9%);
 		--accent-foreground: hsl(24 9.8% 10%);
@@ -90,24 +90,23 @@
 	.dark {
 		--background: var(--color-stone-950);
 		--foreground: var(--color-stone-100);
+		--primary: var(--color-stone-100);
+		--primary-foreground: var(--color-stone-900);
+		--secondary: var(--color-stone-900);
+		--secondary-foreground: var(--color-stone-100);
+		--muted: var(--color-stone-700);
+		--muted-foreground: var(--color-stone-500);
+		--accent: var(--color-rose-700);
+		--destructive: var(--color-red-600);
+		--destructive-foreground: var(--color-red-100);
+		--success: var(--color-lime-400);
+		--success-foreground: var(--color-lime-950);
+
+		--accent-foreground: hsl(60 9.1% 97.8%);
 		--card: hsl(20 14.3% 4.1%);
 		--card-foreground: hsl(60 9.1% 97.8%);
-		--popover: hsl(20 14.3% 4.1%);
-		--popover-foreground: hsl(60 9.1% 97.8%);
-		--primary: hsl(60 9.1% 97.8%);
-		--primary-foreground: hsl(24 9.8% 10%);
-		--secondary: hsl(12 6.5% 15.1%);
-		--secondary-foreground: hsl(60 9.1% 97.8%);
-		--muted: hsl(12 6.5% 15.1%);
-		--muted-foreground: hsl(24 5.4% 63.9%);
-		--accent: hsl(12 6.5% 15.1%);
-		--accent-foreground: hsl(60 9.1% 97.8%);
-		--destructive: var(--color-rose-700);
-		--destructive-foreground: hsl(60 9.1% 97.8%);
-		--success: var(--color-orange-400);
-		--success-foreground: var(--color-orange-950);
 		--border: hsl(12 6.5% 15.1%);
-		--input: hsl(12 6.5% 15.1%);
+		--input: var(--color-stone-800);
 		--ring: hsl(24 5.7% 82.9%);
 	}
 }

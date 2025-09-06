@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
-import { REGEXP_ONLY_CHARS } from 'input-otp';
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import z from 'zod';
 
@@ -20,6 +20,11 @@ import {
 	InputOTPGroup,
 	InputOTPSlot,
 } from '@/components/ui/input-otp';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover';
 import { trpc } from '@/lib/api';
 import { PASSWORD_CHAR_COUNT } from '@/lib/constants';
 import { authSchema } from '@/lib/schemas';
@@ -56,6 +61,10 @@ function Index() {
 	const router = useRouter();
 	const { isPending, mutate } = useMutation(
 		trpc.auth.logIn.mutationOptions({
+			onError() {
+				form.setError('password', { message: 'Code not found' });
+				form.setFocus('password');
+			},
 			async onSuccess() {
 				await router.navigate({ to: '/hunts' });
 			},
@@ -69,6 +78,7 @@ function Index() {
 	});
 	const onSubmit: SubmitHandler<z.infer<typeof authSchema>> = (data) =>
 		mutate(data);
+
 	return (
 		<main className="p-4 flex flex-col gap-4 grow">
 			<Header className="text-center">iHunt</Header>
@@ -86,23 +96,25 @@ function Index() {
 						name="password"
 						render={({ field }) => (
 							<FormItem>
-								<FormDescription className="text-stone-500 text-center">
+								<FormDescription className="text-center">
 									Enter your login code below:
 								</FormDescription>
 								<FormControl>
 									<InputOTP
+										autoFocus
 										containerClassName="justify-center"
 										maxLength={PASSWORD_CHAR_COUNT}
-										pattern={REGEXP_ONLY_CHARS}
+										pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
 										{...field}
 									>
-										<InputOTPGroup>
+										<InputOTPGroup className="w-full">
 											{[
 												...Array(PASSWORD_CHAR_COUNT),
 											].map((_, index) => (
 												<InputOTPSlot
-													autoFocus={index === 0}
+													className="w-[calc(100%/6)] h-12"
 													index={index}
+													key={index}
 												/>
 											))}
 										</InputOTPGroup>
@@ -113,16 +125,30 @@ function Index() {
 						)}
 					/>
 					<Button
-						disabled={isPending}
+						disabled={isPending || !form.formState.isValid}
 						size="lg"
 						type="submit"
 						variant="success"
 					>
 						Log In
 					</Button>
-					<p className="text-xs text-muted text-center">
-						Forgot your code? Click to contact iHunt support.
-					</p>
+					<Popover>
+						<PopoverTrigger className="text-xs text-muted text-center cursor-pointer hover:underline">
+							Forgot your code? Click here to contact iHunt
+							support.
+						</PopoverTrigger>
+						<PopoverContent className="text-sm/relaxed">
+							OC: Your login code is the first six characters of
+							your character&rsquo;s handle. For example: If your
+							character&rsquo;s handle is{' '}
+							<strong>darkknight666</strong>, your login code
+							is&nbsp;
+							<code className="border border-muted p-1 rounded-sm">
+								darkkn
+							</code>
+							.
+						</PopoverContent>
+					</Popover>
 				</form>
 			</Form>
 			<p className="text-xs text-muted text-justify">

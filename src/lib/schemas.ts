@@ -6,8 +6,8 @@ export const authSchema = z.object({
 	password: z
 		.string()
 		.toLowerCase()
-		.regex(/[a-z]+/)
-		.length(PASSWORD_CHAR_COUNT),
+		.regex(/[a-z0-9]+/, 'Code must be only numbers or letters')
+		.length(PASSWORD_CHAR_COUNT, 'Code must be exactly six characters'),
 });
 
 export const idSchema = z.number().int().positive().min(1);
