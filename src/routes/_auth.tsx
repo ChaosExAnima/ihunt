@@ -2,7 +2,6 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import Navbar from '@/components/navbar';
 import { PlayerSettingsProvider } from '@/components/providers/player';
-import { Toaster } from '@/components/ui/toaster';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
@@ -29,7 +28,6 @@ export const Route = createFileRoute('/_auth')({
 						<Outlet />
 					</main>
 				</div>
-				<Toaster />
 			</PlayerSettingsProvider>
 		);
 	},

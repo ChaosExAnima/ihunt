@@ -1,4 +1,4 @@
-import { MutationCache, QueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
@@ -16,6 +16,11 @@ export const queryClient = new QueryClient({
 		},
 	},
 	mutationCache: new MutationCache({
+		onError(err) {
+			toast({ description: err.message, title: 'Error' });
+		},
+	}),
+	queryCache: new QueryCache({
 		onError(err) {
 			toast({ description: err.message, title: 'Error' });
 		},
