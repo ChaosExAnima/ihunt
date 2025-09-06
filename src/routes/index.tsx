@@ -1,11 +1,28 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
+import { REGEXP_ONLY_CHARS } from 'input-otp';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import z from 'zod';
 
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormMessage,
+} from '@/components/ui/form';
+import {
+	InputOTP,
+	InputOTPGroup,
+	InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { trpc } from '@/lib/api';
+import { PASSWORD_CHAR_COUNT } from '@/lib/constants';
+import { authSchema } from '@/lib/schemas';
 
 /* eslint-disable perfectionist/sort-objects */
 export const Route = createFileRoute('/')({
@@ -35,10 +52,6 @@ export const Route = createFileRoute('/')({
 });
 /* eslint-enable perfectionist/sort-objects */
 
-interface AuthForm {
-	password: string;
-}
-
 function Index() {
 	const router = useRouter();
 	const { isPending, mutate } = useMutation(
@@ -48,47 +61,70 @@ function Index() {
 			},
 		}),
 	);
-	const {
-		formState: { errors },
-		handleSubmit,
-		register,
-	} = useForm<AuthForm>();
-	const onSubmit: SubmitHandler<AuthForm> = (data) => mutate(data);
+	const form = useForm<z.infer<typeof authSchema>>({
+		defaultValues: {
+			password: '',
+		},
+		resolver: zodResolver(authSchema),
+	});
+	const onSubmit: SubmitHandler<z.infer<typeof authSchema>> = (data) =>
+		mutate(data);
 	return (
 		<main className="p-4 flex flex-col gap-4 grow">
 			<Header className="text-center">iHunt</Header>
 			<p className="text-xl text-center">
 				Welcome to iHunt Alpha Access!
 			</p>
-			<p className="text-stone-600">Enter your login code below:</p>
-			<form
-				className="grow flex flex-col gap-4"
-				// eslint-disable-next-line @typescript-eslint/no-misused-promises
-				onSubmit={handleSubmit(onSubmit)}
-			>
-				<Input
-					autoFocus
-					{...register('password', { minLength: 3, required: true })}
-					placeholder="Password"
-					type="password"
-				/>
-				{errors.password && (
-					<p className="text-rose-600 text-sm">
-						{errors.password.type === 'minLength' &&
-							'Passcode must be at least 3 characters.'}
-						{errors.password.type === 'required' &&
-							'Passcode is required.'}
-					</p>
-				)}
-				<Button
-					disabled={isPending}
-					size="lg"
-					type="submit"
-					variant="success"
+			<Form {...form}>
+				<form
+					className="grow w-full flex flex-col gap-4"
+					// eslint-disable-next-line @typescript-eslint/no-misused-promises
+					onSubmit={form.handleSubmit(onSubmit)}
 				>
-					Log In
-				</Button>
-			</form>
+					<FormField
+						control={form.control}
+						name="password"
+						render={({ field }) => (
+							<FormItem>
+								<FormDescription className="text-stone-500 text-center">
+									Enter your login code below:
+								</FormDescription>
+								<FormControl>
+									<InputOTP
+										containerClassName="justify-center"
+										maxLength={PASSWORD_CHAR_COUNT}
+										pattern={REGEXP_ONLY_CHARS}
+										{...field}
+									>
+										<InputOTPGroup>
+											{[
+												...Array(PASSWORD_CHAR_COUNT),
+											].map((_, index) => (
+												<InputOTPSlot
+													autoFocus={index === 0}
+													index={index}
+												/>
+											))}
+										</InputOTPGroup>
+									</InputOTP>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<Button
+						disabled={isPending}
+						size="lg"
+						type="submit"
+						variant="success"
+					>
+						Log In
+					</Button>
+					<p className="text-xs text-muted text-center">
+						Forgot your code? Click to contact iHunt support.
+					</p>
+				</form>
+			</Form>
 			<p className="text-xs text-muted text-justify">
 				No unauthorized use. If you have not been invited to install
 				this application please immediately remove it from your device.
