@@ -31,6 +31,8 @@ model Hunt {
 model Hunter {
     id        Int      @id @default(autoincrement())
     name      String
+    handle    String
+    alive     Boolean  @default(true)
     hunts     Hunt[]
     photos    Photo[]  @relation("Photos")
     avatar    Photo?   @relation("Avatar", fields: [avatarId], references: [id])
@@ -40,7 +42,6 @@ model Hunter {
     userId    Int      @unique
     bio       String?
     pronouns  String?
-    handle    String?
     follows   Hunter[] @relation("Follows")
     followers Hunter[] @relation("Follows")
     type      String?

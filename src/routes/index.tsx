@@ -81,10 +81,7 @@ function Index() {
 
 	return (
 		<main className="p-4 flex flex-col gap-4 grow">
-			<Header className="text-center">iHunt</Header>
-			<p className="text-xl text-center">
-				Welcome to iHunt Alpha Access!
-			</p>
+			<Header className="text-center">iHunt Alpha Access</Header>
 			<Form {...form}>
 				<form
 					className="grow w-full flex flex-col gap-4"
@@ -133,9 +130,8 @@ function Index() {
 						Log In
 					</Button>
 					<Popover>
-						<PopoverTrigger className="text-xs text-muted text-center cursor-pointer hover:underline">
-							Forgot your code? Click here to contact iHunt
-							support.
+						<PopoverTrigger className="text-xs text-muted-foreground text-center cursor-pointer hover:underline">
+							Forgot your code? Click here for help!
 						</PopoverTrigger>
 						<PopoverContent className="text-sm/relaxed">
 							OC: Your login code is the first six characters of
