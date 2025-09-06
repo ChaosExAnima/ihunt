@@ -1,6 +1,14 @@
 import { z } from 'zod';
 
-import { HUNT_MAX_DANGER, HuntStatus } from './constants';
+import { HUNT_MAX_DANGER, HuntStatus, PASSWORD_CHAR_COUNT } from './constants';
+
+export const authSchema = z.object({
+	password: z
+		.string()
+		.toLowerCase()
+		.regex(/[a-z]+/)
+		.length(PASSWORD_CHAR_COUNT),
+});
 
 export const idSchema = z.number().int().positive().min(1);
 export const idSchemaCoerce = z.preprocess(

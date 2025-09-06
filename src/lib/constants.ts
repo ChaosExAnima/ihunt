@@ -3,6 +3,8 @@ import { Prisma } from '@prisma/client';
 export const Locale = 'de-DE';
 export const Currency = 'EUR';
 
+export const PASSWORD_CHAR_COUNT = 6;
+
 export const HuntStatus = {
 	Active: 'active',
 	Available: 'available',

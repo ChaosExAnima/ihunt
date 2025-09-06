@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
-import { hunterSchema } from '@/lib/schemas';
+import { authSchema, hunterSchema } from '@/lib/schemas';
 
 import { db } from '../db';
 import {
@@ -24,15 +24,11 @@ export const authRouter = router({
 		}),
 
 	logIn: publicProcedure
-		.input(
-			z.object({
-				password: z.string().min(3),
-			}),
-		)
+		.input(authSchema)
 		.mutation(async ({ ctx: { session }, input: { password } }) => {
 			try {
 				const user = await db.user.findFirstOrThrow({
-					where: { password: password.toLowerCase() },
+					where: { password },
 				});
 				session.userId = user.id;
 				await session.save();
