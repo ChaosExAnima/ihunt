@@ -26,7 +26,7 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { trpc } from '@/lib/api';
-import { PASSWORD_CHAR_COUNT } from '@/lib/constants';
+import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 import { authSchema } from '@/lib/schemas';
 
 /* eslint-disable perfectionist/sort-objects */
@@ -41,6 +41,10 @@ export const Route = createFileRoute('/')({
 	},
 	async beforeLoad({ context: { queryClient }, search }) {
 		try {
+			const session = await cookieStore.get(SESSION_COOKIE_NAME);
+			if (!session) {
+				return;
+			}
 			const player = await queryClient.fetchQuery(
 				trpc.auth.me.queryOptions(),
 			);

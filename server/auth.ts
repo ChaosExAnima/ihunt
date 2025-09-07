@@ -1,6 +1,8 @@
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 import { getIronSession } from 'iron-session';
 
+import { SESSION_COOKIE_NAME } from '@/lib/constants';
+
 import { config } from './config';
 import { db } from './db';
 
@@ -55,7 +57,7 @@ export function getSession({
 	res,
 }: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
 	return getIronSession<SessionData>(req.raw, res.raw, {
-		cookieName: 'ihunt-session',
+		cookieName: SESSION_COOKIE_NAME,
 		password: authSecret,
 	});
 }

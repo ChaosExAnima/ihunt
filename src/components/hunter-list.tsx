@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
+import { HUNT_MAX_HUNTERS } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
 
 import Avatar, { AvatarEmpty } from './avatar';
@@ -11,15 +12,13 @@ interface HunterListProps {
 	max?: number;
 }
 
-const MAX_HUNTERS = 4;
-
 export function HunterList({
 	currentHunterId,
 	hunters,
 	max = 0,
 }: HunterListProps) {
 	const slots = useMemo(
-		() => Array.from(Array(Math.min(max, MAX_HUNTERS))),
+		() => Array.from(Array(Math.min(max, HUNT_MAX_HUNTERS))),
 		[max],
 	);
 

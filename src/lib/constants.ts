@@ -4,6 +4,7 @@ export const Locale = 'de-DE';
 export const Currency = 'EUR';
 
 export const PASSWORD_CHAR_COUNT = 6;
+export const SESSION_COOKIE_NAME = 'ihunt-session';
 
 export const HuntStatus = {
 	Active: 'active',
@@ -15,6 +16,7 @@ export const HuntStatus = {
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
 export const HUNT_MAX_PER_DAY = 2;
+export const HUNT_MAX_HUNTERS = 5;
 export const HUNT_MAX_DANGER = 5;
 
 export const huntDisplayInclude = {
