@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
 
 import Avatar from '@/components/avatar';
@@ -35,8 +35,14 @@ function Settings() {
 	const { mutate: updateBio } = useMutation(
 		trpc.settings.updateBio.mutationOptions(),
 	);
+
+	const router = useRouter();
 	const { isPending: loggingOut, mutate: logOut } = useMutation(
-		trpc.auth.logOut.mutationOptions(),
+		trpc.auth.logOut.mutationOptions({
+			async onSuccess() {
+				await router.navigate({ to: '/' });
+			},
+		}),
 	);
 
 	const money = useCurrencyFormat(hunter?.money ?? 0);
