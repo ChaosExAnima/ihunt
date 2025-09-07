@@ -43,11 +43,12 @@ export const settingsRouter = router({
 		}),
 
 	updateMoney: userProcedure.mutation(async ({ ctx: { user } }) => {
-		await db.user.update({
+		const { hideMoney } = await db.user.update({
 			data: {
 				hideMoney: !user.hideMoney,
 			},
 			where: { id: user.id },
 		});
+		return { hideMoney, success: true };
 	}),
 });

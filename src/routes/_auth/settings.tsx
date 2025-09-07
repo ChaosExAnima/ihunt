@@ -18,9 +18,19 @@ export const Route = createFileRoute('/_auth/settings')({
 function Settings() {
 	const {
 		player: { hunter },
+		queryClient,
 	} = Route.useRouteContext();
 	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
-		trpc.settings.updateMoney.mutationOptions(),
+		trpc.settings.updateMoney.mutationOptions({
+			onSuccess({ hideMoney }) {
+				queryClient.setQueryData(trpc.auth.me.queryKey(), {
+					hunter,
+					settings: {
+						hideMoney,
+					},
+				});
+			},
+		}),
 	);
 	const { mutate: updateBio } = useMutation(
 		trpc.settings.updateBio.mutationOptions(),
