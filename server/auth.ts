@@ -27,11 +27,14 @@ export async function createAuthContext({
 		return { req, res, session };
 	}
 	try {
-		const { hunter, ...user } = await db.user.findFirstOrThrow({
+		const { hunters, ...user } = await db.user.findFirstOrThrow({
 			include: {
-				hunter: {
+				hunters: {
 					include: {
 						avatar: true,
+					},
+					where: {
+						alive: true,
 					},
 				},
 			},
@@ -39,7 +42,7 @@ export async function createAuthContext({
 				id: session.userId,
 			},
 		});
-		return { hunter, req, res, session, user };
+		return { hunter: hunters.at(0), req, res, session, user };
 	} catch (err) {
 		console.warn(`Error logging in user ${session.userId}:`, err);
 		session.destroy();

@@ -31,15 +31,15 @@ model Hunt {
 model Hunter {
     id        Int      @id @default(autoincrement())
     name      String
-    handle    String
+    handle    String   @unique
     alive     Boolean  @default(true)
     hunts     Hunt[]
     photos    Photo[]  @relation("Photos")
     avatar    Photo?   @relation("Avatar", fields: [avatarId], references: [id])
     avatarId  Int?     @unique
     money     Int      @default(0)
-    user      User     @relation(fields: [userId], references: [id])
-    userId    Int      @unique
+    user      User?    @relation(fields: [userId], references: [id])
+    userId    Int?
     bio       String?
     pronouns  String?
     follows   Hunter[] @relation("Follows")
@@ -65,10 +65,11 @@ model Photo {
 model User {
     id        Int     @id @default(autoincrement())
     password  String  @unique
+    name      String?
     run       Int     @default(1)
     hideMoney Boolean @default(false)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    hunter    Hunter?
+    hunters   Hunter[]
 }
