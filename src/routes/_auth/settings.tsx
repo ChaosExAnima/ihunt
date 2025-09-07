@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
 
-import ActionButton from '@/components/action-button';
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
@@ -20,16 +19,15 @@ function Settings() {
 	const {
 		player: { hunter },
 	} = Route.useRouteContext();
-	const { mutate: updateMoney } = useMutation(
+	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
 		trpc.settings.updateMoney.mutationOptions(),
 	);
 	const { mutate: updateBio } = useMutation(
 		trpc.settings.updateBio.mutationOptions(),
 	);
-	const { mutate: updateHandle } = useMutation(
-		trpc.settings.updateHandle.mutationOptions(),
+	const { isPending: loggingOut, mutate: logOut } = useMutation(
+		trpc.auth.logOut.mutationOptions(),
 	);
-	const { mutate: logOut } = useMutation(trpc.auth.logOut.mutationOptions());
 
 	const money = useCurrencyFormat(hunter?.money ?? 0);
 
@@ -58,26 +56,19 @@ function Settings() {
 							</p>
 						)}
 					</div>
-					<ActionButton
+					<Button
 						className="text-muted-foreground self-start"
-						onChange={updateMoney}
+						disabled={updatingMoney}
+						onClick={() => updateMoney()}
 						size="icon"
 						variant="ghost"
 					>
 						{money !== '' ? <Eye /> : <EyeClosed />}
-					</ActionButton>
+					</Button>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					<Avatar hunter={hunter} />
 					<AvatarReplaceButton existing={!!hunter.avatar} />
-				</SettingBlock>
-				<SettingBlock className="gap-2" label="Handle">
-					<EditableBlock
-						onChange={updateHandle}
-						placeholder="@handle"
-						prefix="@"
-						value={hunter.handle ?? ''}
-					/>
 				</SettingBlock>
 				<SettingBlock label="Bio">
 					<EditableBlock
@@ -96,14 +87,15 @@ function Settings() {
 					Profile
 				</Link>
 			</Button>
-			<ActionButton
+			<Button
 				className="w-full"
-				onChange={logOut}
+				disabled={loggingOut}
+				onClick={() => logOut()}
 				type="submit"
 				variant="destructive"
 			>
 				Log out
-			</ActionButton>
+			</Button>
 		</>
 	);
 }

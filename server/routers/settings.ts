@@ -42,19 +42,6 @@ export const settingsRouter = router({
 			});
 		}),
 
-	updateHandle: userProcedure
-		.input(z.string().trim().max(50).min(1))
-		.mutation(async ({ ctx: { hunter }, input }) => {
-			const newHandle = input.replaceAll(/^[a-z0-9\-_]/g, '');
-			if (!newHandle || newHandle === hunter.handle) {
-				return;
-			}
-			await db.hunter.update({
-				data: { handle: newHandle },
-				where: { id: hunter.id },
-			});
-		}),
-
 	updateMoney: userProcedure.mutation(async ({ ctx: { user } }) => {
 		await db.user.update({
 			data: {
