@@ -46,7 +46,7 @@
 		"image-dimensions": "^2.3.0",
 		"iron-session": "^8.0.4",
 		"lucide-react": "^0.525.0",
-		"nodemailer": "^7.0.5",
+		"nodemailer": "^7.0.11",
 		"ra-data-simple-prisma": "^7.0.0",
 		"react": "^19.1.0",
 		"react-admin": "^5.10.1",
