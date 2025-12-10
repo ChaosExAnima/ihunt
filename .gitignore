@@ -45,3 +45,4 @@ next-env.d.ts
 prisma/*.db*
 
 .vscode
+ihunt.code-workspace
