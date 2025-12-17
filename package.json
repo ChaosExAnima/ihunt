@@ -21,6 +21,7 @@
 		"@fontsource-variable/geist-mono": "^5.2.6",
 		"@fontsource/kanit": "^5.2.6",
 		"@hookform/resolvers": "^5.2.1",
+		"@imgproxy/imgproxy-node": "^1.1.0",
 		"@prisma/client": "^6.14.0",
 		"@radix-ui/react-dialog": "^1.1.14",
 		"@radix-ui/react-label": "^2.1.7",

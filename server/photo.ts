@@ -1,16 +1,40 @@
+import { generateUrl } from '@imgproxy/imgproxy-js-core';
 import { fileTypeFromBuffer } from 'file-type';
+import { writeFile } from 'fs/promises';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
 
 import { fetchBlurry } from '@/lib/images';
 
+import { config } from './config';
 import { db } from './db';
+
+interface PhotoUrlArgs {
+	path: string;
+	quality?: number;
+	width: number;
+}
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
 	hunterId?: null | number;
 	huntId?: null | number;
 	name?: string;
+}
+
+export function photoUrl({ path, quality, width }: PhotoUrlArgs) {
+	const fullSrc = new URL(path, config.mediaUrl).toString();
+	const escapedSrc = fullSrc
+		.replace('%', '%25')
+		.replace('?', '%3F')
+		.replace('@', '%40');
+
+	const url = generateUrl(
+		{ type: 'plain', value: escapedSrc },
+		{ quality, width },
+	);
+	return url;
 }
 
 export async function uploadPhoto({
@@ -46,10 +70,18 @@ export async function uploadPhoto({
 		fileName = `${hex}.${fileType.ext}`;
 	}
 
-	// Send it to B2
-	// await b2.upload(buffer, fileName, fileType.mime);
+	const controller = new AbortController();
+	try {
+		const { mediaPath } = config;
+		await writeFile(resolve(process.cwd(), mediaPath, fileName), buffer, {
+			signal: controller.signal,
+		});
+	} catch (err) {
+		controller.abort();
+		throw new Error('Error with upload', { cause: err });
+	}
 
-	// Fetch blurry version using Cloudflare image transforms
+	// Fetch blurry version
 	let blurryData: null | string = null;
 	try {
 		blurryData = await fetchBlurry(fileName);

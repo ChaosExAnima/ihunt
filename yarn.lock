@@ -1120,6 +1120,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@imgproxy/imgproxy-js-core@npm:^1.3.0":
+  version: 1.7.0
+  resolution: "@imgproxy/imgproxy-js-core@npm:1.7.0"
+  checksum: 10c0/c11459e8fb63144eaf346eea82f23882237f48be1248ee530abe31006b8344b841f2a94b5d3149b6ba364de95ed9cd7583c54c62b6c7a740f39187f8f2ed4e5e
+  languageName: node
+  linkType: hard
+
+"@imgproxy/imgproxy-node@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@imgproxy/imgproxy-node@npm:1.1.0"
+  dependencies:
+    "@imgproxy/imgproxy-js-core": "npm:^1.3.0"
+  checksum: 10c0/1d3516903e9ec685f0ab6715c7441d08bfc5de3b92d54c81c653f665659b077ae91af848e1093d07c317cb522313d10651e66a1a1478a4cab5a323d1d80008e8
+  languageName: node
+  linkType: hard
+
 "@isaacs/balanced-match@npm:^4.0.1":
   version: 4.0.1
   resolution: "@isaacs/balanced-match@npm:4.0.1"
@@ -5776,6 +5792,7 @@ __metadata:
     "@fontsource-variable/geist-mono": "npm:^5.2.6"
     "@fontsource/kanit": "npm:^5.2.6"
     "@hookform/resolvers": "npm:^5.2.1"
+    "@imgproxy/imgproxy-node": "npm:^1.1.0"
     "@prisma/client": "npm:^6.14.0"
     "@radix-ui/react-dialog": "npm:^1.1.14"
     "@radix-ui/react-label": "npm:^2.1.7"
