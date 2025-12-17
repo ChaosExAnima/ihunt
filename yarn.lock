@@ -5551,7 +5551,6 @@ __metadata:
     input-otp: "npm:^1.4.2"
     iron-session: "npm:^8.0.4"
     lucide-react: "npm:^0.525.0"
-    nodemailer: "npm:^7.0.5"
     nodemon: "npm:^3.1.10"
     postcss: "npm:^8.5.6"
     prettier: "npm:^3.6.2"
@@ -6688,13 +6687,6 @@ __metadata:
   version: 2.0.19
   resolution: "node-releases@npm:2.0.19"
   checksum: 10c0/52a0dbd25ccf545892670d1551690fe0facb6a471e15f2cfa1b20142a5b255b3aa254af5f59d6ecb69c2bec7390bc643c43aa63b13bf5e64b6075952e716b1aa
-  languageName: node
-  linkType: hard
-
-"nodemailer@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "nodemailer@npm:7.0.5"
-  checksum: 10c0/8fcd417a5dc6cdde4193c3f27c8ae07f6998527578c1e70adfa5f2f00121471fcaa14abbf26b2a8c513ac8505c956f437aa2c2a693606eb0e8c68bc712698fa7
   languageName: node
   linkType: hard
 
