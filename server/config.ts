@@ -6,11 +6,6 @@ const configSchema = z.object({
 	adminPassword: z.string(),
 	authPepper: z.string(),
 	authSession: z.string(),
-	discordId: z.string(),
-	discordSecret: z.string(),
-	emailFrom: z.string().optional(),
-	emailServer: z.string().optional(),
-	imageHost: z.string(),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).default(4000),
 });

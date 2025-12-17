@@ -2878,15 +2878,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/backblaze-b2@npm:^1.5.6":
-  version: 1.5.6
-  resolution: "@types/backblaze-b2@npm:1.5.6"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/aacf6e6ec935c22357f0faa85e7d9e050bedefad460425d76e36ab0559602bcc339769fc01eb9a7276749d436633ea5c6ae7a9c45e5489317ecf02d377bada87
-  languageName: node
-  linkType: hard
-
 "@types/debug@npm:^4.0.0":
   version: 4.1.12
   resolution: "@types/debug@npm:4.1.12"
@@ -2944,7 +2935,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^24.0.15":
+"@types/node@npm:^24.0.15":
   version: 24.0.15
   resolution: "@types/node@npm:24.0.15"
   dependencies:
@@ -5806,7 +5797,6 @@ __metadata:
     "@trpc/client": "npm:^11.4.3"
     "@trpc/server": "npm:^11.8.0"
     "@trpc/tanstack-react-query": "npm:^11.4.3"
-    "@types/backblaze-b2": "npm:^1.5.6"
     "@types/node": "npm:^24.0.15"
     "@types/react": "npm:^19.1.8"
     "@types/react-dom": "npm:^19.1.6"
