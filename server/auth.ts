@@ -1,12 +1,13 @@
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
+import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
 
-import { SESSION_COOKIE_NAME } from '@/lib/constants';
+import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 
 import { config } from './config';
 import { db } from './db';
 
-const { authSecret } = config;
+const { authPepper, authSecret } = config;
 
 export type Context = Awaited<ReturnType<typeof createAuthContext>>;
 
@@ -14,6 +15,8 @@ interface SessionData {
 	isAdmin?: boolean;
 	userId?: number;
 }
+
+export const HASH_ITERATIONS = 10;
 
 export async function createAuthContext({
 	req,
@@ -60,4 +63,16 @@ export function getSession({
 		cookieName: SESSION_COOKIE_NAME,
 		password: authSecret,
 	});
+}
+
+export async function passwordToHash(input: string) {
+	const fullHash = await bcrypt.hash(input, authPepper);
+	return fullHash.slice(authPepper.length);
+}
+
+export function stringToPassword(input: string) {
+	return input
+		.toLowerCase()
+		.replaceAll(/[^a-z0-9]+/g, '')
+		.slice(0, PASSWORD_CHAR_COUNT);
 }
