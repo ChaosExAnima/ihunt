@@ -6,8 +6,8 @@ const configSchema = z.object({
 	adminPassword: z.string(),
 	authPepper: z.string(),
 	authSession: z.string(),
+	mediaHost: z.string().min(2),
 	mediaPath: z.string().min(2),
-	mediaUrl: z.string().min(2),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).default(4000),
 });
