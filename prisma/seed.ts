@@ -168,4 +168,9 @@ async function main() {
 	}
 }
 
-void main();
+main()
+	.then(() => process.exit())
+	.catch((err: unknown) => {
+		console.error(`Fatal:`, err);
+		process.exit(1);
+	});
