@@ -7,7 +7,7 @@ import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 import { config } from './config';
 import { db } from './db';
 
-const { authPepper, authSecret } = config;
+const { authPepper, authSession } = config;
 
 export type Context = Awaited<ReturnType<typeof createAuthContext>>;
 
@@ -61,7 +61,7 @@ export function getSession({
 }: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
 	return getIronSession<SessionData>(req.raw, res.raw, {
 		cookieName: SESSION_COOKIE_NAME,
-		password: authSecret,
+		password: authSession,
 	});
 }
 

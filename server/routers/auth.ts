@@ -1,9 +1,11 @@
 import { TRPCError } from '@trpc/server';
+import bcrypt from 'bcryptjs';
 import z from 'zod';
 
 import { authSchema, hunterSchema } from '@/lib/schemas';
 
 import { passwordToHash } from '../auth';
+import { config } from '../config';
 import { db } from '../db';
 import {
 	adminProcedure,
@@ -16,7 +18,11 @@ export const authRouter = router({
 	adminLogin: adminProcedure
 		.input(z.object({ password: z.string().min(4) }))
 		.mutation(async ({ ctx: { session }, input }) => {
-			if (input.password !== process.env.ADMIN_PASSWORD) {
+			const valid = await bcrypt.compare(
+				input.password,
+				config.adminPassword,
+			);
+			if (!valid) {
 				throw new TRPCError({ code: 'UNAUTHORIZED' });
 			}
 			session.isAdmin = true;

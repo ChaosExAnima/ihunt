@@ -5,7 +5,7 @@ import { z } from 'zod';
 const configSchema = z.object({
 	adminPassword: z.string(),
 	authPepper: z.string(),
-	authSecret: z.string(),
+	authSession: z.string(),
 	discordId: z.string(),
 	discordSecret: z.string(),
 	emailFrom: z.string().optional(),
