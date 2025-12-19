@@ -1,3 +1,4 @@
+import { produce } from 'immer';
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
@@ -6,26 +7,58 @@ import {
 	huntStatus,
 	idSchema,
 	idSchemaCoerce,
+	photoDimensionSchema,
 } from '@/lib/schemas';
 
 import { db } from '../db';
-import { uploadPhoto } from '../photo';
+import { photoUrl, uploadPhoto } from '../photo';
 import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const huntRouter = router({
-	getActive: userProcedure.query(({ ctx: { hunter } }) => {
-		return db.hunt.findMany({
-			include: huntDisplayInclude,
-			where: {
-				hunters: {
-					some: {
-						id: hunter.id,
+	getActive: userProcedure
+		.input(photoDimensionSchema)
+		.output(z.array(huntSchema))
+		.query(async ({ ctx, input }) => {
+			const { hunter } = ctx;
+			const hunts = await db.hunt.findMany({
+				include: huntDisplayInclude,
+				where: {
+					hunters: {
+						some: {
+							id: hunter.id,
+						},
 					},
+					status: HuntStatus.Active,
 				},
-				status: HuntStatus.Active,
-			},
-		});
-	}),
+			});
+			const final = produce(hunts, (draftHunts) => {
+				for (const hunt of draftHunts) {
+					for (const photo of hunt.photos) {
+						Object.assign(photo, {
+							url: photoUrl({
+								...input,
+								path: photo.path,
+							}),
+						});
+					}
+
+					for (const hunter of hunt.hunters) {
+						const avatar = hunter.avatar;
+						if (!avatar) {
+							continue;
+						}
+
+						Object.assign(avatar, {
+							url: photoUrl({
+								...input,
+								path: avatar.path,
+							}),
+						});
+					}
+				}
+			});
+			return z.array(huntSchema).parse(final);
+		}),
 
 	getActiveCount: userProcedure.query(({ ctx: { hunter } }) => {
 		return db.hunt.count({

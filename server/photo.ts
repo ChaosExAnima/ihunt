@@ -1,4 +1,8 @@
-import { generateUrl } from '@imgproxy/imgproxy-js-core';
+import {
+	generateUrl,
+	Options as PhotoUrlOptions,
+} from '@imgproxy/imgproxy-js-core';
+import { Photo } from '@prisma/client';
 import { fileTypeFromBuffer } from 'file-type';
 import { writeFile } from 'fs/promises';
 import { imageDimensionsFromData } from 'image-dimensions';
@@ -6,15 +10,18 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 
 import { fetchBlurry } from '@/lib/images';
+import { PhotoSchema } from '@/lib/schemas';
 
 import { config } from './config';
 import { db } from './db';
 
-interface PhotoUrlArgs {
+type AddUrlToPhotoArgs = {
+	photo: null | Photo;
+};
+
+type PhotoUrlArgs = PhotoUrlOptions & {
 	path: string;
-	quality?: number;
-	width: number;
-}
+};
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
@@ -23,17 +30,36 @@ interface UploadPhotoArgs {
 	name?: string;
 }
 
-export function photoUrl({ path, quality, width }: PhotoUrlArgs) {
-	const fullSrc = new URL(path, config.mediaUrl).toString();
+export function addUrlToPhoto(
+	args: PhotoUrlOptions & Required<AddUrlToPhotoArgs>,
+): PhotoSchema;
+export function addUrlToPhoto(args: PhotoUrlOptions & { photo: null }): null;
+export function addUrlToPhoto({
+	photo,
+	...options
+}: AddUrlToPhotoArgs & PhotoUrlOptions): null | PhotoSchema {
+	if (!photo) {
+		return null;
+	}
+	return {
+		...photo,
+		url: photoUrl({
+			...options,
+			height: options.height ?? photo.height,
+			path: photo.path,
+			width: options.width ?? photo.width,
+		}),
+	};
+}
+
+export function photoUrl({ path, ...options }: PhotoUrlArgs) {
+	const fullSrc = new URL(path, config.mediaHost).toString();
 	const escapedSrc = fullSrc
 		.replace('%', '%25')
 		.replace('?', '%3F')
 		.replace('@', '%40');
 
-	const url = generateUrl(
-		{ type: 'plain', value: escapedSrc },
-		{ quality, width },
-	);
+	const url = generateUrl({ type: 'plain', value: escapedSrc }, options);
 	return url;
 }
 
