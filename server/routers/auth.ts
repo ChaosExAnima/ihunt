@@ -29,6 +29,8 @@ export const authRouter = router({
 			return { success: true };
 		}),
 
+	isAdmin: adminProcedure.query(() => true),
+
 	logIn: publicProcedure
 		.input(authSchema)
 		.mutation(
