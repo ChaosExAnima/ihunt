@@ -5,7 +5,6 @@ interface ImageLoaderArgs {
 	width: number;
 }
 
-// Docs: https://developers.cloudflare.com/images/transform-images
 export function cloudflareLoader({
 	format = 'auto',
 	quality = 75,
@@ -17,12 +16,7 @@ export function cloudflareLoader({
 	return `https://${imageHost}/cdn-cgi/image/${encodeURIComponent(params.join(','))}/${src}`;
 }
 
-export async function fetchBlurry(src: string) {
-	const url = cloudflareLoader({
-		format: 'jpeg',
-		src,
-		width: 10,
-	});
+export async function fetchBlurry(url: string) {
 	const response = await fetch(url);
 	if (!response.ok) {
 		throw new Error(
