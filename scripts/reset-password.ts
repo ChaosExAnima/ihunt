@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 
-import { PASSWORD_CHAR_COUNT } from '@/lib/constants';
+import { passwordToHash, stringToPassword } from '@/server/auth';
 
 import { db } from '../server';
 
@@ -13,6 +13,13 @@ async function main() {
 			},
 		},
 	});
+	if (!values.all && positionals.length === 0) {
+		console.log(
+			'Reset password for user or all users.\n' +
+				'tsx scripts/reset-passwords.ts <--all> [...ids]',
+		);
+		return;
+	}
 	const where = values.all
 		? {}
 		: {
@@ -38,10 +45,11 @@ async function main() {
 		if (!hunter) {
 			continue;
 		}
-		const newPassword = hunter.handle.slice(0, PASSWORD_CHAR_COUNT);
-		if (user.password !== newPassword) {
+		const newPassword = stringToPassword(hunter.handle);
+		const hashedPassword = await passwordToHash(newPassword);
+		if (user.password !== hashedPassword) {
 			await db.user.update({
-				data: { password: newPassword },
+				data: { password: hashedPassword },
 				where: { id: user.id },
 			});
 			console.log(
