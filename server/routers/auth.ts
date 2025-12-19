@@ -1,8 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
-import z from 'zod';
 
-import { authSchema, hunterSchema } from '@/lib/schemas';
+import { adminAuthSchema, authSchema, hunterSchema } from '@/lib/schemas';
 
 import { passwordToHash } from '../auth';
 import { config } from '../config';
@@ -16,7 +15,7 @@ import {
 
 export const authRouter = router({
 	adminLogin: adminProcedure
-		.input(z.object({ password: z.string().min(4) }))
+		.input(adminAuthSchema)
 		.mutation(async ({ ctx: { session }, input }) => {
 			const valid = await bcrypt.compare(
 				input.password,
