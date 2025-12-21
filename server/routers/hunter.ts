@@ -5,14 +5,27 @@ import { idSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
-import { adminProcedure, router, userProcedure } from '../trpc';
+import { outputHunterSchema, outputHuntSchema } from '../schema';
+import { adminProcedure, photoProcedure, router } from '../trpc';
 
 export const hunterRouter = router({
-	getOne: userProcedure
+	getOne: photoProcedure
 		.input(
 			z.object({
 				hunterId: idSchema,
 			}),
+		)
+		.output(
+			outputHunterSchema.merge(
+				z.object({
+					count: z.number().positive().int(),
+					followers: z.array(outputHunterSchema),
+					hunts: z.array(
+						outputHuntSchema.omit({ hunters: true, photos: true }),
+					),
+					rating: z.number().positive().int(),
+				}),
+			),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
 			const {

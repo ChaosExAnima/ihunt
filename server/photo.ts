@@ -7,16 +7,12 @@ import { writeFile } from 'fs/promises';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
-import z from 'zod';
 
 import { fetchBlurry } from '@/lib/images';
-import { idSchema, photoSchema } from '@/lib/schemas';
-import { isPlainObject, omit } from '@/lib/utils';
+import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';
-
-export type OutputPhoto = z.infer<typeof photoSchema>;
 
 type PhotoUrlArgs = PhotoUrlOptions & {
 	path: string;
@@ -28,15 +24,6 @@ interface UploadPhotoArgs {
 	huntId?: null | number;
 	name?: string;
 }
-
-const photoDbSchema = photoSchema.omit({ url: true }).merge(
-	z.object({
-		hunterId: idSchema.nullable(),
-		huntId: idSchema.nullable(),
-		id: idSchema,
-		path: z.string(),
-	}),
-);
 
 export function outputPhoto({
 	height: targetHeight,
@@ -70,46 +57,6 @@ export function photoUrl({ path, ...options }: PhotoUrlArgs) {
 		url: `local:///${path}`,
 	});
 	return url;
-}
-
-export function recursivelyReplacePhotos(input: unknown): unknown {
-	if (Array.isArray(input)) {
-		return input.map(recursivelyReplacePhotos);
-	}
-
-	if (!isPlainObject(input)) {
-		return input;
-	}
-
-	const schema = z
-		.object({ photos: z.array(photoDbSchema) })
-		.or(z.object({ avatar: photoDbSchema }));
-	const parsed = schema.safeParse(input);
-	if (!parsed.success) {
-		return Object.fromEntries(
-			Object.entries(input).map(
-				([key, value]: [string, unknown]): [string, unknown] => {
-					if (!isPlainObject(value)) {
-						return [key, value];
-					}
-					return [key, recursivelyReplacePhotos(value)];
-				},
-			),
-		);
-	}
-	const data = parsed.data;
-
-	if ('photos' in data) {
-		return {
-			...input,
-			photos: data.photos.map((photo) => outputPhoto({ photo })),
-		};
-	} else {
-		return {
-			...input,
-			avatar: outputPhoto({ photo: data.avatar }),
-		};
-	}
 }
 
 export async function uploadPhoto({
