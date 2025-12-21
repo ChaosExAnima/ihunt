@@ -13,7 +13,7 @@
 	"engines": {
 		"node": ">=24.0.0"
 	},
-	"packageManager": "yarn@4.9.2",
+	"packageManager": "yarn@4.12.0",
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.10.0",
 		"@fastify/one-line-logger": "^2.0.2",
