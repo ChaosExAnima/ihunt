@@ -1,5 +1,5 @@
 import { isTRPCClientError } from '@trpc/client';
-import { AuthProvider, DataProvider } from 'react-admin';
+import { AuthProvider, CreateParams, DataProvider } from 'react-admin';
 
 import { queryClient, trpc, trpcMutate } from '@/lib/api';
 import { adminAuthSchema } from '@/lib/schemas';
@@ -42,14 +42,17 @@ type Resources = 'hunt' | 'hunter' | 'photo' | 'user';
 export const dataProvider = {
 	// create a record
 	async create(resource, params) {
-		switch (resource) {
-			case 'hunt':
-				return await trpcMutate(trpc.hunt, params);
-			case 'hunter':
-				return trpcMutate(trpc.hunter, params);
-			case 'user':
-				return trpcMutate(trpc, params);
+		if (resource === 'photo') {
+			throw new Error('Cannot create a photo');
 		}
+		const result = await trpcMutate(trpc.admin.create, {
+			params: params.data satisfies CreateParams,
+			resource,
+		});
+		if (!result) {
+			throw new Error('');
+		}
+		return { data: result };
 	},
 	// delete a record by id
 	async delete(resource, params) {},
