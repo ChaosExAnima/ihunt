@@ -30,9 +30,8 @@ export const settingsRouter = router({
 		}),
 
 	updateBio: userProcedure
-		.input(z.string().trim().max(500).min(1))
-		.mutation(async ({ ctx: { hunter }, input }) => {
-			const newBio = input;
+		.input(z.object({ bio: z.string().trim().max(500).min(1) }))
+		.mutation(async ({ ctx: { hunter }, input: { bio: newBio } }) => {
 			if (!newBio || newBio === hunter.bio) {
 				return;
 			}

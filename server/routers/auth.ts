@@ -1,13 +1,14 @@
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 
-import { adminAuthSchema, authSchema, hunterSchema } from '@/lib/schemas';
+import { adminAuthSchema, authSchema } from '@/lib/schemas';
 
 import { passwordToHash } from '../auth';
 import { config } from '../config';
 import { db } from '../db';
 import {
 	adminProcedure,
+	photoProcedure,
 	publicProcedure,
 	router,
 	userProcedure,
@@ -56,13 +57,12 @@ export const authRouter = router({
 		session.destroy();
 	}),
 
-	me: userProcedure.query(
-		({ ctx: { hunter, user } }) =>
-			({
-				hunter: hunterSchema.parse(hunter),
-				settings: {
-					hideMoney: user.hideMoney,
-				},
-			}) as const,
-	),
+	me: photoProcedure.query(({ ctx: { hunter, user } }) => {
+		return {
+			hunter: hunter,
+			settings: {
+				hideMoney: user.hideMoney,
+			},
+		} as const;
+	}),
 });

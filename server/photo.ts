@@ -7,15 +7,16 @@ import { writeFile } from 'fs/promises';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
+import z from 'zod';
 
 import { fetchBlurry } from '@/lib/images';
+import { idSchema, photoSchema } from '@/lib/schemas';
+import { isPlainObject, omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';
 
-type AddUrlToPhotoArgs = {
-	photo: null | Photo;
-};
+export type OutputPhoto = z.infer<typeof photoSchema>;
 
 type PhotoUrlArgs = PhotoUrlOptions & {
 	path: string;
@@ -28,24 +29,36 @@ interface UploadPhotoArgs {
 	name?: string;
 }
 
-export function addUrlToPhoto(
-	args: PhotoUrlOptions & Required<AddUrlToPhotoArgs>,
-): Photo & { url: string };
-export function addUrlToPhoto(args: PhotoUrlOptions & { photo: null }): null;
-export function addUrlToPhoto({
+const photoDbSchema = photoSchema.omit({ url: true }).merge(
+	z.object({
+		hunterId: idSchema.nullable(),
+		huntId: idSchema.nullable(),
+		id: idSchema,
+		path: z.string(),
+	}),
+);
+
+export function outputPhoto({
+	height: targetHeight,
 	photo,
-	...options
-}: AddUrlToPhotoArgs & PhotoUrlOptions): null | (Photo & { url: string }) {
-	if (!photo) {
-		return null;
-	}
+	width: targetWidth,
+}: {
+	height?: number;
+	photo: Photo;
+	width?: number;
+}) {
+	const actualHeight =
+		targetHeight && targetHeight < photo.height
+			? targetHeight
+			: photo.height;
+	const actualWidth =
+		targetWidth && targetWidth < photo.width ? targetWidth : photo.width;
 	return {
-		...photo,
+		...omit(photo, 'huntId', 'hunterId', 'path'),
 		url: photoUrl({
-			...options,
-			height: options.height ?? photo.height,
+			height: actualHeight,
 			path: photo.path,
-			width: options.width ?? photo.width,
+			width: actualWidth,
 		}),
 	};
 }
@@ -57,6 +70,46 @@ export function photoUrl({ path, ...options }: PhotoUrlArgs) {
 		url: `local:///${path}`,
 	});
 	return url;
+}
+
+export function recursivelyReplacePhotos(input: unknown): unknown {
+	if (Array.isArray(input)) {
+		return input.map(recursivelyReplacePhotos);
+	}
+
+	if (!isPlainObject(input)) {
+		return input;
+	}
+
+	const schema = z
+		.object({ photos: z.array(photoDbSchema) })
+		.or(z.object({ avatar: photoDbSchema }));
+	const parsed = schema.safeParse(input);
+	if (!parsed.success) {
+		return Object.fromEntries(
+			Object.entries(input).map(
+				([key, value]: [string, unknown]): [string, unknown] => {
+					if (!isPlainObject(value)) {
+						return [key, value];
+					}
+					return [key, recursivelyReplacePhotos(value)];
+				},
+			),
+		);
+	}
+	const data = parsed.data;
+
+	if ('photos' in data) {
+		return {
+			...input,
+			photos: data.photos.map((photo) => outputPhoto({ photo })),
+		};
+	} else {
+		return {
+			...input,
+			avatar: outputPhoto({ photo: data.avatar }),
+		};
+	}
 }
 
 export async function uploadPhoto({

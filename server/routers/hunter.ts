@@ -14,9 +14,7 @@ export const hunterRouter = router({
 				hunterId: idSchema,
 			}),
 		)
-		.query(async ({ input }) => {
-			const { hunterId: id } = input;
-
+		.query(async ({ input: { hunterId: id } }) => {
 			const {
 				_count: { hunts: count },
 				...hunter
@@ -51,9 +49,7 @@ export const hunterRouter = router({
 				},
 				where: {
 					hunters: {
-						some: {
-							id: hunter.id,
-						},
+						some: { id },
 					},
 				},
 			});

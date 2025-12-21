@@ -28,10 +28,8 @@ export const photoDimensionSchema = z.object({
 export const photoSchema = z.object({
 	blurry: z.string().nullable(),
 	height: z.number().int().positive(),
-	hunterId: idSchema.nullable(),
 	id: idSchema,
-	path: z.string(),
-	url: z.string(),
+	url: z.string().url(),
 	width: z.number().int().positive(),
 });
 export type PhotoSchema = z.infer<typeof photoSchema>;
