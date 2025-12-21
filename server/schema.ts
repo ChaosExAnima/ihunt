@@ -22,24 +22,22 @@ export const photoOutputSchema = photoSchema
 	)
 	.transform((photo) => outputPhoto({ photo }));
 
-export const outputHunterSchema = hunterSchema.omit({ avatar: true }).merge(
+export const outputHunterSchema = hunterSchema.merge(
 	z.object({
 		avatar: photoOutputSchema.nullable(),
 	}),
 );
 
-export const outputHuntSchema = huntSchema
-	.omit({ hunters: true, photos: true, rating: true, status: true })
-	.merge(
-		z.object({
-			hunters: z.array(outputHunterSchema),
-			photos: z.array(photoOutputSchema),
-			rating: z
-				.number()
-				.min(0)
-				.max(5)
-				.nullable()
-				.transform((arg) => arg ?? 0),
-			status: z.string().transform((status) => huntStatus.parse(status)),
-		}),
-	);
+export const outputHuntSchema = huntSchema.merge(
+	z.object({
+		hunters: z.array(outputHunterSchema),
+		photos: z.array(photoOutputSchema),
+		rating: z
+			.number()
+			.min(0)
+			.max(5)
+			.nullable()
+			.transform((arg) => arg ?? 0),
+		status: z.string().transform((status) => huntStatus.parse(status)),
+	}),
+);
