@@ -1,7 +1,6 @@
-import {
-	generateUrl,
-	Options as PhotoUrlOptions,
-} from '@imgproxy/imgproxy-js-core';
+import type { Options as PhotoUrlOptions } from '@imgproxy/imgproxy-js-core';
+
+import { generateImageUrl } from '@imgproxy/imgproxy-node';
 import { Photo } from '@prisma/client';
 import { fileTypeFromBuffer } from 'file-type';
 import { writeFile } from 'fs/promises';
@@ -10,7 +9,6 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 
 import { fetchBlurry } from '@/lib/images';
-import { PhotoSchema } from '@/lib/schemas';
 
 import { config } from './config';
 import { db } from './db';
@@ -32,12 +30,12 @@ interface UploadPhotoArgs {
 
 export function addUrlToPhoto(
 	args: PhotoUrlOptions & Required<AddUrlToPhotoArgs>,
-): PhotoSchema;
+): Photo & { url: string };
 export function addUrlToPhoto(args: PhotoUrlOptions & { photo: null }): null;
 export function addUrlToPhoto({
 	photo,
 	...options
-}: AddUrlToPhotoArgs & PhotoUrlOptions): null | PhotoSchema {
+}: AddUrlToPhotoArgs & PhotoUrlOptions): null | (Photo & { url: string }) {
 	if (!photo) {
 		return null;
 	}
@@ -53,13 +51,11 @@ export function addUrlToPhoto({
 }
 
 export function photoUrl({ path, ...options }: PhotoUrlArgs) {
-	const fullSrc = new URL(path, config.mediaHost).toString();
-	const escapedSrc = fullSrc
-		.replace('%', '%25')
-		.replace('?', '%3F')
-		.replace('@', '%40');
-
-	const url = generateUrl({ type: 'plain', value: escapedSrc }, options);
+	const url = generateImageUrl({
+		endpoint: 'https://images.ihunt.local',
+		options,
+		url: `local:///${path}`,
+	});
 	return url;
 }
 
