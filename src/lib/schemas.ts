@@ -33,7 +33,7 @@ export type PhotoSchema = z.infer<typeof photoSchema>;
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
-	handle: z.string().nullable(),
+	handle: z.string(),
 	id: idSchema,
 	money: z.coerce.number().int().min(0),
 	name: z.string(),
