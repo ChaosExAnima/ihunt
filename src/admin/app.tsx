@@ -1,12 +1,12 @@
 import { User } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import { Crosshair, Image, LogOut, Swords, UserRound } from 'lucide-react';
-import { dataProvider } from 'ra-data-simple-prisma';
 import { PropsWithChildren } from 'react';
 import { Admin, Button, Layout, Menu, Resource } from 'react-admin';
 
-import { trpc } from '@/lib/api';
+import { queryClient, trpc } from '@/lib/api';
 
+import { authProvider, dataProvider } from './data';
 import { HuntCreate } from './hunt/create';
 import { HuntEdit } from './hunt/edit';
 import { HuntList } from './hunt/list';
@@ -19,7 +19,12 @@ import { UserList } from './user/list';
 
 export function App() {
 	return (
-		<Admin dataProvider={dataProvider('/admin/api')} layout={AdminLayout}>
+		<Admin
+			authProvider={authProvider}
+			dataProvider={dataProvider}
+			layout={AdminLayout}
+			queryClient={queryClient}
+		>
 			<Resource
 				create={HuntCreate}
 				edit={HuntEdit}
@@ -43,7 +48,7 @@ export function App() {
 				name="user"
 				options={{ label: 'Players' }}
 				recordRepresentation={(record: User) =>
-					record.name ?? record.email ?? 'Unknown User'
+					record.name ?? 'Unknown User'
 				}
 			/>
 			<Resource

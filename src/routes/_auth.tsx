@@ -1,8 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import Navbar from '@/components/navbar';
 import { PlayerSettingsProvider } from '@/components/providers/player';
-import { Toaster } from '@/components/ui/toaster';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
@@ -20,7 +20,11 @@ export const Route = createFileRoute('/_auth')({
 		throw redirect({ search: { redirect: location.href }, to: '/' });
 	},
 	component: () => {
-		const { player } = Route.useRouteContext();
+		const { player: initialData } = Route.useRouteContext();
+		const { data: player } = useQuery({
+			...trpc.auth.me.queryOptions(),
+			initialData,
+		});
 		return (
 			<PlayerSettingsProvider settings={player}>
 				<div className="grow flex flex-col w-full justify-stretch">
@@ -29,7 +33,6 @@ export const Route = createFileRoute('/_auth')({
 						<Outlet />
 					</main>
 				</div>
-				<Toaster />
 			</PlayerSettingsProvider>
 		);
 	},

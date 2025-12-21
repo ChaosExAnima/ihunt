@@ -37,4 +37,4 @@ async function upload(file: string, huntId?: number, hunterId?: number) {
 	console.log(`Uploaded ${basename(file)} as ${photo.id}`);
 }
 
-main();
+main().catch(console.error);

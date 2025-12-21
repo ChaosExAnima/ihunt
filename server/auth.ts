@@ -1,17 +1,22 @@
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
+import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
+
+import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 
 import { config } from './config';
 import { db } from './db';
 
-const { authSecret } = config;
+const { authPepper, authSession } = config;
 
 export type Context = Awaited<ReturnType<typeof createAuthContext>>;
 
 interface SessionData {
 	isAdmin?: boolean;
-	userId?: string;
+	userId?: number;
 }
+
+export const HASH_ITERATIONS = 10;
 
 export async function createAuthContext({
 	req,
@@ -27,11 +32,14 @@ export async function createAuthContext({
 		return { req, res, session };
 	}
 	try {
-		const { hunter, ...user } = await db.user.findFirstOrThrow({
+		const { hunters, ...user } = await db.user.findFirstOrThrow({
 			include: {
-				hunter: {
+				hunters: {
 					include: {
 						avatar: true,
+					},
+					where: {
+						alive: true,
 					},
 				},
 			},
@@ -39,7 +47,7 @@ export async function createAuthContext({
 				id: session.userId,
 			},
 		});
-		return { hunter, req, res, session, user };
+		return { hunter: hunters.at(0), req, res, session, user };
 	} catch (err) {
 		console.warn(`Error logging in user ${session.userId}:`, err);
 		session.destroy();
@@ -52,7 +60,19 @@ export function getSession({
 	res,
 }: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
 	return getIronSession<SessionData>(req.raw, res.raw, {
-		cookieName: 'ihunt-session',
-		password: authSecret,
+		cookieName: SESSION_COOKIE_NAME,
+		password: authSession,
 	});
+}
+
+export async function passwordToHash(input: string) {
+	const fullHash = await bcrypt.hash(input, authPepper);
+	return fullHash.slice(authPepper.length);
+}
+
+export function stringToPassword(input: string) {
+	return input
+		.toLowerCase()
+		.replaceAll(/[^a-z0-9]+/g, '')
+		.slice(0, PASSWORD_CHAR_COUNT);
 }

@@ -1,9 +1,11 @@
-import { z } from 'zod';
+import { readFile } from 'node:fs/promises';
 import 'dotenv/config';
+import { z } from 'zod';
 
 const configSchema = z.object({
 	adminPassword: z.string(),
-	authSecret: z.string(),
+	authPepper: z.string(),
+	authSession: z.string(),
 	discordId: z.string(),
 	discordSecret: z.string(),
 	emailFrom: z.string().optional(),
@@ -17,10 +19,19 @@ const configVars: Record<string, string | undefined> = {};
 
 for (const key in process.env) {
 	const camelCaseKey = key
-		.replace('VITE_', '')
+		.replace(/^VITE_/, '')
+		.replace(/__FILE$/, '')
 		.toLowerCase()
 		.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
-	configVars[camelCaseKey] = process.env[key];
+
+	if (key.endsWith('__FILE') && process.env[key]) {
+		const value = await readFile(process.env[key], 'utf-8');
+		if (value.trim()) {
+			configVars[camelCaseKey] = value.trim();
+		}
+	} else {
+		configVars[camelCaseKey] = process.env[key];
+	}
 }
 const _config = configSchema.safeParse(configVars);
 

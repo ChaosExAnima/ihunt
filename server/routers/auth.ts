@@ -1,8 +1,11 @@
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import bcrypt from 'bcryptjs';
 
-import { hunterSchema } from '@/lib/schemas';
+import { adminAuthSchema, authSchema, hunterSchema } from '@/lib/schemas';
 
+import { passwordToHash } from '../auth';
+import { config } from '../config';
+import { db } from '../db';
 import {
 	adminProcedure,
 	publicProcedure,
@@ -12,9 +15,13 @@ import {
 
 export const authRouter = router({
 	adminLogin: adminProcedure
-		.input(z.object({ password: z.string().min(4) }))
+		.input(adminAuthSchema)
 		.mutation(async ({ ctx: { session }, input }) => {
-			if (input.password !== process.env.ADMIN_PASSWORD) {
+			const valid = await bcrypt.compare(
+				input.password,
+				config.adminPassword,
+			);
+			if (!valid) {
 				throw new TRPCError({ code: 'UNAUTHORIZED' });
 			}
 			session.isAdmin = true;
@@ -22,17 +29,28 @@ export const authRouter = router({
 			return { success: true };
 		}),
 
-	logIn: publicProcedure.mutation(async ({ ctx: { session } }) => {
-		try {
-			// TODO: Actually implement login logic
-			const userId = 'cm6o4i77i00008m6tudr8ry8t';
-			session.userId = userId;
-			await session.save();
-			return { success: true };
-		} catch (err) {
-			throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
-		}
-	}),
+	isAdmin: adminProcedure.query(() => true),
+
+	logIn: publicProcedure
+		.input(authSchema)
+		.mutation(
+			async ({
+				ctx: { session },
+				input: { password: plainPassword },
+			}) => {
+				try {
+					const password = await passwordToHash(plainPassword);
+					const user = await db.user.findFirstOrThrow({
+						where: { password },
+					});
+					session.userId = user.id;
+					await session.save();
+					return { success: true };
+				} catch (err) {
+					throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
+				}
+			},
+		),
 
 	logOut: userProcedure.mutation(({ ctx: { session } }) => {
 		session.destroy();

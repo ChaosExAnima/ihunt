@@ -25,16 +25,17 @@ async function main() {
 					id: 2,
 					maxHunters: 4,
 					name: 'Vampire',
-					payment: 10_000,
+					payment: 2000,
 					status: HuntStatus.Available,
 				},
 				{
 					danger: 1,
-					description: 'brains',
+					description:
+						'something like a dozen zombies in the old graveyard. €500 a head.',
 					id: 3,
 					maxHunters: 4,
 					name: 'Zombie',
-					payment: 20,
+					payment: 6_000,
 					status: HuntStatus.Pending,
 				},
 				{
@@ -50,24 +51,31 @@ async function main() {
 		});
 
 		await db.user.createMany({
-			data: [{ id: 'user1' }, { id: 'user2' }, { id: 'user3' }],
+			data: [
+				{ id: 1, name: 'Player1', password: 'w1nche' },
+				{ id: 2, name: 'Player2', password: 'scooby' },
+				{ id: 3, name: 'Player3', password: 'chosen' },
+			],
 		});
 		await db.hunter.createMany({
 			data: [
 				{
+					handle: 'w1nch3ster',
 					id: 1,
 					name: 'Dean',
-					userId: 'user1',
+					userId: 1,
 				},
 				{
+					handle: 'scoobysnac',
 					id: 2,
 					name: 'Velma',
-					userId: 'user2',
+					userId: 2,
 				},
 				{
+					handle: 'chosen1',
 					id: 3,
 					name: 'Buffy',
-					userId: 'user3',
+					userId: 3,
 				},
 			],
 		});
@@ -160,4 +168,4 @@ async function main() {
 	}
 }
 
-main();
+void main();

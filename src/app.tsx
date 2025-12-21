@@ -12,6 +12,7 @@ import { isDev } from '@/lib/utils';
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
 
+import { Toaster } from './components/ui/toaster';
 import { queryClient } from './lib/api';
 import { routeTree } from './routeTree.gen';
 
@@ -63,6 +64,7 @@ export function App() {
 			<ReactQueryDevtools />
 			<TanStackRouterDevtools router={router} />
 			{devMode && <DevTools />}
+			<Toaster />
 		</QueryClientProvider>
 	);
 }

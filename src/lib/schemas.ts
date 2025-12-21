@@ -1,6 +1,16 @@
 import { z } from 'zod';
 
-import { HUNT_MAX_DANGER, HuntStatus } from './constants';
+import { HUNT_MAX_DANGER, HuntStatus, PASSWORD_CHAR_COUNT } from './constants';
+
+export const authSchema = z.object({
+	password: z
+		.string()
+		.toLowerCase()
+		.regex(/[a-z0-9]+/, 'Code must be only numbers or letters')
+		.length(PASSWORD_CHAR_COUNT, 'Code must be exactly six characters'),
+});
+
+export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
 export const idSchema = z.number().int().positive().min(1);
 export const idSchemaCoerce = z.preprocess(
@@ -23,7 +33,7 @@ export type PhotoSchema = z.infer<typeof photoSchema>;
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
-	handle: z.string().nullable(),
+	handle: z.string(),
 	id: idSchema,
 	money: z.coerce.number().int().min(0),
 	name: z.string(),

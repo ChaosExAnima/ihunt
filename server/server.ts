@@ -37,6 +37,23 @@ async function startServer() {
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 	});
 
+	server.get('/trpc/panel', async (_, res) => {
+		if (!isDev()) {
+			return res.status(404).callNotFound();
+		}
+
+		const { renderTrpcPanel } = await import('trpc-ui');
+		return res.header('content-type', 'text/html').send(
+			renderTrpcPanel(appRouter, {
+				meta: {
+					title: 'iHunt API Testing',
+				},
+				transformer: 'superjson',
+				url: `/trpc`,
+			}),
+		);
+	});
+
 	await server.register(fastifyVite, {
 		dev: isDev(),
 		root: resolve(import.meta.dirname, '..'),
