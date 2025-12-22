@@ -6,6 +6,7 @@ import { Admin, Button, Layout, Menu, Resource } from 'react-admin';
 
 import { queryClient, trpc } from '@/lib/api';
 
+import { LoginPage } from './components/login';
 import { authProvider, dataProvider } from './data';
 import { HuntCreate } from './hunt/create';
 import { HuntEdit } from './hunt/edit';
@@ -23,6 +24,7 @@ export function App() {
 			authProvider={authProvider}
 			dataProvider={dataProvider}
 			layout={AdminLayout}
+			loginPage={LoginPage}
 			queryClient={queryClient}
 		>
 			<Resource

@@ -41,11 +41,7 @@ export function HunterList() {
 					sortable={false}
 					source="avatar"
 				/>
-				<FunctionField
-					label="Rating"
-					render={ratingField}
-					sortable={false}
-				/>
+				<NumberField label="Rating" sortable={false} source="rating" />
 				<NumberField
 					locales={Locale}
 					options={{
@@ -67,18 +63,5 @@ export function HunterList() {
 				/>
 			</Datagrid>
 		</List>
-	);
-}
-
-const numberFormatter = new Intl.NumberFormat(Locale, {
-	minimumFractionDigits: 1,
-});
-
-function ratingField(record: HunterRow) {
-	return numberFormatter.format(
-		record.hunts.reduce(
-			(rating, hunt) => (hunt.rating ? rating + hunt.rating : rating),
-			0,
-		),
 	);
 }

@@ -46,3 +46,16 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 		},
 	});
 });
+
+export const loggedInProcedure = t.procedure.use(async ({ ctx, next }) => {
+	if (!ctx.admin && !ctx.user && !ctx.hunter) {
+		throw new TRPCError({ code: 'UNAUTHORIZED' });
+	}
+	return next({
+		ctx: {
+			admin: ctx.admin,
+			hunter: ctx.hunter,
+			user: ctx.user,
+		},
+	});
+});

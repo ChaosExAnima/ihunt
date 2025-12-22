@@ -44,5 +44,11 @@ function PhotoExpand() {
 	if (!record) {
 		return null;
 	}
-	return <PhotoDisplay photo={record} />;
+	return (
+		<PhotoDisplay
+			height={record.height}
+			photo={record}
+			width={record.width}
+		/>
+	);
 }

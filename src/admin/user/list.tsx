@@ -1,11 +1,13 @@
 import {
+	ChipField,
 	Datagrid,
 	FunctionField,
-	ImageField,
 	List,
-	ReferenceField,
-	TextField,
+	ReferenceManyField,
+	SingleFieldList,
 } from 'react-admin';
+
+import Avatar from '@/components/avatar';
 
 import { UserRow } from './common';
 
@@ -13,24 +15,26 @@ export function UserList() {
 	return (
 		<List>
 			<Datagrid>
-				<ImageField
+				<FunctionField<UserRow>
 					label="Avatar"
-					source="image"
-					sx={{
-						'& .RaImageField-image': {
-							borderRadius: '50%',
-							height: 50,
-							overflow: 'hidden',
-							width: 50,
-						},
+					render={(record) => {
+						const hunter = record.hunters.at(0);
+						return hunter && <Avatar hunter={hunter} />;
 					}}
 				/>
 				<FunctionField<UserRow>
 					label="Name"
 					render={(record) => record.name ?? record.id}
 				/>
-				<TextField emptyText="Not set" source="email" />
-				<ReferenceField reference="hunter" source="hunter.id" />
+				<ReferenceManyField
+					label="Hunters"
+					reference="hunter"
+					target="userId"
+				>
+					<SingleFieldList>
+						<ChipField source="handle" />
+					</SingleFieldList>
+				</ReferenceManyField>
 			</Datagrid>
 		</List>
 	);

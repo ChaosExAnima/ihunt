@@ -7,15 +7,10 @@ import { adminAuthSchema, authSchema, hunterSchema } from '@/lib/schemas';
 import { passwordToHash } from '../auth';
 import { config } from '../config';
 import { db } from '../db';
-import {
-	adminProcedure,
-	publicProcedure,
-	router,
-	userProcedure,
-} from '../trpc';
+import { publicProcedure, router, userProcedure } from '../trpc';
 
 export const authRouter = router({
-	adminLogin: adminProcedure
+	adminLogin: publicProcedure
 		.input(adminAuthSchema)
 		.mutation(async ({ ctx: { session }, input }) => {
 			const valid = await bcrypt.compare(
@@ -29,8 +24,6 @@ export const authRouter = router({
 			await session.save();
 			return { success: true };
 		}),
-
-	isAdmin: adminProcedure.query(() => true),
 
 	logIn: publicProcedure
 		.input(authSchema)
@@ -53,7 +46,7 @@ export const authRouter = router({
 			},
 		),
 
-	logOut: userProcedure.mutation(({ ctx: { session } }) => {
+	logOut: publicProcedure.mutation(({ ctx: { session } }) => {
 		session.destroy();
 	}),
 

@@ -6,12 +6,7 @@ import {
 	isNonJsonSerializable,
 	splitLink,
 } from '@trpc/client';
-import {
-	createTRPCOptionsProxy,
-	DecorateMutationProcedure,
-	ResolverDef,
-	TRPCMutationOptions,
-} from '@trpc/tanstack-react-query';
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import superjson from 'superjson';
 
 import type { AppRouter } from '@/server/index';
@@ -52,10 +47,4 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
 	queryClient,
 });
 
-export function trpcMutate<TDef extends ResolverDef>(
-	proc: DecorateMutationProcedure<TDef>,
-	variables?: TDef['input'],
-	options?: Parameters<TRPCMutationOptions<TDef>>[0],
-) {
-	return proc.mutationOptions(options).mutationFn?.(variables);
-}
+export const trpcPlain = trpcClient;

@@ -5,6 +5,7 @@ import { idSchema } from '@/lib/schemas';
 
 export type UserRow = Prisma.UserGetPayload<{
 	include: { hunters: { include: { avatar: true } } };
+	omit: { password: true };
 }>;
 
 export const userSchema = z.object({

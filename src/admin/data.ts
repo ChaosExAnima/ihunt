@@ -1,16 +1,18 @@
 import { isTRPCClientError } from '@trpc/client';
-import { AuthProvider, CreateParams, DataProvider } from 'react-admin';
+import { AuthProvider, DataProvider } from 'react-admin';
 
-import { queryClient, trpc, trpcMutate } from '@/lib/api';
+import { trpcPlain } from '@/lib/api';
 import { adminAuthSchema } from '@/lib/schemas';
 
 export const authProvider = {
 	// when the user navigates, make sure that their credentials are still valid
 	async checkAuth() {
 		try {
-			await queryClient.fetchQuery(trpc.auth.isAdmin.queryOptions());
+			await trpcPlain.admin.isValid.query();
 		} catch (err) {
-			await this.checkError(err);
+			if (isTRPCClientError(err)) {
+				throw new Error();
+			}
 		}
 	},
 	// when the dataProvider returns an error, check if this is an authentication error
@@ -26,14 +28,14 @@ export const authProvider = {
 	// send username and password to the auth server and get back credentials
 	async login(params) {
 		const input = adminAuthSchema.parse(params);
-		const response = await trpcMutate(trpc.auth.adminLogin, input);
+		const response = await trpcPlain.auth.adminLogin.mutate(input);
 		if (!response?.success) {
 			throw new Error('Could not log in');
 		}
 	},
 	// remove local credentials and notify the auth server that the user logged out
 	async logout() {
-		await trpcMutate(trpc.auth.logOut);
+		await trpcPlain.auth.logOut.mutate();
 	},
 } satisfies AuthProvider;
 
@@ -45,34 +47,59 @@ export const dataProvider = {
 		if (resource === 'photo') {
 			throw new Error('Cannot create a photo');
 		}
-		const result = await trpcMutate(trpc.admin.create, {
-			params: params.data satisfies CreateParams,
+		const result = await trpcPlain.admin.create.mutate({
+			params,
 			resource,
 		});
-		if (!result) {
-			throw new Error('');
-		}
 		return { data: result };
 	},
 	// delete a record by id
-	async delete(resource, params) {},
+	async delete(resource, params) {
+		const result = await trpcPlain.admin.delete.mutate({
+			id: params.id,
+			resource,
+		});
+		return { data: result };
+	},
 	// delete a list of records based on an array of ids
-	async deleteMany(resource, params) {},
+	async deleteMany(resource, params) {
+		return trpcPlain.admin.deleteMany.mutate({
+			ids: params.ids,
+			resource,
+		});
+	},
 	// get a list of records based on sort, filter, and pagination
 	async getList(resource, params) {
-		switch (resource) {
-			case 'hunt':
-				return queryClient.fetchQuery(
-					trpc.hunt.getPublic.queryOptions(),
-				);
-		}
+		const result = await trpcPlain.admin.getList.query({
+			resource,
+			...params,
+		});
+		return result;
 	},
 	// get a list of records based on an array of ids
-	async getMany(resource, params) {},
+	async getMany(resource, params) {
+		const result = await trpcPlain.admin.getList.query({
+			resource,
+			...params,
+		});
+		return result;
+	},
 	// get the records referenced to another record, e.g. comments for a post
-	async getManyReference(resource, params) {},
+	async getManyReference(resource, params) {
+		const result = await trpcPlain.admin.getReferences.query({
+			resource,
+			...params,
+		});
+		return result;
+	},
 	// get a single record by id
-	async getOne(resource, params) {},
+	async getOne(resource, params) {
+		const result = await trpcPlain.admin.getOne.query({
+			id: params.id,
+			resource,
+		});
+		return { data: result };
+	},
 	// update a record based on a patch
 	async update(resource, params) {},
 	// update a list of records based on an array of ids and a common patch
