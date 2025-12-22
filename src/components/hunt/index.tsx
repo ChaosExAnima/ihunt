@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import type { PropsWithClassName } from '@/lib/types';
 
+import { useHunterId } from '@/hooks/use-hunter';
 import { HuntStatus } from '@/lib/constants';
 import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
@@ -12,15 +13,17 @@ import { Button } from '../ui/button';
 import { HuntDisplayActive } from './active';
 import HuntBase from './base';
 
+export { HuntDisplayActive } from './active';
+
 export interface HuntDisplayProps {
 	hunt: HuntSchema;
-	hunterId: number;
 	onAcceptHunt?: (id: number) => void;
 	remainingHunts?: number;
 }
 
 export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
-	const { hunt, hunterId, onAcceptHunt, remainingHunts } = props;
+	const { hunt, onAcceptHunt, remainingHunts } = props;
+	const hunterId = useHunterId();
 	const isAccepted = useMemo(
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
@@ -30,13 +33,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
 	switch (hunt.status) {
 		case HuntStatus.Active:
-			return (
-				<HuntDisplayActive
-					hunt={hunt}
-					hunterId={hunterId}
-					isAccepted={isAccepted}
-				/>
-			);
+			return <HuntDisplayActive hunt={hunt} />;
 		case HuntStatus.Available:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>

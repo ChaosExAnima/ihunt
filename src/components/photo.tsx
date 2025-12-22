@@ -41,11 +41,15 @@ export default function PhotoDisplay({
 			return {
 				// Set if the values are above zero, otherwise leave it undefined.
 				height:
-					max(ref.parentElement?.offsetHeight, ref.offsetHeight) *
-						window.devicePixelRatio || undefined,
+					Math.ceil(
+						max(ref.parentElement?.offsetHeight, ref.offsetHeight) *
+							window.devicePixelRatio,
+					) || undefined,
 				width:
-					max(ref.parentElement?.offsetWidth, ref.offsetWidth) *
-						window.devicePixelRatio || undefined,
+					Math.ceil(
+						max(ref.parentElement?.offsetWidth, ref.offsetWidth) *
+							window.devicePixelRatio,
+					) || undefined,
 			};
 		});
 	}, []);

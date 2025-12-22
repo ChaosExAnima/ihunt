@@ -14,7 +14,6 @@ interface HuntBaseProps {
 	className?: string;
 	hideHeader?: boolean;
 	hunt: HuntSchema;
-	hunterId: number;
 	isAccepted: boolean;
 }
 
@@ -24,7 +23,6 @@ export default function HuntBase({
 	className,
 	hideHeader = false,
 	hunt,
-	hunterId,
 	isAccepted,
 }: PropsWithChildren<HuntBaseProps>) {
 	const [showCW, setShowCW] = useState(false);
@@ -34,7 +32,6 @@ export default function HuntBase({
 			{afterHeader}
 
 			<HuntHuntersDisplay
-				hunterId={hunterId}
 				hunters={hunt.hunters}
 				isAccepted={isAccepted}
 				maxHunters={hunt.maxHunters}

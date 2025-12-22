@@ -20,11 +20,5 @@ function RouteComponent() {
 	if (!hunt || !player?.hunter) {
 		return null;
 	}
-	return (
-		<HuntDisplay
-			className="h-full"
-			hunt={hunt}
-			hunterId={player?.hunter.id}
-		/>
-	);
+	return <HuntDisplay className="h-full" hunt={hunt} />;
 }
