@@ -8,6 +8,7 @@ import {
 	useEffect,
 	useState,
 } from 'react';
+import { thumbHashToDataURL } from 'thumbhash';
 
 import { trpc } from '@/lib/api';
 import { PhotoSchema } from '@/lib/schemas';
@@ -27,7 +28,17 @@ export default function PhotoDisplay({
 	width,
 	...props
 }: PhotoDisplayProps) {
-	const [url, setUrl] = useState(photo.blurry ?? undefined);
+	const [url, setUrl] = useState(() => {
+		if (!photo.blurry) {
+			return undefined;
+		}
+		const binary = new Uint8Array(
+			atob(photo.blurry)
+				.split('')
+				.map((x) => x.charCodeAt(0)),
+		);
+		return thumbHashToDataURL(binary);
+	});
 
 	const [dimensions, setDimensions] = useState({ height, width });
 	const imgRef: RefCallback<HTMLImageElement> = useCallback((ref) => {

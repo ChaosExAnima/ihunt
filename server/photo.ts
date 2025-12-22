@@ -7,8 +7,9 @@ import { writeFile } from 'fs/promises';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
+import sharp from 'sharp';
+import { rgbaToThumbHash } from 'thumbhash';
 
-import { fetchBlurry } from '@/lib/images';
 import { omit } from '@/lib/utils';
 
 import { config } from './config';
@@ -23,6 +24,16 @@ interface UploadPhotoArgs {
 	hunterId?: null | number;
 	huntId?: null | number;
 	name?: string;
+}
+
+export async function generateThumbhash(buffer: Buffer<ArrayBuffer>) {
+	const image = sharp(buffer).resize(100, 100, { fit: 'inside' });
+	const { data, info } = await image
+		.ensureAlpha()
+		.raw()
+		.toBuffer({ resolveWithObject: true });
+	const thumbhash = rgbaToThumbHash(info.width, info.height, data);
+	return Buffer.from(thumbhash).toString('base64');
 }
 
 export function outputPhoto({
@@ -102,16 +113,12 @@ export async function uploadPhoto({
 	}
 
 	// Fetch blurry version
-	let blurryData: null | string = null;
-	try {
-		blurryData = await fetchBlurry(fileName);
-	} catch (err) {
-		console.warn(err);
-	}
+	const blurry = await generateThumbhash(arrayBuffer);
+
 	const { height, width } = dimensions;
 	return db.photo.create({
 		data: {
-			blurry: blurryData,
+			blurry,
 			height,
 			hunterId,
 			huntId,
