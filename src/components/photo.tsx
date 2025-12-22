@@ -45,24 +45,24 @@ export default function PhotoDisplay({
 		if (!ref) {
 			return;
 		}
-		setDimensions((prev) => {
-			if (prev.height && prev.width) {
-				return prev;
-			}
-			return {
-				// Set if the values are above zero, otherwise leave it undefined.
-				height:
-					Math.ceil(
-						max(ref.parentElement?.offsetHeight, ref.offsetHeight) *
-							window.devicePixelRatio,
-					) || undefined,
-				width:
-					Math.ceil(
-						max(ref.parentElement?.offsetWidth, ref.offsetWidth) *
-							window.devicePixelRatio,
-					) || undefined,
-			};
-		});
+		setDimensions((prev) => ({
+			height:
+				Math.ceil(
+					max(
+						prev.height,
+						ref.parentElement?.offsetHeight,
+						ref.offsetHeight,
+					) * window.devicePixelRatio,
+				) || undefined,
+			width:
+				Math.ceil(
+					max(
+						prev.width,
+						ref.parentElement?.offsetWidth,
+						ref.offsetWidth,
+					) * window.devicePixelRatio,
+				) || undefined,
+		}));
 	}, []);
 
 	const { data } = useQuery(
