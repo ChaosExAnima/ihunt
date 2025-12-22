@@ -21,7 +21,7 @@ interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
 
 export default function PhotoDisplay({
 	alt = '',
-	fit,
+	fit = 'fit',
 	height,
 	photo,
 	width,
@@ -33,14 +33,16 @@ export default function PhotoDisplay({
 	const imgRef: RefCallback<HTMLImageElement> = useCallback((ref) => {
 		if (ref) {
 			setDimensions((prev) => ({
+				// Todo: deal with this mess
 				height:
-					(prev.height ??
-						ref.parentElement?.offsetHeight ??
-						ref.offsetHeight) * window.devicePixelRatio,
+					(prev.height ||
+						ref.parentElement?.offsetHeight ||
+						ref.offsetHeight) * window.devicePixelRatio ||
+					undefined,
 				width:
-					(prev.width ??
-						ref.parentElement?.offsetWidth ??
-						ref.offsetWidth) * window.devicePixelRatio,
+					(prev.width ||
+						ref.parentElement?.offsetWidth ||
+						ref.offsetWidth) * window.devicePixelRatio || undefined,
 			}));
 		}
 	}, []);
