@@ -28,6 +28,13 @@ export const photoSchema = z.object({
 });
 export type PhotoSchema = z.infer<typeof photoSchema>;
 
+export const photoHuntSchema = photoSchema.merge(
+	z.object({
+		hunterId: idSchema.nullable(),
+	}),
+);
+export type PhotoHuntSchema = z.infer<typeof photoHuntSchema>;
+
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
@@ -50,7 +57,7 @@ export const huntSchema = z.object({
 	maxHunters: z.number().int().min(1).max(4),
 	name: z.string().min(1),
 	payment: posIntSchema,
-	photos: z.array(photoSchema),
+	photos: z.array(photoHuntSchema),
 	place: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
 	scheduledAt: z.coerce.date().nullable(),

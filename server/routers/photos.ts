@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { idSchema, posIntSchema } from '@/lib/schemas';
@@ -15,6 +16,19 @@ const resizingTypeSchema = z.enum([
 ]);
 
 export const photosRouter = router({
+	delete: userProcedure
+		.input(z.object({ id: idSchema }))
+		.mutation(async ({ ctx: { hunter }, input: { id } }) => {
+			const photo = await db.photo.findFirstOrThrow({
+				select: { hunterId: true },
+				where: { id },
+			});
+			if (hunter.id !== photo.hunterId) {
+				throw new TRPCError({ code: 'FORBIDDEN' });
+			}
+			await db.photo.delete({ where: { id } });
+		}),
+
 	get: userProcedure
 		.input(
 			z.object({

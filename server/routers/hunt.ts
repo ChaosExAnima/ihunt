@@ -1,7 +1,7 @@
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { idSchema, idSchemaCoerce } from '@/lib/schemas';
+import { idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
@@ -44,6 +44,9 @@ export const huntRouter = router({
 	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() =>
 		db.hunt.findMany({
 			include: huntDisplayInclude,
+			orderBy: {
+				createdAt: 'desc',
+			},
 			where: {
 				status: HuntStatus.Available,
 			},
@@ -55,6 +58,9 @@ export const huntRouter = router({
 		.query(({ ctx: { hunter } }) =>
 			db.hunt.findMany({
 				include: huntDisplayInclude,
+				orderBy: {
+					createdAt: 'desc',
+				},
 				where: {
 					hunters: {
 						some: {
@@ -92,9 +98,7 @@ export const huntRouter = router({
 				},
 			],
 			where: {
-				status: {
-					in: [HuntStatus.Active, HuntStatus.Available],
-				},
+				status: HuntStatus.Available,
 			},
 		}),
 	),
@@ -169,7 +173,7 @@ export const huntRouter = router({
 			z.instanceof(FormData).transform((fd) =>
 				z
 					.object({
-						huntId: idSchema.optional(),
+						huntId: idSchemaCoerce.optional(),
 						name: z.string().min(1).optional(),
 						photo: z.instanceof(File),
 					})
