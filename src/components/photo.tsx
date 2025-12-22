@@ -31,20 +31,23 @@ export default function PhotoDisplay({
 
 	const [dimensions, setDimensions] = useState({ height, width });
 	const imgRef: RefCallback<HTMLImageElement> = useCallback((ref) => {
-		if (ref) {
-			setDimensions((prev) => ({
-				// Todo: deal with this mess
-				height:
-					(prev.height ||
-						ref.parentElement?.offsetHeight ||
-						ref.offsetHeight) * window.devicePixelRatio ||
-					undefined,
-				width:
-					(prev.width ||
-						ref.parentElement?.offsetWidth ||
-						ref.offsetWidth) * window.devicePixelRatio || undefined,
-			}));
+		if (!ref) {
+			return;
 		}
+		setDimensions((prev) => {
+			if (prev.height && prev.width) {
+				return prev;
+			}
+			return {
+				// Set if the values are above zero, otherwise leave it undefined.
+				height:
+					max(ref.parentElement?.offsetHeight, ref.offsetHeight) *
+						window.devicePixelRatio || undefined,
+				width:
+					max(ref.parentElement?.offsetWidth, ref.offsetWidth) *
+						window.devicePixelRatio || undefined,
+			};
+		});
 	}, []);
 
 	const { data } = useQuery(
@@ -70,4 +73,8 @@ export default function PhotoDisplay({
 			width={width}
 		/>
 	);
+}
+
+function max(...numbers: unknown[]) {
+	return Math.max(...numbers.filter((n) => typeof n === 'number'), 0);
 }

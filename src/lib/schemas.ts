@@ -12,7 +12,9 @@ export const authSchema = z.object({
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
-export const idSchema = z.number().int().positive().min(1);
+export const posIntSchema = z.number().int().positive();
+
+export const idSchema = posIntSchema.min(1);
 export const idSchemaCoerce = z.preprocess(
 	(arg) => (typeof arg === 'string' ? Number.parseInt(arg) : arg),
 	idSchema,
@@ -47,7 +49,7 @@ export const huntSchema = z.object({
 	id: idSchema,
 	maxHunters: z.number().int().min(1).max(4),
 	name: z.string().min(1),
-	payment: z.number().int().min(0),
+	payment: posIntSchema,
 	photos: z.array(photoSchema),
 	place: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
