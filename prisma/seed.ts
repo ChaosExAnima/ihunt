@@ -6,7 +6,6 @@ const db = new PrismaClient();
 
 async function main() {
 	try {
-		await Promise.all([db]);
 		await db.hunt.createMany({
 			data: [
 				{
