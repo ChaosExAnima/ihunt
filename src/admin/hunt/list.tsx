@@ -13,10 +13,10 @@ import {
 	useUpdate,
 } from 'react-admin';
 
-import { HunterList } from '@/components/hunter-list';
 import { HuntStatus, Locale } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
 
+import { AdminHunterList } from '../components/hunter-list';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import HuntCompleteDialog from './complete-dialog';
 
@@ -48,7 +48,7 @@ export function HuntList() {
 				<NumberField source="danger" />
 				<FunctionField
 					render={(record: HuntSchema) => (
-						<HunterList
+						<AdminHunterList
 							hunters={record.hunters ?? []}
 							max={record.maxHunters}
 						/>

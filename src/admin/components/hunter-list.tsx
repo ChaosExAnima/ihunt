@@ -1,6 +1,6 @@
 import { Link, useCreatePath } from 'react-admin';
 
-import Avatar from '@/components/avatar';
+import Avatar, { AvatarEmpty } from '@/components/avatar';
 import {
 	Tooltip,
 	TooltipContent,
@@ -31,5 +31,29 @@ export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 				<TooltipContent>{hunter.name}</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
+	);
+}
+
+export function AdminHunterList({
+	hunters,
+	max,
+}: {
+	hunters: HunterSchema[];
+	max: number;
+}) {
+	const slots = Array.from(Array(max - hunters.length));
+	return (
+		<ul className="flex gap-2">
+			{hunters.map((hunter) => (
+				<li key={hunter.id}>
+					<AdminHunter hunter={hunter} />
+				</li>
+			))}
+			{slots.map((_, index) => (
+				<li key={index}>
+					<AvatarEmpty />
+				</li>
+			))}
+		</ul>
 	);
 }

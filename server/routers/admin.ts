@@ -153,7 +153,16 @@ export const adminRouter = router({
 			switch (resource) {
 				case 'hunt':
 					return {
-						data: await db.hunt.findMany(query),
+						data: await db.hunt.findMany({
+							...query,
+							include: {
+								hunters: {
+									include: {
+										avatar: true,
+									},
+								},
+							},
+						}),
 						total: await db.hunt.count(),
 					};
 				case 'hunter':
