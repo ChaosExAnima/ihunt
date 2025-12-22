@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { useMemo } from 'react';
@@ -90,7 +90,16 @@ function RouteComponent() {
 		trpc.hunt.getCompleted.queryOptions(),
 	);
 
-	const { mutate } = useMutation(trpc.hunt.join.mutationOptions());
+	const queryClient = useQueryClient();
+	const { mutate } = useMutation(
+		trpc.hunt.join.mutationOptions({
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: trpc.hunt.getPublic.queryKey(),
+				});
+			},
+		}),
+	);
 
 	const acceptedToday = useMemo(
 		() =>
