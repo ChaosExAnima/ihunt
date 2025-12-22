@@ -131,6 +131,13 @@ export const adminRouter = router({
 	getList: adminProcedure
 		.input(findManySchema)
 		.query(async ({ input: { ids, pagination, resource, sort } }) => {
+			const where = ids
+				? {
+						id: {
+							in: ids,
+						},
+					}
+				: undefined;
 			const query = {
 				orderBy: sort
 					? {
@@ -141,13 +148,7 @@ export const adminRouter = router({
 					? pagination.perPage * (pagination.page - 1)
 					: undefined,
 				take: pagination?.perPage,
-				where: ids
-					? {
-							id: {
-								in: ids,
-							},
-						}
-					: undefined,
+				where,
 			};
 
 			switch (resource) {
@@ -163,7 +164,7 @@ export const adminRouter = router({
 								},
 							},
 						}),
-						total: await db.hunt.count(),
+						total: await db.hunt.count({ where }),
 					};
 				case 'hunter':
 					return {
@@ -173,7 +174,7 @@ export const adminRouter = router({
 								avatar: true,
 							},
 						}),
-						total: await db.hunter.count(),
+						total: await db.hunter.count({ where }),
 					};
 				case 'photo':
 					return {
@@ -185,7 +186,7 @@ export const adminRouter = router({
 								},
 							},
 						}),
-						total: await db.photo.count(),
+						total: await db.photo.count({ where }),
 					};
 				case 'user':
 					return {
@@ -201,7 +202,7 @@ export const adminRouter = router({
 							},
 							omit: { password: true },
 						}),
-						total: await db.user.count(),
+						total: await db.user.count({ where }),
 					};
 			}
 		}),
@@ -216,14 +217,27 @@ export const adminRouter = router({
 		.query(async ({ input: { id, resource } }) => {
 			const query = { where: { id } };
 			switch (resource) {
-				case 'hunt':
-					return db.hunt.findMany(query);
+				case 'hunt': {
+					const hunt = await db.hunt.findFirstOrThrow({
+						...query,
+						include: {
+							hunters: {
+								select: { id: true },
+							},
+						},
+					});
+					return {
+						...hunt,
+						// This is specifically for autocomplete input.
+						hunters: hunt.hunters.map(({ id }) => id),
+					};
+				}
 				case 'hunter':
-					return db.hunter.findMany(query);
+					return db.hunter.findFirstOrThrow(query);
 				case 'photo':
-					return db.photo.findMany(query);
+					return db.photo.findFirstOrThrow(query);
 				case 'user':
-					return db.user.findMany({
+					return db.user.findFirstOrThrow({
 						...query,
 						include: {
 							hunters: {

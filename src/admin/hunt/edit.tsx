@@ -49,7 +49,11 @@ export function HuntEdit() {
 						min={1}
 						source="maxHunters"
 					/>
-					<ReferenceArrayInput reference="hunter" source="hunters">
+					<ReferenceArrayInput
+						label="Hunters"
+						reference="hunter"
+						source="hunters"
+					>
 						<AutocompleteArrayInput className="col-span-2" />
 					</ReferenceArrayInput>
 					<DateTimeInput source="completedAt" />
