@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { PropsWithChildren, RefObject, SyntheticEvent, useState } from 'react';
 import ReactCrop, {
 	centerCrop,

@@ -65,7 +65,6 @@ export async function uploadPhoto({
 	buffer,
 	hunterId,
 	huntId,
-	name,
 }: UploadPhotoArgs) {
 	// Web buffer to Node buffer
 	const arrayBuffer = Buffer.from(buffer);
@@ -86,13 +85,10 @@ export async function uploadPhoto({
 	}
 
 	// Hash buffer for the filename
-	let fileName = name;
-	if (!fileName) {
-		const hash = createHash('sha256');
-		hash.update(arrayBuffer);
-		const hex = hash.digest('hex');
-		fileName = `${hex}.${fileType.ext}`;
-	}
+	const hash = createHash('sha256');
+	hash.update(arrayBuffer);
+	const hex = hash.digest('hex');
+	const fileName = `${hex}.${fileType.ext}`;
 
 	const controller = new AbortController();
 	try {
@@ -112,13 +108,15 @@ export async function uploadPhoto({
 	} catch (err) {
 		console.warn(err);
 	}
+	const { height, width } = dimensions;
 	return db.photo.create({
 		data: {
-			...dimensions,
 			blurry: blurryData,
+			height,
 			hunterId,
 			huntId,
 			path: fileName,
+			width,
 		},
 	});
 }

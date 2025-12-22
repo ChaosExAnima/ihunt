@@ -35,9 +35,7 @@ export default function UploadDialog({
 		setOpen(open);
 	};
 	const handleConfirm = () => {
-		if (onConfirm) {
-			onConfirm();
-		}
+		void onConfirm?.();
 	};
 	return (
 		<Dialog onOpenChange={handleChange} open={open}>

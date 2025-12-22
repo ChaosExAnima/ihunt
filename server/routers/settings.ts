@@ -17,10 +17,14 @@ export const settingsRouter = router({
 		)
 		.mutation(async ({ ctx: { hunter }, input }) => {
 			try {
-				await uploadPhoto({
+				const photo = await uploadPhoto({
 					buffer: await input.photo.bytes(),
 					hunterId: hunter.id,
 					name: input.photo.name,
+				});
+				await db.hunter.update({
+					data: { avatarId: photo.id },
+					where: { id: hunter.id },
 				});
 				return { success: true };
 			} catch (error) {
