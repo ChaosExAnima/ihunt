@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
+import { useCallback } from 'react';
 
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
@@ -35,6 +36,9 @@ function Settings() {
 	const { mutate: updateBio } = useMutation(
 		trpc.settings.updateBio.mutationOptions(),
 	);
+	const handleBioChange = useCallback((bio: string) => {
+		updateBio({ bio });
+	}, []);
 
 	const router = useRouter();
 	const { isPending: loggingOut, mutate: logOut } = useMutation(
@@ -44,6 +48,9 @@ function Settings() {
 			},
 		}),
 	);
+	const handleLogOut = useCallback(() => {
+		logOut();
+	}, []);
 
 	const money = useCurrencyFormat(hunter?.money ?? 0);
 
@@ -89,7 +96,7 @@ function Settings() {
 				<SettingBlock label="Bio">
 					<EditableBlock
 						multiline
-						onChange={updateBio}
+						onChange={handleBioChange}
 						placeholder="Tell us about yourself!"
 						value={hunter.bio ?? ''}
 					/>
@@ -106,7 +113,7 @@ function Settings() {
 			<Button
 				className="w-full"
 				disabled={loggingOut}
-				onClick={() => logOut()}
+				onClick={handleLogOut}
 				type="submit"
 				variant="destructive"
 			>

@@ -12,7 +12,9 @@ export const authSchema = z.object({
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
-export const idSchema = z.number().int().positive().min(1);
+export const posIntSchema = z.number().int().positive();
+
+export const idSchema = posIntSchema.min(1);
 export const idSchemaCoerce = z.preprocess(
 	(arg) => (typeof arg === 'string' ? Number.parseInt(arg) : arg),
 	idSchema,
@@ -22,13 +24,16 @@ export const huntStatus = z.nativeEnum(HuntStatus);
 
 export const photoSchema = z.object({
 	blurry: z.string().nullable(),
-	height: z.number().int().positive(),
-	hunterId: idSchema.nullable(),
 	id: idSchema,
-	path: z.string(),
-	width: z.number().int().positive(),
 });
 export type PhotoSchema = z.infer<typeof photoSchema>;
+
+export const photoHuntSchema = photoSchema.merge(
+	z.object({
+		hunterId: idSchema.nullable(),
+	}),
+);
+export type PhotoHuntSchema = z.infer<typeof photoHuntSchema>;
 
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
@@ -51,8 +56,8 @@ export const huntSchema = z.object({
 	id: idSchema,
 	maxHunters: z.number().int().min(1).max(4),
 	name: z.string().min(1),
-	payment: z.number().int().min(0),
-	photos: z.array(photoSchema),
+	payment: posIntSchema,
+	photos: z.array(photoHuntSchema),
 	place: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
 	scheduledAt: z.coerce.date().nullable(),

@@ -17,10 +17,14 @@ export const settingsRouter = router({
 		)
 		.mutation(async ({ ctx: { hunter }, input }) => {
 			try {
-				await uploadPhoto({
+				const photo = await uploadPhoto({
 					buffer: await input.photo.bytes(),
 					hunterId: hunter.id,
 					name: input.photo.name,
+				});
+				await db.hunter.update({
+					data: { avatarId: photo.id },
+					where: { id: hunter.id },
 				});
 				return { success: true };
 			} catch (error) {
@@ -30,9 +34,8 @@ export const settingsRouter = router({
 		}),
 
 	updateBio: userProcedure
-		.input(z.string().trim().max(500).min(1))
-		.mutation(async ({ ctx: { hunter }, input }) => {
-			const newBio = input;
+		.input(z.object({ bio: z.string().trim().max(500).min(1) }))
+		.mutation(async ({ ctx: { hunter }, input: { bio: newBio } }) => {
 			if (!newBio || newBio === hunter.bio) {
 				return;
 			}

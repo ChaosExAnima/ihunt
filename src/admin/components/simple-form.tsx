@@ -5,8 +5,9 @@ import {
 } from 'react-admin';
 import { FieldValues, Resolver } from 'react-hook-form';
 
-interface SimpleFormProps<Values extends FieldValues = FieldValues>
-	extends Omit<RaSimpleFormProps, 'resolver'> {
+interface SimpleFormProps<
+	Values extends FieldValues = FieldValues,
+> extends Omit<RaSimpleFormProps, 'resolver'> {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	resolver?: Resolver<Values, any, Values>;
 }

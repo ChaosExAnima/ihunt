@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
+import z from 'zod';
 
 import { adminAuthSchema, authSchema, hunterSchema } from '@/lib/schemas';
 
@@ -56,13 +57,19 @@ export const authRouter = router({
 		session.destroy();
 	}),
 
-	me: userProcedure.query(
-		({ ctx: { hunter, user } }) =>
-			({
-				hunter: hunterSchema.parse(hunter),
-				settings: {
-					hideMoney: user.hideMoney,
-				},
-			}) as const,
-	),
+	me: userProcedure
+		.output(
+			z.object({
+				hunter: hunterSchema,
+				settings: z.object({
+					hideMoney: z.boolean(),
+				}),
+			}),
+		)
+		.query(({ ctx: { hunter, user } }) => ({
+			hunter,
+			settings: {
+				hideMoney: user.hideMoney,
+			},
+		})),
 });

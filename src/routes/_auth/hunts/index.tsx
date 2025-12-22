@@ -1,9 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { HuntDisplay } from '@/components/hunt';
+import { HuntDisplay, HuntDisplayActive } from '@/components/hunt';
 import { HuntLoading } from '@/components/hunt/loading';
 import { Card } from '@/components/ui/card';
 import {
@@ -11,6 +11,7 @@ import {
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
+import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
 import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
 import { dateFormat, useCurrencyFormat } from '@/lib/formats';
@@ -19,7 +20,10 @@ import { HuntSchema } from '@/lib/schemas';
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,
 	async loader({ context: { queryClient } }) {
-		await queryClient.ensureQueryData(trpc.hunt.getPublic.queryOptions());
+		await Promise.allSettled([
+			queryClient.ensureQueryData(trpc.hunt.getActive.queryOptions()),
+			queryClient.ensureQueryData(trpc.hunt.getCompleted.queryOptions()),
+		]);
 	},
 });
 
@@ -44,8 +48,13 @@ function CompletedHunt({ hunt }: { hunt: HuntSchema }) {
 	);
 }
 
-function HuntsCompleted({ hunts }: { hunts: HuntSchema[] }) {
+function HuntsCompleted() {
+	const { data: hunts } = useQuery(trpc.hunt.getCompleted.queryOptions());
+
 	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {
+		if (!hunts) {
+			return [];
+		}
 		const huntsByDate = new Map<string, HuntSchema[]>();
 		for (const hunt of hunts) {
 			const { completedAt, scheduledAt } = hunt;
@@ -58,9 +67,11 @@ function HuntsCompleted({ hunts }: { hunts: HuntSchema[] }) {
 
 		return [...huntsByDate];
 	}, [hunts]);
-	if (hunts.length === 0) {
+
+	if (!hunts || hunts.length === 0) {
 		return null;
 	}
+
 	return (
 		<CarouselItem asChild>
 			<ol>
@@ -80,44 +91,60 @@ function HuntsCompleted({ hunts }: { hunts: HuntSchema[] }) {
 }
 
 function RouteComponent() {
-	const { player } = Route.useRouteContext();
-	const hunterId = player?.hunter.id;
+	const hunterId = useHunterId();
 
-	const { data: hunts, isLoading: isLoadingHunts } = useQuery(
-		trpc.hunt.getPublic.queryOptions(),
+	const { data: activeHunts, isLoading: isLoadingActive } = useQuery(
+		trpc.hunt.getActive.queryOptions(),
 	);
-	const { data: completed, isLoading: isLoadingCompleted } = useQuery(
-		trpc.hunt.getCompleted.queryOptions(),
+	const { data: availableHunts, isLoading: isLoadingAvailable } = useQuery(
+		trpc.hunt.getAvailable.queryOptions(),
 	);
 
-	const { mutate } = useMutation(trpc.hunt.join.mutationOptions());
+	const queryClient = useQueryClient();
+	const { mutate } = useMutation(
+		trpc.hunt.join.mutationOptions({
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: trpc.hunt.getAvailable.queryKey(),
+				});
+			},
+		}),
+	);
 
 	const acceptedToday = useMemo(
 		() =>
-			(hunts ?? []).filter(
+			(availableHunts ?? []).filter(
 				({ hunters = [], status }) =>
 					(status === HuntStatus.Active ||
 						status === HuntStatus.Available) &&
 					hunters.find(({ id }) => id === hunterId),
 			).length,
-		[hunts, hunterId],
+		[availableHunts, hunterId],
 	);
 
 	return (
 		<Carousel className="-mx-4 flex flex-col grow">
 			<CarouselContent className="min-h-full" slot="ul">
-				{isLoadingHunts && (
+				{isLoadingAvailable && isLoadingActive && (
 					<CarouselItem>
 						<HuntLoading className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg" />
 					</CarouselItem>
 				)}
-				{!isLoadingHunts &&
-					hunts?.map((hunt) => (
+				{!isLoadingActive &&
+					activeHunts?.map((hunt) => (
+						<CarouselItem key={hunt.id}>
+							<HuntDisplayActive
+								className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+								hunt={hunt}
+							/>
+						</CarouselItem>
+					))}
+				{!isLoadingAvailable &&
+					availableHunts?.map((hunt) => (
 						<CarouselItem key={hunt.id}>
 							<HuntDisplay
 								className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
 								hunt={hunt}
-								hunterId={hunterId}
 								onAcceptHunt={(id) => mutate({ huntId: id })}
 								remainingHunts={
 									HUNT_MAX_PER_DAY - acceptedToday
@@ -125,9 +152,7 @@ function RouteComponent() {
 							/>
 						</CarouselItem>
 					))}
-				{!isLoadingCompleted && !!completed && (
-					<HuntsCompleted hunts={completed} />
-				)}
+				<HuntsCompleted />
 			</CarouselContent>
 		</Carousel>
 	);

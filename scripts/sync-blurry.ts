@@ -1,5 +1,9 @@
-import { cloudflareLoader } from '@/lib/images';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+import { config } from '@/server/config';
 import { db } from '@/server/db';
+import { generateThumbhash } from '@/server/photo';
 
 async function main() {
 	const force = process.argv.includes('-f');
@@ -13,30 +17,21 @@ async function main() {
 	});
 	await Promise.all(
 		photos.map(async (photo) => {
-			const url = cloudflareLoader({
-				format: 'jpeg',
-				src: photo.path,
-				width: 10,
-			});
-			console.log(`${photo.id}: Fetching URL ${url}`);
-			const response = await fetch(url);
-			if (!response.ok) {
-				console.warn(`${photo.id}: Error ${response.status}`);
-				return;
+			try {
+				const buffer = await readFile(
+					resolve(config.mediaPath, photo.path),
+				);
+				const blurry = await generateThumbhash(buffer);
+				await db.photo.update({
+					data: {
+						blurry,
+					},
+					where: { id: photo.id },
+				});
+				console.log(`${photo.id}: Updated DB`);
+			} catch (err) {
+				console.warn(`Photo ${photo.id} failed:`, err);
 			}
-			const bytes = await response.arrayBuffer();
-			console.log(
-				`${photo.id}: Got response of ${bytes.byteLength} bytes`,
-			);
-			const buffer = Buffer.from(bytes);
-			const base64 = buffer.toString('base64');
-			await db.photo.update({
-				data: {
-					blurry: base64,
-				},
-				where: { id: photo.id },
-			});
-			console.log(`${photo.id}: Updated DB`);
 		}),
 	);
 }

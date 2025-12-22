@@ -1,10 +1,23 @@
+import type { Options as PhotoUrlOptions } from '@imgproxy/imgproxy-js-core';
+
+import { generateImageUrl } from '@imgproxy/imgproxy-node';
+import { Photo } from '@prisma/client';
 import { fileTypeFromBuffer } from 'file-type';
+import { writeFile } from 'fs/promises';
 import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
+import sharp from 'sharp';
+import { rgbaToThumbHash } from 'thumbhash';
 
-import { fetchBlurry } from '@/lib/images';
+import { omit } from '@/lib/utils';
 
+import { config } from './config';
 import { db } from './db';
+
+type PhotoUrlArgs = PhotoUrlOptions & {
+	path: string;
+};
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
@@ -13,11 +26,56 @@ interface UploadPhotoArgs {
 	name?: string;
 }
 
+export async function generateThumbhash(buffer: Buffer<ArrayBuffer>) {
+	const image = sharp(buffer).resize(100, 100, { fit: 'inside' });
+	const { data, info } = await image
+		.ensureAlpha()
+		.raw()
+		.toBuffer({ resolveWithObject: true });
+	const thumbhash = rgbaToThumbHash(info.width, info.height, data);
+	return Buffer.from(thumbhash).toString('base64');
+}
+
+export function outputPhoto({
+	height: targetHeight,
+	photo,
+	width: targetWidth,
+	...options
+}: PhotoUrlOptions & {
+	photo: Photo;
+}) {
+	const actualHeight =
+		targetHeight && targetHeight < photo.height
+			? targetHeight
+			: photo.height;
+	const actualWidth =
+		targetWidth && targetWidth < photo.width ? targetWidth : photo.width;
+	return {
+		...omit(photo, 'huntId', 'hunterId', 'path'),
+		height: actualHeight,
+		url: photoUrl({
+			...options,
+			height: actualHeight,
+			path: photo.path,
+			width: actualWidth,
+		}),
+		width: actualWidth,
+	};
+}
+
+export function photoUrl({ path, ...options }: PhotoUrlArgs) {
+	const url = generateImageUrl({
+		endpoint: 'https://images.ihunt.local',
+		options,
+		url: `local:///${path}`,
+	});
+	return url;
+}
+
 export async function uploadPhoto({
 	buffer,
 	hunterId,
 	huntId,
-	name,
 }: UploadPhotoArgs) {
 	// Web buffer to Node buffer
 	const arrayBuffer = Buffer.from(buffer);
@@ -38,31 +96,34 @@ export async function uploadPhoto({
 	}
 
 	// Hash buffer for the filename
-	let fileName = name;
-	if (!fileName) {
-		const hash = createHash('sha256');
-		hash.update(arrayBuffer);
-		const hex = hash.digest('hex');
-		fileName = `${hex}.${fileType.ext}`;
-	}
+	const hash = createHash('sha256');
+	hash.update(arrayBuffer);
+	const hex = hash.digest('hex');
+	const fileName = `${hex}.${fileType.ext}`;
 
-	// Send it to B2
-	// await b2.upload(buffer, fileName, fileType.mime);
-
-	// Fetch blurry version using Cloudflare image transforms
-	let blurryData: null | string = null;
+	const controller = new AbortController();
 	try {
-		blurryData = await fetchBlurry(fileName);
+		const { mediaPath } = config;
+		await writeFile(resolve(process.cwd(), mediaPath, fileName), buffer, {
+			signal: controller.signal,
+		});
 	} catch (err) {
-		console.warn(err);
+		controller.abort();
+		throw new Error('Error with upload', { cause: err });
 	}
+
+	// Fetch blurry version
+	const blurry = await generateThumbhash(arrayBuffer);
+
+	const { height, width } = dimensions;
 	return db.photo.create({
 		data: {
-			...dimensions,
-			blurry: blurryData,
+			blurry,
+			height,
 			hunterId,
 			huntId,
 			path: fileName,
+			width,
 		},
 	});
 }

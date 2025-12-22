@@ -3,40 +3,37 @@ import { Camera, Trash } from 'lucide-react';
 import { useCallback } from 'react';
 import { useEffect, useMemo } from 'react';
 
+import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
-import { HunterSchema, PhotoSchema } from '@/lib/schemas';
+import { HunterSchema, PhotoHuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 import Avatar from '../avatar';
 import PhotoDisplay from '../photo';
 import { Button } from '../ui/button';
 import UploadPhoto from '../upload-photo';
-import { HuntDisplayProps } from './index';
 
 interface ActivePhotoProps {
-	hunterId: number;
 	hunters: HunterSchema[];
 	huntId: number;
-	photo: PhotoSchema;
-}
-
-interface DeletePhotoButtonProps {
-	huntId: number;
-	photoId: number;
+	photo: PhotoHuntSchema;
 }
 
 interface HuntPics {
 	activeIndex: number;
+	hunters: HunterSchema[];
+	huntId: number;
 	onPick: (index: number) => void;
+	photos: PhotoHuntSchema[];
 }
 
 export function HuntPics({
 	activeIndex,
-	hunt,
-	hunterId,
+	hunters,
+	huntId,
 	onPick,
-}: HuntPics & Pick<HuntDisplayProps, 'hunt' | 'hunterId'>) {
-	const photos = hunt.photos;
+	photos,
+}: HuntPics) {
 	const currentPhoto = photos[activeIndex];
 
 	const showPhoto = activeIndex >= 1;
@@ -47,18 +44,13 @@ export function HuntPics({
 		}
 	}, [activeIndex, currentPhoto, onPick]);
 
-	if (photos.length <= 1) {
-		return null;
+	if (photos.length === 0) {
+		return <PicPicker huntId={huntId} />;
 	}
 	return (
 		<div className="">
 			{!!currentPhoto && showPhoto && (
-				<ActivePhoto
-					hunterId={hunterId}
-					hunters={hunt.hunters}
-					huntId={hunt.id}
-					photo={currentPhoto}
-				/>
+				<ActivePhoto hunters={hunters} photo={currentPhoto} />
 			)}
 			<ul className="grid grid-cols-6 gap-2 mb-2">
 				{photos.map((photo, index) => (
@@ -74,17 +66,68 @@ export function HuntPics({
 					</li>
 				))}
 			</ul>
-			<PicPicker huntId={hunt.id} />
+			<PicPicker huntId={huntId} />
 		</div>
 	);
 }
 
-export function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
+function ActivePhoto({
+	hunters,
+	photo,
+}: Pick<ActivePhotoProps, 'hunters' | 'photo'>) {
+	const currentHunter = useMemo(
+		() => hunters.find((hunter) => hunter.id === photo.hunterId),
+		[photo.hunterId, hunters],
+	);
+	const currentHunterId = useHunterId();
+	const isCurrentHunter = currentHunter?.id === currentHunterId;
+	return (
+		<div className="mb-2 rounded-md overflow-hidden relative">
+			<PhotoDisplay className="w-full" photo={photo} />
+			{!!currentHunter && !isCurrentHunter && (
+				<span className="absolute right-0 bottom-0 p-2 text-white text-sm flex gap-2 items-center bg-black/40 rounded-tl-md">
+					Uploaded by:
+					<Avatar hunter={currentHunter} link />
+				</span>
+			)}
+			{isCurrentHunter && <DeletePhotoButton id={photo.id} />}
+		</div>
+	);
+}
+
+function DeletePhotoButton({ id }: { id: number }) {
+	const queryClient = useQueryClient();
+	const { mutate } = useMutation(
+		trpc.photos.delete.mutationOptions({
+			onSuccess: () =>
+				queryClient.invalidateQueries({
+					queryKey: trpc.hunt.getActive.queryKey(),
+				}),
+		}),
+	);
+	const handleDelete = useCallback(() => {
+		mutate({ id });
+	}, [id]);
+	return (
+		<Button
+			className="absolute right-2 bottom-2"
+			onClick={handleDelete}
+			size="icon"
+			variant="destructive"
+		>
+			<Trash />
+		</Button>
+	);
+}
+
+function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 	const queryClient = useQueryClient();
 	const { mutateAsync } = useMutation(
 		trpc.hunt.uploadPhoto.mutationOptions({
 			async onSuccess() {
-				await queryClient.invalidateQueries({ queryKey: ['hunts'] });
+				await queryClient.invalidateQueries({
+					queryKey: [trpc.hunt.getActive.queryKey()],
+				});
 			},
 		}),
 	);
@@ -109,47 +152,5 @@ export function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 			onCrop={handleCrop}
 			title="Upload a pic"
 		/>
-	);
-}
-function ActivePhoto({ hunterId, hunters, huntId, photo }: ActivePhotoProps) {
-	const currentHunter = useMemo(
-		() => hunters.find((hunter) => hunter.id === photo.hunterId),
-		[photo.hunterId, hunters],
-	);
-	const isCurrentHunter = currentHunter?.id === hunterId;
-	return (
-		<div className="mb-2 rounded-md overflow-hidden relative">
-			<PhotoDisplay className="w-full" photo={photo} />
-			{!!currentHunter && !isCurrentHunter && (
-				<span className="absolute right-0 bottom-0 p-2 text-white text-sm flex gap-2 items-center bg-black/40 rounded-tl-md">
-					Uploaded by:
-					<Avatar hunter={currentHunter} link />
-				</span>
-			)}
-			{isCurrentHunter && (
-				<DeletePhotoButton huntId={huntId} photoId={photo.id} />
-			)}
-		</div>
-	);
-}
-
-function DeletePhotoButton({ huntId, photoId }: DeletePhotoButtonProps) {
-	const queryClient = useQueryClient();
-	const { mutate } = useMutation({
-		mutationFn: () =>
-			fetch(`/api/hunts/${huntId}/photos?photoId=${photoId}`, {
-				method: 'DELETE',
-			}),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hunts'] }),
-	});
-	return (
-		<Button
-			className="absolute right-2 bottom-2"
-			onClick={() => mutate()}
-			size="icon"
-			variant="destructive"
-		>
-			<Trash />
-		</Button>
 	);
 }

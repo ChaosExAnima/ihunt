@@ -1,21 +1,35 @@
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import {
-	huntSchema,
-	huntStatus,
-	idSchema,
-	idSchemaCoerce,
-} from '@/lib/schemas';
+import { idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
+import { outputHuntSchema } from '../schema';
 import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const huntRouter = router({
-	getActive: userProcedure.query(({ ctx: { hunter } }) => {
-		return db.hunt.findMany({
-			include: huntDisplayInclude,
+	getActive: userProcedure.output(z.array(outputHuntSchema)).query(
+		({
+			ctx: {
+				hunter: { id },
+			},
+		}) =>
+			db.hunt.findMany({
+				include: huntDisplayInclude,
+				where: {
+					hunters: {
+						some: {
+							id,
+						},
+					},
+					status: HuntStatus.Active,
+				},
+			}),
+	),
+
+	getActiveCount: userProcedure.query(({ ctx: { hunter } }) =>
+		db.hunt.count({
 			where: {
 				hunters: {
 					some: {
@@ -24,45 +38,39 @@ export const huntRouter = router({
 				},
 				status: HuntStatus.Active,
 			},
-		});
-	}),
+		}),
+	),
 
-	getActiveCount: userProcedure.query(({ ctx: { hunter } }) => {
-		return db.hunt.count({
-			where: {
-				hunters: {
-					some: {
-						id: hunter.id,
-					},
-				},
-				status: HuntStatus.Active,
-			},
-		});
-	}),
-
-	getAvailable: userProcedure.query(() => {
-		return db.hunt.findMany({
+	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() =>
+		db.hunt.findMany({
 			include: huntDisplayInclude,
+			orderBy: {
+				createdAt: 'desc',
+			},
 			where: {
 				status: HuntStatus.Available,
 			},
-		});
-	}),
+		}),
+	),
 
-	getCompleted: userProcedure.query(async ({ ctx: { hunter } }) => {
-		const hunts = await db.hunt.findMany({
-			include: huntDisplayInclude,
-			where: {
-				hunters: {
-					some: {
-						id: hunter.id,
-					},
+	getCompleted: userProcedure
+		.output(z.array(outputHuntSchema))
+		.query(({ ctx: { hunter } }) =>
+			db.hunt.findMany({
+				include: huntDisplayInclude,
+				orderBy: {
+					createdAt: 'desc',
 				},
-				status: HuntStatus.Complete,
-			},
-		});
-		return z.array(huntSchema).parse(hunts);
-	}),
+				where: {
+					hunters: {
+						some: {
+							id: hunter.id,
+						},
+					},
+					status: HuntStatus.Complete,
+				},
+			}),
+		),
 
 	getOne: userProcedure
 		.input(
@@ -70,25 +78,16 @@ export const huntRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.query(async ({ input }) => {
-			const { huntId: id } = input;
-
-			const hunt = await db.hunt.findUnique({
+		.output(outputHuntSchema.nullable())
+		.query(({ input: { huntId: id } }) =>
+			db.hunt.findUnique({
 				include: huntDisplayInclude,
 				where: { id },
-			});
-			if (!hunt) {
-				return null;
-			}
-			return {
-				...hunt,
-				rating: hunt.rating ?? 0,
-				status: huntStatus.parse(hunt.status),
-			};
-		}),
+			}),
+		),
 
-	getPublic: userProcedure.query(async () => {
-		const hunts = await db.hunt.findMany({
+	getPublic: userProcedure.output(z.array(outputHuntSchema)).query(() =>
+		db.hunt.findMany({
 			include: huntDisplayInclude,
 			orderBy: [
 				{
@@ -99,13 +98,10 @@ export const huntRouter = router({
 				},
 			],
 			where: {
-				status: {
-					in: [HuntStatus.Active, HuntStatus.Available],
-				},
+				status: HuntStatus.Available,
 			},
-		});
-		return z.array(huntSchema).parse(hunts);
-	}),
+		}),
+	),
 
 	join: userProcedure
 		.input(z.object({ huntId: idSchemaCoerce }))
@@ -177,7 +173,7 @@ export const huntRouter = router({
 			z.instanceof(FormData).transform((fd) =>
 				z
 					.object({
-						huntId: idSchema.optional(),
+						huntId: idSchemaCoerce.optional(),
 						name: z.string().min(1).optional(),
 						photo: z.instanceof(File),
 					})

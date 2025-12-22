@@ -1,0 +1,15 @@
+services:
+  images:
+    image: ghcr.io/imgproxy/imgproxy:latest
+    volumes:
+      - ./data/imgproxy:/mnt/data
+      - ${MEDIA_PATH}:/mnt/images:ro
+    environment:
+      PORT: 9000
+      IMGPROXY_KEY: "${IMGPROXY_KEY}"
+      IMGPROXY_SALT: "${IMGPROXY_SALT}"
+      IMGPROXY_WORKERS: 20
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
+    ports:
+      - "9000:9000"
