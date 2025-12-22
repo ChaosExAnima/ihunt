@@ -37,10 +37,10 @@ export function dateFormat(date: Date) {
 
 export function useCurrencyFormat(amount: number) {
 	const player = usePlayerSettings();
+	const formatted = useMemo(() => currencyFormatter.format(amount), [amount]);
 	if (!player) {
 		return '';
 	}
-	const formatted = useMemo(() => currencyFormatter.format(amount), [amount]);
 	if (player.settings.hideMoney) {
 		return '';
 	}

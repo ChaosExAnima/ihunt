@@ -19,21 +19,23 @@ export const Route = createFileRoute('/_auth')({
 		}
 		throw redirect({ search: { redirect: location.href }, to: '/' });
 	},
-	component: () => {
-		const { player: initialData } = Route.useRouteContext();
-		const { data: player } = useQuery({
-			...trpc.auth.me.queryOptions(),
-			initialData,
-		});
-		return (
-			<PlayerSettingsProvider settings={player}>
-				<div className="grow flex flex-col w-full justify-stretch">
-					<Navbar hunter={player.hunter} isHuntActive={false} />
-					<main className="grow px-4 flex flex-col gap-2 pb-4">
-						<Outlet />
-					</main>
-				</div>
-			</PlayerSettingsProvider>
-		);
-	},
+	component: Page,
 });
+
+function Page() {
+	const { player: initialData } = Route.useRouteContext();
+	const { data: player } = useQuery({
+		...trpc.auth.me.queryOptions(),
+		initialData,
+	});
+	return (
+		<PlayerSettingsProvider settings={player}>
+			<div className="grow flex flex-col w-full justify-stretch">
+				<Navbar hunter={player.hunter} isHuntActive={false} />
+				<main className="grow px-4 flex flex-col gap-2 pb-4">
+					<Outlet />
+				</main>
+			</div>
+		</PlayerSettingsProvider>
+	);
+}

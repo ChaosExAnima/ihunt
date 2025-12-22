@@ -108,7 +108,7 @@ function DeletePhotoButton({ id }: Entity) {
 	);
 	const handleDelete = useCallback(() => {
 		mutate({ id });
-	}, [id]);
+	}, [id, mutate]);
 	return (
 		<Button
 			className="absolute right-2 bottom-2"
@@ -132,13 +132,16 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 			},
 		}),
 	);
-	const handleCrop = useCallback(async (blob: Blob) => {
-		const formData = new FormData();
-		formData.append('photo', blob);
-		formData.append('huntId', String(huntId));
-		const result = await mutateAsync(formData);
-		return !!result.id;
-	}, []);
+	const handleCrop = useCallback(
+		async (blob: Blob) => {
+			const formData = new FormData();
+			formData.append('photo', blob);
+			formData.append('huntId', String(huntId));
+			const result = await mutateAsync(formData);
+			return !!result.id;
+		},
+		[huntId, mutateAsync],
+	);
 	const button = (
 		<Button className="w-full" variant="secondary">
 			Upload photos
