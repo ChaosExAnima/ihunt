@@ -8,6 +8,7 @@ const configSchema = z.object({
 	authSession: z.string(),
 	mediaHost: z.string().min(2),
 	mediaPath: z.string().min(2),
+	mediaSecure: z.boolean().default(true),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
 });
