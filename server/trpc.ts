@@ -1,8 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 
-import { photoDimensionSchema } from '@/lib/schemas';
-
 import { Context } from './auth';
 
 /**
@@ -37,10 +35,6 @@ export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
 		},
 	});
 });
-
-export const photoProcedure = userProcedure.input(
-	photoDimensionSchema.optional(),
-);
 
 export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 	if (!ctx.admin) {

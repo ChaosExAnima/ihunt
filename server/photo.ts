@@ -29,10 +29,9 @@ export function outputPhoto({
 	height: targetHeight,
 	photo,
 	width: targetWidth,
-}: {
-	height?: number;
+	...options
+}: PhotoUrlOptions & {
 	photo: Photo;
-	width?: number;
 }) {
 	const actualHeight =
 		targetHeight && targetHeight < photo.height
@@ -42,11 +41,14 @@ export function outputPhoto({
 		targetWidth && targetWidth < photo.width ? targetWidth : photo.width;
 	return {
 		...omit(photo, 'huntId', 'hunterId', 'path'),
+		height: actualHeight,
 		url: photoUrl({
+			...options,
 			height: actualHeight,
 			path: photo.path,
 			width: actualWidth,
 		}),
+		width: actualWidth,
 	};
 }
 

@@ -1,29 +1,29 @@
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
-import { idSchema, idSchemaCoerce } from '@/lib/schemas';
+import { hunterSchema, idSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
-import { outputHunterSchema, outputHuntSchema } from '../schema';
-import { adminProcedure, photoProcedure, router } from '../trpc';
+import { outputHuntSchema } from '../schema';
+import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
-	getOne: photoProcedure
+	getOne: userProcedure
 		.input(
 			z.object({
 				hunterId: idSchema,
 			}),
 		)
 		.output(
-			outputHunterSchema.merge(
+			hunterSchema.merge(
 				z.object({
-					count: z.number().positive().int(),
-					followers: z.array(outputHunterSchema),
+					count: z.number().min(0),
+					followers: z.array(hunterSchema),
 					hunts: z.array(
 						outputHuntSchema.omit({ hunters: true, photos: true }),
 					),
-					rating: z.number().positive().int(),
+					rating: z.number().min(0).max(5),
 				}),
 			),
 		)

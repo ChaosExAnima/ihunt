@@ -1,27 +1,71 @@
-import { ImgHTMLAttributes } from 'react';
+import type { ResizingType } from '@imgproxy/imgproxy-js-core';
 
+import { useQuery } from '@tanstack/react-query';
+import {
+	ImgHTMLAttributes,
+	RefCallback,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
+
+import { trpc } from '@/lib/api';
 import { PhotoSchema } from '@/lib/schemas';
 
 interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
-	blurDataURL?: string;
+	fit?: ResizingType;
+	height?: number;
 	photo: PhotoSchema;
+	width?: number;
 }
 
 export default function PhotoDisplay({
 	alt = '',
+	fit,
+	height,
 	photo,
+	width,
 	...props
 }: PhotoDisplayProps) {
-	if (photo.blurry) {
-		props.blurDataURL = `data:image/jpeg;base64,${photo.blurry}`;
-	}
+	const [url, setUrl] = useState(photo.blurry ?? undefined);
+
+	const [dimensions, setDimensions] = useState({ height, width });
+	const imgRef: RefCallback<HTMLImageElement> = useCallback((ref) => {
+		if (ref) {
+			setDimensions((prev) => ({
+				height:
+					(prev.height ??
+						ref.parentElement?.offsetHeight ??
+						ref.offsetHeight) * window.devicePixelRatio,
+				width:
+					(prev.width ??
+						ref.parentElement?.offsetWidth ??
+						ref.offsetWidth) * window.devicePixelRatio,
+			}));
+		}
+	}, []);
+
+	const { data } = useQuery(
+		trpc.photos.get.queryOptions({
+			id: photo.id,
+			resizing_type: fit,
+			...dimensions,
+		}),
+	);
+	useEffect(() => {
+		if (data) {
+			setUrl(data.url);
+		}
+	}, [data]);
+
 	return (
 		<img
 			{...props}
 			alt={alt}
-			height={photo.height}
-			src={photo.url}
-			width={photo.width}
+			height={height}
+			ref={imgRef}
+			src={url}
+			width={width}
 		/>
 	);
 }

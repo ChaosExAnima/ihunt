@@ -6,10 +6,10 @@ import { idSchema, idSchemaCoerce } from '@/lib/schemas';
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
 import { outputHuntSchema } from '../schema';
-import { adminProcedure, photoProcedure, router, userProcedure } from '../trpc';
+import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const huntRouter = router({
-	getActive: photoProcedure.output(z.array(outputHuntSchema)).query(
+	getActive: userProcedure.output(z.array(outputHuntSchema)).query(
 		({
 			ctx: {
 				hunter: { id },
@@ -41,7 +41,7 @@ export const huntRouter = router({
 		}),
 	),
 
-	getAvailable: photoProcedure.output(z.array(outputHuntSchema)).query(() =>
+	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() =>
 		db.hunt.findMany({
 			include: huntDisplayInclude,
 			where: {
@@ -50,7 +50,7 @@ export const huntRouter = router({
 		}),
 	),
 
-	getCompleted: photoProcedure
+	getCompleted: userProcedure
 		.output(z.array(outputHuntSchema))
 		.query(({ ctx: { hunter } }) =>
 			db.hunt.findMany({
@@ -66,7 +66,7 @@ export const huntRouter = router({
 			}),
 		),
 
-	getOne: photoProcedure
+	getOne: userProcedure
 		.input(
 			z.object({
 				huntId: idSchemaCoerce,
@@ -80,7 +80,7 @@ export const huntRouter = router({
 			}),
 		),
 
-	getPublic: photoProcedure.output(z.array(outputHuntSchema)).query(() =>
+	getPublic: userProcedure.output(z.array(outputHuntSchema)).query(() =>
 		db.hunt.findMany({
 			include: huntDisplayInclude,
 			orderBy: [

@@ -38,7 +38,9 @@ export default function Avatar({
 				className,
 			)}
 		>
-			{photo && <PhotoDisplay photo={photo} />}
+			{photo && (
+				<PhotoDisplay fit="fill" height={40} photo={photo} width={40} />
+			)}
 			<span className="uppercase flex h-full w-full items-center justify-center rounded-full bg-muted">
 				{hunter.name.slice(0, 2)}
 			</span>

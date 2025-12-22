@@ -20,17 +20,9 @@ export const idSchemaCoerce = z.preprocess(
 
 export const huntStatus = z.nativeEnum(HuntStatus);
 
-export const photoDimensionSchema = z.object({
-	height: z.number().int().positive().optional(),
-	width: z.number().int().positive().optional(),
-});
-
 export const photoSchema = z.object({
 	blurry: z.string().nullable(),
-	height: z.number().int().positive(),
 	id: idSchema,
-	url: z.string().url(),
-	width: z.number().int().positive(),
 });
 export type PhotoSchema = z.infer<typeof photoSchema>;
 
