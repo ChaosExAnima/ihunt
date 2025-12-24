@@ -37,19 +37,15 @@ export async function generateThumbhash(buffer: Buffer<ArrayBuffer>) {
 }
 
 export function outputPhoto({
-	height: targetHeight,
+	height: targetHeight = 0,
 	photo,
-	width: targetWidth,
+	width: targetWidth = 0,
 	...options
 }: PhotoUrlOptions & {
 	photo: Photo;
 }) {
-	const actualHeight =
-		targetHeight && targetHeight < photo.height
-			? targetHeight
-			: photo.height;
-	const actualWidth =
-		targetWidth && targetWidth < photo.width ? targetWidth : photo.width;
+	const actualHeight = Math.max(targetHeight, photo.height);
+	const actualWidth = Math.max(targetWidth, photo.width);
 	return {
 		...omit(photo, 'huntId', 'hunterId', 'path'),
 		height: actualHeight,
