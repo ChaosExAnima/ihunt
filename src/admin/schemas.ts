@@ -37,6 +37,7 @@ export const adminPhotoSchema = photoSchema.extend(
 		hunterId: idSchemaCoerce.nullish(),
 		huntId: idSchemaCoerce.nullish(),
 		id: idSchemaCoerce,
+		url: z.url(),
 		width: posIntSchema,
 	}).shape,
 );

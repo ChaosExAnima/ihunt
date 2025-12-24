@@ -1,6 +1,8 @@
 import {
 	BooleanField,
 	Datagrid,
+	FunctionField,
+	Link,
 	List,
 	NumberField,
 	ReferenceField,
@@ -21,7 +23,14 @@ export function PhotoList() {
 				sort={{ field: 'id', order: 'ASC' }}
 			>
 				<TextField source="id" />
-				<TextField source="path" />
+				<FunctionField
+					label="Name"
+					render={(record: AdminPhotoSchema) => (
+						<Link target="_blank" to={record.url}>
+							<TextField source="path" />
+						</Link>
+					)}
+				/>
 				<NumberField source="width" />
 				<NumberField source="height" />
 				<BooleanField looseValue source="blurry" />
@@ -40,10 +49,12 @@ function PhotoExpand() {
 		return null;
 	}
 	return (
-		<PhotoDisplay
-			height={record.height}
-			photo={record}
-			width={record.width}
-		/>
+		<Link target="_blank" to={record.url}>
+			<PhotoDisplay
+				height={record.height}
+				photo={record}
+				width={record.width}
+			/>
+		</Link>
 	);
 }
