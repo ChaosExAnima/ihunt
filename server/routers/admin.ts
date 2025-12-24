@@ -1,13 +1,6 @@
 import z from 'zod';
 
-import {
-	adminHunterSchema,
-	adminHuntSchema,
-	adminPhotoSchema,
-	adminUserSchema,
-	createAdminInput,
-	resourceSchema,
-} from '@/admin/schemas';
+import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 
 import { db } from '../db';
@@ -33,7 +26,7 @@ const findManySchema = z.object({
 
 export const adminRouter = router({
 	create: adminProcedure
-		.input(createAdminInput({ extra: z.object({ id: idSchemaCoerce }) }))
+		.input(adminCreateInput)
 		.mutation(async ({ input: { data, resource } }) => {
 			switch (resource) {
 				case 'hunt':
@@ -76,36 +69,42 @@ export const adminRouter = router({
 				resource: resourceSchema,
 			}),
 		)
-		.mutation(async ({ input: { ids, resource } }) => {
+		.mutation(async ({ input: { ids: inIds, resource } }) => {
 			const query = {
 				where: {
 					id: {
-						in: ids,
+						in: inIds,
 					},
 				},
 			};
+			let ids = inIds;
 			switch (resource) {
 				case 'hunt': {
 					const data = await db.hunt.findMany(query);
 					await db.hunt.deleteMany(query);
-					return { data };
+					ids = data.map(({ id }) => id);
+					break;
 				}
 				case 'hunter': {
 					const data = await db.hunter.findMany(query);
 					await db.hunter.deleteMany(query);
-					return { data };
+					ids = data.map(({ id }) => id);
+					break;
 				}
 				case 'photo': {
 					const data = await db.photo.findMany(query);
 					await db.photo.deleteMany(query);
-					return { data };
+					ids = data.map(({ id }) => id);
+					break;
 				}
 				case 'user': {
 					const data = await db.user.findMany(query);
 					await db.user.deleteMany(query);
-					return { data };
+					ids = data.map(({ id }) => id);
+					break;
 				}
 			}
+			return { ids };
 		}),
 
 	getList: adminProcedure
@@ -251,7 +250,9 @@ export const adminRouter = router({
 		.input(
 			findManySchema
 				.omit({ ids: true })
-				.merge(z.object({ id: idSchemaCoerce, target: z.string() })),
+				.extend(
+					z.object({ id: idSchemaCoerce, target: z.string() }).shape,
+				),
 		)
 		.query(
 			async ({ input: { id, pagination, resource, sort, target } }) => {
@@ -307,21 +308,40 @@ export const adminRouter = router({
 	isValid: adminProcedure.query(() => true),
 
 	updateMany: adminProcedure
-		.input(
-			createAdminInput({
-				extra: z.object({ ids: z.array(idSchemaCoerce) }),
-				partial: true,
-			}),
-		)
-		.mutation(async ({ input: { data, ids, resource } }) => {}),
+		.input(adminInput.and(z.object({ ids: z.array(idSchemaCoerce) })))
+		.mutation(async ({ input: { data, ids, resource } }) => {
+			const where = { id: { in: ids } };
+			switch (resource) {
+				case 'hunt':
+					await db.hunt.updateMany({
+						data,
+						where,
+					});
+					break;
+				case 'hunter':
+					await db.hunter.updateMany({
+						data,
+						where,
+					});
+					break;
+				case 'photo':
+					await db.photo.updateMany({
+						data,
+						where,
+					});
+					break;
+				case 'user':
+					await db.user.updateMany({
+						data,
+						where,
+					});
+					break;
+			}
+			return { ids };
+		}),
 
 	updateOne: adminProcedure
-		.input(
-			createAdminInput({
-				extra: z.object({ id: idSchemaCoerce }),
-				partial: true,
-			}),
-		)
+		.input(adminInput.and(z.object({ id: idSchemaCoerce })))
 		.mutation(async ({ input: { data, id, resource } }) => {
 			switch (resource) {
 				case 'hunt':
