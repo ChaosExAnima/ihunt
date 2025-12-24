@@ -1,4 +1,9 @@
-import { Link, useCreatePath } from 'react-admin';
+import {
+	Link,
+	useCreatePath,
+	useListContext,
+	useRecordContext,
+} from 'react-admin';
 
 import Avatar, { AvatarEmpty } from '@/components/avatar';
 import {
@@ -7,7 +12,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { HunterSchema } from '@/lib/schemas';
+import { HunterSchema, HuntSchema } from '@/lib/schemas';
 
 export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 	const createPath = useCreatePath();
@@ -34,14 +39,16 @@ export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 	);
 }
 
-export function AdminHunterList({
-	hunters,
-	max,
-}: {
-	hunters: HunterSchema[];
-	max: number;
-}) {
-	const slots = Array.from(Array(max - hunters.length));
+export function AdminHunterList() {
+	const context = useListContext<HunterSchema>();
+	const record = useRecordContext<HuntSchema>();
+	if (!record) {
+		return null;
+	}
+
+	const hunters = context?.data ?? [];
+
+	const slots = Array.from(Array(record.maxHunters - hunters.length));
 	return (
 		<ul className="flex gap-2">
 			{hunters.map((hunter) => (

@@ -1,62 +1,40 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
 import {
 	AutocompleteInput,
-	DeleteButton,
+	BooleanInput,
 	Edit,
+	ImageField,
+	ImageInput,
 	NumberInput,
 	ReferenceInput,
+	SelectInput,
 	TextInput,
-	useEditController,
-	useRefresh,
 } from 'react-admin';
 
-import PhotoDisplay from '@/components/photo';
-import UploadPhoto from '@/components/upload-photo';
-import { trpc } from '@/lib/api';
+import { HunterTypes } from '@/lib/constants';
 
 import { SimpleForm } from '../components/simple-form';
-import { HunterRow, hunterSchema } from './common';
+import { hunterSchema } from './common';
+
+const hunterTypeChoices = Object.entries(HunterTypes).map(([key, val]) => ({
+	id: val,
+	name: key,
+}));
 
 export function HunterEdit() {
-	const { record } = useEditController<HunterRow>();
-	const refresh = useRefresh();
-	const { mutateAsync } = useMutation(
-		trpc.hunter.updateAvatar.mutationOptions({
-			onSuccess: () => refresh(),
-		}),
-	);
-	const handleCrop = useCallback(async (blob: Blob) => {
-		const formData = new FormData();
-		formData.append('photo', blob);
-		const result = await mutateAsync(formData);
-		return result.success;
-	}, []);
-
 	return (
 		<Edit>
 			<SimpleForm resolver={zodResolver(hunterSchema)}>
 				<TextInput source="name" />
+				<TextInput source="handle" />
+				<TextInput source="pronouns" />
+				<SelectInput choices={hunterTypeChoices} source="type" />
+				<BooleanInput source="alive" />
 				<NumberInput source="money" />
-				{record?.avatar && (
-					<figure>
-						<PhotoDisplay className="w-40" photo={record.avatar} />
-						<figcaption>
-							Avatar{' '}
-							<DeleteButton
-								mutationMode="pessimistic"
-								mutationOptions={{ onSuccess: () => refresh() }}
-								record={{ id: record.avatar.id }}
-								redirect={false}
-								resource="photo"
-								successMessage="Avatar deleted"
-							/>
-						</figcaption>
-					</figure>
-				)}
-				<UploadPhoto circular onCrop={handleCrop} title="Avatar" />
-				<ReferenceInput reference="user" source="user.id">
+				<ImageInput source="avatar">
+					<ImageField className="w-full" source="url" title="path" />
+				</ImageInput>
+				<ReferenceInput reference="user" source="userId">
 					<AutocompleteInput label="Player" />
 				</ReferenceInput>
 			</SimpleForm>

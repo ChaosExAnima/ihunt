@@ -7,6 +7,7 @@ import {
 	Link,
 	List,
 	NumberField,
+	ReferenceArrayField,
 	SelectArrayInput,
 	TextField,
 	useRecordContext,
@@ -46,15 +47,9 @@ export function HuntList() {
 					source="payment"
 				/>
 				<NumberField source="danger" />
-				<FunctionField
-					render={(record: HuntSchema) => (
-						<AdminHunterList
-							hunters={record.hunters ?? []}
-							max={record.maxHunters}
-						/>
-					)}
-					source="hunters"
-				/>
+				<ReferenceArrayField reference="hunter" source="hunters">
+					<AdminHunterList />
+				</ReferenceArrayField>
 				<HuntActions />
 			</Datagrid>
 		</List>

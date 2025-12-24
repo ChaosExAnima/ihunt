@@ -9,6 +9,7 @@ import {
 } from '@/lib/schemas';
 
 import { db } from '../db';
+import { outputPhoto, photoUrl } from '../photo';
 import { adminProcedure, router } from '../trpc';
 
 const resourceSchema = z.enum(['hunt', 'hunter', 'user', 'photo']);
@@ -152,20 +153,23 @@ export const adminRouter = router({
 			};
 
 			switch (resource) {
-				case 'hunt':
-					return {
-						data: await db.hunt.findMany({
-							...query,
-							include: {
-								hunters: {
-									include: {
-										avatar: true,
-									},
-								},
+				case 'hunt': {
+					const hunts = await db.hunt.findMany({
+						...query,
+						include: {
+							hunters: {
+								select: { id: true },
 							},
-						}),
+						},
+					});
+					return {
+						data: hunts.map((hunt) => ({
+							...hunt,
+							hunters: hunt.hunters.map(({ id }) => id),
+						})),
 						total: await db.hunt.count({ where }),
 					};
+				}
 				case 'hunter':
 					return {
 						data: await db.hunter.findMany({
@@ -176,18 +180,20 @@ export const adminRouter = router({
 						}),
 						total: await db.hunter.count({ where }),
 					};
-				case 'photo':
+				case 'photo': {
+					const photos = await db.photo.findMany(query);
 					return {
-						data: await db.photo.findMany({
-							...query,
-							include: {
-								hunter: {
-									include: { avatar: true },
-								},
-							},
-						}),
+						data: photos.map((photo) => ({
+							...photo,
+							url: photoUrl({
+								height: photo.height,
+								path: photo.path,
+								width: photo.width,
+							}),
+						})),
 						total: await db.photo.count({ where }),
 					};
+				}
 				case 'user':
 					return {
 						data: await db.user.findMany({
@@ -232,8 +238,18 @@ export const adminRouter = router({
 						hunters: hunt.hunters.map(({ id }) => id),
 					};
 				}
-				case 'hunter':
-					return db.hunter.findFirstOrThrow(query);
+				case 'hunter': {
+					const hunter = await db.hunter.findFirstOrThrow({
+						...query,
+						include: { avatar: true },
+					});
+					return {
+						...hunter,
+						avatar: hunter.avatar
+							? outputPhoto({ photo: hunter.avatar })
+							: null,
+					};
+				}
 				case 'photo':
 					return db.photo.findFirstOrThrow(query);
 				case 'user':
