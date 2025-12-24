@@ -1,4 +1,5 @@
 import {
+	ChipField,
 	Link,
 	RecordContextProvider,
 	useCreatePath,
@@ -37,13 +38,48 @@ export function AdminHunter() {
 						<AdminAvatar />
 					</Link>
 				</TooltipTrigger>
-				<TooltipContent>{hunter.name}</TooltipContent>
+				<TooltipContent>{hunter.handle}</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>
 	);
 }
 
-export function AdminHunterList() {
+export function AdminHunters({ withName = false }: { withName?: boolean }) {
+	const context = useListContext<AdminHunterSchema>();
+	const hunters = context?.data ?? [];
+	const createPath = useCreatePath();
+	if (!hunters.length) {
+		return null;
+	}
+
+	return (
+		<ul className="flex gap-2">
+			{hunters.map((hunter) => (
+				<li key={hunter.id}>
+					<RecordContextProvider value={hunter}>
+						{!withName && <AdminHunter />}
+						{withName && (
+							<Link
+								to={createPath({
+									id: hunter.id,
+									resource: 'hunter',
+									type: 'edit',
+								})}
+							>
+								<ChipField
+									icon={<AdminAvatar size={30} />}
+									source="handle"
+								/>
+							</Link>
+						)}
+					</RecordContextProvider>
+				</li>
+			))}
+		</ul>
+	);
+}
+
+export function AdminHuntHunters() {
 	const context = useListContext<AdminHunterSchema>();
 	const record = useRecordContext<AdminHuntSchema>();
 	if (!record) {

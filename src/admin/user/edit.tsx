@@ -1,55 +1,38 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Prisma } from '@prisma/client';
 import {
-	AutocompleteInput,
+	AutocompleteArrayInput,
 	Edit,
-	ReferenceInput,
+	NumberInput,
+	ReferenceArrayInput,
 	TextInput,
 	useEditController,
 } from 'react-admin';
 
 import { SimpleForm } from '../components/simple-form';
-import { HunterRow } from '../hunter/common';
-import { adminUserSchema, AdminUserSchema } from '../schemas';
-import { UserInput, userSchema } from './common';
+import {
+	AdminHunterSchema,
+	adminUserSchema,
+	AdminUserSchema,
+} from '../schemas';
 
 export function UserEdit() {
-	const { record } = useEditController<AdminUserSchema>();
+	const { record: player } = useEditController<AdminUserSchema>();
 	return (
-		<Edit
-			mutationMode="pessimistic"
-			title={`Player ${record?.name ?? ''}`}
-			transform={editTransform}
-		>
+		<Edit mutationMode="pessimistic" title={`Player ${player?.name ?? ''}`}>
 			<SimpleForm resolver={zodResolver(adminUserSchema)}>
 				<TextInput isRequired source="name" />
-				<TextInput isRequired source="email" />
-				<ReferenceInput reference="hunter" source="hunter.id">
-					<AutocompleteInput
-						label="Hunter"
-						optionText={(record: HunterRow) =>
-							record.userId
-								? `${record.name} - Taken by ${record.user.name}`
-								: record.name
+				<NumberInput min={1} source="run" />
+				<ReferenceArrayInput reference="hunter" source="hunterIds">
+					<AutocompleteArrayInput
+						label="Hunters"
+						optionText={(record: AdminHunterSchema) =>
+							record.userId && record.userId !== player?.id
+								? `${record.handle} (taken)`
+								: record.handle
 						}
 					/>
-				</ReferenceInput>
+				</ReferenceArrayInput>
 			</SimpleForm>
 		</Edit>
 	);
-}
-
-function editTransform({
-	hunter,
-	...record
-}: UserInput): Prisma.UserCreateInput {
-	if (!hunter.id) {
-		return record;
-	}
-	return {
-		...record,
-		hunter: {
-			connect: hunter.id ? { id: hunter.id } : undefined,
-		},
-	};
 }

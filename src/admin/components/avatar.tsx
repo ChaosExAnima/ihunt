@@ -11,7 +11,7 @@ import PhotoDisplay from '@/components/photo';
 
 import { AdminPhotoSchema } from '../schemas';
 
-function AdminAvatarInner() {
+function AdminAvatarInner({ size }: { size: number }) {
 	const photo = useRecordContext<AdminPhotoSchema>();
 	if (!photo) {
 		return <AvatarEmpty />;
@@ -20,18 +20,19 @@ function AdminAvatarInner() {
 		<PhotoDisplay
 			className="rounded-full"
 			fit="fill"
-			height={40}
+			height={size}
 			photo={photo}
-			width={40}
+			width={size}
 		/>
 	);
 }
 
-export const AdminAvatar = (
-	props: Omit<ReferenceFieldProps, 'reference' | 'source'>,
-) => (
+export const AdminAvatar = ({
+	size = 40,
+	...props
+}: Omit<ReferenceFieldProps, 'reference' | 'source'> & { size?: number }) => (
 	<ReferenceField reference="photo" source="avatarId" {...props}>
-		<AdminAvatarInner />
+		<AdminAvatarInner size={size} />
 	</ReferenceField>
 );
 

@@ -48,7 +48,7 @@ export function App() {
 				icon={Swords}
 				list={HunterList}
 				name="hunter"
-				recordRepresentation="name"
+				recordRepresentation="handle"
 			/>
 			<Resource
 				edit={UserEdit}

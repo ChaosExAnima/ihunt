@@ -1,39 +1,26 @@
 import {
-	ChipField,
 	Datagrid,
-	FunctionField,
 	List,
+	NumberField,
 	ReferenceManyField,
 	SingleFieldList,
+	TextField,
 } from 'react-admin';
 
-import Avatar from '@/components/avatar';
-
-import { UserRow } from './common';
+import { AdminHunterSchema } from '../schemas';
 
 export function UserList() {
 	return (
 		<List>
 			<Datagrid>
-				<FunctionField<UserRow>
-					label="Avatar"
-					render={(record) => {
-						const hunter = record.hunters.at(0);
-						return hunter && <Avatar hunter={hunter} />;
-					}}
-				/>
-				<FunctionField<UserRow>
-					label="Name"
-					render={(record) => record.name ?? record.id}
-				/>
-				<ReferenceManyField
+				<TextField source="name" />
+				<NumberField source="run" />
+				<ReferenceManyField<AdminHunterSchema>
 					label="Hunters"
 					reference="hunter"
 					target="userId"
 				>
-					<SingleFieldList>
-						<ChipField source="handle" />
-					</SingleFieldList>
+					<SingleFieldList />
 				</ReferenceManyField>
 			</Datagrid>
 		</List>

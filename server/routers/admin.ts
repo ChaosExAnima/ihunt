@@ -3,7 +3,6 @@ import z from 'zod';
 
 import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
-import { Entity } from '@/lib/types';
 import { extractIds, omit } from '@/lib/utils';
 
 import { db } from '../db';
@@ -184,22 +183,27 @@ export const adminRouter = router({
 						total: await db.photo.count({ where }),
 					};
 				}
-				case 'user':
-					return {
-						data: await db.user.findMany({
-							...query,
-							include: {
-								hunters: {
-									include: { avatar: true },
-									orderBy: {
-										alive: 'asc',
-									},
+				case 'user': {
+					const users = await db.user.findMany({
+						...query,
+						include: {
+							hunters: {
+								orderBy: {
+									alive: 'desc',
 								},
+								select: { id: true },
 							},
-							omit: { password: true },
-						}),
+						},
+						omit: { password: true },
+					});
+					return {
+						data: users.map(({ hunters, ...user }) => ({
+							...user,
+							hunterIds: extractIds(hunters),
+						})),
 						total: await db.user.count({ where }),
 					};
+				}
 			}
 		}),
 
@@ -244,19 +248,23 @@ export const adminRouter = router({
 				}
 				case 'photo':
 					return db.photo.findFirstOrThrow(query);
-				case 'user':
-					return db.user.findFirstOrThrow({
-						...query,
-						include: {
-							hunters: {
-								include: { avatar: true },
-								orderBy: {
-									alive: 'asc',
+				case 'user': {
+					const { hunters, ...user } = await db.user.findFirstOrThrow(
+						{
+							...query,
+							include: {
+								hunters: {
+									orderBy: {
+										alive: 'asc',
+									},
+									select: { id: true },
 								},
 							},
+							omit: { password: true },
 						},
-						omit: { password: true },
-					});
+					);
+					return { hunterIds: extractIds(hunters), ...user };
+				}
 			}
 		}),
 
@@ -359,46 +367,22 @@ export const adminRouter = router({
 		.mutation(async ({ input: { data, id, resource } }) => {
 			switch (resource) {
 				case 'hunt': {
-					const currentHunterIds = extractIds(
-						await db.hunter.findMany({
-							select: { id: true },
-							where: {
-								hunts: {
-									some: {
-										id,
-									},
-								},
-							},
-						}),
-					);
-					let connect: Entity[] | undefined = undefined;
-					let disconnect: Entity[] | undefined = undefined;
-					if (data.hunterIds) {
-						if (
-							data.maxHunters &&
-							data.hunterIds.length > data.maxHunters
-						) {
-							throw new TRPCError({
-								code: 'BAD_REQUEST',
-								message:
-									'Cannot assign more hunters than maximum',
-							});
-						}
-						for (const id of data.hunterIds) {
-							if (!currentHunterIds.includes(id)) {
-								(connect ??= []).push({ id });
-							}
-						}
-						for (const id of currentHunterIds) {
-							if (!data.hunterIds.includes(id)) {
-								(disconnect ??= []).push({ id });
-							}
-						}
+					if (
+						data.hunterIds &&
+						data.maxHunters &&
+						data.hunterIds.length > data.maxHunters
+					) {
+						throw new TRPCError({
+							code: 'BAD_REQUEST',
+							message: 'Cannot assign more hunters than maximum',
+						});
 					}
 					const { hunters, ...result } = await db.hunt.update({
 						data: {
 							...omit(data, 'hunterIds'),
-							hunters: { connect, disconnect },
+							hunters: {
+								set: data.hunterIds?.map((id) => ({ id })),
+							},
 						},
 						include: {
 							hunters: {
@@ -424,11 +408,17 @@ export const adminRouter = router({
 						data,
 						where: { id },
 					});
-				case 'user':
+				case 'user': {
 					return db.user.update({
-						data,
+						data: {
+							...omit(data, 'hunterIds'),
+							hunters: {
+								set: data.hunterIds?.map((id) => ({ id })),
+							},
+						},
 						where: { id },
 					});
+				}
 			}
 		}),
 });

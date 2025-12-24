@@ -16,7 +16,7 @@ import {
 
 import { HuntStatus, Locale } from '@/lib/constants';
 
-import { AdminHunterList } from '../components/hunter-list';
+import { AdminHuntHunters } from '../components/hunter-list';
 import { AdminHuntSchema } from '../schemas';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import HuntCompleteDialog from './complete-dialog';
@@ -48,7 +48,7 @@ export function HuntList() {
 				/>
 				<NumberField source="danger" />
 				<ReferenceArrayField reference="hunter" source="hunterIds">
-					<AdminHunterList />
+					<AdminHuntHunters />
 				</ReferenceArrayField>
 				<HuntActions />
 			</Datagrid>
