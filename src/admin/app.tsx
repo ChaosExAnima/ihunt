@@ -1,15 +1,7 @@
-import { User } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import { Crosshair, Image, LogOut, Swords, UserRound } from 'lucide-react';
-import { PropsWithChildren } from 'react';
-import {
-	Admin,
-	Button,
-	DataProvider,
-	Layout,
-	Menu,
-	Resource,
-} from 'react-admin';
+import { PropsWithChildren, useCallback } from 'react';
+import { Admin, DataProvider, Layout, Menu, Resource } from 'react-admin';
 
 import { queryClient, trpc } from '@/lib/api';
 
@@ -56,9 +48,7 @@ export function App() {
 				list={UserList}
 				name="user"
 				options={{ label: 'Players' }}
-				recordRepresentation={(record: User) =>
-					record.name ?? 'Unknown User'
-				}
+				recordRepresentation="name"
 			/>
 			<Resource
 				icon={Image}
@@ -76,12 +66,17 @@ function AdminLayout({ children }: PropsWithChildren) {
 
 function AdminMenu() {
 	const { mutate } = useMutation(trpc.auth.logOut.mutationOptions());
+	const handleLogOut = useCallback(() => mutate(), [mutate]);
 	return (
 		<Menu>
 			<Menu.ResourceItems />
-			<Button onClick={() => mutate()} sx={{ borderRadius: 0 }}>
-				<LogOut />
-			</Button>
+			<div className="m-4 border-t border-stone-400" />
+			<Menu.Item
+				leftIcon={<LogOut />}
+				onClick={handleLogOut}
+				primaryText="Log out"
+				to="/"
+			/>
 		</Menu>
 	);
 }
