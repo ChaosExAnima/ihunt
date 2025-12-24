@@ -6199,7 +6199,7 @@ __metadata:
     immer: "npm:^11.0.1"
     input-otp: "npm:^1.4.2"
     iron-session: "npm:^8.0.4"
-    lucide-react: "npm:^0.525.0"
+    lucide-react: "npm:^0.562.0"
     nodemon: "npm:^3.1.10"
     postcss: "npm:^8.5.6"
     prettier: "npm:^3.6.2"
@@ -7101,12 +7101,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.525.0":
-  version: 0.525.0
-  resolution: "lucide-react@npm:0.525.0"
+"lucide-react@npm:^0.562.0":
+  version: 0.562.0
+  resolution: "lucide-react@npm:0.562.0"
   peerDependencies:
     react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/81c4438e2cf1c86ea2ebe0a97b378201512450894283cccce766a89bc6a4e47c8df1d9115d845d98f582bb0a10be31c454aa232520fea35018dac1cd8466ea9b
+  checksum: 10c0/c713a2490916e42c678b9df0d7309d8cdb715af1d7139c7eb49c45547901b276a7cf722548012a668dc0e337eeadf5141d5af8c8fcda6721fc58fb2d288efcba
   languageName: node
   linkType: hard
 
