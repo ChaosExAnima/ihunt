@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "NODE_ENV=development nodemon -w server --exec tsx server/server.ts",
+		"dev": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules --exec tsx server/server.ts",
 		"build": "vite build && tsc --noEmit",
 		"start": "vite",
 		"lint": "eslint && tsc --noEmit",
