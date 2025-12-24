@@ -10,16 +10,14 @@ import {
 } from 'react-admin';
 
 import { SimpleForm } from '../components/simple-form';
-import {
-	huntSchemaWithIds,
-	huntStatusChoices,
-	huntTransformer,
-} from './common';
+import { adminHuntSchema, AdminHuntSchema } from '../schemas';
+import { huntStatusChoices } from './common';
 
 export function HuntEdit() {
+	// TODO: Allow adding pics!
 	return (
-		<Edit mutationMode="pessimistic" transform={huntTransformer}>
-			<SimpleForm resolver={zodResolver(huntSchemaWithIds)}>
+		<Edit<AdminHuntSchema> mutationMode="pessimistic">
+			<SimpleForm resolver={zodResolver(adminHuntSchema)}>
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
 					<SelectInput
@@ -52,12 +50,12 @@ export function HuntEdit() {
 					<ReferenceArrayInput
 						label="Hunters"
 						reference="hunter"
-						source="hunters"
+						source="hunterIds"
 					>
 						<AutocompleteArrayInput className="col-span-2" />
 					</ReferenceArrayInput>
 					<DateTimeInput source="completedAt" />
-					<NumberInput max={5} min={1} source="rating" step={0.5} />
+					<NumberInput max={5} min={0} source="rating" step={0.5} />
 					<TextInput
 						className="col-span-2"
 						multiline

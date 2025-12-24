@@ -1,7 +1,10 @@
+import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
+import { Entity } from '@/lib/types';
+import { extractIds, omit } from '@/lib/utils';
 
 import { db } from '../db';
 import { outputPhoto, photoUrl } from '../photo';
@@ -141,9 +144,9 @@ export const adminRouter = router({
 						},
 					});
 					return {
-						data: hunts.map((hunt) => ({
+						data: hunts.map(({ hunters, ...hunt }) => ({
 							...hunt,
-							hunters: hunt.hunters.map(({ id }) => id),
+							hunterIds: extractIds(hunters),
 						})),
 						total: await db.hunt.count({ where }),
 					};
@@ -202,18 +205,20 @@ export const adminRouter = router({
 			const query = { where: { id } };
 			switch (resource) {
 				case 'hunt': {
-					const hunt = await db.hunt.findFirstOrThrow({
-						...query,
-						include: {
-							hunters: {
-								select: { id: true },
+					const { hunters, ...hunt } = await db.hunt.findFirstOrThrow(
+						{
+							...query,
+							include: {
+								hunters: {
+									select: { id: true },
+								},
 							},
 						},
-					});
+					);
 					return {
 						...hunt,
 						// This is specifically for autocomplete input.
-						hunters: hunt.hunters.map(({ id }) => id),
+						hunterIds: hunters.map(({ id }) => id),
 					};
 				}
 				case 'hunter': {
@@ -344,11 +349,62 @@ export const adminRouter = router({
 		.input(adminInput.and(z.object({ id: idSchemaCoerce })))
 		.mutation(async ({ input: { data, id, resource } }) => {
 			switch (resource) {
-				case 'hunt':
-					return db.hunt.update({
-						data,
+				case 'hunt': {
+					const currentHunterIds = extractIds(
+						await db.hunter.findMany({
+							select: { id: true },
+							where: {
+								hunts: {
+									some: {
+										id,
+									},
+								},
+							},
+						}),
+					);
+					let connect: Entity[] | undefined = undefined;
+					let disconnect: Entity[] | undefined = undefined;
+					if (data.hunterIds) {
+						if (
+							data.maxHunters &&
+							data.hunterIds.length > data.maxHunters
+						) {
+							throw new TRPCError({
+								code: 'BAD_REQUEST',
+								message:
+									'Cannot assign more hunters than maximum',
+							});
+						}
+						for (const id of data.hunterIds) {
+							if (!currentHunterIds.includes(id)) {
+								(connect ??= []).push({ id });
+							}
+						}
+						for (const id of currentHunterIds) {
+							if (!data.hunterIds.includes(id)) {
+								(disconnect ??= []).push({ id });
+							}
+						}
+					}
+					const { hunters, ...result } = await db.hunt.update({
+						data: {
+							...omit(data, 'hunterIds'),
+							hunters: { connect, disconnect },
+						},
+						include: {
+							hunters: {
+								select: {
+									id: true,
+								},
+							},
+						},
 						where: { id },
 					});
+					return {
+						...result,
+						hunterIds: extractIds(hunters),
+					};
+				}
 				case 'hunter':
 					return db.hunter.update({
 						data,

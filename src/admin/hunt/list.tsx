@@ -15,9 +15,9 @@ import {
 } from 'react-admin';
 
 import { HuntStatus, Locale } from '@/lib/constants';
-import { HuntSchema } from '@/lib/schemas';
 
 import { AdminHunterList } from '../components/hunter-list';
+import { AdminHuntSchema } from '../schemas';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import HuntCompleteDialog from './complete-dialog';
 
@@ -47,7 +47,7 @@ export function HuntList() {
 					source="payment"
 				/>
 				<NumberField source="danger" />
-				<ReferenceArrayField reference="hunter" source="hunters">
+				<ReferenceArrayField reference="hunter" source="hunterIds">
 					<AdminHunterList />
 				</ReferenceArrayField>
 				<HuntActions />
@@ -66,8 +66,8 @@ export const listFilters = [
 ];
 
 function HuntActions() {
-	const hunt = useRecordContext<HuntSchema>();
-	const [update, { isPending }] = useUpdate<HuntSchema>();
+	const hunt = useRecordContext<AdminHuntSchema>();
+	const [update, { isPending }] = useUpdate<AdminHuntSchema>();
 
 	if (!hunt) {
 		return null;
