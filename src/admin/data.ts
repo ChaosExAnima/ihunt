@@ -43,12 +43,12 @@ type Resources = 'hunt' | 'hunter' | 'photo' | 'user';
 
 export const dataProvider = {
 	// create a record
-	async create(resource, params) {
+	async create(resource, { data }) {
 		if (resource === 'photo') {
 			throw new Error('Cannot create a photo');
 		}
 		const result = await trpcPlain.admin.create.mutate({
-			params,
+			data: data,
 			resource,
 		});
 		return { data: result };
@@ -101,7 +101,15 @@ export const dataProvider = {
 		return { data: result };
 	},
 	// update a record based on a patch
-	async update(resource, params) {},
+	async update(resource, params) {
+		const result = await trpcPlain.admin.updateOne.mutate({
+			data: params.data,
+			resource,
+		});
+		return {
+			data: result,
+		};
+	},
 	// update a list of records based on an array of ids and a common patch
 	async updateMany(resource, params) {},
 } satisfies DataProvider<Resources>;

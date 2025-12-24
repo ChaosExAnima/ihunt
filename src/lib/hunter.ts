@@ -1,8 +1,9 @@
 import { BookMarked, Handshake, Swords, Wrench } from 'lucide-react';
 
 import { HunterTypes } from './constants';
+import { HunterTypeSchema } from './schemas';
 
-export function hunterTypeIcon(type: null | string) {
+export function hunterTypeIcon(type: HunterTypeSchema | null) {
 	switch (type) {
 		case HunterTypes.Evileena:
 			return BookMarked;
@@ -10,7 +11,7 @@ export function hunterTypeIcon(type: null | string) {
 			return Swords;
 		case HunterTypes.Phooey:
 			return Wrench;
-		case HunterTypes.SixtySix:
+		case HunterTypes.SixtySixer:
 			return Handshake;
 		default:
 			return null;

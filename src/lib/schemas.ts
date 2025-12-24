@@ -35,15 +35,23 @@ export const photoHuntSchema = photoSchema.merge(
 );
 export type PhotoHuntSchema = z.infer<typeof photoHuntSchema>;
 
+export const hunterTypeSchema = z.enum([
+	'evileena',
+	'knight',
+	'phooey',
+	'66er',
+]);
+export type HunterTypeSchema = z.infer<typeof hunterTypeSchema>;
+
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
 	handle: z.string(),
 	id: idSchema,
-	money: z.coerce.number().int().min(0),
+	money: z.coerce.number().int(),
 	name: z.string(),
 	pronouns: z.string().nullable(),
-	type: z.string().nullable(),
+	type: hunterTypeSchema.nullable(),
 });
 export type HunterSchema = z.infer<typeof hunterSchema>;
 

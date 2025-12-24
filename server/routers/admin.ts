@@ -1,18 +1,18 @@
 import z from 'zod';
 
-import { userSchema } from '@/admin/user/common';
 import {
-	hunterSchema,
-	huntSchema,
-	idSchemaCoerce,
-	posIntSchema,
-} from '@/lib/schemas';
+	adminHunterSchema,
+	adminHuntSchema,
+	adminPhotoSchema,
+	adminUserSchema,
+	createAdminInput,
+	resourceSchema,
+} from '@/admin/schemas';
+import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 
 import { db } from '../db';
 import { outputPhoto, photoUrl } from '../photo';
 import { adminProcedure, router } from '../trpc';
-
-const resourceSchema = z.enum(['hunt', 'hunter', 'user', 'photo']);
 
 const paginationSchema = z.object({
 	page: posIntSchema,
@@ -33,39 +33,18 @@ const findManySchema = z.object({
 
 export const adminRouter = router({
 	create: adminProcedure
-		.input(
-			z.discriminatedUnion('resource', [
-				z.object({
-					params: huntSchema.omit({
-						hunters: true,
-						id: true,
-						photos: true,
-					}),
-					resource: z.literal('hunt'),
-				}),
-				z.object({
-					params: hunterSchema.omit({
-						avatar: true,
-						id: true,
-					}),
-					resource: z.literal('hunter'),
-				}),
-				z.object({
-					params: userSchema,
-					resource: z.literal('user'),
-				}),
-			]),
-		)
-		.mutation(async ({ input: { params, resource } }) => {
+		.input(createAdminInput({ extra: z.object({ id: idSchemaCoerce }) }))
+		.mutation(async ({ input: { data, resource } }) => {
 			switch (resource) {
 				case 'hunt':
-					return await db.hunt.create({ data: params });
+					return await db.hunt.create({ data });
 				case 'hunter':
-					return await db.hunter.create({ data: params });
-				case 'user':
+					return await db.hunter.create({ data });
+				case 'user': {
 					return await db.user.create({
-						data: { ...params, password: '' },
+						data: { ...data, password: '' },
 					});
+				}
 			}
 		}),
 
@@ -326,4 +305,45 @@ export const adminRouter = router({
 		),
 
 	isValid: adminProcedure.query(() => true),
+
+	updateMany: adminProcedure
+		.input(
+			createAdminInput({
+				extra: z.object({ ids: z.array(idSchemaCoerce) }),
+				partial: true,
+			}),
+		)
+		.mutation(async ({ input: { data, ids, resource } }) => {}),
+
+	updateOne: adminProcedure
+		.input(
+			createAdminInput({
+				extra: z.object({ id: idSchemaCoerce }),
+				partial: true,
+			}),
+		)
+		.mutation(async ({ input: { data, id, resource } }) => {
+			switch (resource) {
+				case 'hunt':
+					return db.hunt.update({
+						data,
+						where: { id },
+					});
+				case 'hunter':
+					return db.hunter.update({
+						data,
+						where: { id },
+					});
+				case 'photo':
+					return db.photo.update({
+						data,
+						where: { id },
+					});
+				case 'user':
+					return db.user.update({
+						data,
+						where: { id },
+					});
+			}
+		}),
 });

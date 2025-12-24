@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
-import { idSchema } from '@/lib/schemas';
+import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 
 export type UserRow = Prisma.UserGetPayload<{
 	include: { hunters: { include: { avatar: true } } };
@@ -9,8 +9,9 @@ export type UserRow = Prisma.UserGetPayload<{
 }>;
 
 export const userSchema = z.object({
-	hunter: z.object({ id: idSchema.nullable() }),
-	name: z.string(),
+	id: idSchemaCoerce,
+	name: z.string().nullable(),
+	run: posIntSchema.default(1),
 });
 
 export type UserInput = z.infer<typeof userSchema>;
