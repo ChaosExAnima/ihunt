@@ -9,7 +9,7 @@ const configSchema = z.object({
 	mediaHost: z.string().min(2),
 	mediaPath: z.string().min(2),
 	nodeEnv: z.enum(['development', 'production', 'test']),
-	port: z.coerce.number().int().min(1).default(4000),
+	port: z.coerce.number().int().min(1).prefault(4000),
 });
 
 const configVars: Record<string, string | undefined> = {};
@@ -35,7 +35,7 @@ const _config = configSchema.safeParse(configVars);
 if (!_config.success) {
 	throw new Error(
 		'❌ Invalid environment variables: ' +
-			JSON.stringify(_config.error.flatten(), null, 4),
+			JSON.stringify(z.treeifyError(_config.error), null, 4),
 	);
 }
 export const config = _config.data;

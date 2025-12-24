@@ -5,7 +5,7 @@ import { idSchema, posIntSchema } from '@/lib/schemas';
 
 import { db } from '../db';
 import { outputPhoto } from '../photo';
-import { router, userProcedure } from '../trpc';
+import { loggedInProcedure, router } from '../trpc';
 
 const resizingTypeSchema = z.enum([
 	'fill',
@@ -16,20 +16,20 @@ const resizingTypeSchema = z.enum([
 ]);
 
 export const photosRouter = router({
-	delete: userProcedure
+	delete: loggedInProcedure
 		.input(z.object({ id: idSchema }))
-		.mutation(async ({ ctx: { hunter }, input: { id } }) => {
+		.mutation(async ({ ctx: { admin, hunter }, input: { id } }) => {
 			const photo = await db.photo.findFirstOrThrow({
 				select: { hunterId: true },
 				where: { id },
 			});
-			if (hunter.id !== photo.hunterId) {
+			if (hunter?.id !== photo.hunterId && !admin) {
 				throw new TRPCError({ code: 'FORBIDDEN' });
 			}
 			await db.photo.delete({ where: { id } });
 		}),
 
-	get: userProcedure
+	get: loggedInProcedure
 		.input(
 			z.object({
 				height: posIntSchema.optional(),
@@ -45,7 +45,7 @@ export const photosRouter = router({
 			return outputPhoto({ photo, ...options });
 		}),
 
-	getSizes: userProcedure
+	getSizes: loggedInProcedure
 		.input(
 			z.object({
 				id: idSchema,

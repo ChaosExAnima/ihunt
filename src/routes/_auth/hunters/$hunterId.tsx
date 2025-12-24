@@ -4,10 +4,10 @@ import z from 'zod';
 
 import Header from '@/components/header';
 import { HunterList } from '@/components/hunter-list';
+import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import PhotoDisplay from '@/components/photo';
 import Rating from '@/components/rating';
 import { trpc } from '@/lib/api';
-import { hunterTypeIcon } from '@/lib/hunter';
 import { hunterSchema, huntSchema } from '@/lib/schemas';
 
 export const hunterPageSchema = z.object({
@@ -40,7 +40,6 @@ function RouteComponent() {
 	if (!hunter) {
 		return null;
 	}
-	const HunterType = hunterTypeIcon(hunter.type);
 	return (
 		<>
 			<div className="relative rounded-lg overflow-hidden">
@@ -49,9 +48,11 @@ function RouteComponent() {
 						className="text-white fill-white"
 						rating={hunter.rating ?? 1}
 					/>
-					{HunterType && (
-						<HunterType className="text-white" size="2em" />
-					)}
+					<HunterTypeIcon
+						className="text-white"
+						size="2em"
+						type={hunter.type}
+					/>
 				</div>
 				{!!hunter.avatar && <PhotoDisplay photo={hunter.avatar} />}
 				<div className="absolute bottom-0 text-white p-2 bg-black/40 w-full text-sm">

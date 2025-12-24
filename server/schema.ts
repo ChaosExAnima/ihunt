@@ -2,7 +2,7 @@ import z from 'zod';
 
 import { huntSchema, huntStatus, photoHuntSchema } from '@/lib/schemas';
 
-export const outputHuntSchema = huntSchema.merge(
+export const outputHuntSchema = huntSchema.extend(
 	z.object({
 		photos: z.array(photoHuntSchema),
 		rating: z
@@ -12,5 +12,5 @@ export const outputHuntSchema = huntSchema.merge(
 			.nullable()
 			.transform((arg) => arg ?? 0),
 		status: z.string().transform((status) => huntStatus.parse(status)),
-	}),
+	}).shape,
 );

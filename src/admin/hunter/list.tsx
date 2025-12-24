@@ -1,33 +1,24 @@
-import { useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
 import {
+	BooleanField,
 	Datagrid,
 	FunctionField,
 	List,
 	NumberField,
+	ReferenceArrayField,
+	ReferenceField,
 	SearchInput,
 	TextField,
 } from 'react-admin';
 
-import Avatar from '@/components/avatar';
-import { trpc } from '@/lib/api';
+import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import { Locale } from '@/lib/constants';
 
-import ChipListField from '../components/chip-list';
-import { HunterRow } from './common';
+import { AdminAvatar } from '../components/avatar';
+import { AdminHunterSchema } from '../schemas';
 
 const listFilters = [<SearchInput alwaysOn key="1" source="name" />];
 
 export function HunterList() {
-	const { isPending, mutateAsync } = useMutation(
-		trpc.hunt.remove.mutationOptions(),
-	);
-	const handleDelete = useCallback(
-		async (hunterId: number, huntId: number) => {
-			await mutateAsync({ hunterId, huntId });
-		},
-		[],
-	);
 	return (
 		<List filters={listFilters}>
 			<Datagrid
@@ -36,16 +27,15 @@ export function HunterList() {
 			>
 				<TextField source="id" />
 				<TextField source="name" />
+				<AdminAvatar label="Avatar" />
 				<FunctionField
-					render={(record: HunterRow) => <Avatar hunter={record} />}
-					sortable={false}
-					source="avatar"
+					label="Type"
+					render={(record: AdminHunterSchema) => (
+						<HunterTypeIcon type={record.type} />
+					)}
 				/>
-				<FunctionField
-					label="Rating"
-					render={ratingField}
-					sortable={false}
-				/>
+				<ReferenceField reference="user" source="userId" />
+				<NumberField label="Rating" sortable={false} source="rating" />
 				<NumberField
 					locales={Locale}
 					options={{
@@ -56,29 +46,13 @@ export function HunterList() {
 					source="money"
 					textAlign="left"
 				/>
-				<ChipListField
-					empty="No hunts yet"
-					fieldSource="name"
-					isLoading={isPending}
+				<BooleanField source="alive" />
+				<ReferenceArrayField
 					label="Hunts"
-					onDelete={handleDelete}
-					sortable={false}
-					source="hunts"
+					reference="hunt"
+					source="huntIds"
 				/>
 			</Datagrid>
 		</List>
-	);
-}
-
-const numberFormatter = new Intl.NumberFormat(Locale, {
-	minimumFractionDigits: 1,
-});
-
-function ratingField(record: HunterRow) {
-	return numberFormatter.format(
-		record.hunts.reduce(
-			(rating, hunt) => (hunt.rating ? rating + hunt.rating : rating),
-			0,
-		),
 	);
 }

@@ -1,7 +1,12 @@
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
-import { hunterSchema, idSchema, idSchemaCoerce } from '@/lib/schemas';
+import {
+	hunterSchema,
+	hunterTypeSchema,
+	idSchema,
+	idSchemaCoerce,
+} from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
@@ -16,16 +21,14 @@ export const hunterRouter = router({
 			}),
 		)
 		.output(
-			hunterSchema.merge(
-				z.object({
-					count: z.number().min(0),
-					followers: z.array(hunterSchema),
-					hunts: z.array(
-						outputHuntSchema.omit({ hunters: true, photos: true }),
-					),
-					rating: z.number().min(0).max(5),
-				}),
-			),
+			hunterSchema.extend({
+				count: z.number().min(0),
+				followers: z.array(hunterSchema),
+				hunts: z.array(
+					outputHuntSchema.omit({ hunters: true, photos: true }),
+				),
+				rating: z.number().min(0).max(5),
+			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
 			const {
@@ -70,7 +73,12 @@ export const hunterRouter = router({
 			return {
 				...hunter,
 				count,
+				followers: hunter.followers.map((follower) => ({
+					...follower,
+					type: hunterTypeSchema.parse(follower.type),
+				})),
 				rating: rating._avg.rating ?? 1,
+				type: hunterTypeSchema.parse(hunter.type),
 			};
 		}),
 

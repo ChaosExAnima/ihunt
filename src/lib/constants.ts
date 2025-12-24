@@ -1,5 +1,7 @@
 import { Prisma } from '@prisma/client';
 
+import type { HunterTypeSchema } from './schemas';
+
 export const Locale = 'de-DE';
 export const Currency = 'EUR';
 
@@ -36,6 +38,5 @@ export const HunterTypes = {
 	Evileena: 'evileena',
 	Knight: 'knight',
 	Phooey: 'phooey',
-	SixtySix: 'sixty-six',
-} as const;
-export type HunterTypesValues = (typeof HunterTypes)[keyof typeof HunterTypes];
+	SixtySixer: '66er',
+} as const satisfies Record<string, HunterTypeSchema>;

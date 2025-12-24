@@ -6,6 +6,7 @@ import { useEffect, useMemo } from 'react';
 import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
 import { HunterSchema, PhotoHuntSchema } from '@/lib/schemas';
+import { Entity } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import Avatar from '../avatar';
@@ -95,7 +96,7 @@ function ActivePhoto({
 	);
 }
 
-function DeletePhotoButton({ id }: { id: number }) {
+function DeletePhotoButton({ id }: Entity) {
 	const queryClient = useQueryClient();
 	const { mutate } = useMutation(
 		trpc.photos.delete.mutationOptions({

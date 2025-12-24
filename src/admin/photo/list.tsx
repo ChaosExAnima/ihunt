@@ -1,8 +1,8 @@
-import { Photo } from '@prisma/client';
 import {
 	BooleanField,
 	Datagrid,
 	FunctionField,
+	Link,
 	List,
 	NumberField,
 	ReferenceField,
@@ -11,9 +11,9 @@ import {
 } from 'react-admin';
 
 import PhotoDisplay from '@/components/photo';
-import { HunterSchema } from '@/lib/schemas';
 
-import { AdminHunter } from '../components/hunter-list';
+import { AdminAvatar } from '../components/avatar';
+import { AdminPhotoSchema } from '../schemas';
 
 export function PhotoList() {
 	return (
@@ -23,16 +23,20 @@ export function PhotoList() {
 				sort={{ field: 'id', order: 'ASC' }}
 			>
 				<TextField source="id" />
-				<TextField source="path" />
+				<FunctionField
+					label="Name"
+					render={(record: AdminPhotoSchema) => (
+						<Link target="_blank" to={record.url}>
+							<TextField source="path" />
+						</Link>
+					)}
+				/>
 				<NumberField source="width" />
 				<NumberField source="height" />
 				<BooleanField looseValue source="blurry" />
-				<FunctionField
-					render={(record: { hunter: HunterSchema }) => (
-						<AdminHunter hunter={record.hunter} />
-					)}
-					source="hunter"
-				/>
+				<ReferenceField reference="hunter" source="hunterId">
+					<AdminAvatar />
+				</ReferenceField>
 				<ReferenceField reference="hunt" source="huntId" />
 			</Datagrid>
 		</List>
@@ -40,9 +44,17 @@ export function PhotoList() {
 }
 
 function PhotoExpand() {
-	const record = useRecordContext<Photo>();
+	const record = useRecordContext<AdminPhotoSchema>();
 	if (!record) {
 		return null;
 	}
-	return <PhotoDisplay photo={record} />;
+	return (
+		<Link target="_blank" to={record.url}>
+			<PhotoDisplay
+				height={record.height}
+				photo={record}
+				width={record.width}
+			/>
+		</Link>
+	);
 }

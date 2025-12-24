@@ -1,15 +1,40 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Create, DateTimeInput, NumberInput, TextInput } from 'react-admin';
+import {
+	Create,
+	DateTimeInput,
+	NumberInput,
+	SelectInput,
+	TextInput,
+} from 'react-admin';
+
+import { HuntStatus } from '@/lib/constants';
 
 import { SimpleForm } from '../components/simple-form';
-import { huntSchemaWithIds } from './common';
+import { adminHuntSchema } from '../schemas';
+import { huntStatusChoices } from './common';
 
 export function HuntCreate() {
 	return (
 		<Create>
-			<SimpleForm resolver={zodResolver(huntSchemaWithIds)}>
+			<SimpleForm
+				resolver={zodResolver(
+					adminHuntSchema.omit({
+						comment: true,
+						completedAt: true,
+						hunterIds: true,
+						id: true,
+						rating: true,
+					}),
+				)}
+			>
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
+					<SelectInput
+						choices={huntStatusChoices([])}
+						defaultValue={HuntStatus.Pending}
+						required
+						source="status"
+					/>
 					<TextInput
 						className="col-span-2"
 						multiline
@@ -23,8 +48,14 @@ export function HuntCreate() {
 						min={1}
 						source="danger"
 					/>
-					<NumberInput min={0} source="payment" step={10} />
-					<DateTimeInput source="scheduledAt" />
+					<TextInput source="place" />
+					<NumberInput
+						defaultValue={10_000}
+						min={0}
+						source="payment"
+						step={10}
+					/>
+					<DateTimeInput defaultValue={null} source="scheduledAt" />
 					<NumberInput
 						defaultValue={4}
 						max={4}

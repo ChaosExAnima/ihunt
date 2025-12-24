@@ -12,7 +12,7 @@ export const authSchema = z.object({
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
-export const posIntSchema = z.number().int().positive();
+export const posIntSchema = z.int().positive();
 
 export const idSchema = posIntSchema.min(1);
 export const idSchemaCoerce = z.preprocess(
@@ -20,7 +20,7 @@ export const idSchemaCoerce = z.preprocess(
 	idSchema,
 );
 
-export const huntStatus = z.nativeEnum(HuntStatus);
+export const huntStatus = z.enum(HuntStatus);
 
 export const photoSchema = z.object({
 	blurry: z.string().nullable(),
@@ -28,33 +28,41 @@ export const photoSchema = z.object({
 });
 export type PhotoSchema = z.infer<typeof photoSchema>;
 
-export const photoHuntSchema = photoSchema.merge(
+export const photoHuntSchema = photoSchema.extend(
 	z.object({
 		hunterId: idSchema.nullable(),
-	}),
+	}).shape,
 );
 export type PhotoHuntSchema = z.infer<typeof photoHuntSchema>;
+
+export const hunterTypeSchema = z.enum([
+	'evileena',
+	'knight',
+	'phooey',
+	'66er',
+]);
+export type HunterTypeSchema = z.infer<typeof hunterTypeSchema>;
 
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
-	handle: z.string(),
+	handle: z.string().min(6),
 	id: idSchema,
-	money: z.coerce.number().int().min(0),
+	money: z.coerce.number().int(),
 	name: z.string(),
 	pronouns: z.string().nullable(),
-	type: z.string().nullable(),
+	type: hunterTypeSchema.nullable(),
 });
 export type HunterSchema = z.infer<typeof hunterSchema>;
 
 export const huntSchema = z.object({
 	comment: z.string().nullable(),
 	completedAt: z.coerce.date().nullable(),
-	danger: z.number().int().min(1).max(HUNT_MAX_DANGER),
+	danger: z.int().min(1).max(HUNT_MAX_DANGER),
 	description: z.string(),
 	hunters: z.array(hunterSchema),
 	id: idSchema,
-	maxHunters: z.number().int().min(1).max(4),
+	maxHunters: z.int().min(1).max(4),
 	name: z.string().min(1),
 	payment: posIntSchema,
 	photos: z.array(photoHuntSchema),

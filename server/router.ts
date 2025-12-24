@@ -1,3 +1,4 @@
+import { adminRouter } from './routers/admin';
 import { apiRouter } from './routers/api';
 import { authRouter } from './routers/auth';
 import { huntRouter } from './routers/hunt';
@@ -7,6 +8,7 @@ import { settingsRouter } from './routers/settings';
 import { router } from './trpc';
 
 export const appRouter = router({
+	admin: adminRouter,
 	api: apiRouter,
 	auth: authRouter,
 	hunt: huntRouter,

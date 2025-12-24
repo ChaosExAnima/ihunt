@@ -7,16 +7,17 @@ import {
 	Link,
 	List,
 	NumberField,
+	ReferenceArrayField,
 	SelectArrayInput,
 	TextField,
 	useRecordContext,
 	useUpdate,
 } from 'react-admin';
 
-import { HunterList } from '@/components/hunter-list';
 import { HuntStatus, Locale } from '@/lib/constants';
-import { HuntSchema } from '@/lib/schemas';
 
+import { AdminHuntHunters } from '../components/hunter-list';
+import { AdminHuntSchema } from '../schemas';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import HuntCompleteDialog from './complete-dialog';
 
@@ -46,15 +47,9 @@ export function HuntList() {
 					source="payment"
 				/>
 				<NumberField source="danger" />
-				<FunctionField
-					render={(record: HuntSchema) => (
-						<HunterList
-							hunters={record.hunters ?? []}
-							max={record.maxHunters}
-						/>
-					)}
-					source="hunters"
-				/>
+				<ReferenceArrayField reference="hunter" source="hunterIds">
+					<AdminHuntHunters />
+				</ReferenceArrayField>
 				<HuntActions />
 			</Datagrid>
 		</List>
@@ -71,8 +66,8 @@ export const listFilters = [
 ];
 
 function HuntActions() {
-	const hunt = useRecordContext<HuntSchema>();
-	const [update, { isPending }] = useUpdate<HuntSchema>();
+	const hunt = useRecordContext<AdminHuntSchema>();
+	const [update, { isPending }] = useUpdate<AdminHuntSchema>();
 
 	if (!hunt) {
 		return null;

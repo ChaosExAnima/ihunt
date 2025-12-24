@@ -1,16 +1,17 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
-import { idSchema } from '@/lib/schemas';
+import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 
 export type UserRow = Prisma.UserGetPayload<{
-	include: { hunter: { include: { avatar: true } } };
+	include: { hunters: { include: { avatar: true } } };
+	omit: { password: true };
 }>;
 
 export const userSchema = z.object({
-	email: z.string().email(),
-	hunter: z.object({ id: idSchema.nullable() }),
-	name: z.string(),
+	id: idSchemaCoerce,
+	name: z.string().nullable(),
+	run: posIntSchema.prefault(1),
 });
 
 export type UserInput = z.infer<typeof userSchema>;

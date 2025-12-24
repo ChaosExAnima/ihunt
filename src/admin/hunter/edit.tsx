@@ -1,64 +1,40 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
 import {
 	AutocompleteInput,
-	DeleteButton,
+	BooleanInput,
 	Edit,
 	NumberInput,
 	ReferenceInput,
+	SelectInput,
 	TextInput,
-	useEditController,
-	useRefresh,
 } from 'react-admin';
 
-import PhotoDisplay from '@/components/photo';
-import UploadPhoto from '@/components/upload-photo';
-import { trpc } from '@/lib/api';
-
+import { AdminAvatarInput } from '../components/avatar';
 import { SimpleForm } from '../components/simple-form';
-import { HunterRow, hunterSchema } from './common';
+import { adminHunterSchema } from '../schemas';
+import { hunterTypeChoices } from './common';
 
 export function HunterEdit() {
-	const { record } = useEditController<HunterRow>();
-	const refresh = useRefresh();
-	const { mutateAsync } = useMutation(
-		trpc.hunter.updateAvatar.mutationOptions({
-			onSuccess: () => refresh(),
-		}),
-	);
-	const handleCrop = useCallback(async (blob: Blob) => {
-		const formData = new FormData();
-		formData.append('photo', blob);
-		const result = await mutateAsync(formData);
-		return result.success;
-	}, []);
-
 	return (
 		<Edit>
-			<SimpleForm resolver={zodResolver(hunterSchema)}>
-				<TextInput source="name" />
-				<NumberInput source="money" />
-				{record?.avatar && (
-					<figure>
-						<PhotoDisplay className="w-40" photo={record.avatar} />
-						<figcaption>
-							Avatar{' '}
-							<DeleteButton
-								mutationMode="pessimistic"
-								mutationOptions={{ onSuccess: () => refresh() }}
-								record={{ id: record.avatar.id }}
-								redirect={false}
-								resource="photo"
-								successMessage="Avatar deleted"
-							/>
-						</figcaption>
-					</figure>
-				)}
-				<UploadPhoto circular onCrop={handleCrop} title="Avatar" />
-				<ReferenceInput reference="user" source="user.id">
-					<AutocompleteInput label="Player" />
-				</ReferenceInput>
+			<SimpleForm resolver={zodResolver(adminHunterSchema)}>
+				<div className="grid grid-cols-2 gap-4">
+					<TextInput source="name" />
+					<TextInput source="handle" />
+					<TextInput source="pronouns" />
+					<SelectInput choices={hunterTypeChoices} source="type" />
+					<NumberInput source="money" />
+					<NumberInput max={5} min={0} source="rating" step={0.5} />
+					<ReferenceInput reference="user" source="userId">
+						<AutocompleteInput
+							className="col-span-2"
+							label="Player"
+						/>
+					</ReferenceInput>
+					<AdminAvatarInput />
+					<TextInput className="col-span-2" multiline source="bio" />
+					<BooleanInput className="col-span-2" source="alive" />
+				</div>
 			</SimpleForm>
 		</Edit>
 	);
