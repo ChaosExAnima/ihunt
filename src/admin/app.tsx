@@ -2,7 +2,14 @@ import { User } from '@prisma/client';
 import { useMutation } from '@tanstack/react-query';
 import { Crosshair, Image, LogOut, Swords, UserRound } from 'lucide-react';
 import { PropsWithChildren } from 'react';
-import { Admin, Button, Layout, Menu, Resource } from 'react-admin';
+import {
+	Admin,
+	Button,
+	DataProvider,
+	Layout,
+	Menu,
+	Resource,
+} from 'react-admin';
 
 import { queryClient, trpc } from '@/lib/api';
 
@@ -22,7 +29,7 @@ export function App() {
 	return (
 		<Admin
 			authProvider={authProvider}
-			dataProvider={dataProvider}
+			dataProvider={dataProvider as DataProvider<string>}
 			layout={AdminLayout}
 			loginPage={LoginPage}
 			queryClient={queryClient}
