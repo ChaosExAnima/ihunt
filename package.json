@@ -48,7 +48,7 @@
 		"immer": "^11.0.1",
 		"input-otp": "^1.4.2",
 		"iron-session": "^8.0.4",
-		"lucide-react": "^0.525.0",
+		"lucide-react": "^0.562.0",
 		"react": "^19.1.0",
 		"react-admin": "^5.10.1",
 		"react-dom": "^19.1.0",
