@@ -13,4 +13,8 @@ export type ComponentPropsWithoutProps<
 	EProps = object,
 > = EProps & Omit<ComponentProps<E>, keyof EProps>;
 
+export interface Entity {
+	id: number;
+}
+
 export type PropsWithClassName<T = unknown> = T & { className?: string };

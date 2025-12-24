@@ -1,8 +1,14 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import { Entity } from './types';
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
+}
+
+export function extractIds<T extends Entity>(obj: T[]): number[] {
+	return obj.map(({ id }) => id);
 }
 
 export function isDev() {
