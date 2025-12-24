@@ -11,7 +11,7 @@ export type UserRow = Prisma.UserGetPayload<{
 export const userSchema = z.object({
 	id: idSchemaCoerce,
 	name: z.string().nullable(),
-	run: posIntSchema.default(1),
+	run: posIntSchema.prefault(1),
 });
 
 export type UserInput = z.infer<typeof userSchema>;

@@ -1,20 +1,24 @@
 import {
 	Link,
+	RecordContextProvider,
 	useCreatePath,
 	useListContext,
 	useRecordContext,
 } from 'react-admin';
 
-import Avatar, { AvatarEmpty } from '@/components/avatar';
+import { AvatarEmpty } from '@/components/avatar';
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { HunterSchema, HuntSchema } from '@/lib/schemas';
 
-export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
+import { AdminHunterSchema, AdminHuntSchema } from '../schemas';
+import { AdminAvatar } from './avatar';
+
+export function AdminHunter() {
+	const hunter = useRecordContext<AdminHunterSchema>();
 	const createPath = useCreatePath();
 	if (!hunter) {
 		return null;
@@ -30,7 +34,7 @@ export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 							type: 'edit',
 						})}
 					>
-						<Avatar hunter={hunter} />
+						<AdminAvatar />
 					</Link>
 				</TooltipTrigger>
 				<TooltipContent>{hunter.name}</TooltipContent>
@@ -40,8 +44,8 @@ export function AdminHunter({ hunter }: { hunter: HunterSchema }) {
 }
 
 export function AdminHunterList() {
-	const context = useListContext<HunterSchema>();
-	const record = useRecordContext<HuntSchema>();
+	const context = useListContext<AdminHunterSchema>();
+	const record = useRecordContext<AdminHuntSchema>();
 	if (!record) {
 		return null;
 	}
@@ -53,7 +57,9 @@ export function AdminHunterList() {
 		<ul className="flex gap-2">
 			{hunters.map((hunter) => (
 				<li key={hunter.id}>
-					<AdminHunter hunter={hunter} />
+					<RecordContextProvider value={hunter}>
+						<AdminHunter />
+					</RecordContextProvider>
 				</li>
 			))}
 			{slots.map((_, index) => (

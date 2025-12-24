@@ -10,17 +10,18 @@ import {
 
 import { SimpleForm } from '../components/simple-form';
 import { HunterRow } from '../hunter/common';
-import { UserInput, UserRow, userSchema } from './common';
+import { adminUserSchema, AdminUserSchema } from '../schemas';
+import { UserInput, userSchema } from './common';
 
 export function UserEdit() {
-	const { record } = useEditController<UserRow>();
+	const { record } = useEditController<AdminUserSchema>();
 	return (
 		<Edit
 			mutationMode="pessimistic"
-			title={`Player ${record?.name ?? record?.email ?? ''}`}
+			title={`Player ${record?.name ?? ''}`}
 			transform={editTransform}
 		>
-			<SimpleForm resolver={zodResolver(userSchema)}>
+			<SimpleForm resolver={zodResolver(adminUserSchema)}>
 				<TextInput isRequired source="name" />
 				<TextInput isRequired source="email" />
 				<ReferenceInput reference="hunter" source="hunter.id">

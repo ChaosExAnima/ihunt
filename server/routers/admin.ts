@@ -151,16 +151,25 @@ export const adminRouter = router({
 						total: await db.hunt.count({ where }),
 					};
 				}
-				case 'hunter':
-					return {
-						data: await db.hunter.findMany({
-							...query,
-							include: {
-								avatar: true,
+				case 'hunter': {
+					const hunters = await db.hunter.findMany({
+						...query,
+						include: {
+							hunts: {
+								select: {
+									id: true,
+								},
 							},
-						}),
+						},
+					});
+					return {
+						data: hunters.map(({ hunts, ...hunter }) => ({
+							...hunter,
+							huntIds: extractIds(hunts),
+						})),
 						total: await db.hunter.count({ where }),
 					};
+				}
 				case 'photo': {
 					const photos = await db.photo.findMany(query);
 					return {

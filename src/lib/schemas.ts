@@ -46,7 +46,7 @@ export type HunterTypeSchema = z.infer<typeof hunterTypeSchema>;
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
-	handle: z.string(),
+	handle: z.string().min(6),
 	id: idSchema,
 	money: z.coerce.number().int(),
 	name: z.string(),
