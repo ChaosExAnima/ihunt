@@ -1,5 +1,11 @@
 import { LoaderCircle } from 'lucide-react';
-import { ChangeEvent, useCallback, useRef, useState } from 'react';
+import {
+	ChangeEvent,
+	ReactElement,
+	useCallback,
+	useRef,
+	useState,
+} from 'react';
 import { PixelCrop } from 'react-image-crop';
 
 import UploadCropper from './cropper';
@@ -8,6 +14,7 @@ import { blobToDataUrl, imageToBlob } from './functions';
 
 interface UploadPhotoProps {
 	aspect?: number;
+	button?: ReactElement;
 	circular?: boolean;
 	dialogProps?: Partial<UploadDialogProps>;
 	onCrop: (blob: Blob) => Promise<boolean>;
@@ -16,6 +23,7 @@ interface UploadPhotoProps {
 
 export default function UploadPhoto({
 	aspect,
+	button,
 	circular = false,
 	dialogProps,
 	onCrop,
@@ -100,6 +108,7 @@ export default function UploadPhoto({
 			/>
 			<UploadDialog
 				{...dialogProps}
+				button={button}
 				disabled={disabled}
 				onConfirm={handleDialogConfirm}
 				open={open}

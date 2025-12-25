@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Crosshair, Image, LogOut, Swords, UserRound } from 'lucide-react';
 import { PropsWithChildren, useCallback } from 'react';
 import { Admin, DataProvider, Layout, Menu, Resource } from 'react-admin';
@@ -56,6 +57,7 @@ export function App() {
 				name="photo"
 				recordRepresentation="path"
 			/>
+			<ReactQueryDevtools />
 		</Admin>
 	);
 }

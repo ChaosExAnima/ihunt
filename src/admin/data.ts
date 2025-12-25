@@ -122,4 +122,23 @@ export const dataProvider = {
 		});
 		return { data: result.ids };
 	},
+
+	async uploadPhoto(params: {
+		blob: Blob;
+		hunterId?: number;
+		huntId?: number;
+	}) {
+		const { blob } = params;
+		const formData = new FormData();
+		formData.append('photo', blob);
+		if (params.hunterId) {
+			formData.append('hunterId', params.hunterId.toString());
+		}
+		if (params.huntId) {
+			formData.append('huntId', params.huntId.toString());
+		}
+		return trpcPlain.photos.upload.mutate(formData);
+	},
 } satisfies DataProvider<Resources>;
+
+export type AdminDataProvider = DataProvider & typeof dataProvider;

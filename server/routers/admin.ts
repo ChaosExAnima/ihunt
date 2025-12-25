@@ -174,11 +174,7 @@ export const adminRouter = router({
 					return {
 						data: photos.map((photo) => ({
 							...photo,
-							url: photoUrl({
-								height: photo.height,
-								path: photo.path,
-								width: photo.width,
-							}),
+							url: photoUrl(photo),
 						})),
 						total: await db.photo.count({ where }),
 					};

@@ -1,15 +1,20 @@
+import { FC, useCallback } from 'react';
 import {
-	ImageField,
-	ImageInput,
+	Button,
+	DeleteButton,
 	ReferenceField,
 	ReferenceFieldProps,
+	useDataProvider,
 	useRecordContext,
+	useRefresh,
 } from 'react-admin';
 
 import { AvatarEmpty } from '@/components/avatar';
 import PhotoDisplay from '@/components/photo';
+import UploadPhoto from '@/components/upload-photo';
 
-import { AdminPhotoSchema } from '../schemas';
+import { AdminDataProvider } from '../data';
+import { AdminHunterSchema, AdminPhotoSchema } from '../schemas';
 
 function AdminAvatarInner({ size }: { size: number }) {
 	const photo = useRecordContext<AdminPhotoSchema>();
@@ -36,10 +41,47 @@ export const AdminAvatar = ({
 	</ReferenceField>
 );
 
-export const AdminAvatarInput = () => (
-	<ImageInput className="col-span-2" source="avatarId">
+const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
+	const photo = useRecordContext<AdminPhotoSchema>();
+	const refresh = useRefresh();
+
+	const dataProvider = useDataProvider<AdminDataProvider>();
+	const handleCrop = useCallback(
+		async (blob: Blob) => {
+			const result = await dataProvider.uploadPhoto({ blob, hunterId });
+			refresh();
+			return !!result;
+		},
+		[dataProvider, refresh],
+	);
+
+	if (!hunterId || !photo) {
+		return null;
+	}
+
+	return (
+		<>
+			<PhotoDisplay photo={photo} />
+			<div className="flex gap-4 mt-4 justify-between">
+				<UploadPhoto
+					button={<Button>Replace</Button>}
+					circular
+					onCrop={handleCrop}
+					title="Avatar"
+				/>
+				<DeleteButton mutationMode="pessimistic" redirect={false}>
+					Delete Avatar
+				</DeleteButton>
+			</div>
+		</>
+	);
+};
+
+export const AdminAvatarInput: FC = () => {
+	const hunter = useRecordContext<AdminHunterSchema>();
+	return (
 		<ReferenceField reference="photo" source="avatarId">
-			<ImageField source="url" title="path" />
+			<AdminAvatarInnerInput hunterId={hunter?.id} />
 		</ReferenceField>
-	</ImageInput>
-);
+	);
+};
