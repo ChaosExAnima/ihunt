@@ -31,6 +31,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 	const payment = useCurrencyFormat(hunt.payment);
 	const huntersLeft =
 		hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
+
 	switch (hunt.status) {
 		case HuntStatus.Active:
 			return <HuntDisplayActive hunt={hunt} />;

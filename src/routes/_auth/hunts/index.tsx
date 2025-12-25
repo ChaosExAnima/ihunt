@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { HuntDisplay, HuntDisplayActive } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed';
+import { HuntInviteModal } from '@/components/hunt/invite-modal';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
 	Carousel,
@@ -11,6 +12,7 @@ import {
 	CarouselItem,
 } from '@/components/ui/carousel';
 import { useHunterId } from '@/hooks/use-hunter';
+import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
 import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
 
@@ -34,16 +36,29 @@ function RouteComponent() {
 		trpc.hunt.getAvailable.queryOptions(),
 	);
 
-	const queryClient = useQueryClient();
+	const invalidate = useInvalidate(() => [
+		trpc.hunt.getActive.queryKey(),
+		trpc.hunt.getAvailable.queryKey(),
+	]);
 	const { mutate } = useMutation(
 		trpc.hunt.join.mutationOptions({
-			async onSuccess() {
-				await queryClient.invalidateQueries({
-					queryKey: trpc.hunt.getAvailable.queryKey(),
-				});
+			onSuccess() {
+				invalidate();
 			},
 		}),
 	);
+
+	const [acceptingHuntId, setAcceptingHuntId] = useState(0);
+	const handleAcceptHunt = useCallback(
+		(huntId: number) => {
+			mutate({ huntId });
+			setAcceptingHuntId(huntId);
+		},
+		[mutate],
+	);
+	const handleCancelAccept = useCallback(() => {
+		setAcceptingHuntId(0);
+	}, []);
 
 	const acceptedToday = useMemo(
 		() =>
@@ -57,39 +72,47 @@ function RouteComponent() {
 	);
 
 	return (
-		<Carousel className="-mx-4 flex flex-col grow">
-			<CarouselContent className="min-h-full" slot="ul">
-				{isLoadingAvailable && isLoadingActive && (
+		<>
+			<Carousel className="-mx-4 flex flex-col grow">
+				<CarouselContent className="min-h-full" slot="ul">
+					{isLoadingAvailable && isLoadingActive && (
+						<CarouselItem>
+							<HuntLoading className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg" />
+						</CarouselItem>
+					)}
+					{!isLoadingActive &&
+						activeHunts?.map((hunt) => (
+							<CarouselItem key={hunt.id}>
+								<HuntDisplayActive
+									className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+									hunt={hunt}
+								/>
+							</CarouselItem>
+						))}
+					{!isLoadingAvailable &&
+						availableHunts?.map((hunt) => (
+							<CarouselItem key={hunt.id}>
+								<HuntDisplay
+									className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+									hunt={hunt}
+									onAcceptHunt={handleAcceptHunt}
+									remainingHunts={
+										HUNT_MAX_PER_DAY - acceptedToday
+									}
+								/>
+							</CarouselItem>
+						))}
 					<CarouselItem>
-						<HuntLoading className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg" />
+						<HuntsCompleted />
 					</CarouselItem>
-				)}
-				{!isLoadingActive &&
-					activeHunts?.map((hunt) => (
-						<CarouselItem key={hunt.id}>
-							<HuntDisplayActive
-								className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
-								hunt={hunt}
-							/>
-						</CarouselItem>
-					))}
-				{!isLoadingAvailable &&
-					availableHunts?.map((hunt) => (
-						<CarouselItem key={hunt.id}>
-							<HuntDisplay
-								className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
-								hunt={hunt}
-								onAcceptHunt={(id) => mutate({ huntId: id })}
-								remainingHunts={
-									HUNT_MAX_PER_DAY - acceptedToday
-								}
-							/>
-						</CarouselItem>
-					))}
-				<CarouselItem>
-					<HuntsCompleted />
-				</CarouselItem>
-			</CarouselContent>
-		</Carousel>
+				</CarouselContent>
+			</Carousel>
+			{acceptingHuntId && (
+				<HuntInviteModal
+					huntId={acceptingHuntId}
+					onClose={handleCancelAccept}
+				/>
+			)}
+		</>
 	);
 }

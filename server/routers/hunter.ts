@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
@@ -15,9 +16,16 @@ import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure
-		.input(z.object({ id: idSchemaCoerce }))
+		.input(z.object({ id: idSchemaCoerce }).optional())
 		.output(groupSchema.nullable())
-		.query(async ({ ctx: { hunter }, input: { id } }) => {
+		.query(async ({ ctx: { hunter }, input }) => {
+			const id = input?.id ?? hunter.groupId;
+			if (!id) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'No group ID provided',
+				});
+			}
 			const group = await db.hunterGroup.findUniqueOrThrow({
 				include: {
 					hunters: {
