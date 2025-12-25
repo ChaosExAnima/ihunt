@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import sharp from 'sharp';
 
 import { config } from '@/server/config';
 import { db } from '@/server/db';
@@ -21,7 +22,8 @@ async function main() {
 				const buffer = await readFile(
 					resolve(config.mediaPath, photo.path),
 				);
-				const blurry = await generateThumbhash(buffer);
+				const image = sharp(buffer);
+				const blurry = await generateThumbhash(image);
 				await db.photo.update({
 					data: {
 						blurry,

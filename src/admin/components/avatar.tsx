@@ -52,7 +52,7 @@ const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
 			refresh();
 			return !!result;
 		},
-		[dataProvider, refresh],
+		[dataProvider, hunterId, refresh],
 	);
 
 	if (!hunterId) {
