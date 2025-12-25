@@ -16,7 +16,7 @@ import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure
-		.input(z.object({ id: idSchemaCoerce }).optional())
+		.input(z.object({ id: idSchemaCoerce.nullish() }).optional())
 		.output(groupSchema.nullable())
 		.query(async ({ ctx: { hunter }, input }) => {
 			const id = input?.id ?? hunter.groupId;

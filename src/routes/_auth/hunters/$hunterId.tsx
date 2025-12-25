@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import z from 'zod';
 
 import Header from '@/components/header';
-import { HunterList } from '@/components/hunter-list';
+import { HunterGroupList } from '@/components/hunter/group-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import PhotoDisplay from '@/components/photo';
 import { Rating } from '@/components/rating';
@@ -45,18 +45,12 @@ function RouteComponent() {
 			hunterId,
 		}),
 	);
-	const { data: group } = useQuery({
-		...trpc.hunter.getGroup.queryOptions({
-			id: hunter?.groupId,
-		}),
-		enabled: !!hunter?.groupId,
-	});
 
 	if (!hunter) {
 		return null;
 	}
 	const { avatar } = hunter;
-	const groupHunters = group?.hunters ?? [];
+
 	return (
 		<>
 			<div
@@ -100,12 +94,9 @@ function RouteComponent() {
 				</>
 			)}
 
-			{groupHunters.length > 0 && (
-				<>
-					<Header level={3}>Friends</Header>
-					<HunterList hunters={groupHunters} />
-				</>
-			)}
+			<HunterGroupList groupId={hunter.groupId}>
+				<Header level={3}>Friends</Header>
+			</HunterGroupList>
 
 			<Header level={3}>Reviews</Header>
 			<ol>
