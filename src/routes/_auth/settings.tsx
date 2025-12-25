@@ -35,14 +35,20 @@ function Settings() {
 			},
 		}),
 	);
-	const { mutate: updateBio } = useMutation(
-		trpc.settings.updateBio.mutationOptions(),
+	const { mutate: updateFields } = useMutation(
+		trpc.settings.updateFields.mutationOptions(),
 	);
 	const handleBioChange = useCallback(
 		(bio: string) => {
-			updateBio({ bio });
+			updateFields({ bio });
 		},
-		[updateBio],
+		[updateFields],
+	);
+	const handlePronounsChange = useCallback(
+		(pronouns: string) => {
+			updateFields({ pronouns });
+		},
+		[updateFields],
 	);
 
 	const router = useRouter();
@@ -71,7 +77,10 @@ function Settings() {
 					<p>{hunter.name}</p>
 				</SettingBlock>
 				<SettingBlock label="Pronouns">
-					<p>{hunter.pronouns ?? 'They/them'}</p>
+					<EditableBlock
+						onChange={handlePronounsChange}
+						value={hunter.pronouns ?? ''}
+					/>
 				</SettingBlock>
 				<SettingBlock className="" label="Cash">
 					<div className="flex-col items-start gap-0 grow">
