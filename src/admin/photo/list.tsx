@@ -17,7 +17,7 @@ import { AdminPhotoSchema } from '../schemas';
 
 export function PhotoList() {
 	return (
-		<List perPage={25}>
+		<List perPage={25} queryOptions={{ meta: { showAll: true } }}>
 			<Datagrid
 				expand={<PhotoExpand />}
 				sort={{ field: 'id', order: 'ASC' }}

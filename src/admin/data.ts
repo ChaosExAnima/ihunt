@@ -68,7 +68,7 @@ export const dataProvider = {
 			ids: params.ids,
 			resource,
 		});
-		return { data: result.ids };
+		return { data: result };
 	},
 	// get a list of records based on sort, filter, and pagination
 	async getList(resource, params) {
