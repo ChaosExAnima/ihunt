@@ -17,8 +17,8 @@ export const hunterRouter = router({
 	getGroup: userProcedure
 		.input(z.object({ id: idSchemaCoerce }))
 		.output(groupSchema.nullable())
-		.query(async ({ input: { id } }) => {
-			return db.hunterGroup.findUnique({
+		.query(async ({ ctx: { hunter }, input: { id } }) => {
+			const group = await db.hunterGroup.findUniqueOrThrow({
 				include: {
 					hunters: {
 						include: {
@@ -28,6 +28,10 @@ export const hunterRouter = router({
 				},
 				where: { id },
 			});
+			return {
+				...group,
+				hunters: group?.hunters.filter(({ id }) => id !== hunter.id),
+			};
 		}),
 
 	getOne: userProcedure
