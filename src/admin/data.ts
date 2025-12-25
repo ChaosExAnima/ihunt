@@ -123,11 +123,7 @@ export const dataProvider = {
 		return { data: result.ids };
 	},
 
-	async uploadPhoto(params: {
-		blob: Blob;
-		hunterId?: number;
-		huntId?: number;
-	}) {
+	async uploadPhoto(params: AdminUploadPhotoArgs) {
 		const { blob } = params;
 		const formData = new FormData();
 		formData.append('photo', blob);
@@ -137,8 +133,16 @@ export const dataProvider = {
 		if (params.huntId) {
 			formData.append('huntId', params.huntId.toString());
 		}
+		console.log('uploading:', params);
+
 		return trpcPlain.photos.upload.mutate(formData);
 	},
 } satisfies DataProvider<Resources>;
 
 export type AdminDataProvider = DataProvider & typeof dataProvider;
+
+export type AdminUploadPhotoArgs = {
+	blob: Blob;
+	hunterId?: number;
+	huntId?: number;
+};

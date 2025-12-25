@@ -214,20 +214,21 @@ export const adminRouter = router({
 			const query = { where: { id } };
 			switch (resource) {
 				case 'hunt': {
-					const { hunters, ...hunt } = await db.hunt.findFirstOrThrow(
-						{
+					const { hunters, photos, ...hunt } =
+						await db.hunt.findFirstOrThrow({
 							...query,
 							include: {
 								hunters: {
 									select: { id: true },
 								},
+								photos: { select: { id: true } },
 							},
-						},
-					);
+						});
 					return {
 						...hunt,
 						// This is specifically for autocomplete input.
-						hunterIds: hunters.map(({ id }) => id),
+						hunterIds: extractIds(hunters),
+						photoIds: extractIds(photos),
 					};
 				}
 				case 'hunter': {

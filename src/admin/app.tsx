@@ -55,7 +55,7 @@ export function App() {
 				icon={Image}
 				list={PhotoList}
 				name="photo"
-				recordRepresentation="path"
+				recordRepresentation="id"
 			/>
 			<ReactQueryDevtools />
 		</Admin>

@@ -12,7 +12,7 @@ import UploadCropper from './cropper';
 import UploadDialog, { UploadDialogProps } from './dialog';
 import { blobToDataUrl, imageToBlob } from './functions';
 
-interface UploadPhotoProps {
+export interface UploadPhotoProps {
 	aspect?: number;
 	button?: ReactElement;
 	circular?: boolean;

@@ -95,6 +95,13 @@ export const photosRouter = router({
 				});
 			}
 
+			if (!huntId && !hunterId) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'Must provide a hunt or hunter or both',
+				});
+			}
+
 			// Check if the hunter is part of the hunt and it's finished.
 			if (huntId && hunterId && !admin) {
 				const hunt = await db.hunt.findFirstOrThrow({
