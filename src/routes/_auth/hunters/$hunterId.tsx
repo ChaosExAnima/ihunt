@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useMemo } from 'react';
 import z from 'zod';
 
 import Header from '@/components/header';
