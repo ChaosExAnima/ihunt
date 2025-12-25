@@ -5,6 +5,7 @@ import { useCallback, useId } from 'react';
 
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
+import { HunterGroupList } from '@/components/hunter/group-list';
 import { Rating } from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
@@ -16,6 +17,9 @@ import { trpc } from '@/lib/api';
 import { useCurrencyFormat } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth/settings')({
+	async beforeLoad({ context: { queryClient } }) {
+		await queryClient.ensureQueryData(trpc.hunter.getGroup.queryOptions());
+	},
 	component: Settings,
 });
 
@@ -88,6 +92,9 @@ function Settings() {
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
+				<SettingBlock label="Handle">
+					<p>{hunter.handle}</p>
+				</SettingBlock>
 				<SettingBlock label="Pronouns">
 					<EditableBlock
 						onChange={handlePronounsChange}
@@ -151,6 +158,9 @@ function Settings() {
 						id={`${idBase}-theme`}
 						onCheckedChange={toggleTheme}
 					/>
+				</SettingBlock>
+				<SettingBlock label="Friends">
+					<HunterGroupList groupId={null} />
 				</SettingBlock>
 			</section>
 			<Button asChild variant="secondary">

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import { trpc } from '@/lib/api';
 
-import { HunterList } from '../hunter-list';
+import { HunterGroupList } from '../hunter/group-list';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader } from '../ui/dialog';
 
@@ -16,13 +16,6 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 	const { data: hunt, isLoading: isLoadingHunt } = useQuery(
 		trpc.hunt.getOne.queryOptions({ huntId }),
 	);
-	const { data: group } = useQuery(trpc.hunter.getGroup.queryOptions());
-
-	useEffect(() => {
-		if (group?.hunters && group.hunters.length === 0) {
-			onClose();
-		}
-	}, [group?.hunters, onClose]);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
@@ -37,22 +30,17 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		onClose();
 	}, [onClose]);
 
-	if (isLoadingHunt || !hunt || !group?.hunters) {
+	if (isLoadingHunt || !hunt) {
 		return null;
 	}
-
-	const groupHunters = group.hunters;
 
 	return (
 		<Dialog onOpenChange={handleOpenChange} open>
 			<DialogHeader>Invite hunters</DialogHeader>
 			<DialogContent>
-				{groupHunters.length > 0 && (
-					<>
-						<p>Invite the rest of your group?</p>
-						<HunterList hunters={groupHunters} />
-					</>
-				)}
+				<HunterGroupList groupId={null}>
+					<p>Invite the rest of your group?</p>
+				</HunterGroupList>
 				<Button className="grow" onClick={handleSend} variant="success">
 					Send invites
 				</Button>
