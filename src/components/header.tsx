@@ -20,8 +20,8 @@ export default function Header({
 				'scroll-m-20 tracking-tight',
 				level === 1 ? 'text-4xl font-extrabold' : 'font-semibold',
 				level === 2 && 'text-3xl',
-				level === 3 && 'text-2xl',
-				level === 4 && 'text-xl',
+				level === 3 && 'text-xl',
+				level === 4 && 'text-lg',
 				className,
 			)}
 			{...props}

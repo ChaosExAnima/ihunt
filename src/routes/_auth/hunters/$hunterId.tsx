@@ -9,6 +9,7 @@ import PhotoDisplay from '@/components/photo';
 import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
 import { hunterSchema, huntSchema } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 export const hunterPageSchema = z.object({
 	...hunterSchema.shape,
@@ -52,10 +53,21 @@ function RouteComponent() {
 	if (!hunter) {
 		return null;
 	}
+	const { avatar } = hunter;
 	return (
 		<>
-			<div className="relative rounded-lg overflow-hidden">
-				<div className="absolute top-0 p-2 flex justify-between w-full">
+			<div
+				className={cn(
+					'rounded-lg',
+					avatar && 'relative overflow-hidden',
+				)}
+			>
+				<div
+					className={cn(
+						'flex justify-between w-full',
+						avatar && 'absolute top-0 p-2',
+					)}
+				>
 					<Rating max={5} rating={hunter.rating} />
 					<HunterTypeIcon
 						className="text-white"
@@ -63,8 +75,14 @@ function RouteComponent() {
 						type={hunter.type}
 					/>
 				</div>
-				{!!hunter.avatar && <PhotoDisplay photo={hunter.avatar} />}
-				<div className="absolute bottom-0 text-white p-2 bg-black/40 w-full text-sm">
+				{!!avatar && <PhotoDisplay photo={avatar} />}
+				<div
+					className={cn(
+						'text-white w-full text-sm',
+						avatar && 'absolute bottom-0 p-2 bg-black/40',
+						!avatar && 'my-4',
+					)}
+				>
 					<div className="flex gap-2 items-baseline">
 						<Header level={2}>{hunter.name}</Header>
 						<p>{hunter.pronouns ?? 'they/them'}</p>
@@ -72,8 +90,12 @@ function RouteComponent() {
 					<p>@{hunter.handle}</p>
 				</div>
 			</div>
-			<Header level={3}>About me</Header>
-			{hunter.bio && <p>{hunter.bio}</p>}
+			{hunter.bio && (
+				<>
+					<Header level={3}>About me</Header>
+					<p>{hunter.bio}</p>
+				</>
+			)}
 
 			{group && (
 				<>
