@@ -10,39 +10,34 @@ import {
 } from 'react-admin';
 
 import { AvatarEmpty } from '@/components/avatar';
-import PhotoDisplay from '@/components/photo';
 import UploadPhoto from '@/components/upload-photo';
 
 import { AdminDataProvider } from '../data';
-import { AdminHunterSchema, AdminPhotoSchema } from '../schemas';
-
-function AdminAvatarInner({ size }: { size: number }) {
-	const photo = useRecordContext<AdminPhotoSchema>();
-	if (!photo) {
-		return <AvatarEmpty />;
-	}
-	return (
-		<PhotoDisplay
-			className="rounded-full"
-			fit="fill"
-			height={size}
-			photo={photo}
-			width={size}
-		/>
-	);
-}
+import { AdminHunterSchema } from '../schemas';
+import { AdminPhotoField } from './photo-field';
 
 export const AdminAvatar = ({
 	size = 40,
 	...props
-}: Omit<ReferenceFieldProps, 'reference' | 'source'> & { size?: number }) => (
-	<ReferenceField reference="photo" source="avatarId" {...props}>
-		<AdminAvatarInner size={size} />
+}: Omit<ReferenceFieldProps, 'empty' | 'reference' | 'source'> & {
+	size?: number;
+}) => (
+	<ReferenceField
+		empty={<AvatarEmpty />}
+		reference="photo"
+		source="avatarId"
+		{...props}
+	>
+		<AdminPhotoField
+			className="rounded-full"
+			fit="fill"
+			height={size}
+			width={size}
+		/>
 	</ReferenceField>
 );
 
 const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
-	const photo = useRecordContext<AdminPhotoSchema>();
 	const refresh = useRefresh();
 
 	const dataProvider = useDataProvider<AdminDataProvider>();
@@ -55,13 +50,13 @@ const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
 		[dataProvider, refresh],
 	);
 
-	if (!hunterId || !photo) {
+	if (!hunterId) {
 		return null;
 	}
 
 	return (
 		<>
-			<PhotoDisplay photo={photo} />
+			<AdminPhotoField />
 			<div className="flex gap-4 mt-4 justify-between">
 				<UploadPhoto
 					button={<Button>Replace</Button>}
