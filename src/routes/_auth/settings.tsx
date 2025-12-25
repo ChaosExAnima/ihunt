@@ -41,6 +41,9 @@ function Settings() {
 			},
 		}),
 	);
+	const handleMoneyToggle = useCallback(() => {
+		updateMoney();
+	}, [updateMoney]);
 
 	const { mutate: updateFields } = useMutation(
 		trpc.settings.updateFields.mutationOptions({
@@ -133,7 +136,7 @@ function Settings() {
 					<Button
 						className="text-muted-foreground self-start"
 						disabled={updatingMoney}
-						onClick={() => updateMoney()}
+						onClick={handleMoneyToggle}
 						size="icon"
 						variant="ghost"
 					>

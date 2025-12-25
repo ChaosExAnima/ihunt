@@ -42,12 +42,13 @@ export default function UploadPhoto({
 	};
 
 	const handleFileChange = useCallback(
-		async (event: ChangeEvent<HTMLInputElement>) => {
+		(event: ChangeEvent<HTMLInputElement>) => {
 			if (event.target.files && event.target.files.length > 0) {
 				const file = event.target.files[0];
-				const imgStr = await blobToDataUrl(file);
-				setImgSrc(imgStr);
-				setOpen(true);
+				void blobToDataUrl(file).then((imgStr) => {
+					setImgSrc(imgStr);
+					setOpen(true);
+				});
 			} else {
 				reset();
 			}
@@ -102,7 +103,7 @@ export default function UploadPhoto({
 				accept="image/*"
 				className="hidden"
 				disabled={disabled}
-				onChange={(event) => void handleFileChange(event)}
+				onChange={handleFileChange}
 				ref={inputRef}
 				type="file"
 			/>

@@ -39,6 +39,15 @@ export function HuntPics({
 
 	const showPhoto = activeIndex >= 1;
 
+	const handlePick = useCallback(
+		(index: number) => {
+			return () => {
+				onPick(index);
+			};
+		},
+		[onPick],
+	);
+
 	useEffect(() => {
 		if (!currentPhoto && activeIndex >= 1) {
 			onPick(0);
@@ -61,7 +70,7 @@ export function HuntPics({
 								'aspect-square w-full rounded-md cursor-pointer border border-transparent',
 								index === activeIndex && 'border-rose-700',
 							)}
-							onClick={() => onPick(index)}
+							onClick={handlePick(index)}
 							photo={photo}
 						/>
 					</li>

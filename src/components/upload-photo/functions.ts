@@ -10,6 +10,7 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
 		reader.readAsDataURL(blob);
 	});
 }
+
 export async function imageToBlob(
 	image: HTMLImageElement,
 	crop: PixelCrop,
