@@ -9,12 +9,13 @@ import {
 	TextInput,
 } from 'react-admin';
 
+import { AdminPhotoList } from '../components/photo-list';
+import { AdminPhotoInput } from '../components/photo-upload';
 import { SimpleForm } from '../components/simple-form';
 import { adminHuntSchema, AdminHuntSchema } from '../schemas';
 import { huntStatusChoices } from './common';
 
 export function HuntEdit() {
-	// TODO: Allow adding pics!
 	return (
 		<Edit<AdminHuntSchema> mutationMode="pessimistic">
 			<SimpleForm resolver={zodResolver(adminHuntSchema)}>
@@ -54,6 +55,16 @@ export function HuntEdit() {
 					>
 						<AutocompleteArrayInput className="col-span-2" />
 					</ReferenceArrayInput>
+					<div className="col-span-2">
+						<ReferenceArrayInput
+							label="Photos"
+							reference="photo"
+							source="photoIds"
+						>
+							<AdminPhotoList className="mb-4" />
+						</ReferenceArrayInput>
+						<AdminPhotoInput title="Add new" type="hunt" />
+					</div>
 					<DateTimeInput source="completedAt" />
 					<NumberInput max={5} min={0} source="rating" step={0.5} />
 					<TextInput

@@ -3,6 +3,7 @@ import z from 'zod';
 
 import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
+import { Entity } from '@/lib/types';
 import { extractIds, omit } from '@/lib/utils';
 
 import { db } from '../db';
@@ -21,6 +22,7 @@ const sortSchema = z.object({
 
 const findManySchema = z.object({
 	ids: z.array(idSchemaCoerce).optional(),
+	meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
 	pagination: paginationSchema.optional(),
 	resource: resourceSchema,
 	sort: sortSchema.optional(),
@@ -58,7 +60,13 @@ export const adminRouter = router({
 				case 'hunter':
 					return db.hunter.delete(query);
 				case 'photo':
-					return db.photo.delete(query);
+					return db.photo.update({
+						...query,
+						data: {
+							hunterId: null,
+							huntId: null,
+						},
+					});
 				case 'user':
 					return db.user.delete(query);
 			}
@@ -79,39 +87,42 @@ export const adminRouter = router({
 					},
 				},
 			};
-			let ids = inIds;
+			let data: Entity[] = [];
 			switch (resource) {
 				case 'hunt': {
-					const data = await db.hunt.findMany(query);
+					data = await db.hunt.findMany(query);
 					await db.hunt.deleteMany(query);
-					ids = data.map(({ id }) => id);
 					break;
 				}
 				case 'hunter': {
-					const data = await db.hunter.findMany(query);
+					data = await db.hunter.findMany(query);
 					await db.hunter.deleteMany(query);
-					ids = data.map(({ id }) => id);
 					break;
 				}
 				case 'photo': {
-					const data = await db.photo.findMany(query);
-					await db.photo.deleteMany(query);
-					ids = data.map(({ id }) => id);
+					data = await db.photo.findMany(query);
+					await db.photo.updateMany({
+						...query,
+						data: {
+							hunterId: null,
+							huntId: null,
+						},
+					});
 					break;
 				}
 				case 'user': {
-					const data = await db.user.findMany(query);
+					data = await db.user.findMany(query);
 					await db.user.deleteMany(query);
-					ids = data.map(({ id }) => id);
 					break;
 				}
 			}
-			return { ids };
+
+			return extractIds(data);
 		}),
 
 	getList: adminProcedure
 		.input(findManySchema)
-		.query(async ({ input: { ids, pagination, resource, sort } }) => {
+		.query(async ({ input: { ids, meta, pagination, resource, sort } }) => {
 			const where = ids
 				? {
 						id: {
@@ -140,12 +151,16 @@ export const adminRouter = router({
 							hunters: {
 								select: { id: true },
 							},
+							photos: {
+								select: { id: true },
+							},
 						},
 					});
 					return {
-						data: hunts.map(({ hunters, ...hunt }) => ({
+						data: hunts.map(({ hunters, photos, ...hunt }) => ({
 							...hunt,
 							hunterIds: extractIds(hunters),
+							photoIds: extractIds(photos),
 						})),
 						total: await db.hunt.count({ where }),
 					};
@@ -170,15 +185,26 @@ export const adminRouter = router({
 					};
 				}
 				case 'photo': {
-					const photos = await db.photo.findMany(query);
+					const photos = await db.photo.findMany({
+						...query,
+						where: {
+							...where,
+							OR: !meta?.showAll
+								? [
+										{
+											hunterId: {
+												not: null,
+											},
+										},
+										{ huntId: { not: null } },
+									]
+								: undefined,
+						},
+					});
 					return {
 						data: photos.map((photo) => ({
 							...photo,
-							url: photoUrl({
-								height: photo.height,
-								path: photo.path,
-								width: photo.width,
-							}),
+							url: photoUrl(photo),
 						})),
 						total: await db.photo.count({ where }),
 					};
@@ -218,20 +244,21 @@ export const adminRouter = router({
 			const query = { where: { id } };
 			switch (resource) {
 				case 'hunt': {
-					const { hunters, ...hunt } = await db.hunt.findFirstOrThrow(
-						{
+					const { hunters, photos, ...hunt } =
+						await db.hunt.findFirstOrThrow({
 							...query,
 							include: {
 								hunters: {
 									select: { id: true },
 								},
+								photos: { select: { id: true } },
 							},
-						},
-					);
+						});
 					return {
 						...hunt,
 						// This is specifically for autocomplete input.
-						hunterIds: hunters.map(({ id }) => id),
+						hunterIds: extractIds(hunters),
+						photoIds: extractIds(photos),
 					};
 				}
 				case 'hunter': {
@@ -272,9 +299,7 @@ export const adminRouter = router({
 		.input(
 			findManySchema
 				.omit({ ids: true })
-				.extend(
-					z.object({ id: idSchemaCoerce, target: z.string() }).shape,
-				),
+				.extend({ id: idSchemaCoerce, target: z.string() }),
 		)
 		.query(
 			async ({ input: { id, pagination, resource, sort, target } }) => {

@@ -68,7 +68,7 @@ export const dataProvider = {
 			ids: params.ids,
 			resource,
 		});
-		return { data: result.ids };
+		return { data: result };
 	},
 	// get a list of records based on sort, filter, and pagination
 	async getList(resource, params) {
@@ -122,4 +122,27 @@ export const dataProvider = {
 		});
 		return { data: result.ids };
 	},
+
+	async uploadPhoto(params: AdminUploadPhotoArgs) {
+		const { blob } = params;
+		const formData = new FormData();
+		formData.append('photo', blob);
+		if (params.hunterId) {
+			formData.append('hunterId', params.hunterId.toString());
+		}
+		if (params.huntId) {
+			formData.append('huntId', params.huntId.toString());
+		}
+		console.log('uploading:', params);
+
+		return trpcPlain.photos.upload.mutate(formData);
+	},
 } satisfies DataProvider<Resources>;
+
+export type AdminDataProvider = DataProvider & typeof dataProvider;
+
+export type AdminUploadPhotoArgs = {
+	blob: Blob;
+	hunterId?: number;
+	huntId?: number;
+};

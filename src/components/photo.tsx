@@ -13,7 +13,7 @@ import { thumbHashToDataURL } from 'thumbhash';
 import { trpc } from '@/lib/api';
 import { PhotoSchema } from '@/lib/schemas';
 
-interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
+export interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
 	fit?: ResizingType;
 	height?: number;
 	photo: PhotoSchema;

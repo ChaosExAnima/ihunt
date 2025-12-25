@@ -15,6 +15,7 @@ export const adminHuntSchema = huntSchema
 	.omit({ hunters: true, photos: true })
 	.extend({
 		hunterIds: z.array(idSchemaCoerce),
+		photoIds: z.array(idSchemaCoerce),
 	});
 export type AdminHuntSchema = z.infer<typeof adminHuntSchema>;
 

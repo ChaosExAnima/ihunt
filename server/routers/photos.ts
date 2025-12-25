@@ -1,10 +1,11 @@
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
-import { idSchema, posIntSchema } from '@/lib/schemas';
+import { HuntStatus } from '@/lib/constants';
+import { idSchema, idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 
 import { db } from '../db';
-import { outputPhoto } from '../photo';
+import { outputPhoto, photoUrl, uploadPhoto } from '../photo';
 import { loggedInProcedure, router } from '../trpc';
 
 const resizingTypeSchema = z.enum([
@@ -67,5 +68,96 @@ export const photosRouter = router({
 			return sizes.map((size) =>
 				outputPhoto({ photo, ...size, ...options }),
 			);
+		}),
+
+	upload: loggedInProcedure
+		.input(
+			z.instanceof(FormData).transform((fd) =>
+				z
+					.object({
+						hunterId: idSchemaCoerce.optional(),
+						huntId: idSchemaCoerce.optional(),
+						photo: z.instanceof(File),
+					})
+					.parse(Object.fromEntries(fd.entries())),
+			),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { admin, hunter } = ctx;
+			const { huntId, photo } = input;
+			let hunterId = hunter?.id;
+			if (admin) {
+				hunterId = input.hunterId;
+			} else if (!hunterId) {
+				throw new TRPCError({
+					code: 'UNAUTHORIZED',
+					message: 'No hunter found',
+				});
+			}
+
+			if (!huntId && !hunterId) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'Must provide a hunt or hunter or both',
+				});
+			}
+
+			// Check if the hunter is part of the hunt and it's finished.
+			if (huntId && hunterId && !admin) {
+				const hunt = await db.hunt.findFirstOrThrow({
+					include: {
+						hunters: {
+							select: {
+								id: true,
+							},
+						},
+					},
+					where: { id: huntId },
+				});
+				if (hunt.status !== HuntStatus.Active) {
+					throw new TRPCError({
+						code: 'UNAUTHORIZED',
+						message: 'Hunt must be active to upload photos',
+					});
+				}
+				if (!hunt.hunters.find(({ id }) => id === hunterId)) {
+					throw new TRPCError({
+						code: 'UNAUTHORIZED',
+						message: 'You must be involved with this hunt',
+					});
+				}
+			}
+
+			try {
+				const result = await uploadPhoto({
+					buffer: await photo.bytes(),
+					hunterId,
+					huntId,
+					name: photo.name,
+				});
+
+				if (hunterId && !huntId) {
+					await db.hunter.update({
+						data: {
+							avatarId: result.id,
+						},
+						where: { id: hunterId },
+					});
+				}
+
+				return {
+					...result,
+					url: photoUrl(result),
+				};
+			} catch (err) {
+				if (err instanceof TRPCError) {
+					throw err;
+				}
+				throw new TRPCError({
+					cause: err,
+					code: 'INTERNAL_SERVER_ERROR',
+					message: 'Could not upload this photo',
+				});
+			}
 		}),
 });

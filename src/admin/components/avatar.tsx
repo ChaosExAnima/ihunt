@@ -1,45 +1,87 @@
+import { FC, useCallback } from 'react';
 import {
-	ImageField,
-	ImageInput,
+	Button,
+	DeleteButton,
 	ReferenceField,
 	ReferenceFieldProps,
+	useDataProvider,
 	useRecordContext,
+	useRefresh,
 } from 'react-admin';
 
-import { AvatarEmpty } from '@/components/avatar';
-import PhotoDisplay from '@/components/photo';
+import UploadPhoto from '@/components/upload-photo';
 
-import { AdminPhotoSchema } from '../schemas';
+import { AdminDataProvider } from '../data';
+import { AdminHunterSchema } from '../schemas';
+import { AdminPhotoField } from './photo-field';
 
-function AdminAvatarInner({ size }: { size: number }) {
-	const photo = useRecordContext<AdminPhotoSchema>();
-	if (!photo) {
-		return <AvatarEmpty />;
+export const AdminAvatar: FC<
+	Omit<ReferenceFieldProps, 'empty' | 'reference' | 'source'> & {
+		size?: number;
 	}
+> = ({ size = 40, ...props }) => {
+	const hunter = useRecordContext<AdminHunterSchema>();
 	return (
-		<PhotoDisplay
-			className="rounded-full"
-			fit="fill"
-			height={size}
-			photo={photo}
-			width={size}
-		/>
-	);
-}
-
-export const AdminAvatar = ({
-	size = 40,
-	...props
-}: Omit<ReferenceFieldProps, 'reference' | 'source'> & { size?: number }) => (
-	<ReferenceField reference="photo" source="avatarId" {...props}>
-		<AdminAvatarInner size={size} />
-	</ReferenceField>
-);
-
-export const AdminAvatarInput = () => (
-	<ImageInput className="col-span-2" source="avatarId">
-		<ReferenceField reference="photo" source="avatarId">
-			<ImageField source="url" title="path" />
+		<ReferenceField
+			empty={
+				<span className="uppercase flex size-10 items-center justify-center rounded-full bg-muted">
+					{hunter?.name.slice(0, 2)}
+				</span>
+			}
+			reference="photo"
+			source="avatarId"
+			{...props}
+		>
+			<AdminPhotoField
+				className="rounded-full"
+				fit="fill"
+				height={size}
+				width={size}
+			/>
 		</ReferenceField>
-	</ImageInput>
-);
+	);
+};
+
+const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
+	const refresh = useRefresh();
+
+	const dataProvider = useDataProvider<AdminDataProvider>();
+	const handleCrop = useCallback(
+		async (blob: Blob) => {
+			const result = await dataProvider.uploadPhoto({ blob, hunterId });
+			refresh();
+			return !!result;
+		},
+		[dataProvider, refresh],
+	);
+
+	if (!hunterId) {
+		return null;
+	}
+
+	return (
+		<>
+			<AdminPhotoField />
+			<div className="flex gap-4 mt-4 justify-between">
+				<UploadPhoto
+					button={<Button>Replace</Button>}
+					circular
+					onCrop={handleCrop}
+					title="Avatar"
+				/>
+				<DeleteButton mutationMode="pessimistic" redirect={false}>
+					Delete Avatar
+				</DeleteButton>
+			</div>
+		</>
+	);
+};
+
+export const AdminAvatarInput: FC = () => {
+	const hunter = useRecordContext<AdminHunterSchema>();
+	return (
+		<ReferenceField reference="photo" source="avatarId">
+			<AdminAvatarInnerInput hunterId={hunter?.id} />
+		</ReferenceField>
+	);
+};

@@ -51,7 +51,10 @@ export const hunterSchema = z.object({
 	money: z.coerce.number().int(),
 	name: z.string(),
 	pronouns: z.string().nullable(),
-	type: hunterTypeSchema.nullable(),
+	type: z
+		.string()
+		.transform((type) => hunterTypeSchema.parse(type))
+		.nullable(),
 });
 export type HunterSchema = z.infer<typeof hunterSchema>;
 
