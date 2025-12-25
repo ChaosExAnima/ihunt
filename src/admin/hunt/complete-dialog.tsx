@@ -1,23 +1,23 @@
-import {
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	DialogTrigger,
-} from '@radix-ui/react-dialog';
 import { Check } from 'lucide-react';
 import { ChangeEvent, FormEventHandler, useState } from 'react';
 import {
+	Button,
 	IconButtonWithTooltip,
 	useRecordContext,
 	useUpdate,
 } from 'react-admin';
 
-import { Button } from '@/components/ui/button';
-import { DialogHeader } from '@/components/ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { HuntStatus } from '@/lib/constants';
-import { useCurrencyFormat } from '@/lib/formats';
+import { currencyFormatter } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
 export default function HuntCompleteDialog() {
@@ -52,7 +52,8 @@ export default function HuntCompleteDialog() {
 						: parseFloat(event.target.value),
 			}));
 
-	const formattedPayment = useCurrencyFormat(modalData.payment);
+	const formattedOriginal = currencyFormatter.format(hunt?.payment ?? 0);
+	const formattedPayment = currencyFormatter.format(modalData.payment);
 
 	return (
 		<Dialog onOpenChange={setModalOpen} open={modalOpen}>
@@ -66,7 +67,7 @@ export default function HuntCompleteDialog() {
 					<DialogTitle>Complete hunt</DialogTitle>
 				</DialogHeader>
 				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-					<p>{`You are paying the hunter ${formattedPayment}.`}</p>
+					<p>{`You are paying the hunters ${formattedPayment} of ${formattedOriginal}.`}</p>
 					<Input
 						min={0}
 						onChange={createFieldHandler('payment')}
@@ -86,14 +87,10 @@ export default function HuntCompleteDialog() {
 					<p>Leave a comment:</p>
 					<Textarea
 						onChange={createFieldHandler('comment')}
-						placeholder="Complain or praise your hunters"
+						placeholder="Put your complaints here"
 						value={modalData.comment}
 					/>
-					<Button
-						disabled={isLoading}
-						type="submit"
-						variant="success"
-					>
+					<Button color="success" disabled={isLoading} type="submit">
 						Complete
 					</Button>
 				</form>

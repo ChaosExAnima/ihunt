@@ -50,6 +50,11 @@ export function HuntList() {
 				<ReferenceArrayField reference="hunter" source="hunterIds">
 					<AdminHuntHunters />
 				</ReferenceArrayField>
+				<NumberField
+					label="Photos"
+					source="photoIds"
+					transform={(photoIds: number[]) => photoIds.length}
+				/>
 				<HuntActions />
 			</Datagrid>
 		</List>

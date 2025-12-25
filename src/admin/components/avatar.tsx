@@ -9,33 +9,38 @@ import {
 	useRefresh,
 } from 'react-admin';
 
-import { AvatarEmpty } from '@/components/avatar';
 import UploadPhoto from '@/components/upload-photo';
 
 import { AdminDataProvider } from '../data';
 import { AdminHunterSchema } from '../schemas';
 import { AdminPhotoField } from './photo-field';
 
-export const AdminAvatar = ({
-	size = 40,
-	...props
-}: Omit<ReferenceFieldProps, 'empty' | 'reference' | 'source'> & {
-	size?: number;
-}) => (
-	<ReferenceField
-		empty={<AvatarEmpty />}
-		reference="photo"
-		source="avatarId"
-		{...props}
-	>
-		<AdminPhotoField
-			className="rounded-full"
-			fit="fill"
-			height={size}
-			width={size}
-		/>
-	</ReferenceField>
-);
+export const AdminAvatar: FC<
+	Omit<ReferenceFieldProps, 'empty' | 'reference' | 'source'> & {
+		size?: number;
+	}
+> = ({ size = 40, ...props }) => {
+	const hunter = useRecordContext<AdminHunterSchema>();
+	return (
+		<ReferenceField
+			empty={
+				<span className="uppercase flex size-10 items-center justify-center rounded-full bg-muted">
+					{hunter?.name.slice(0, 2)}
+				</span>
+			}
+			reference="photo"
+			source="avatarId"
+			{...props}
+		>
+			<AdminPhotoField
+				className="rounded-full"
+				fit="fill"
+				height={size}
+				width={size}
+			/>
+		</ReferenceField>
+	);
+};
 
 const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
 	const refresh = useRefresh();

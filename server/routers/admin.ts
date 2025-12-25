@@ -151,12 +151,16 @@ export const adminRouter = router({
 							hunters: {
 								select: { id: true },
 							},
+							photos: {
+								select: { id: true },
+							},
 						},
 					});
 					return {
-						data: hunts.map(({ hunters, ...hunt }) => ({
+						data: hunts.map(({ hunters, photos, ...hunt }) => ({
 							...hunt,
 							hunterIds: extractIds(hunters),
+							photoIds: extractIds(photos),
 						})),
 						total: await db.hunt.count({ where }),
 					};
