@@ -102,6 +102,11 @@ function Settings() {
 							account may be terminated.
 						</p>
 					)}
+					{hunter.rating > 4 && (
+						<p className="text-xs text-success">
+							You are one of our top hunters!
+						</p>
+					)}
 				</SettingBlock>
 				<SettingBlock label="Cash">
 					<div className="flex-col items-start gap-0 grow">
