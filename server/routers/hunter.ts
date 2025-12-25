@@ -23,7 +23,6 @@ export const hunterRouter = router({
 		.output(
 			hunterSchema.extend({
 				count: z.number().min(0),
-				followers: z.array(hunterSchema),
 				hunts: z.array(
 					outputHuntSchema.omit({ hunters: true, photos: true }),
 				),
@@ -46,11 +45,6 @@ export const hunterRouter = router({
 						},
 					},
 					avatar: true,
-					followers: {
-						include: {
-							avatar: true,
-						},
-					},
 					hunts: {
 						where: {
 							status: HuntStatus.Complete,
@@ -73,10 +67,6 @@ export const hunterRouter = router({
 			return {
 				...hunter,
 				count,
-				followers: hunter.followers.map((follower) => ({
-					...follower,
-					type: hunterTypeSchema.parse(follower.type),
-				})),
 				rating: rating._avg.rating ?? 1,
 				type: hunterTypeSchema.parse(hunter.type),
 			};
