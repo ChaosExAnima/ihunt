@@ -53,17 +53,11 @@ function RouteComponent() {
 		enabled: !!hunter?.groupId,
 	});
 
-	const groupHunters = useMemo(() => {
-		if (!group || !hunter?.id) {
-			return [];
-		}
-		return group.hunters.filter(({ id }) => hunter?.id !== id);
-	}, [group, hunter?.id]);
-
 	if (!hunter) {
 		return null;
 	}
 	const { avatar } = hunter;
+	const groupHunters = group?.hunters ?? [];
 	return (
 		<>
 			<div
