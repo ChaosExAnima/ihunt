@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, PropsWithChildren, useCallback } from 'react';
 import {
 	Button,
 	DeleteButton,
@@ -42,7 +42,27 @@ export const AdminAvatar: FC<
 	);
 };
 
-const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
+const AdminAvatarInnerInput: FC<PropsWithChildren> = ({ children }) => {
+	return (
+		<>
+			<AdminPhotoField />
+			<div className="flex gap-4 mt-4 justify-between">
+				{children}
+				<DeleteButton mutationMode="pessimistic" redirect={false}>
+					Delete Avatar
+				</DeleteButton>
+			</div>
+		</>
+	);
+};
+
+function AdminAvatarInputUpload({
+	create = false,
+	hunterId,
+}: {
+	create?: boolean;
+	hunterId: number;
+}) {
 	const refresh = useRefresh();
 
 	const dataProvider = useDataProvider<AdminDataProvider>();
@@ -54,34 +74,29 @@ const AdminAvatarInnerInput: FC<{ hunterId?: number }> = ({ hunterId }) => {
 		},
 		[dataProvider, hunterId, refresh],
 	);
-
-	if (!hunterId) {
-		return null;
-	}
-
 	return (
-		<>
-			<AdminPhotoField />
-			<div className="flex gap-4 mt-4 justify-between">
-				<UploadPhoto
-					button={<Button>Replace</Button>}
-					circular
-					onCrop={handleCrop}
-					title="Avatar"
-				/>
-				<DeleteButton mutationMode="pessimistic" redirect={false}>
-					Delete Avatar
-				</DeleteButton>
-			</div>
-		</>
+		<UploadPhoto
+			button={<Button>{create ? 'Add avatar' : 'Replace avatar'}</Button>}
+			circular
+			onCrop={handleCrop}
+			title="Avatar"
+		/>
 	);
-};
+}
 
 export const AdminAvatarInput: FC = () => {
 	const hunter = useRecordContext<AdminHunterSchema>();
-	return (
-		<ReferenceField reference="photo" source="avatarId">
-			<AdminAvatarInnerInput hunterId={hunter?.id} />
-		</ReferenceField>
-	);
+	if (!hunter?.id) {
+		return null;
+	}
+	if (hunter?.avatarId) {
+		return (
+			<ReferenceField reference="photo" source="avatarId">
+				<AdminAvatarInnerInput>
+					<AdminAvatarInputUpload hunterId={hunter.id} />
+				</AdminAvatarInnerInput>
+			</ReferenceField>
+		);
+	}
+	return <AdminAvatarInputUpload create hunterId={hunter.id} />;
 };
