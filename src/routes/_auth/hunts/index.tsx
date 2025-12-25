@@ -107,7 +107,7 @@ function RouteComponent() {
 					</CarouselItem>
 				</CarouselContent>
 			</Carousel>
-			{acceptingHuntId && (
+			{acceptingHuntId > 0 && (
 				<HuntInviteModal
 					huntId={acceptingHuntId}
 					onClose={handleCancelAccept}
