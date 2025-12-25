@@ -36,9 +36,12 @@ function Settings() {
 	const { mutate: updateBio } = useMutation(
 		trpc.settings.updateBio.mutationOptions(),
 	);
-	const handleBioChange = useCallback((bio: string) => {
-		updateBio({ bio });
-	}, []);
+	const handleBioChange = useCallback(
+		(bio: string) => {
+			updateBio({ bio });
+		},
+		[updateBio],
+	);
 
 	const router = useRouter();
 	const { isPending: loggingOut, mutate: logOut } = useMutation(
@@ -50,7 +53,7 @@ function Settings() {
 	);
 	const handleLogOut = useCallback(() => {
 		logOut();
-	}, []);
+	}, [logOut]);
 
 	const money = useCurrencyFormat(hunter?.money ?? 0);
 

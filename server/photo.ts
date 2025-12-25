@@ -2,10 +2,8 @@ import type { Options as PhotoUrlOptions } from '@imgproxy/imgproxy-js-core';
 
 import { generateImageUrl } from '@imgproxy/imgproxy-node';
 import { Photo } from '@prisma/client';
-import { fileTypeFromBuffer } from 'file-type';
-import { writeFile } from 'fs/promises';
-import { imageDimensionsFromData } from 'image-dimensions';
 import { createHash } from 'node:crypto';
+import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
 import { rgbaToThumbHash } from 'thumbhash';
@@ -26,8 +24,8 @@ interface UploadPhotoArgs {
 	name?: string;
 }
 
-export async function generateThumbhash(buffer: Buffer<ArrayBuffer>) {
-	const image = sharp(buffer).resize(100, 100, { fit: 'inside' });
+export async function generateThumbhash(fullImage: sharp.Sharp) {
+	const image = fullImage.resize(100, 100, { fit: 'inside' });
 	const { data, info } = await image
 		.ensureAlpha()
 		.raw()
@@ -61,7 +59,7 @@ export function outputPhoto({
 
 export function photoUrl({ path, ...options }: PhotoUrlArgs) {
 	const url = generateImageUrl({
-		endpoint: 'https://images.ihunt.local',
+		endpoint: `http${config.mediaSecure ? 's' : ''}://${config.mediaHost}`,
 		options,
 		url: `local:///${path}`,
 	});
@@ -73,29 +71,15 @@ export async function uploadPhoto({
 	hunterId,
 	huntId,
 }: UploadPhotoArgs) {
-	// Web buffer to Node buffer
-	const arrayBuffer = Buffer.from(buffer);
-
 	// Check file type
-	const fileType = await fileTypeFromBuffer(arrayBuffer);
-	if (!fileType) {
-		throw new Error('Could not validate file type');
-	}
-	if (!fileType.mime.startsWith('image/')) {
-		throw new Error(`Invalid mime type: ${fileType.mime}`);
-	}
-
-	// Get image dimensions
-	const dimensions = imageDimensionsFromData(buffer);
-	if (!dimensions) {
-		throw new Error('Could not extract dimensions');
-	}
+	const image = sharp(buffer, { autoOrient: true });
+	const metadata = await image.metadata();
 
 	// Hash buffer for the filename
 	const hash = createHash('sha256');
-	hash.update(arrayBuffer);
+	hash.update(buffer);
 	const hex = hash.digest('hex');
-	const fileName = `${hex}.${fileType.ext}`;
+	const fileName = `${hex}.${metadata.format}`;
 
 	const controller = new AbortController();
 	try {
@@ -105,13 +89,13 @@ export async function uploadPhoto({
 		});
 	} catch (err) {
 		controller.abort();
-		throw new Error('Error with upload', { cause: err });
+		throw new Error('Error with saving', { cause: err });
 	}
 
-	// Fetch blurry version
-	const blurry = await generateThumbhash(arrayBuffer);
+	const blurry = await generateThumbhash(image);
 
-	const { height, width } = dimensions;
+	const { height, width } = metadata.autoOrient;
+
 	return db.photo.create({
 		data: {
 			blurry,

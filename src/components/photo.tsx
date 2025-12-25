@@ -5,7 +5,7 @@ import {
 	ImgHTMLAttributes,
 	RefCallback,
 	useCallback,
-	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
@@ -28,7 +28,7 @@ export default function PhotoDisplay({
 	width,
 	...props
 }: PhotoDisplayProps) {
-	const [url, setUrl] = useState(() => {
+	const blurryUrl = useMemo(() => {
 		if (!photo.blurry) {
 			return undefined;
 		}
@@ -38,7 +38,7 @@ export default function PhotoDisplay({
 				.map((x) => x.charCodeAt(0)),
 		);
 		return thumbHashToDataURL(binary);
-	});
+	}, [photo.blurry]);
 
 	const [dimensions, setDimensions] = useState({ height, width });
 	const imgRef: RefCallback<HTMLImageElement> = useCallback((ref) => {
@@ -72,11 +72,7 @@ export default function PhotoDisplay({
 			...dimensions,
 		}),
 	);
-	useEffect(() => {
-		if (data) {
-			setUrl(data.url);
-		}
-	}, [data]);
+	const src = data?.url ?? blurryUrl;
 
 	return (
 		<img
@@ -84,7 +80,7 @@ export default function PhotoDisplay({
 			alt={alt}
 			height={height}
 			ref={imgRef}
-			src={url}
+			src={src}
 			width={width}
 		/>
 	);

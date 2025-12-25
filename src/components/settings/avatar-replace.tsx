@@ -19,12 +19,15 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 			},
 		}),
 	);
-	const handleCrop = useCallback(async (blob: Blob) => {
-		const formData = new FormData();
-		formData.append('photo', blob);
-		const result = await mutateAsync(formData);
-		return result.success;
-	}, []);
+	const handleCrop = useCallback(
+		async (blob: Blob) => {
+			const formData = new FormData();
+			formData.append('photo', blob);
+			const result = await mutateAsync(formData);
+			return result.success;
+		},
+		[mutateAsync],
+	);
 	return (
 		<UploadPhoto
 			circular

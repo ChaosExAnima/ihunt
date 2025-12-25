@@ -1,0 +1,31 @@
+name: linting
+on: [pull_request]
+
+jobs:
+  build:
+    name: Linting
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: 'yarn'
+          node-version-file: package.json
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Check formatting
+        run: yarn prettier . --check
+
+      - name: Lint the code
+        run: yarn run lint
