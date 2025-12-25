@@ -14,8 +14,11 @@ interface HunterListProps {
 
 export function HunterList({ hunters, max = 0 }: HunterListProps) {
 	const slots = useMemo(
-		() => Array.from(Array(Math.min(max, HUNT_MAX_HUNTERS))),
-		[max],
+		() =>
+			Array.from(
+				Array(Math.min(max, HUNT_MAX_HUNTERS) || hunters.length),
+			),
+		[hunters.length, max],
 	);
 
 	return (

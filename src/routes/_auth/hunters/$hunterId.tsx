@@ -3,9 +3,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import z from 'zod';
 
 import Header from '@/components/header';
+import { HunterList } from '@/components/hunter-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import PhotoDisplay from '@/components/photo';
-import Rating from '@/components/rating';
+import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
 import { hunterSchema, huntSchema } from '@/lib/schemas';
 
@@ -21,11 +22,18 @@ export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
 	async loader({ context: { queryClient }, params: { hunterId } }) {
-		await queryClient.ensureQueryData(
-			trpc.hunter.getOne.queryOptions({
-				hunterId: Number.parseInt(hunterId),
-			}),
-		);
+		await Promise.allSettled([
+			queryClient.ensureQueryData(
+				trpc.hunter.getOne.queryOptions({
+					hunterId,
+				}),
+			),
+			queryClient.ensureQueryData(
+				trpc.hunter.getGroup.queryOptions({
+					hunterId,
+				}),
+			),
+		]);
 	},
 });
 
@@ -33,7 +41,12 @@ function RouteComponent() {
 	const { hunterId } = Route.useParams();
 	const { data: hunter } = useQuery(
 		trpc.hunter.getOne.queryOptions({
-			hunterId: Number.parseInt(hunterId),
+			hunterId,
+		}),
+	);
+	const { data: group } = useQuery(
+		trpc.hunter.getGroup.queryOptions({
+			hunterId,
 		}),
 	);
 	if (!hunter) {
@@ -59,8 +72,16 @@ function RouteComponent() {
 					<p>@{hunter.handle}</p>
 				</div>
 			</div>
+			<Header level={3}>About me</Header>
 			{hunter.bio && <p>{hunter.bio}</p>}
-			<p>Completed hunts: {hunter.count}</p>
+
+			{group && (
+				<>
+					<Header level={3}>Friends</Header>
+					<HunterList hunters={group.hunters} />
+				</>
+			)}
+
 			<Header level={3}>Reviews</Header>
 			<ol>
 				{hunter.hunts.map((hunt) => (

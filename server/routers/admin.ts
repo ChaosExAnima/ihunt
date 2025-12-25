@@ -7,7 +7,7 @@ import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
 
 import { db } from '../db';
-import { outputPhoto, photoUrl } from '../photo';
+import { photoUrl } from '../photo';
 import { adminProcedure, router } from '../trpc';
 
 const paginationSchema = z.object({
@@ -360,16 +360,8 @@ export const adminRouter = router({
 					};
 				}
 				case 'hunter': {
-					const hunter = await db.hunter.findFirstOrThrow({
-						...query,
-						include: { avatar: true },
-					});
-					return {
-						...hunter,
-						avatar: hunter.avatar
-							? outputPhoto({ photo: hunter.avatar })
-							: null,
-					};
+					const hunter = await db.hunter.findFirstOrThrow(query);
+					return hunter;
 				}
 				case 'photo':
 					return db.photo.findFirstOrThrow(query);

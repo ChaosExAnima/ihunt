@@ -46,15 +46,12 @@ export type HunterTypeSchema = z.infer<typeof hunterTypeSchema>;
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
-	get group() {
-		return z.lazy(() => groupSchema).nullish();
-	},
 	handle: z.string().min(6),
 	id: idSchema,
 	money: z.coerce.number().int(),
 	name: z.string(),
 	pronouns: z.string().nullable(),
-	rating: posIntSchema,
+	rating: z.number().positive().max(5),
 	type: z
 		.string()
 		.transform((type) => hunterTypeSchema.parse(type))
