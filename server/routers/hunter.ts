@@ -2,9 +2,9 @@ import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
 import {
+	groupSchema,
 	hunterSchema,
 	hunterTypeSchema,
-	idSchema,
 	idSchemaCoerce,
 } from '@/lib/schemas';
 
@@ -14,10 +14,26 @@ import { outputHuntSchema } from '../schema';
 import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
+	getGroup: userProcedure
+		.input(z.object({ hunterId: idSchemaCoerce }))
+		.output(groupSchema.nullable())
+		.query(async ({ input: { hunterId } }) => {
+			return db.hunterGroup.findUnique({
+				include: {
+					hunters: {
+						include: {
+							avatar: true,
+						},
+					},
+				},
+				where: { id: hunterId },
+			});
+		}),
+
 	getOne: userProcedure
 		.input(
 			z.object({
-				hunterId: idSchema,
+				hunterId: idSchemaCoerce,
 			}),
 		)
 		.output(

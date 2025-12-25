@@ -29,7 +29,6 @@ export type AdminHuntSchema = z.infer<typeof adminHuntSchema>;
 export const adminHunterSchema = hunterSchema
 	.omit({
 		avatar: true,
-		group: true,
 	})
 	.extend({
 		alive: z.boolean(),
