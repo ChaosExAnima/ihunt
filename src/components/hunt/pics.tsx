@@ -127,7 +127,7 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 		trpc.hunt.uploadPhoto.mutationOptions({
 			async onSuccess() {
 				await queryClient.invalidateQueries({
-					queryKey: [trpc.hunt.getActive.queryKey()],
+					queryKey: trpc.hunt.getActive.queryKey(),
 				});
 			},
 		}),
