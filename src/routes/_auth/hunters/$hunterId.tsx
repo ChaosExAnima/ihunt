@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useMemo } from 'react';
 import z from 'zod';
 
 import Header from '@/components/header';
@@ -23,18 +24,18 @@ export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
 	async loader({ context: { queryClient }, params: { hunterId } }) {
-		await Promise.allSettled([
-			queryClient.ensureQueryData(
-				trpc.hunter.getOne.queryOptions({
-					hunterId,
-				}),
-			),
-			queryClient.ensureQueryData(
+		const hunter = await queryClient.ensureQueryData(
+			trpc.hunter.getOne.queryOptions({
+				hunterId,
+			}),
+		);
+		if (hunter.groupId) {
+			await queryClient.ensureQueryData(
 				trpc.hunter.getGroup.queryOptions({
-					hunterId,
+					id: hunter.groupId,
 				}),
-			),
-		]);
+			);
+		}
 	},
 });
 
@@ -45,11 +46,20 @@ function RouteComponent() {
 			hunterId,
 		}),
 	);
-	const { data: group } = useQuery(
-		trpc.hunter.getGroup.queryOptions({
-			hunterId,
+	const { data: group } = useQuery({
+		...trpc.hunter.getGroup.queryOptions({
+			id: hunter?.groupId,
 		}),
-	);
+		enabled: !!hunter?.groupId,
+	});
+
+	const groupHunters = useMemo(() => {
+		if (!group || !hunter?.id) {
+			return [];
+		}
+		return group.hunters.filter(({ id }) => hunter?.id !== id);
+	}, [group, hunter?.id]);
+
 	if (!hunter) {
 		return null;
 	}
@@ -97,10 +107,10 @@ function RouteComponent() {
 				</>
 			)}
 
-			{group && (
+			{groupHunters.length > 0 && (
 				<>
 					<Header level={3}>Friends</Header>
-					<HunterList hunters={group.hunters} />
+					<HunterList hunters={groupHunters} />
 				</>
 			)}
 

@@ -24,20 +24,31 @@ function Settings() {
 		player: { hunter },
 		queryClient,
 	} = Route.useRouteContext();
+
 	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
 		trpc.settings.updateMoney.mutationOptions({
-			onSuccess({ hideMoney }) {
-				queryClient.setQueryData(trpc.auth.me.queryKey(), {
-					hunter,
-					settings: {
-						hideMoney,
-					},
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: [
+						trpc.auth.me.queryKey(),
+						trpc.hunter.getOne.queryKey(),
+					],
 				});
 			},
 		}),
 	);
+
 	const { mutate: updateFields } = useMutation(
-		trpc.settings.updateFields.mutationOptions(),
+		trpc.settings.updateFields.mutationOptions({
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: [
+						trpc.auth.me.queryKey(),
+						trpc.hunter.getOne.queryKey(),
+					],
+				});
+			},
+		}),
 	);
 	const handleBioChange = useCallback(
 		(bio: string) => {
@@ -83,8 +94,14 @@ function Settings() {
 						value={hunter.pronouns ?? ''}
 					/>
 				</SettingBlock>
-				<SettingBlock label="Rating">
-					<Rating rating={hunter.rating} />
+				<SettingBlock className="flex-col items-start" label="Rating">
+					<Rating max={5} rating={hunter.rating} />
+					{hunter.rating <= 1 && (
+						<p className="text-xs text-accent">
+							Your rating is low! Boost it with more jobs or your
+							account may be terminated.
+						</p>
+					)}
 				</SettingBlock>
 				<SettingBlock label="Cash">
 					<div className="flex-col items-start gap-0 grow">
