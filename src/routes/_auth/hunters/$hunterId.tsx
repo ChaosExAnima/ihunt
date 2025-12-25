@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import z from 'zod';
 
 import Header from '@/components/header';
-import { HunterList } from '@/components/hunter-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import PhotoDisplay from '@/components/photo';
 import Rating from '@/components/rating';
@@ -65,8 +64,6 @@ function RouteComponent() {
 			</div>
 			{hunter.bio && <p>{hunter.bio}</p>}
 			<p>Completed hunts: {hunter.count}</p>
-			<p>Hunt friends:</p>
-			<HunterList hunters={hunter.followers} />
 			<Header level={3}>Reviews</Header>
 			<ol>
 				{hunter.hunts.map((hunt) => (

@@ -46,6 +46,9 @@ export type HunterTypeSchema = z.infer<typeof hunterTypeSchema>;
 export const hunterSchema = z.object({
 	avatar: photoSchema.nullable(),
 	bio: z.string().nullable(),
+	get group() {
+		return z.lazy(() => groupSchema).nullish();
+	},
 	handle: z.string().min(6),
 	id: idSchema,
 	money: z.coerce.number().int(),
@@ -77,3 +80,10 @@ export const huntSchema = z.object({
 });
 export type HuntSchema = z.infer<typeof huntSchema>;
 export const huntsSchema = z.array(huntSchema);
+
+export const groupSchema = z.object({
+	hunters: z.array(hunterSchema),
+	id: idSchema,
+	name: z.string(),
+});
+export type GroupSchema = z.infer<typeof groupSchema>;
