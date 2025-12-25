@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowRight } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
 import { HuntDisplay, HuntDisplayActive } from '@/components/hunt';
+import { HuntsCompleted } from '@/components/hunt/completed';
 import { HuntLoading } from '@/components/hunt/loading';
-import { Card } from '@/components/ui/card';
 import {
 	Carousel,
 	CarouselContent,
@@ -14,8 +13,6 @@ import {
 import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
 import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
-import { dateFormat, useCurrencyFormat } from '@/lib/formats';
-import { HuntSchema } from '@/lib/schemas';
 
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,
@@ -26,69 +23,6 @@ export const Route = createFileRoute('/_auth/hunts/')({
 		]);
 	},
 });
-
-function CompletedHunt({ hunt }: { hunt: HuntSchema }) {
-	const payment = useCurrencyFormat(hunt.payment);
-	return (
-		<li>
-			<Card
-				asChild
-				className="block border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
-			>
-				<Link
-					params={{ huntId: hunt.id.toString() }}
-					to="/hunts/$huntId"
-				>
-					{hunt.name}
-					{payment && `‒ ${payment}`}
-					<ArrowRight className="float-right" />
-				</Link>
-			</Card>
-		</li>
-	);
-}
-
-function HuntsCompleted() {
-	const { data: hunts } = useQuery(trpc.hunt.getCompleted.queryOptions());
-
-	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {
-		if (!hunts) {
-			return [];
-		}
-		const huntsByDate = new Map<string, HuntSchema[]>();
-		for (const hunt of hunts) {
-			const { completedAt, scheduledAt } = hunt;
-			const date = scheduledAt ?? completedAt ?? new Date(0);
-			const key = dateFormat(date);
-			const huntsInDate = huntsByDate.get(key) ?? [];
-			huntsInDate.push(hunt);
-			huntsByDate.set(key, huntsInDate);
-		}
-
-		return [...huntsByDate];
-	}, [hunts]);
-
-	if (!hunts || hunts.length === 0) {
-		return null;
-	}
-
-	return (
-		<CarouselItem asChild>
-			<ol>
-				{huntsByDate.map(([date, hunts]) => (
-					<li className="mx-4 mb-4" key={date}>
-						<p className="mb-4">{date}</p>
-						<ul className="flex flex-col gap-4">
-							{hunts.map((hunt) => (
-								<CompletedHunt hunt={hunt} key={hunt.id} />
-							))}
-						</ul>
-					</li>
-				))}
-			</ol>
-		</CarouselItem>
-	);
-}
 
 function RouteComponent() {
 	const hunterId = useHunterId();
@@ -152,7 +86,9 @@ function RouteComponent() {
 							/>
 						</CarouselItem>
 					))}
-				<HuntsCompleted />
+				<CarouselItem>
+					<HuntsCompleted />
+				</CarouselItem>
 			</CarouselContent>
 		</Carousel>
 	);
