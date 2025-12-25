@@ -1,5 +1,5 @@
 import { CircleCheckBig, X } from 'lucide-react';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import type { PropsWithClassName } from '@/lib/types';
 
@@ -28,6 +28,11 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
 	);
+
+	const handleAccept = useCallback(() => {
+		onAcceptHunt?.(hunt.id);
+	}, [hunt.id, onAcceptHunt]);
+
 	const payment = useCurrencyFormat(hunt.payment);
 	const huntersLeft =
 		hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
@@ -50,7 +55,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 					<Button
 						className="flex mx-auto rounded-full font-bold self-center"
 						disabled={!huntersLeft && !isAccepted}
-						onClick={() => onAcceptHunt?.(hunt.id)}
+						onClick={handleAccept}
 						variant={isAccepted ? 'destructive' : 'success'}
 					>
 						{isAccepted ? (
