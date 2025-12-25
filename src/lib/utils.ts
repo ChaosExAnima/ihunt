@@ -11,6 +11,13 @@ export function extractIds<T extends Entity>(obj: T[]): number[] {
 	return obj.map(({ id }) => id);
 }
 
+export function idsToObjects(ids?: number[]): Entity[] | undefined {
+	if (!ids) {
+		return undefined;
+	}
+	return ids.map((id) => ({ id }));
+}
+
 export function isDev() {
 	if (typeof process !== 'undefined') {
 		return process.env.NODE_ENV === 'development';
