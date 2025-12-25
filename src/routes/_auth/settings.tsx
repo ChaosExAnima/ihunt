@@ -5,6 +5,7 @@ import { useCallback, useId } from 'react';
 
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
+import Rating from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
@@ -82,7 +83,10 @@ function Settings() {
 						value={hunter.pronouns ?? ''}
 					/>
 				</SettingBlock>
-				<SettingBlock className="" label="Cash">
+				<SettingBlock label="Rating">
+					<Rating rating={hunter.rating} />
+				</SettingBlock>
+				<SettingBlock label="Cash">
 					<div className="flex-col items-start gap-0 grow">
 						{money !== '' ? (
 							<>
