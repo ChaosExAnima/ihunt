@@ -3,21 +3,65 @@ import { memo } from 'react';
 
 import { cn } from '@/lib/utils';
 
-interface RatingProps {
+type RatingProps = Omit<LucideProps, 'fill'> & {
+	fill?: boolean;
+	max?: number;
 	rating: number;
-}
+};
 
-function RatingBase({ rating, ...props }: LucideProps & RatingProps) {
+function RatingBase({
+	className,
+	fill = false,
+	max = 0,
+	rating,
+	...props
+}: RatingProps) {
+	const baseStars = Math.floor(rating);
+	const hasHalfStar = rating - baseStars >= 0.5;
+	const remainder = Math.floor(max - (baseStars + (hasHalfStar ? 1 : 0)));
+	if (remainder > 0) {
+		fill = true;
+	}
+
+	const starClassName = cn(fill && 'fill-white', className);
 	return (
-		<span className={cn('inline-flex items-center gap-1')}>
-			{Array.from(Array(Math.floor(rating)).keys()).map((index) => (
-				<Star {...props} key={index} />
+		<span className="inline-flex items-center gap-1">
+			{Array.from(Array(baseStars).keys()).map((index) => (
+				<Star {...props} className={starClassName} key={index} />
 			))}
-			{rating - Math.floor(rating) >= 0.5 && <StarHalf {...props} />}
+			{hasHalfStar && (
+				<RatingStarHalf
+					{...props}
+					className={className}
+					fill={remainder > 0}
+				/>
+			)}
+			{remainder > 0 &&
+				Array.from(Array(remainder).keys()).map((index) => (
+					<Star {...props} className={className} key={index} />
+				))}
 		</span>
 	);
 }
 
-const Rating = memo(RatingBase);
+function RatingStarHalf({
+	fill,
+	...props
+}: Omit<RatingProps, 'max' | 'rating'>) {
+	if (!fill) {
+		return <StarHalf {...props} />;
+	}
+
+	return (
+		<span className="relative">
+			<StarHalf
+				{...props}
+				className={cn(props.className, 'absolute left-0 fill-white')}
+			/>
+			<Star {...props} />
+		</span>
+	);
+}
+
+export const Rating = memo(RatingBase);
 Rating.displayName = 'Rating';
-export default Rating;

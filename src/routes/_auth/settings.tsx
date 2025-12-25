@@ -5,7 +5,7 @@ import { useCallback, useId } from 'react';
 
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
-import Rating from '@/components/rating';
+import { Rating } from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';

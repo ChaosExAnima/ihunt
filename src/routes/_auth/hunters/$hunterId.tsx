@@ -43,10 +43,7 @@ function RouteComponent() {
 		<>
 			<div className="relative rounded-lg overflow-hidden">
 				<div className="absolute top-0 p-2 flex justify-between w-full">
-					<Rating
-						className="text-white fill-white"
-						rating={hunter.rating ?? 1}
-					/>
+					<Rating max={5} rating={hunter.rating} />
 					<HunterTypeIcon
 						className="text-white"
 						size="2em"
@@ -68,7 +65,8 @@ function RouteComponent() {
 			<ol>
 				{hunter.hunts.map((hunt) => (
 					<li key={hunt.id}>
-						<Rating rating={hunt.rating ?? 1} size="1em" /> &ldquo;
+						<Rating max={5} rating={hunt.rating} size="1em" />{' '}
+						&ldquo;
 						{hunt.comment}&rdquo;
 					</li>
 				))}

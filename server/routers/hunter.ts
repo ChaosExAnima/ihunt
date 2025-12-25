@@ -22,28 +22,14 @@ export const hunterRouter = router({
 		)
 		.output(
 			hunterSchema.extend({
-				count: z.number().min(0),
 				hunts: z.array(
 					outputHuntSchema.omit({ hunters: true, photos: true }),
 				),
-				rating: z.number().min(0).max(5),
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const {
-				_count: { hunts: count },
-				...hunter
-			} = await db.hunter.findFirstOrThrow({
+			const hunter = await db.hunter.findFirstOrThrow({
 				include: {
-					_count: {
-						select: {
-							hunts: {
-								where: {
-									status: HuntStatus.Complete,
-								},
-							},
-						},
-					},
 					avatar: true,
 					hunts: {
 						where: {
@@ -53,21 +39,9 @@ export const hunterRouter = router({
 				},
 				where: { id },
 			});
-			const rating = await db.hunt.aggregate({
-				_avg: {
-					rating: true,
-				},
-				where: {
-					hunters: {
-						some: { id },
-					},
-				},
-			});
 
 			return {
 				...hunter,
-				count,
-				rating: rating._avg.rating ?? 1,
 				type: hunterTypeSchema.parse(hunter.type),
 			};
 		}),

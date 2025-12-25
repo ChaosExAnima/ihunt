@@ -46,7 +46,7 @@ model Hunter {
     bio         String?
     pronouns    String?
     type        String?
-    rating      Int          @default(1)
+    rating      Float        @default(1)
     invites     HuntInvite[] @relation("Invitee")
     sentInvites HuntInvite[] @relation("Inviter")
 }
