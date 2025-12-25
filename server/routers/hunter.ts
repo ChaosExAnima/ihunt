@@ -15,9 +15,9 @@ import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure
-		.input(z.object({ hunterId: idSchemaCoerce }))
+		.input(z.object({ id: idSchemaCoerce }))
 		.output(groupSchema.nullable())
-		.query(async ({ input: { hunterId } }) => {
+		.query(async ({ input: { id } }) => {
 			return db.hunterGroup.findUnique({
 				include: {
 					hunters: {
@@ -26,7 +26,7 @@ export const hunterRouter = router({
 						},
 					},
 				},
-				where: { id: hunterId },
+				where: { id },
 			});
 		}),
 
@@ -38,6 +38,7 @@ export const hunterRouter = router({
 		)
 		.output(
 			hunterSchema.extend({
+				groupId: idSchemaCoerce.nullish(),
 				hunts: z.array(
 					outputHuntSchema.omit({ hunters: true, photos: true }),
 				),
