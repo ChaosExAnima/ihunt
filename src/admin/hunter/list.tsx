@@ -27,6 +27,12 @@ export function HunterList() {
 			>
 				<TextField source="id" />
 				<TextField source="name" />
+				<TextField source="handle" />
+				<ReferenceField
+					empty={<em className="text-stone-400">No group</em>}
+					reference="group"
+					source="groupId"
+				/>
 				<AdminAvatar label="Avatar" />
 				<FunctionField
 					label="Type"
