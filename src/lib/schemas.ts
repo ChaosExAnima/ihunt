@@ -54,6 +54,7 @@ export const hunterSchema = z.object({
 	money: z.coerce.number().int(),
 	name: z.string(),
 	pronouns: z.string().nullable(),
+	rating: posIntSchema,
 	type: z
 		.string()
 		.transform((type) => hunterTypeSchema.parse(type))
