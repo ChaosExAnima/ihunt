@@ -1,0 +1,87 @@
+import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
+import { todayStart } from '@/lib/formats';
+import { extractKey } from '@/lib/utils';
+
+import { db } from './db';
+
+interface FetchInviteesForHuntArgs {
+	fromHunterId: number;
+	hunterIds: number[];
+	huntId: number;
+}
+
+export async function fetchDailyHuntCount(hunterId: number) {
+	const dateStart = new Date(todayStart());
+	const huntCount = await db.hunt.count({
+		where: {
+			hunters: {
+				some: {
+					id: hunterId,
+				},
+			},
+			scheduledAt: {
+				gte: dateStart,
+			},
+			status: {
+				in: [HuntStatus.Active, HuntStatus.Available],
+			},
+		},
+	});
+	return huntCount;
+}
+
+export async function fetchInviteesForHunt({
+	fromHunterId,
+	hunterIds,
+	huntId,
+}: FetchInviteesForHuntArgs): Promise<number[]> {
+	const dateStart = new Date(todayStart());
+	const hunters = await db.hunter.findMany({
+		select: {
+			_count: {
+				select: {
+					hunts: {
+						where: {
+							scheduledAt: {
+								gte: dateStart,
+							},
+							status: {
+								in: [HuntStatus.Active, HuntStatus.Available],
+							},
+						},
+					},
+				},
+			},
+			id: true,
+		},
+		where: {
+			id: {
+				in: hunterIds,
+			},
+		},
+	});
+	const oldInvites = await db.huntInvite.findMany({
+		select: {
+			toHunterId: true,
+		},
+		where: {
+			fromHunterId,
+			huntId: huntId,
+		},
+	});
+	const oldInviteHunterIds = extractKey(oldInvites, 'toHunterId');
+
+	const invitees: number[] = [];
+	for (const hunter of hunters) {
+		if (
+			hunter.id === fromHunterId ||
+			hunter._count.hunts >= HUNT_MAX_PER_DAY ||
+			oldInviteHunterIds.includes(hunter.id)
+		) {
+			continue;
+		}
+		invitees.push(hunter.id);
+	}
+
+	return invitees;
+}

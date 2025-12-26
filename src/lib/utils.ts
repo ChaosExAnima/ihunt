@@ -8,7 +8,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function extractIds<T extends Entity>(obj: T[]): number[] {
-	return obj.map(({ id }) => id);
+	return extractKey(obj, 'id');
+}
+
+export function extractKey<
+	T extends Record<string, unknown>,
+	K extends keyof T = keyof T,
+>(obj: T[], key: K) {
+	return obj.map(({ [key]: value }) => value);
 }
 
 export function idsToObjects(ids?: number[]): Entity[] | undefined {

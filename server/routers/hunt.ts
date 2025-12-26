@@ -1,10 +1,11 @@
+import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { todayStart } from '@/lib/formats';
 import { idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
+import { fetchDailyHuntCount } from '../invite';
 import { uploadPhoto } from '../photo';
 import { outputHuntSchema } from '../schema';
 import { adminProcedure, router, userProcedure } from '../trpc';
@@ -60,25 +61,9 @@ export const huntRouter = router({
 			}),
 		),
 
-	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) => {
-		const dateStart = new Date(todayStart());
-		const huntCount = await db.hunt.count({
-			where: {
-				hunters: {
-					some: {
-						id: hunter.id,
-					},
-				},
-				scheduledAt: {
-					gte: dateStart,
-				},
-				status: {
-					in: [HuntStatus.Active, HuntStatus.Available],
-				},
-			},
-		});
-		return huntCount;
-	}),
+	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) =>
+		fetchDailyHuntCount(hunter.id),
+	),
 
 	getOne: userProcedure
 		.input(
@@ -128,7 +113,10 @@ export const huntRouter = router({
 				},
 			});
 			if (hunt.status !== HuntStatus.Available) {
-				throw new Error(`Hunt ${id} is not open to hunters`);
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'Hunt is not open to hunters',
+				});
 			}
 
 			if (hunt.hunters.some((hunter) => hunter.id === currentHunter.id)) {
@@ -146,6 +134,13 @@ export const huntRouter = router({
 					`${currentHunter.name} canceled hunt with ID ${id}`,
 				);
 				return { accepted: false, huntId: id };
+			}
+
+			if (hunt.hunters.length >= hunt.maxHunters) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Hunt is already full',
+				});
 			}
 
 			await db.hunt.update({

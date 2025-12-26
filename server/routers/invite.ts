@@ -3,11 +3,11 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
-import { HUNT_MAX_PER_DAY } from '@/lib/constants';
-import { huntsTodayCount, todayStart } from '@/lib/formats';
 import { idSchemaCoerce } from '@/lib/schemas';
+import { extractIds } from '@/lib/utils';
 
 import { db } from '../db';
+import { fetchInviteesForHunt } from '../invite';
 import { InviteStatus } from '../schema';
 import { router, userProcedure } from '../trpc';
 
@@ -35,56 +35,31 @@ export const inviteRouter = router({
 				});
 			}
 
-			// Get the stuff we need
-			const hunt = await db.hunt.findFirstOrThrow({
-				where: { id: huntId },
-			});
 			const group = await db.hunterGroup.findFirstOrThrow({
 				include: {
 					hunters: {
-						include: {
-							hunts: {
-								select: {
-									id: true,
-									status: true,
-								},
-								where: {
-									scheduledAt: {
-										gte: new Date(todayStart()),
-									},
-								},
-							},
-						},
+						select: { id: true },
 					},
 				},
 				where: { id: hunter.groupId },
 			});
-			const oldInvites = await db.huntInvite.findMany({
-				where: {
-					fromHunterId: hunter.id,
-					huntId: hunt.id,
-				},
+
+			// Get the invitees
+			const invites: HuntInvite[] = [];
+			const invitees = await fetchInviteesForHunt({
+				fromHunterId: hunter.id,
+				hunterIds: extractIds(group.hunters),
+				huntId,
 			});
 
-			// Create the invites
-			const invites: HuntInvite[] = [];
-			for (const invitee of group.hunters) {
-				// Not yourself, already invited, or on too many hunts today
-				if (
-					invitee.id === hunter.id ||
-					oldInvites.some(
-						(invite) => invite.toHunterId === invite.id,
-					) ||
-					huntsTodayCount(invitee.hunts) >= HUNT_MAX_PER_DAY
-				) {
-					continue;
-				}
+			// Try to create the invites
+			for (const inviteeId of invitees) {
 				try {
 					const invite = await db.huntInvite.create({
 						data: {
 							fromHunterId: hunter.id,
-							huntId: hunt.id,
-							toHunterId: invitee.id,
+							huntId,
+							toHunterId: inviteeId,
 						},
 					});
 					invites.push(invite);

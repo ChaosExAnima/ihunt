@@ -13,9 +13,10 @@ export type ComponentPropsWithoutProps<
 	EProps = object,
 > = EProps & Omit<ComponentProps<E>, keyof EProps>;
 
-export interface Entity {
+export type Entity = {
+	[key: string]: unknown;
 	id: number;
-}
+};
 
 export type MaybePromise<T = unknown> = Promise<T> | T;
 
