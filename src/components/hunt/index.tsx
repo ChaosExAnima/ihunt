@@ -1,10 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
 import { CircleCheckBig, X } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 
 import type { PropsWithClassName } from '@/lib/types';
 
 import { useHunterId } from '@/hooks/use-hunter';
-import { HuntStatus } from '@/lib/constants';
+import { trpc } from '@/lib/api';
+import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
 import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -22,11 +24,14 @@ export interface HuntDisplayProps {
 }
 
 export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
-	const { hunt, onAcceptHunt, remainingHunts } = props;
+	const { hunt, onAcceptHunt } = props;
 	const hunterId = useHunterId();
 	const isAccepted = useMemo(
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
+	);
+	const { data: remainingHunts } = useQuery(
+		trpc.hunt.getHuntsToday.queryOptions(),
 	);
 
 	const handleAccept = useCallback(() => {
@@ -43,15 +48,19 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		case HuntStatus.Available:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
-					{huntersLeft && !isAccepted && (
-						<p className="text-center text-sm">
-							You have {remainingHunts || 'no'} hunts left today.
-							<br />
-							<strong className="text-green-500">
-								Buy iHunt Premium to unlock more!
-							</strong>
-						</p>
-					)}
+					{huntersLeft &&
+						!isAccepted &&
+						remainingHunts !== undefined && (
+							<p className="text-center text-sm">
+								You have{' '}
+								{remainingHunts - HUNT_MAX_PER_DAY || 'no'}{' '}
+								hunts left today.
+								<br />
+								<strong className="text-green-500">
+									Buy iHunt Premium to unlock more!
+								</strong>
+							</p>
+						)}
 					<Button
 						className="flex mx-auto rounded-full font-bold self-center"
 						disabled={!huntersLeft && !isAccepted}
