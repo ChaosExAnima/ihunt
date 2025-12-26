@@ -27,6 +27,7 @@ model Hunt {
     invites     HuntInvite[]
 
     @@index([status])
+    @@index([scheduledAt])
 }
 
 model Hunter {
@@ -67,6 +68,8 @@ model HuntInvite {
     huntId       Int
     createdAt    DateTime @default(now())
     status       String   @default("pending")
+
+    @@unique([fromHunterId, huntId, toHunterId], name: "fromToHunt")
 }
 
 model Photo {
