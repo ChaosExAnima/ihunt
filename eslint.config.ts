@@ -45,6 +45,7 @@ export default defineConfig([
 			'@typescript-eslint/no-unsafe-call': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/only-throw-error': 'off',
+			'perfectionist/sort-modules': 'warn',
 			'prettier/prettier': 'warn',
 		},
 	},
