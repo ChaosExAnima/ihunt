@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { trpc } from '@/lib/api';
@@ -26,9 +26,11 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		[onClose],
 	);
 
+	const { mutate } = useMutation(trpc.invite.sendInvites.mutationOptions());
 	const handleSend = useCallback(() => {
+		mutate({ huntId });
 		onClose();
-	}, [onClose]);
+	}, [huntId, mutate, onClose]);
 
 	if (isLoadingHunt || !hunt) {
 		return null;

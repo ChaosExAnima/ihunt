@@ -1,14 +1,15 @@
+import { Hunt } from '@prisma/client';
 import { useMemo } from 'react';
 
 import { usePlayerSettings } from '@/components/providers/player';
 
 import { Currency, Locale } from './constants';
+import { huntStatus } from './schemas';
 
 // Dates and times
 export const MINUTE = 1000 * 60;
 export const HOUR = MINUTE * 60;
 export const DAY = HOUR * 24;
-
 export const OLD = DAY * 3;
 
 export const currencyFormatter = new Intl.NumberFormat(Locale, {
@@ -33,6 +34,22 @@ export function dateFormat(date: Date) {
 		}
 	}
 	return 'recently';
+}
+
+export function huntsTodayCount(hunts: Pick<Hunt, 'id' | 'status'>[] = []) {
+	let huntCount = 0;
+	for (const hunt of hunts) {
+		const status = huntStatus.safeParse(hunt.status);
+		if (status.data === 'active' || status.data === 'available') {
+			huntCount++;
+		}
+	}
+
+	return huntCount;
+}
+
+export function todayStart() {
+	return new Date().setHours(0, 0, 0, 0);
 }
 
 export function useCurrencyFormat(amount: number) {

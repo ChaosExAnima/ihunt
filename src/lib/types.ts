@@ -17,4 +17,6 @@ export interface Entity {
 	id: number;
 }
 
+export type MaybePromise<T = unknown> = Promise<T> | T;
+
 export type PropsWithClassName<T = unknown> = T & { className?: string };

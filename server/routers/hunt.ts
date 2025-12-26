@@ -1,6 +1,7 @@
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
+import { todayStart } from '@/lib/formats';
 import { idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
@@ -26,19 +27,6 @@ export const huntRouter = router({
 					status: HuntStatus.Active,
 				},
 			}),
-	),
-
-	getActiveCount: userProcedure.query(({ ctx: { hunter } }) =>
-		db.hunt.count({
-			where: {
-				hunters: {
-					some: {
-						id: hunter.id,
-					},
-				},
-				status: HuntStatus.Active,
-			},
-		}),
 	),
 
 	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() =>
@@ -71,6 +59,26 @@ export const huntRouter = router({
 				},
 			}),
 		),
+
+	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) => {
+		const dateStart = new Date(todayStart());
+		const huntCount = await db.hunt.count({
+			where: {
+				hunters: {
+					some: {
+						id: hunter.id,
+					},
+				},
+				scheduledAt: {
+					gte: dateStart,
+				},
+				status: {
+					in: [HuntStatus.Active, HuntStatus.Available],
+				},
+			},
+		});
+		return huntCount;
+	}),
 
 	getOne: userProcedure
 		.input(
@@ -122,6 +130,7 @@ export const huntRouter = router({
 			if (hunt.status !== HuntStatus.Available) {
 				throw new Error(`Hunt ${id} is not open to hunters`);
 			}
+
 			if (hunt.hunters.some((hunter) => hunter.id === currentHunter.id)) {
 				await db.hunt.update({
 					data: {
@@ -138,6 +147,7 @@ export const huntRouter = router({
 				);
 				return { accepted: false, huntId: id };
 			}
+
 			await db.hunt.update({
 				data: {
 					hunters: {

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { HuntDisplay, HuntDisplayActive } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed';
@@ -11,10 +11,9 @@ import {
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { useHunterId } from '@/hooks/use-hunter';
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
-import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
+import { HUNT_MAX_PER_DAY } from '@/lib/constants';
 
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,
@@ -27,8 +26,6 @@ export const Route = createFileRoute('/_auth/hunts/')({
 });
 
 function RouteComponent() {
-	const hunterId = useHunterId();
-
 	const { data: activeHunts, isLoading: isLoadingActive } = useQuery(
 		trpc.hunt.getActive.queryOptions(),
 	);
@@ -42,8 +39,11 @@ function RouteComponent() {
 	]);
 	const { mutate } = useMutation(
 		trpc.hunt.join.mutationOptions({
-			onSuccess() {
+			onSuccess({ accepted, huntId }) {
 				invalidate();
+				if (accepted) {
+					setAcceptingHuntId(huntId);
+				}
 			},
 		}),
 	);
@@ -52,23 +52,15 @@ function RouteComponent() {
 	const handleAcceptHunt = useCallback(
 		(huntId: number) => {
 			mutate({ huntId });
-			setAcceptingHuntId(huntId);
 		},
 		[mutate],
 	);
 	const handleCancelAccept = useCallback(() => {
 		setAcceptingHuntId(0);
-	}, []);
+	}, [setAcceptingHuntId]);
 
-	const acceptedToday = useMemo(
-		() =>
-			(availableHunts ?? []).filter(
-				({ hunters = [], status }) =>
-					(status === HuntStatus.Active ||
-						status === HuntStatus.Available) &&
-					hunters.find(({ id }) => id === hunterId),
-			).length,
-		[availableHunts, hunterId],
+	const { data: acceptedToday = 0 } = useQuery(
+		trpc.hunt.getHuntsToday.queryOptions(),
 	);
 
 	return (
