@@ -1,5 +1,5 @@
 import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 export async function invalidateQueries(
 	queries: QueryKey[],
@@ -14,13 +14,14 @@ export async function invalidateQueries(
 	);
 }
 
-export function useInvalidate(queries: (() => QueryKey[]) | QueryKey[]) {
+export function useInvalidate() {
 	const queryClient = useQueryClient();
 
-	const [queriesResult] = useState(queries);
-
-	const invalidate = useCallback(() => {
-		void invalidateQueries(queriesResult, queryClient);
-	}, [queriesResult, queryClient]);
+	const invalidate = useCallback(
+		(queries: QueryKey[]) => {
+			void invalidateQueries(queries, queryClient);
+		},
+		[queryClient],
+	);
 	return invalidate;
 }
