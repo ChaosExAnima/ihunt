@@ -12,6 +12,38 @@ import { InviteStatus } from '../schema';
 import { router, userProcedure } from '../trpc';
 
 export const inviteRouter = router({
+	availableInvitees: userProcedure
+		.input(
+			z.object({
+				huntId: idSchemaCoerce,
+			}),
+		)
+		.query(async ({ ctx: { hunter }, input: { huntId } }) => {
+			if (!hunter.groupId) {
+				return {
+					count: 0,
+				};
+			}
+			const group = await db.hunterGroup.findFirstOrThrow({
+				include: {
+					hunters: {
+						select: { id: true },
+					},
+				},
+				where: { id: hunter.groupId },
+			});
+
+			// Get the invitees
+			const invitees = await fetchInviteesForHunt({
+				fromHunterId: hunter.id,
+				hunterIds: extractIds(group.hunters),
+				huntId,
+			});
+			return {
+				count: invitees.length,
+			};
+		}),
+
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
 		return db.huntInvite.findMany({
 			where: {
