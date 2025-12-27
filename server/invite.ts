@@ -1,8 +1,9 @@
 import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
-import { extractKey } from '@/lib/utils';
+import { extractIds, extractKey } from '@/lib/utils';
 
 import { db } from './db';
+import { InviteStatus } from './schema';
 
 interface FetchInviteesForHuntArgs {
 	fromHunterId: number;
@@ -84,4 +85,40 @@ export async function fetchInviteesForHunt({
 	}
 
 	return invitees;
+}
+
+export async function fetchUnclaimedSpots(huntId: number) {
+	const hunt = await db.hunt.findFirstOrThrow({
+		include: {
+			hunters: {
+				select: { id: true },
+			},
+			invites: {
+				where: {
+					status: InviteStatus.Pending,
+				},
+			},
+		},
+		where: { id: huntId },
+	});
+	if (hunt.status !== HuntStatus.Available) {
+		throw new Error('Hunt is not open');
+	}
+
+	const joinedHunterIds = new Set(extractIds(hunt.hunters));
+	const invitedHunterIds = new Set(
+		extractKey(hunt.invites, 'toHunterId'),
+	).difference(joinedHunterIds);
+
+	if (joinedHunterIds.size + invitedHunterIds.size >= hunt.maxHunters) {
+		throw new Error('Hunt is already full');
+	}
+
+	return {
+		hunt,
+		invited: invitedHunterIds,
+		invitedCount: invitedHunterIds.size,
+		joined: joinedHunterIds,
+		joinedCount: joinedHunterIds.size,
+	};
 }
