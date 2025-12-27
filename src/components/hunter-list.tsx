@@ -1,7 +1,5 @@
-import { Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
-import { useHunterId } from '@/hooks/use-hunter';
 import { HUNT_MAX_HUNTERS } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -33,7 +31,6 @@ export function HunterList({ className, hunters, max = 0 }: HunterListProps) {
 }
 
 function HunterSlot({ hunter }: { hunter?: HunterSchema }) {
-	const currentHunterId = useHunterId();
 	if (!hunter) {
 		return (
 			<li>
@@ -43,16 +40,7 @@ function HunterSlot({ hunter }: { hunter?: HunterSchema }) {
 	}
 	return (
 		<li>
-			<Link
-				params={{ hunterId: hunter.id }}
-				to={
-					hunter.id === currentHunterId
-						? '/settings'
-						: '/hunters/$hunterId'
-				}
-			>
-				<Avatar hunter={hunter} />
-			</Link>
+			<Avatar hunter={hunter} link />
 		</li>
 	);
 }

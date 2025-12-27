@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { trpc } from '@/lib/api';
 import { HUNT_INVITE_TIME } from '@/lib/constants';
 
-import { HunterGroupList } from '../hunter/group-list';
+import Avatar from '../avatar';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
@@ -17,6 +17,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 	const { data, isLoading } = useQuery(
 		trpc.invite.availableInvitees.queryOptions({ huntId }),
 	);
+	const { data: group } = useQuery(trpc.hunter.getGroup.queryOptions());
 	useEffect(() => {
 		if (data?.count === 0) {
 			onClose();
@@ -38,9 +39,16 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		onClose();
 	}, [huntId, mutate, onClose]);
 
-	if (isLoading || !data?.count) {
+	if (isLoading || !data?.count || !group) {
 		return null;
 	}
+
+	const availableHunters = group.hunters.filter(({ id }) =>
+		data.invitees.includes(id),
+	);
+	const unavailableHunters = group.hunters.filter(({ id }) =>
+		data.unavailable.includes(id),
+	);
 
 	return (
 		<Dialog onOpenChange={handleOpenChange} open>
@@ -49,7 +57,18 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 			</DialogHeader>
 			<DialogContent>
 				<p>Invite the rest of your group?</p>
-				<HunterGroupList />
+				<ul className="flex gap-2">
+					{availableHunters.map((hunter) => (
+						<li key={hunter.id}>
+							<Avatar hunter={hunter} />
+						</li>
+					))}
+					{unavailableHunters.map((hunter) => (
+						<li className="opacity-50" key={hunter.id}>
+							<Avatar hunter={hunter} />
+						</li>
+					))}
+				</ul>
 				<p className="text-muted-foreground">
 					Your group will have {HUNT_INVITE_TIME} minutes to accept or
 					decline the hunt.
