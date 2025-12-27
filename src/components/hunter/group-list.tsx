@@ -7,15 +7,14 @@ import { HunterList } from '../hunter-list';
 
 interface HunterGroupListProps {
 	children?: ReactNode;
-	groupId?: null | number;
+	hunterId?: number;
 }
 
-export function HunterGroupList({ children, groupId }: HunterGroupListProps) {
+export function HunterGroupList({ children, hunterId }: HunterGroupListProps) {
 	const { data: group } = useQuery({
 		...trpc.hunter.getGroup.queryOptions({
-			id: groupId,
+			hunterId,
 		}),
-		enabled: !!groupId || groupId === null, // Null means get the current hunter group.
 	});
 	const groupHunters = group?.hunters ?? [];
 

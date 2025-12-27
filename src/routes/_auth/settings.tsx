@@ -163,7 +163,7 @@ function Settings() {
 					/>
 				</SettingBlock>
 				<SettingBlock label="Friends">
-					<HunterGroupList groupId={null} />
+					<HunterGroupList />
 				</SettingBlock>
 			</section>
 			<Button asChild variant="secondary">

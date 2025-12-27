@@ -31,7 +31,7 @@ export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 		if (hunter.groupId) {
 			await queryClient.ensureQueryData(
 				trpc.hunter.getGroup.queryOptions({
-					id: hunter.groupId,
+					hunterId: hunter.id,
 				}),
 			);
 		}
@@ -87,6 +87,11 @@ function RouteComponent() {
 					<p>@{hunter.handle}</p>
 				</div>
 			</div>
+			{!hunter.alive && (
+				<p className="text-rose-600 text-xl">
+					User account deactivated
+				</p>
+			)}
 			{hunter.bio && (
 				<>
 					<Header level={3}>About me</Header>
@@ -94,7 +99,7 @@ function RouteComponent() {
 				</>
 			)}
 
-			<HunterGroupList groupId={hunter.groupId}>
+			<HunterGroupList hunterId={hunter.id}>
 				<Header level={3}>Friends</Header>
 			</HunterGroupList>
 
@@ -107,6 +112,9 @@ function RouteComponent() {
 						{hunt.comment}&rdquo;
 					</li>
 				))}
+				{hunter.hunts.length === 0 && (
+					<li>This hunter hasn't been reviewed yet!</li>
+				)}
 			</ol>
 		</>
 	);

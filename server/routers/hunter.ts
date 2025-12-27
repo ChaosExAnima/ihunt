@@ -16,17 +16,23 @@ import { adminProcedure, debugProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure
-		.input(z.object({ id: idSchemaCoerce.nullish() }).optional())
+		.input(
+			z
+				.object({
+					hunterId: idSchemaCoerce.optional(),
+				})
+				.optional(),
+		)
 		.output(groupSchema.nullable())
 		.query(async ({ ctx: { hunter }, input }) => {
-			const id = input?.id ?? hunter.groupId;
-			if (!id) {
+			const hunterId = input?.hunterId ?? hunter.id;
+			if (!hunterId) {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: 'No group ID provided',
+					message: 'No hunter provided',
 				});
 			}
-			const group = await db.hunterGroup.findUniqueOrThrow({
+			const group = await db.hunterGroup.findFirst({
 				include: {
 					hunters: {
 						include: {
@@ -34,11 +40,20 @@ export const hunterRouter = router({
 						},
 					},
 				},
-				where: { id },
+				where: {
+					hunters: {
+						some: {
+							id: hunterId,
+						},
+					},
+				},
 			});
+			if (!group) {
+				return null;
+			}
 			return {
 				...group,
-				hunters: group?.hunters.filter(({ id }) => id !== hunter.id),
+				hunters: group?.hunters.filter(({ id }) => id !== hunterId),
 			};
 		}),
 
@@ -69,6 +84,7 @@ export const hunterRouter = router({
 		)
 		.output(
 			hunterSchema.extend({
+				alive: z.boolean(),
 				groupId: idSchemaCoerce.nullish(),
 				hunts: z.array(
 					outputHuntSchema.omit({ hunters: true, photos: true }),
