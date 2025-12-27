@@ -34,13 +34,18 @@ export const inviteRouter = router({
 			});
 
 			// Get the invitees
+			const groupHunterIds = extractIds(group.hunters);
 			const invitees = await fetchInviteesForHunt({
 				fromHunterId: hunter.id,
-				hunterIds: extractIds(group.hunters),
+				hunterIds: groupHunterIds,
 				huntId,
 			});
 			return {
 				count: invitees.length,
+				invitees,
+				unavailable: groupHunterIds.filter(
+					(id) => !invitees.includes(id),
+				),
 			};
 		}),
 

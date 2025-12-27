@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 
 import { trpc } from '@/lib/api';
+import { HUNT_INVITE_TIME } from '@/lib/constants';
 
 import { HunterGroupList } from '../hunter/group-list';
 import { Button } from '../ui/button';
@@ -13,14 +14,14 @@ interface HuntInviteModalProps {
 }
 
 export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
-	const { data: inviteeCount, isLoading } = useQuery(
+	const { data, isLoading } = useQuery(
 		trpc.invite.availableInvitees.queryOptions({ huntId }),
 	);
 	useEffect(() => {
-		if (inviteeCount?.count === 0) {
+		if (data?.count === 0) {
 			onClose();
 		}
-	}, [inviteeCount?.count, onClose]);
+	}, [data?.count, onClose]);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
@@ -37,7 +38,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		onClose();
 	}, [huntId, mutate, onClose]);
 
-	if (isLoading || !inviteeCount?.count) {
+	if (isLoading || !data?.count) {
 		return null;
 	}
 
@@ -47,9 +48,12 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 				<DialogTitle>Invite hunters</DialogTitle>
 			</DialogHeader>
 			<DialogContent>
-				<HunterGroupList groupId={null}>
-					<p>Invite the rest of your group?</p>
-				</HunterGroupList>
+				<p>Invite the rest of your group?</p>
+				<HunterGroupList groupId={null} />
+				<p className="text-muted-foreground">
+					Your group will have {HUNT_INVITE_TIME} minutes to accept or
+					decline the hunt.
+				</p>
 				<Button className="grow" onClick={handleSend} variant="success">
 					Send invites
 				</Button>
