@@ -1,6 +1,8 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 
+import { isDev } from '@/lib/utils';
+
 import { Context } from './auth';
 
 /**
@@ -58,4 +60,11 @@ export const loggedInProcedure = t.procedure.use(async ({ ctx, next }) => {
 			user: ctx.user,
 		},
 	});
+});
+
+export const debugProcedure = t.procedure.use(async ({ ctx, next }) => {
+	if (!isDev()) {
+		throw new TRPCError({ code: 'FORBIDDEN' });
+	}
+	return next({ ctx });
 });

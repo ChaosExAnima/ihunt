@@ -2,12 +2,22 @@ import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 import z from 'zod';
 
-import { adminAuthSchema, authSchema, hunterSchema } from '@/lib/schemas';
+import {
+	adminAuthSchema,
+	authSchema,
+	hunterSchema,
+	idSchemaCoerce,
+} from '@/lib/schemas';
 
 import { passwordToHash } from '../auth';
 import { config } from '../config';
 import { db } from '../db';
-import { publicProcedure, router, userProcedure } from '../trpc';
+import {
+	debugProcedure,
+	publicProcedure,
+	router,
+	userProcedure,
+} from '../trpc';
 
 export const authRouter = router({
 	adminLogin: publicProcedure
@@ -65,4 +75,23 @@ export const authRouter = router({
 				hideMoney: user.hideMoney,
 			},
 		})),
+
+	switch: debugProcedure
+		.input(z.object({ hunterId: idSchemaCoerce }))
+		.mutation(async ({ ctx: { session }, input: { hunterId } }) => {
+			try {
+				const hunter = await db.hunter.findUniqueOrThrow({
+					where: { id: hunterId },
+				});
+				if (!hunter.alive || !hunter.userId) {
+					throw new Error('Hunter is not available to switch to');
+				}
+
+				session.userId = hunter.userId;
+				await session.save();
+				return { success: true };
+			} catch (err) {
+				throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
+			}
+		}),
 });

@@ -12,7 +12,7 @@ import {
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
 import { outputHuntSchema } from '../schema';
-import { adminProcedure, router, userProcedure } from '../trpc';
+import { adminProcedure, debugProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure
@@ -41,6 +41,25 @@ export const hunterRouter = router({
 				hunters: group?.hunters.filter(({ id }) => id !== hunter.id),
 			};
 		}),
+
+	getMany: debugProcedure.query(
+		async ({ ctx: { hunter: currentHunter } }) => {
+			const hunters = await db.hunter.findMany({
+				orderBy: {
+					handle: 'asc',
+				},
+				where: {
+					alive: true,
+				},
+			});
+
+			return hunters.map(({ handle, id }) => ({
+				handle,
+				id,
+				me: id === currentHunter?.id,
+			}));
+		},
+	),
 
 	getOne: userProcedure
 		.input(
