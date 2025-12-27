@@ -30,9 +30,10 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
 		[hunt.hunters, hunterId],
 	);
-	const { data: remainingHunts } = useQuery(
+	const { data: huntsToday = 0 } = useQuery(
 		trpc.hunt.getHuntsToday.queryOptions(),
 	);
+	const remainingHunts = HUNT_MAX_PER_DAY - huntsToday;
 
 	const handleAccept = useCallback(() => {
 		onAcceptHunt?.(hunt.id);
@@ -48,19 +49,15 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		case HuntStatus.Available:
 			return (
 				<HuntBase {...props} isAccepted={isAccepted}>
-					{huntersLeft &&
-						!isAccepted &&
-						remainingHunts !== undefined && (
-							<p className="text-center text-sm">
-								You have{' '}
-								{remainingHunts - HUNT_MAX_PER_DAY || 'no'}{' '}
-								hunts left today.
-								<br />
-								<strong className="text-green-500">
-									Buy iHunt Premium to unlock more!
-								</strong>
-							</p>
-						)}
+					{huntersLeft && !isAccepted && (
+						<p className="text-center text-sm">
+							You have {remainingHunts || 'no'} hunts left today.
+							<br />
+							<strong className="text-green-500">
+								Buy iHunt Premium to unlock more!
+							</strong>
+						</p>
+					)}
 					<Button
 						className="flex mx-auto rounded-full font-bold self-center"
 						disabled={!huntersLeft && !isAccepted}
