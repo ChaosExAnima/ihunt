@@ -22,9 +22,11 @@ export const inviteRouter = router({
 			if (!hunter.groupId) {
 				return {
 					count: 0,
+					invitees: [],
+					unavailable: [],
 				};
 			}
-			const group = await db.hunterGroup.findFirstOrThrow({
+			const group = await db.hunterGroup.findUniqueOrThrow({
 				include: {
 					hunters: {
 						select: { id: true },

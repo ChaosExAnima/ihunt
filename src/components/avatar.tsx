@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { UserRound } from 'lucide-react';
 
+import { useHunterId } from '@/hooks/use-hunter';
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -18,12 +19,17 @@ export default function Avatar({
 	link = false,
 }: AvatarProps) {
 	const photo = hunter.avatar;
+	const currentHunterId = useHunterId();
 
 	if (link) {
 		return (
 			<Link
 				params={{ hunterId: hunter.id.toString() }}
-				to="/hunters/$hunterId"
+				to={
+					currentHunterId === hunter.id
+						? '/settings'
+						: '/hunters/$hunterId'
+				}
 			>
 				<Avatar hunter={hunter} />
 			</Link>

@@ -37,7 +37,10 @@ function RouteComponent() {
 	const { mutate } = useMutation(
 		trpc.hunt.join.mutationOptions({
 			onSuccess({ accepted, huntId }) {
-				invalidate([trpc.hunt.getAvailable.queryKey()]);
+				invalidate([
+					trpc.hunt.getAvailable.queryKey(),
+					trpc.invite.availableInvitees.queryKey(),
+				]);
 				if (accepted) {
 					setAcceptingHuntId(huntId);
 				}
