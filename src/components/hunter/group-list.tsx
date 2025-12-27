@@ -15,7 +15,7 @@ export function HunterGroupList({ children, groupId }: HunterGroupListProps) {
 		...trpc.hunter.getGroup.queryOptions({
 			id: groupId,
 		}),
-		enabled: !!groupId || groupId === null,
+		enabled: !!groupId || groupId === null, // Null means get the current hunter group.
 	});
 	const groupHunters = group?.hunters ?? [];
 

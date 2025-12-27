@@ -4,15 +4,17 @@ import { useMemo } from 'react';
 import { useHunterId } from '@/hooks/use-hunter';
 import { HUNT_MAX_HUNTERS } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 import Avatar, { AvatarEmpty } from './avatar';
 
 interface HunterListProps {
+	className?: string;
 	hunters: HunterSchema[];
 	max?: number;
 }
 
-export function HunterList({ hunters, max = 0 }: HunterListProps) {
+export function HunterList({ className, hunters, max = 0 }: HunterListProps) {
 	const slots = useMemo(
 		() =>
 			Array.from(
@@ -22,7 +24,7 @@ export function HunterList({ hunters, max = 0 }: HunterListProps) {
 	);
 
 	return (
-		<ul className="flex gap-2">
+		<ul className={cn('flex gap-2', className)}>
 			{slots.map((_, index) => (
 				<HunterSlot hunter={hunters[index]} key={index} />
 			))}

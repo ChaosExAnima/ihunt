@@ -20,6 +20,7 @@ export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 export const HUNT_MAX_PER_DAY = 2;
 export const HUNT_MAX_HUNTERS = 5;
 export const HUNT_MAX_DANGER = 5;
+export const HUNT_INVITE_TIME = 30; // In minutes
 
 export const huntDisplayInclude = {
 	hunters: {

@@ -56,6 +56,7 @@ export async function fetchInviteesForHunt({
 			id: true,
 		},
 		where: {
+			alive: true,
 			hunts: {
 				none: {
 					id: huntId,
