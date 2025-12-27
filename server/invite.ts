@@ -56,11 +56,17 @@ export async function fetchInviteesForHunt({
 			id: true,
 		},
 		where: {
+			hunts: {
+				none: {
+					id: huntId,
+				},
+			},
 			id: {
 				in: hunterIds,
 			},
 		},
 	});
+
 	const oldInvites = await db.huntInvite.findMany({
 		select: {
 			toHunterId: true,
