@@ -61,6 +61,9 @@ export function getSession({
 }: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
 	return getIronSession<SessionData>(req.raw, res.raw, {
 		cookieName: SESSION_COOKIE_NAME,
+		cookieOptions: {
+			httpOnly: false,
+		},
 		password: authSession,
 	});
 }
