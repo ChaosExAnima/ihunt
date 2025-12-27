@@ -49,7 +49,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 			</DialogHeader>
 			<DialogContent>
 				<p>Invite the rest of your group?</p>
-				<HunterGroupList groupId={null} />
+				<HunterGroupList />
 				<p className="text-muted-foreground">
 					Your group will have {HUNT_INVITE_TIME} minutes to accept or
 					decline the hunt.
