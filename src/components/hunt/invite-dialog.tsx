@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { trpc } from '@/lib/api';
 
@@ -13,9 +13,14 @@ interface HuntInviteModalProps {
 }
 
 export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
-	const { data: hunt, isLoading: isLoadingHunt } = useQuery(
-		trpc.hunt.getOne.queryOptions({ huntId }),
+	const { data: inviteeCount, isLoading } = useQuery(
+		trpc.invite.availableInvitees.queryOptions({ huntId }),
 	);
+	useEffect(() => {
+		if (inviteeCount?.count === 0) {
+			onClose();
+		}
+	}, [inviteeCount?.count, onClose]);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
@@ -32,7 +37,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		onClose();
 	}, [huntId, mutate, onClose]);
 
-	if (isLoadingHunt || !hunt) {
+	if (isLoading || !inviteeCount?.count) {
 		return null;
 	}
 
