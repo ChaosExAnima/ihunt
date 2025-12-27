@@ -5,7 +5,7 @@ import { trpc } from '@/lib/api';
 
 import { HunterGroupList } from '../hunter/group-list';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogHeader } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 interface HuntInviteModalProps {
 	huntId: number;
@@ -38,7 +38,9 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 
 	return (
 		<Dialog onOpenChange={handleOpenChange} open>
-			<DialogHeader>Invite hunters</DialogHeader>
+			<DialogHeader>
+				<DialogTitle>Invite hunters</DialogTitle>
+			</DialogHeader>
 			<DialogContent>
 				<HunterGroupList groupId={null}>
 					<p>Invite the rest of your group?</p>

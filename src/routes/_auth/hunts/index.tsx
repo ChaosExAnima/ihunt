@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 
 import { HuntDisplay, HuntDisplayActive } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed';
-import { HuntInviteModal } from '@/components/hunt/invite-modal';
+import { HuntInviteModal } from '@/components/hunt/invite-dialog';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
 	Carousel,
