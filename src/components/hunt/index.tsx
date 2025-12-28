@@ -48,7 +48,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 			return <HuntDisplayActive hunt={hunt} />;
 		case HuntStatus.Available:
 			return (
-				<HuntBase {...props} isAccepted={isAccepted}>
+				<HuntBase {...props}>
 					{huntersLeft && !isAccepted && (
 						<p className="text-center text-sm">
 							You have {remainingHunts || 'no'} hunts left today.
@@ -78,7 +78,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 			);
 		case HuntStatus.Complete:
 			return (
-				<HuntBase {...props} isAccepted={isAccepted}>
+				<HuntBase {...props}>
 					{payment && <p>You earned {payment}!</p>}
 					<div
 						className={cn(

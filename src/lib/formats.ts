@@ -7,7 +7,8 @@ import { Currency, Locale } from './constants';
 import { huntStatus } from './schemas';
 
 // Dates and times
-export const MINUTE = 1000 * 60;
+export const SECOND = 1000;
+export const MINUTE = SECOND * 60;
 export const HOUR = MINUTE * 60;
 export const DAY = HOUR * 24;
 export const OLD = DAY * 3;

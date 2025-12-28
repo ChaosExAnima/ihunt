@@ -14,24 +14,28 @@ import {
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
 import { HUNT_MAX_PER_DAY } from '@/lib/constants';
+import { SECOND } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,
 	async loader({ context: { queryClient } }) {
 		await Promise.allSettled([
 			queryClient.ensureQueryData(trpc.hunt.getActive.queryOptions()),
+			queryClient.ensureQueryData(trpc.hunt.getAvailable.queryOptions()),
 			queryClient.ensureQueryData(trpc.hunt.getCompleted.queryOptions()),
 		]);
 	},
 });
 
 function RouteComponent() {
-	const { data: activeHunts, isLoading: isLoadingActive } = useQuery(
-		trpc.hunt.getActive.queryOptions(),
-	);
-	const { data: availableHunts, isLoading: isLoadingAvailable } = useQuery(
-		trpc.hunt.getAvailable.queryOptions(),
-	);
+	const { data: activeHunts, isLoading: isLoadingActive } = useQuery({
+		...trpc.hunt.getActive.queryOptions(),
+		refetchInterval: 30 * SECOND,
+	});
+	const { data: availableHunts, isLoading: isLoadingAvailable } = useQuery({
+		...trpc.hunt.getAvailable.queryOptions(),
+		refetchInterval: 30 * SECOND,
+	});
 
 	const invalidate = useInvalidate();
 	const { mutate } = useMutation(
@@ -43,6 +47,8 @@ function RouteComponent() {
 				]);
 				if (accepted) {
 					setAcceptingHuntId(huntId);
+				} else {
+					setAcceptingHuntId(0);
 				}
 			},
 		}),

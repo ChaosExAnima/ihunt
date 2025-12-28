@@ -9,10 +9,16 @@ import Avatar, { AvatarEmpty } from './avatar';
 interface HunterListProps {
 	className?: string;
 	hunters: HunterSchema[];
+	isReserved?: boolean;
 	max?: number;
 }
 
-export function HunterList({ className, hunters, max = 0 }: HunterListProps) {
+export function HunterList({
+	className,
+	hunters,
+	isReserved = false,
+	max = 0,
+}: HunterListProps) {
 	const slots = useMemo(
 		() => arrayOfLength(Math.min(max, HUNT_MAX_HUNTERS) || hunters.length),
 		[hunters.length, max],
@@ -21,17 +27,27 @@ export function HunterList({ className, hunters, max = 0 }: HunterListProps) {
 	return (
 		<ul className={cn('flex gap-2', className)}>
 			{slots.map((_, index) => (
-				<HunterSlot hunter={hunters[index]} key={index} />
+				<HunterSlot
+					hunter={hunters[index]}
+					isReserved={isReserved}
+					key={index}
+				/>
 			))}
 		</ul>
 	);
 }
 
-function HunterSlot({ hunter }: { hunter?: HunterSchema }) {
+function HunterSlot({
+	hunter,
+	isReserved,
+}: {
+	hunter?: HunterSchema;
+	isReserved: boolean;
+}) {
 	if (!hunter) {
 		return (
 			<li>
-				<AvatarEmpty />
+				<AvatarEmpty className={cn(isReserved && 'bg-slate-900')} />
 			</li>
 		);
 	}

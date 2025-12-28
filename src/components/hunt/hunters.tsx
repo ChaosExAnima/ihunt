@@ -7,13 +7,13 @@ interface HuntHuntersDisplayProps {
 }
 
 export function HuntHuntersDisplay({
-	hunters,
+	hunters = [],
 	maxHunters,
 }: HuntHuntersDisplayProps & Pick<HuntSchema, 'hunters' | 'maxHunters'>) {
 	return (
 		<div className="flex gap-2 items-center text-sm">
 			<p>Hunters:</p>
-			<HunterList hunters={hunters ?? []} max={maxHunters} />
+			<HunterList hunters={hunters} max={maxHunters} />
 		</div>
 	);
 }
