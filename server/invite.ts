@@ -95,7 +95,7 @@ export async function fetchInviteesForHunt({
 }
 
 export async function fetchUnclaimedSpots(huntId: number) {
-	const hunt = await db.hunt.findFirstOrThrow({
+	const hunt = await db.hunt.findUniqueOrThrow({
 		include: {
 			hunters: {
 				select: { id: true },
@@ -116,10 +116,6 @@ export async function fetchUnclaimedSpots(huntId: number) {
 	const invitedHunterIds = new Set(
 		extractKey(hunt.invites, 'toHunterId'),
 	).difference(joinedHunterIds);
-
-	if (joinedHunterIds.size + invitedHunterIds.size >= hunt.maxHunters) {
-		throw new Error('Hunt is already full');
-	}
 
 	return {
 		hunt,

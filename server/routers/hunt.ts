@@ -102,7 +102,8 @@ export const huntRouter = router({
 		.mutation(async ({ ctx: { hunter: currentHunter }, input }) => {
 			const { huntId } = input;
 			try {
-				const { hunt, joined } = await fetchUnclaimedSpots(huntId);
+				const { hunt, invitedCount, joined, joinedCount } =
+					await fetchUnclaimedSpots(huntId);
 
 				// If we already joined, leave the hunt.
 				if (joined.has(currentHunter.id)) {
@@ -116,10 +117,20 @@ export const huntRouter = router({
 						},
 						where: { id: huntId },
 					});
+					await db.huntInvite.updateMany({
+						data: { status: InviteStatus.Expired },
+						where: {
+							fromHunterId: currentHunter.id,
+						},
+					});
 					console.log(
 						`${currentHunter.name} canceled hunt with ID ${huntId}`,
 					);
 					return { accepted: false, huntId };
+				}
+
+				if (joinedCount + invitedCount >= hunt.maxHunters) {
+					throw new Error('Hunt is already full');
 				}
 
 				// Join the hunt.
