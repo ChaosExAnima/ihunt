@@ -93,8 +93,7 @@ export async function fetchInviteesForHunt({
 			toHunterId: true,
 		},
 		where: {
-			fromHunterId,
-			huntId: huntId,
+			huntId,
 		},
 	});
 	const oldInviteHunterIds = extractKey(oldInvites, 'toHunterId');

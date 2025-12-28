@@ -6,7 +6,6 @@ import z from 'zod';
 import { HUNT_INVITE_TIME } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idSchemaCoerce } from '@/lib/schemas';
-import { extractIds } from '@/lib/utils';
 
 import { db } from '../db';
 import { expireInvites, fetchInviteesForHunt } from '../invite';
@@ -20,37 +19,35 @@ export const inviteRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
+		.output(z.array(idSchemaCoerce))
 		.query(async ({ ctx: { hunter }, input: { huntId } }) => {
+			// No group means nobody to invite.
 			if (!hunter.groupId) {
-				return {
-					count: 0,
-					invitees: [],
-					unavailable: [],
-				};
+				return [];
 			}
-			const group = await db.hunterGroup.findUniqueOrThrow({
+
+			// Load the hunt and check if we're already full.
+			const hunt = await db.hunt.findUniqueOrThrow({
 				include: {
 					hunters: {
 						select: { id: true },
 					},
 				},
-				where: { id: hunter.groupId },
+				where: { id: huntId },
 			});
 
+			if (hunt.hunters.length >= hunt.maxHunters) {
+				return [];
+			}
+
 			// Get the invitees
-			const groupHunterIds = extractIds(group.hunters);
 			const invitees = await fetchInviteesForHunt({
 				fromHunterId: hunter.id,
 				groupId: hunter.groupId,
 				huntId,
 			});
-			return {
-				count: invitees.length,
-				invitees,
-				unavailable: groupHunterIds.filter(
-					(id) => !invitees.includes(id),
-				),
-			};
+
+			return invitees;
 		}),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {

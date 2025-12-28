@@ -1,9 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
 import { HUNT_INVITE_TIME } from '@/lib/constants';
+import { HunterSchema } from '@/lib/schemas';
 
 import Avatar from '../avatar';
 import { Button } from '../ui/button';
@@ -15,15 +16,33 @@ interface HuntInviteModalProps {
 }
 
 export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
-	const { data, isLoading } = useQuery(
+	const { data: availableIds, isLoading } = useQuery(
 		trpc.invite.availableInvitees.queryOptions({ huntId }),
 	);
 	const { data: group } = useQuery(trpc.hunter.getGroup.queryOptions());
 	useEffect(() => {
-		if (data?.count === 0) {
+		if (availableIds?.length === 0) {
 			onClose();
 		}
-	}, [data?.count, onClose]);
+	}, [availableIds?.length, onClose]);
+
+	const { availableHunters, unavailableHunters } = useMemo(() => {
+		const groupHunters = group?.hunters ?? [];
+		if (!groupHunters.length || !availableIds) {
+			return {};
+		}
+
+		const availableHunters: HunterSchema[] = [];
+		const unavailableHunters: HunterSchema[] = [];
+		for (const hunter of groupHunters) {
+			if (availableIds.includes(hunter.id)) {
+				availableHunters.push(hunter);
+			} else {
+				unavailableHunters.push(hunter);
+			}
+		}
+		return { availableHunters, unavailableHunters };
+	}, [availableIds, group?.hunters]);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
@@ -47,16 +66,12 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		onClose();
 	}, [huntId, mutate, onClose]);
 
-	if (isLoading || !data?.count || !group) {
+	if (
+		isLoading ||
+		(!availableHunters?.length && !unavailableHunters?.length)
+	) {
 		return null;
 	}
-
-	const availableHunters = group.hunters.filter(({ id }) =>
-		data.invitees.includes(id),
-	);
-	const unavailableHunters = group.hunters.filter(({ id }) =>
-		data.unavailable.includes(id),
-	);
 
 	return (
 		<Dialog onOpenChange={handleOpenChange} open>
