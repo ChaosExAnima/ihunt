@@ -15,7 +15,7 @@ import { AdminPhotoField } from './photo-field';
 export const AdminPhotoList: FC<PropsWithClassName> = ({ className }) => {
 	const { selectedChoices: photos } = useChoicesContext<AdminPhotoSchema>();
 
-	if (!photos) {
+	if (!photos?.length) {
 		return null;
 	}
 

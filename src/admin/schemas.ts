@@ -19,7 +19,7 @@ export const resourceSchema = z.enum([
 export type Resources = z.infer<typeof resourceSchema>;
 
 export const adminHuntSchema = huntSchema
-	.omit({ hunters: true, photos: true })
+	.omit({ hunters: true, photos: true, reserved: true })
 	.extend({
 		hunterIds: z.array(idSchemaCoerce),
 		photoIds: z.array(idSchemaCoerce),
@@ -64,15 +64,18 @@ export const adminUserSchema = z.object({
 });
 export type AdminUserSchema = z.infer<typeof adminUserSchema>;
 
+export const adminCreateHuntInput = adminHuntSchema.omit({
+	comment: true,
+	completedAt: true,
+	hunterIds: true,
+	id: true,
+	photoIds: true,
+	rating: true,
+});
+
 export const adminCreateInput = z.discriminatedUnion('resource', [
 	z.object({
-		data: adminHuntSchema.omit({
-			comment: true,
-			completedAt: true,
-			hunterIds: true,
-			id: true,
-			rating: true,
-		}),
+		data: adminCreateHuntInput,
 		resource: z.literal('hunt'),
 	}),
 	z.object({
