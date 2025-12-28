@@ -8,6 +8,8 @@ import { trpc } from '@/lib/api';
 import { dateFormat, useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
+import Header from '../header';
+
 export function HuntsCompleted() {
 	const { data: hunts } = useQuery(trpc.hunt.getCompleted.queryOptions());
 
@@ -28,8 +30,22 @@ export function HuntsCompleted() {
 		return [...huntsByDate];
 	}, [hunts]);
 
-	if (!hunts || hunts.length === 0) {
+	if (!hunts) {
 		return null;
+	}
+
+	if (hunts.length === 0) {
+		return (
+			<div className="mx-4">
+				<Header className="mb-2" level={3}>
+					No completed hunts yet!
+				</Header>
+				<p>
+					Come back here after finishing a hunt to see your hunter
+					history.
+				</p>
+			</div>
+		);
 	}
 
 	return (
