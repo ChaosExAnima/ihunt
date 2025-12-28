@@ -23,7 +23,7 @@ function RatingBase({
 		fill = true;
 	}
 
-	const starClassName = cn(fill && 'fill-white', className);
+	const starClassName = cn(fill && 'fill-black dark:fill-white', className);
 	return (
 		<span className="inline-flex items-center gap-1">
 			{arrayOfLength(baseStars).map((index) => (
@@ -56,7 +56,10 @@ function RatingStarHalf({
 		<span className="relative">
 			<StarHalf
 				{...props}
-				className={cn(props.className, 'absolute left-0 fill-white')}
+				className={cn(
+					props.className,
+					'absolute left-0 fill-black dark:fill-white',
+				)}
 			/>
 			<Star {...props} />
 		</span>

@@ -65,25 +65,27 @@
 @layer theme {
 	:root {
 		--background: var(--color-stone-200);
-		--foreground: hsl(20 14.3% 4.1%);
-		--card: hsl(0 0% 100%);
-		--card-foreground: hsl(20 14.3% 4.1%);
+		--foreground: var(--color-stone-950);
+		--primary: var(--color-stone-900);
+		--primary-foreground: var(--color-stone-100);
+		--secondary: var(--color-white);
+		--secondary-foreground: var(--color-stone-900);
+		--muted: var(--color-stone-600);
+		--muted-foreground: var(--color-stone-400);
+
+		--accent: var(--color-rose-700);
+		--accent-foreground: var(--color-rose-100);
+		--destructive: var(--color-red-600);
+		--destructive-foreground: var(--color-red-100);
+		--success: var(--color-lime-400);
+		--success-foreground: var(--color-lime-950);
+
 		--popover: hsl(0 0% 100%);
 		--popover-foreground: hsl(20 14.3% 4.1%);
-		--primary: hsl(24 9.8% 10%);
-		--primary-foreground: hsl(60 9.1% 97.8%);
-		--secondary: hsl(60 4.8% 95.9%);
-		--secondary-foreground: hsl(24 9.8% 10%);
-		--muted: var(--color-stone-600);
-		--muted-foreground: hsl(25 5.3% 44.7%);
-		--accent: hsl(60 4.8% 95.9%);
-		--accent-foreground: hsl(24 9.8% 10%);
-		--destructive: hsl(0 84.2% 60.2%);
-		--destructive-foreground: hsl(60 9.1% 97.8%);
-		--success: rgb(34 197 94);
-		--success-foreground: hsl(0 0 0);
-		--border: hsl(20 5.9% 90%);
-		--input: var(--color-stone-300);
+		--card: hsl(0 0% 100%);
+		--card-foreground: hsl(20 14.3% 4.1%);
+		--border: var(--color-stone-300);
+		--input: var(--color-stone-400);
 		--ring: hsl(20 14.3% 4.1%);
 	}
 
@@ -96,17 +98,11 @@
 		--secondary-foreground: var(--color-stone-100);
 		--muted: var(--color-stone-700);
 		--muted-foreground: var(--color-stone-500);
-		--accent: var(--color-rose-700);
-		--destructive: var(--color-red-600);
-		--destructive-foreground: var(--color-red-100);
-		--success: var(--color-lime-400);
-		--success-foreground: var(--color-lime-950);
 
-		--accent-foreground: hsl(60 9.1% 97.8%);
 		--card: hsl(20 14.3% 4.1%);
 		--card-foreground: hsl(60 9.1% 97.8%);
-		--border: hsl(12 6.5% 15.1%);
-		--input: var(--color-stone-800);
+		--border: var(--color-stone-600);
+		--input: var(--color-stone-600);
 		--ring: hsl(24 5.7% 82.9%);
 	}
 }

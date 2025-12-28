@@ -158,12 +158,6 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 		</Button>
 	);
 	return (
-		<UploadPhoto
-			dialogProps={{
-				button,
-			}}
-			onCrop={handleCrop}
-			title="Upload a pic"
-		/>
+		<UploadPhoto button={button} onCrop={handleCrop} title="Upload a pic" />
 	);
 }

@@ -49,9 +49,9 @@ export function HuntsCompleted() {
 	}
 
 	return (
-		<ol>
+		<ol className="mx-4 flex flex-col min-h-full">
 			{huntsByDate.map(([date, hunts]) => (
-				<li className="mx-4 mb-4" key={date}>
+				<li className="mb-4" key={date}>
 					<p className="mb-4">{date}</p>
 					<ul className="flex flex-col gap-4">
 						{hunts.map((hunt) => (
@@ -60,6 +60,12 @@ export function HuntsCompleted() {
 					</ul>
 				</li>
 			))}
+			<div className="grow flex flex-col justify-end">
+				<p className="text-muted text-sm">
+					For your safety, hunts older than 7 days are hidden. Please
+					contact support if you need access to older hunts.
+				</p>
+			</div>
 		</ol>
 	);
 }
