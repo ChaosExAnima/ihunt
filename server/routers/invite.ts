@@ -7,7 +7,7 @@ import { idSchemaCoerce } from '@/lib/schemas';
 import { extractIds } from '@/lib/utils';
 
 import { db } from '../db';
-import { fetchInviteesForHunt } from '../invite';
+import { fetchInviteesForHunt, inviteExpiryDate } from '../invite';
 import { InviteStatus } from '../schema';
 import { router, userProcedure } from '../trpc';
 
@@ -52,12 +52,38 @@ export const inviteRouter = router({
 		}),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
-		return db.huntInvite.findMany({
+		const invites = await db.huntInvite.findMany({
 			where: {
 				status: InviteStatus.Pending,
 				toHunterId: hunter.id,
 			},
 		});
+
+		const expiryDate = inviteExpiryDate();
+		const validInvites: HuntInvite[] = [];
+		const expiredInvites: HuntInvite[] = [];
+		for (const invite of invites) {
+			if (invite.createdAt >= expiryDate) {
+				validInvites.push(invite);
+			} else {
+				expiredInvites.push(invite);
+			}
+		}
+
+		if (expiredInvites.length > 0) {
+			await db.huntInvite.updateMany({
+				data: {
+					status: InviteStatus.Expired,
+				},
+				where: {
+					id: {
+						in: extractIds(expiredInvites),
+					},
+				},
+			});
+		}
+
+		return validInvites;
 	}),
 
 	sendInvites: userProcedure

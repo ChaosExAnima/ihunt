@@ -128,6 +128,7 @@ export const huntRouter = router({
 						data: { status: InviteStatus.Expired },
 						where: {
 							fromHunterId: currentHunter.id,
+							huntId,
 						},
 					});
 					console.log(

@@ -1,5 +1,9 @@
-import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
-import { todayStart } from '@/lib/formats';
+import {
+	HUNT_INVITE_TIME,
+	HUNT_MAX_PER_DAY,
+	HuntStatus,
+} from '@/lib/constants';
+import { MINUTE, todayStart } from '@/lib/formats';
 import { extractIds, extractKey } from '@/lib/utils';
 
 import { db } from './db';
@@ -9,6 +13,21 @@ interface FetchInviteesForHuntArgs {
 	fromHunterId: number;
 	hunterIds: number[];
 	huntId: number;
+}
+
+export async function expireInvites() {
+	const pastInviteExpiryDate = inviteExpiryDate();
+	await db.huntInvite.updateMany({
+		data: {
+			status: InviteStatus.Expired,
+		},
+		where: {
+			createdAt: {
+				lt: pastInviteExpiryDate,
+			},
+			status: InviteStatus.Pending,
+		},
+	});
 }
 
 export async function fetchDailyHuntCount(hunterId: number) {
@@ -124,4 +143,8 @@ export async function fetchUnclaimedSpots(huntId: number) {
 		joined: joinedHunterIds,
 		joinedCount: joinedHunterIds.size,
 	};
+}
+
+export function inviteExpiryDate() {
+	return new Date(Date.now() - HUNT_INVITE_TIME * MINUTE);
 }
