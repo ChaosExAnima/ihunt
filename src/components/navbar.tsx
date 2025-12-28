@@ -26,7 +26,7 @@ export default function Navbar({
 	isHuntActive,
 }: PropsWithChildren<NavbarProps>) {
 	return (
-		<nav className="border-b border-stone-400 dark:border-stone-800 bg-background shadow-md mb-4 sticky">
+		<nav className="border-b border-stone-400 dark:border-stone-800 bg-white dark:bg-background shadow-md mb-4 sticky">
 			<ol className="flex gap-2 justify-start items-center">
 				<NavbarItemLink
 					className={cn(isHuntActive && 'text-rose-700')}

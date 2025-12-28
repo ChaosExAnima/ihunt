@@ -1,5 +1,6 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Crosshair, Image, Swords, UserRound, UsersRound } from 'lucide-react';
+import { useEffect } from 'react';
 import { Admin, DataProvider, Resource } from 'react-admin';
 
 import { queryClient } from '@/lib/api';
@@ -20,6 +21,14 @@ import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
 
 export function App() {
+	useEffect(() => {
+		const oldTitle = document.title;
+		document.title = 'iHunt Admin';
+		return () => {
+			document.title = oldTitle;
+		};
+	}, []);
+
 	return (
 		<Admin
 			authProvider={authProvider}

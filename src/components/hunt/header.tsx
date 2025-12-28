@@ -48,7 +48,7 @@ export function HuntHeader(hunt: HuntHeaderProps) {
 	return (
 		<div className="relative rounded-lg overflow-hidden">
 			<PhotoDisplay
-				className="max-w-full object-cover object-top"
+				className="w-full object-cover object-top"
 				photo={mainPhoto}
 			/>
 			<HuntDanger
