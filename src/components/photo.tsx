@@ -65,13 +65,14 @@ export default function PhotoDisplay({
 		}));
 	}, []);
 
-	const { data } = useQuery(
-		trpc.photos.get.queryOptions({
+	const { data } = useQuery({
+		...trpc.photos.get.queryOptions({
 			id: photo.id,
 			resizing_type: fit,
 			...dimensions,
 		}),
-	);
+		staleTime: Infinity, // Image data is never stale as the URLs generated are unique.
+	});
 	const src = data?.url ?? blurryUrl;
 
 	return (
