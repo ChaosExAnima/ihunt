@@ -13,6 +13,7 @@ import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
 
 import { Toaster } from './components/ui/toaster';
+import { useTheme } from './hooks/use-theme';
 import { queryClient } from './lib/api';
 import { routeTree } from './routeTree.gen';
 
@@ -58,6 +59,9 @@ export function App() {
 			setToast(null);
 		}
 	});
+
+	useTheme();
+
 	return (
 		<QueryClientProvider client={queryClient}>
 			<RouterProvider router={router} />

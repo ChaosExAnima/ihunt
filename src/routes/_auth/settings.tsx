@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
-import { useCallback } from 'react';
+import { useCallback, useId } from 'react';
 
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
@@ -9,6 +9,8 @@ import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/hooks/use-theme';
 import { trpc } from '@/lib/api';
 import { useCurrencyFormat } from '@/lib/formats';
 
@@ -57,10 +59,14 @@ function Settings() {
 
 	const money = useCurrencyFormat(hunter?.money ?? 0);
 
+	const { theme, toggleTheme } = useTheme();
+
+	const idBase = useId();
+
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-background rounded-md shadow-xs">
+			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
@@ -102,6 +108,13 @@ function Settings() {
 						onChange={handleBioChange}
 						placeholder="Tell us about yourself!"
 						value={hunter.bio ?? ''}
+					/>
+				</SettingBlock>
+				<SettingBlock id={`${idBase}-theme`} label="Light Mode">
+					<Switch
+						checked={theme === 'light'}
+						id={`${idBase}-theme`}
+						onCheckedChange={toggleTheme}
 					/>
 				</SettingBlock>
 			</section>

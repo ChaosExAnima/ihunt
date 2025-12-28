@@ -83,7 +83,7 @@
 		--success: rgb(34 197 94);
 		--success-foreground: hsl(0 0 0);
 		--border: hsl(20 5.9% 90%);
-		--input: hsl(20 5.9% 90%);
+		--input: var(--color-stone-300);
 		--ring: hsl(20 14.3% 4.1%);
 	}
 
