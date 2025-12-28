@@ -14,6 +14,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { arrayOfLength } from '@/lib/utils';
 
 import { AdminHunterSchema, AdminHuntSchema } from '../schemas';
 import { AdminAvatar } from './avatar';
@@ -88,7 +89,7 @@ export function AdminHuntHunters() {
 
 	const hunters = context?.data ?? [];
 
-	const slots = Array.from(Array(record.maxHunters - hunters.length));
+	const slots = arrayOfLength(record.maxHunters - hunters.length);
 	return (
 		<ul className="flex gap-2">
 			{hunters.map((hunter) => (

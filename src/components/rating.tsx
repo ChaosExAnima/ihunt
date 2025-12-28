@@ -1,7 +1,7 @@
 import { LucideProps, Star, StarHalf } from 'lucide-react';
 import { memo } from 'react';
 
-import { cn } from '@/lib/utils';
+import { arrayOfLength, cn } from '@/lib/utils';
 
 type RatingProps = Omit<LucideProps, 'fill'> & {
 	fill?: boolean;
@@ -26,7 +26,7 @@ function RatingBase({
 	const starClassName = cn(fill && 'fill-white', className);
 	return (
 		<span className="inline-flex items-center gap-1">
-			{Array.from(Array(baseStars).keys()).map((index) => (
+			{arrayOfLength(baseStars).map((index) => (
 				<Star {...props} className={starClassName} key={index} />
 			))}
 			{hasHalfStar && (
@@ -37,7 +37,7 @@ function RatingBase({
 				/>
 			)}
 			{remainder > 0 &&
-				Array.from(Array(remainder).keys()).map((index) => (
+				arrayOfLength(remainder).map((index) => (
 					<Star {...props} className={className} key={index} />
 				))}
 		</span>

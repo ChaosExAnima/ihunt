@@ -5,7 +5,7 @@ import { Locale } from '@/lib/constants';
 import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 import { PropsWithClassName } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { arrayOfLength, cn } from '@/lib/utils';
 
 import Header from '../header';
 import PhotoDisplay from '../photo';
@@ -26,7 +26,7 @@ export function HuntDanger({
 	return (
 		<div className={cn('p-2', className)}>
 			<div className="flex text-rose-700 mb-2">
-				{Array.from({ length: danger }).map((_, i) => (
+				{arrayOfLength(danger).map((i) => (
 					<Skull key={i} />
 				))}
 			</div>

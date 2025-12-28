@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { HUNT_MAX_HUNTERS } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
-import { cn } from '@/lib/utils';
+import { arrayOfLength, cn } from '@/lib/utils';
 
 import Avatar, { AvatarEmpty } from './avatar';
 
@@ -14,10 +14,7 @@ interface HunterListProps {
 
 export function HunterList({ className, hunters, max = 0 }: HunterListProps) {
 	const slots = useMemo(
-		() =>
-			Array.from(
-				Array(Math.min(max, HUNT_MAX_HUNTERS) || hunters.length),
-			),
+		() => arrayOfLength(Math.min(max, HUNT_MAX_HUNTERS) || hunters.length),
 		[hunters.length, max],
 	);
 

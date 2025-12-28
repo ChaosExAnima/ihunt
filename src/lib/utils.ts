@@ -3,6 +3,10 @@ import { twMerge } from 'tailwind-merge';
 
 import { Entity } from './types';
 
+export function arrayOfLength(length: number): number[] {
+	return [...Array(length).keys()];
+}
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
