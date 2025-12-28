@@ -517,9 +517,12 @@ export const adminRouter = router({
 					}
 					const { hunters, ...result } = await db.hunt.update({
 						data: {
-							...omit(data, 'hunterIds'),
+							...omit(data, 'hunterIds', 'photoIds'),
 							hunters: {
 								set: idsToObjects(data.hunterIds),
+							},
+							photos: {
+								set: idsToObjects(data.photoIds),
 							},
 						},
 						include: {
