@@ -31,17 +31,24 @@ export const huntRouter = router({
 			}),
 	),
 
-	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() =>
-		db.hunt.findMany({
-			include: huntDisplayInclude,
+	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() => {
+		const result = db.hunt.findMany({
+			include: {
+				...huntDisplayInclude,
+				invites: {
+					select: { id: true },
+					where: { status: InviteStatus.Pending },
+				},
+			},
 			orderBy: {
 				createdAt: 'desc',
 			},
 			where: {
 				status: HuntStatus.Available,
 			},
-		}),
-	),
+		});
+		return result;
+	}),
 
 	getCompleted: userProcedure
 		.output(z.array(outputHuntSchema))

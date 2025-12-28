@@ -65,6 +65,9 @@ export const hunterRouter = router({
 				},
 				where: {
 					alive: true,
+					userId: {
+						not: null,
+					},
 				},
 			});
 
