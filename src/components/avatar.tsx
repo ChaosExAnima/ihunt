@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { UserRound } from 'lucide-react';
+import { UserRound, UserRoundX } from 'lucide-react';
 
 import { useHunterId } from '@/hooks/use-hunter';
 import { HunterSchema } from '@/lib/schemas';
@@ -65,6 +65,20 @@ export function AvatarEmpty({ className }: PropsWithClassName) {
 			)}
 		>
 			<UserRound className="dark:text-stone-600" />
+		</div>
+	);
+}
+
+export function AvatarLocked({ className }: PropsWithClassName) {
+	return (
+		<div
+			className={cn(
+				'border border-stone-400 dark:border-stone-800',
+				'flex size-10 shrink-0 items-center justify-center rounded-full',
+				className,
+			)}
+		>
+			<UserRoundX className="dark:text-stone-600" />
 		</div>
 	);
 }

@@ -1,10 +1,8 @@
-import { Hunt } from '@prisma/client';
 import { useMemo } from 'react';
 
 import { usePlayerSettings } from '@/components/providers/player';
 
 import { Currency, Locale } from './constants';
-import { huntStatus } from './schemas';
 
 // Dates and times
 export const SECOND = 1000;
@@ -35,18 +33,6 @@ export function dateFormat(date: Date) {
 		}
 	}
 	return 'recently';
-}
-
-export function huntsTodayCount(hunts: Pick<Hunt, 'id' | 'status'>[] = []) {
-	let huntCount = 0;
-	for (const hunt of hunts) {
-		const status = huntStatus.safeParse(hunt.status);
-		if (status.data === 'active' || status.data === 'available') {
-			huntCount++;
-		}
-	}
-
-	return huntCount;
 }
 
 export function todayStart() {

@@ -8,15 +8,15 @@ import Avatar, { AvatarEmpty } from './avatar';
 
 interface HunterListProps {
 	className?: string;
+	emptyClassName?: string;
 	hunters: HunterSchema[];
-	isReserved?: boolean;
 	max?: number;
 }
 
 export function HunterList({
 	className,
+	emptyClassName,
 	hunters,
-	isReserved = false,
 	max = 0,
 }: HunterListProps) {
 	const slots = useMemo(
@@ -28,8 +28,8 @@ export function HunterList({
 		<ul className={cn('flex gap-2', className)}>
 			{slots.map((_, index) => (
 				<HunterSlot
+					emptyClassName={emptyClassName}
 					hunter={hunters[index]}
-					isReserved={isReserved}
 					key={index}
 				/>
 			))}
@@ -38,16 +38,15 @@ export function HunterList({
 }
 
 function HunterSlot({
+	emptyClassName,
 	hunter,
-	isReserved,
-}: {
+}: Pick<HunterListProps, 'emptyClassName'> & {
 	hunter?: HunterSchema;
-	isReserved: boolean;
 }) {
 	if (!hunter) {
 		return (
 			<li>
-				<AvatarEmpty className={cn(isReserved && 'bg-slate-900')} />
+				<AvatarEmpty className={emptyClassName} />
 			</li>
 		);
 	}

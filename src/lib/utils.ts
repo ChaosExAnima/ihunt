@@ -4,6 +4,9 @@ import { twMerge } from 'tailwind-merge';
 import { Entity } from './types';
 
 export function arrayOfLength(length: number): number[] {
+	if (length <= 0) {
+		return [];
+	}
 	return [...Array(length).keys()];
 }
 

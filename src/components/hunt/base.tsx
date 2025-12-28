@@ -34,6 +34,7 @@ export default function HuntBase({
 
 			<HuntHuntersDisplay
 				hunters={hunt.hunters}
+				isReserved={hunt.reserved?.status === 'reserved'}
 				maxHunters={hunt.maxHunters}
 			/>
 
