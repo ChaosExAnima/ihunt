@@ -5,11 +5,11 @@ import { usePlayerSettings } from '@/components/providers/player';
 import { Currency, Locale } from './constants';
 
 // Dates and times
-export const MINUTE = 1000 * 60;
+export const SECOND = 1000;
+export const MINUTE = SECOND * 60;
 export const HOUR = MINUTE * 60;
 export const DAY = HOUR * 24;
-
-export const OLD = DAY * 3;
+export const OLD = DAY * 7;
 
 export const currencyFormatter = new Intl.NumberFormat(Locale, {
 	currency: Currency,
@@ -33,6 +33,10 @@ export function dateFormat(date: Date) {
 		}
 	}
 	return 'recently';
+}
+
+export function todayStart() {
+	return new Date().setHours(0, 0, 0, 0);
 }
 
 export function useCurrencyFormat(amount: number) {

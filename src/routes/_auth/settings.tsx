@@ -5,6 +5,8 @@ import { useCallback, useId } from 'react';
 
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
+import { HunterGroupList } from '@/components/hunter/group-list';
+import { Rating } from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
@@ -15,6 +17,9 @@ import { trpc } from '@/lib/api';
 import { useCurrencyFormat } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth/settings')({
+	async beforeLoad({ context: { queryClient } }) {
+		await queryClient.ensureQueryData(trpc.hunter.getGroup.queryOptions());
+	},
 	component: Settings,
 });
 
@@ -23,26 +28,46 @@ function Settings() {
 		player: { hunter },
 		queryClient,
 	} = Route.useRouteContext();
+
 	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
 		trpc.settings.updateMoney.mutationOptions({
-			onSuccess({ hideMoney }) {
-				queryClient.setQueryData(trpc.auth.me.queryKey(), {
-					hunter,
-					settings: {
-						hideMoney,
-					},
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: [
+						trpc.auth.me.queryKey(),
+						trpc.hunter.getOne.queryKey(),
+					],
 				});
 			},
 		}),
 	);
-	const { mutate: updateBio } = useMutation(
-		trpc.settings.updateBio.mutationOptions(),
+	const handleMoneyToggle = useCallback(() => {
+		updateMoney();
+	}, [updateMoney]);
+
+	const { mutate: updateFields } = useMutation(
+		trpc.settings.updateFields.mutationOptions({
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: [
+						trpc.auth.me.queryKey(),
+						trpc.hunter.getOne.queryKey(),
+					],
+				});
+			},
+		}),
 	);
 	const handleBioChange = useCallback(
 		(bio: string) => {
-			updateBio({ bio });
+			updateFields({ bio });
 		},
-		[updateBio],
+		[updateFields],
+	);
+	const handlePronounsChange = useCallback(
+		(pronouns: string) => {
+			updateFields({ pronouns });
+		},
+		[updateFields],
 	);
 
 	const router = useRouter();
@@ -66,14 +91,34 @@ function Settings() {
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4">
+			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-secondary rounded-lg">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
-				<SettingBlock label="Pronouns">
-					<p>{hunter.pronouns ?? 'They/them'}</p>
+				<SettingBlock label="Handle">
+					<p>{hunter.handle}</p>
 				</SettingBlock>
-				<SettingBlock className="" label="Cash">
+				<SettingBlock label="Pronouns">
+					<EditableBlock
+						onChange={handlePronounsChange}
+						value={hunter.pronouns ?? ''}
+					/>
+				</SettingBlock>
+				<SettingBlock className="flex-col items-start" label="Rating">
+					<Rating max={5} rating={hunter.rating} />
+					{hunter.rating <= 1 && (
+						<p className="text-xs text-accent">
+							Your rating is low! Boost it with more jobs or your
+							account may be terminated.
+						</p>
+					)}
+					{hunter.rating > 4 && (
+						<p className="text-xs text-success">
+							You are one of our top hunters!
+						</p>
+					)}
+				</SettingBlock>
+				<SettingBlock label="Cash">
 					<div className="flex-col items-start gap-0 grow">
 						{money !== '' ? (
 							<>
@@ -91,7 +136,7 @@ function Settings() {
 					<Button
 						className="text-muted-foreground self-start"
 						disabled={updatingMoney}
-						onClick={() => updateMoney()}
+						onClick={handleMoneyToggle}
 						size="icon"
 						variant="ghost"
 					>
@@ -116,6 +161,9 @@ function Settings() {
 						id={`${idBase}-theme`}
 						onCheckedChange={toggleTheme}
 					/>
+				</SettingBlock>
+				<SettingBlock label="Friends">
+					<HunterGroupList />
 				</SettingBlock>
 			</section>
 			<Button asChild variant="secondary">

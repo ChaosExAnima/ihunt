@@ -33,17 +33,27 @@ export const settingsRouter = router({
 			}
 		}),
 
-	updateBio: userProcedure
-		.input(z.object({ bio: z.string().trim().max(500).min(1) }))
-		.mutation(async ({ ctx: { hunter }, input: { bio: newBio } }) => {
-			if (!newBio || newBio === hunter.bio) {
-				return;
-			}
-			await db.hunter.update({
-				data: { bio: newBio },
-				where: { id: hunter.id },
-			});
-		}),
+	updateFields: userProcedure
+		.input(
+			z.object({
+				bio: z.string().trim().max(500).min(1).optional(),
+				pronouns: z.string().trim().max(40).min(1).optional(),
+			}),
+		)
+		.mutation(
+			async ({
+				ctx: { hunter },
+				input: { bio: newBio, pronouns: newPronouns },
+			}) => {
+				if (newBio === hunter.bio && newPronouns === hunter.pronouns) {
+					return;
+				}
+				await db.hunter.update({
+					data: { bio: newBio, pronouns: newPronouns },
+					where: { id: hunter.id },
+				});
+			},
+		),
 
 	updateMoney: userProcedure.mutation(async ({ ctx: { user } }) => {
 		const { hideMoney } = await db.user.update({

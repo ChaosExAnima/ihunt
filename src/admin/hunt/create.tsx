@@ -10,23 +10,13 @@ import {
 import { HuntStatus } from '@/lib/constants';
 
 import { SimpleForm } from '../components/simple-form';
-import { adminHuntSchema } from '../schemas';
+import { adminCreateHuntInput } from '../schemas';
 import { huntStatusChoices } from './common';
 
 export function HuntCreate() {
 	return (
 		<Create>
-			<SimpleForm
-				resolver={zodResolver(
-					adminHuntSchema.omit({
-						comment: true,
-						completedAt: true,
-						hunterIds: true,
-						id: true,
-						rating: true,
-					}),
-				)}
-			>
+			<SimpleForm resolver={zodResolver(adminCreateHuntInput)}>
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
 					<SelectInput

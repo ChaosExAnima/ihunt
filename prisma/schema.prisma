@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Hunt {
-    id          Int       @id @default(autoincrement())
-    createdAt   DateTime  @default(now())
+    id          Int          @id @default(autoincrement())
+    createdAt   DateTime     @default(now())
     scheduledAt DateTime?
     completedAt DateTime?
     name        String
     description String
-    status      String    @default("pending")
-    maxHunters  Int       @default(4)
-    danger      Int       @default(1)
+    status      String       @default("pending")
+    maxHunters  Int          @default(4)
+    danger      Int          @default(1)
     hunters     Hunter[]
     photos      Photo[]
     rating      Float?
@@ -24,27 +24,57 @@ model Hunt {
     payment     Int
     place       String?
     warnings    String?
+    invites     HuntInvite[]
 
     @@index([status])
+    @@index([scheduledAt])
 }
 
 model Hunter {
-    id        Int      @id @default(autoincrement())
-    name      String
-    handle    String   @unique
-    alive     Boolean  @default(true)
-    hunts     Hunt[]
-    photos    Photo[]  @relation("Photos")
-    avatar    Photo?   @relation("Avatar", fields: [avatarId], references: [id])
-    avatarId  Int?     @unique
-    money     Int      @default(0)
-    user      User?    @relation(fields: [userId], references: [id])
-    userId    Int?
-    bio       String?
-    pronouns  String?
-    follows   Hunter[] @relation("Follows")
-    followers Hunter[] @relation("Follows")
-    type      String?
+    id          Int          @id @default(autoincrement())
+    name        String
+    handle      String       @unique
+    alive       Boolean      @default(true)
+    hunts       Hunt[]
+    photos      Photo[]      @relation("Photos")
+    avatar      Photo?       @relation("Avatar", fields: [avatarId], references: [id])
+    avatarId    Int?         @unique
+    money       Int          @default(0)
+    user        User?        @relation(fields: [userId], references: [id])
+    userId      Int?
+    groupId     Int?
+    group       HunterGroup? @relation(fields: [groupId], references: [id])
+    bio         String?
+    pronouns    String?
+    type        String?
+    rating      Float        @default(1)
+    invites     HuntInvite[] @relation("Invitee")
+    sentInvites HuntInvite[] @relation("Inviter")
+
+    @@index([alive])
+}
+
+model HunterGroup {
+    id      Int      @id @default(autoincrement())
+    name    String
+    hunters Hunter[]
+}
+
+model HuntInvite {
+    id           Int      @id @default(autoincrement())
+    fromHunter   Hunter   @relation("Inviter", fields: [fromHunterId], references: [id])
+    fromHunterId Int
+    toHunter     Hunter   @relation("Invitee", fields: [toHunterId], references: [id])
+    toHunterId   Int
+    hunt         Hunt     @relation(fields: [huntId], references: [id])
+    huntId       Int
+    createdAt    DateTime @default(now())
+    expiresAt    DateTime
+    status       String   @default("pending")
+
+    @@unique([fromHunterId, huntId, toHunterId], name: "fromToHunt")
+    @@index([toHunterId, status], name: "toHunterStatus")
+    @@index([expiresAt])
 }
 
 model Photo {

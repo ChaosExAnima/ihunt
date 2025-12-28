@@ -32,7 +32,7 @@ export async function createAuthContext({
 		return { req, res, session };
 	}
 	try {
-		const { hunters, ...user } = await db.user.findFirstOrThrow({
+		const { hunters, ...user } = await db.user.findUniqueOrThrow({
 			include: {
 				hunters: {
 					include: {
@@ -61,6 +61,9 @@ export function getSession({
 }: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
 	return getIronSession<SessionData>(req.raw, res.raw, {
 		cookieName: SESSION_COOKIE_NAME,
+		cookieOptions: {
+			httpOnly: false,
+		},
 		password: authSession,
 	});
 }

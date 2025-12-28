@@ -1,16 +1,14 @@
-import { CircleCheckBig, X } from 'lucide-react';
-import { useMemo } from 'react';
+import { CircleCheckBig } from 'lucide-react';
 
 import type { PropsWithClassName } from '@/lib/types';
 
-import { useHunterId } from '@/hooks/use-hunter';
 import { HuntStatus } from '@/lib/constants';
 import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
-import { Button } from '../ui/button';
 import { HuntDisplayActive } from './active';
+import { HuntDisplayAvailable } from './available';
 import HuntBase from './base';
 
 export { HuntDisplayActive } from './active';
@@ -22,51 +20,17 @@ export interface HuntDisplayProps {
 }
 
 export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
-	const { hunt, onAcceptHunt, remainingHunts } = props;
-	const hunterId = useHunterId();
-	const isAccepted = useMemo(
-		() => (hunt.hunters ?? []).some((hunter) => hunter.id === hunterId),
-		[hunt.hunters, hunterId],
-	);
+	const { hunt } = props;
 	const payment = useCurrencyFormat(hunt.payment);
-	const huntersLeft =
-		hunt.hunters && hunt.maxHunters - hunt.hunters.length > 0;
+
 	switch (hunt.status) {
 		case HuntStatus.Active:
 			return <HuntDisplayActive hunt={hunt} />;
 		case HuntStatus.Available:
-			return (
-				<HuntBase {...props} isAccepted={isAccepted}>
-					{huntersLeft && !isAccepted && (
-						<p className="text-center text-sm">
-							You have {remainingHunts || 'no'} hunts left today.
-							<br />
-							<strong className="text-green-500">
-								Buy iHunt Premium to unlock more!
-							</strong>
-						</p>
-					)}
-					<Button
-						className="flex mx-auto rounded-full font-bold self-center"
-						disabled={!huntersLeft && !isAccepted}
-						onClick={() => onAcceptHunt?.(hunt.id)}
-						variant={isAccepted ? 'destructive' : 'success'}
-					>
-						{isAccepted ? (
-							<X />
-						) : (
-							<CircleCheckBig
-								aria-label="Accept hunt"
-								strokeWidth="3"
-							/>
-						)}
-						{isAccepted ? 'Cancel' : 'Accept'}
-					</Button>
-				</HuntBase>
-			);
+			return <HuntDisplayAvailable {...props} />;
 		case HuntStatus.Complete:
 			return (
-				<HuntBase {...props} isAccepted={isAccepted}>
+				<HuntBase {...props}>
 					{payment && <p>You earned {payment}!</p>}
 					<div
 						className={cn(

@@ -4,10 +4,10 @@ import z from 'zod';
 import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
-import { extractIds, omit } from '@/lib/utils';
+import { extractIds, idsToObjects, omit } from '@/lib/utils';
 
 import { db } from '../db';
-import { outputPhoto, photoUrl } from '../photo';
+import { photoUrl } from '../photo';
 import { adminProcedure, router } from '../trpc';
 
 const paginationSchema = z.object({
@@ -21,6 +21,12 @@ const sortSchema = z.object({
 });
 
 const findManySchema = z.object({
+	filter: z
+		.object({
+			noGroup: z.boolean().optional(),
+			q: z.string().optional(),
+		})
+		.optional(),
 	ids: z.array(idSchemaCoerce).optional(),
 	meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
 	pagination: paginationSchema.optional(),
@@ -33,6 +39,23 @@ export const adminRouter = router({
 		.input(adminCreateInput)
 		.mutation(async ({ input: { data, resource } }) => {
 			switch (resource) {
+				case 'group': {
+					const { hunters, ...group } = await db.hunterGroup.create({
+						data: {
+							hunters: {
+								connect: idsToObjects(data.hunterIds),
+							},
+							name: data.name,
+						},
+						include: {
+							hunters: { select: { id: true } },
+						},
+					});
+					return {
+						...group,
+						hunterIds: extractIds(hunters),
+					};
+				}
 				case 'hunt':
 					return await db.hunt.create({ data });
 				case 'hunter':
@@ -55,6 +78,8 @@ export const adminRouter = router({
 		.mutation(async ({ input: { id, resource } }) => {
 			const query = { where: { id } };
 			switch (resource) {
+				case 'group':
+					return db.hunterGroup.delete(query);
 				case 'hunt':
 					return db.hunt.delete(query);
 				case 'hunter':
@@ -89,6 +114,11 @@ export const adminRouter = router({
 			};
 			let data: Entity[] = [];
 			switch (resource) {
+				case 'group': {
+					data = await db.hunterGroup.findMany(query);
+					await db.hunterGroup.deleteMany(query);
+					break;
+				}
 				case 'hunt': {
 					data = await db.hunt.findMany(query);
 					await db.hunt.deleteMany(query);
@@ -122,116 +152,170 @@ export const adminRouter = router({
 
 	getList: adminProcedure
 		.input(findManySchema)
-		.query(async ({ input: { ids, meta, pagination, resource, sort } }) => {
-			const where = ids
-				? {
-						id: {
-							in: ids,
-						},
-					}
-				: undefined;
-			const query = {
-				orderBy: sort
+		.query(
+			async ({
+				input: { filter, ids, meta, pagination, resource, sort },
+			}) => {
+				const where = ids
 					? {
-							[sort.field]: sort.order.toLowerCase(),
+							id: {
+								in: ids,
+							},
 						}
-					: undefined,
-				skip: pagination
-					? pagination.perPage * (pagination.page - 1)
-					: undefined,
-				take: pagination?.perPage,
-				where,
-			};
+					: {};
+				const query = {
+					orderBy: sort
+						? {
+								[sort.field]: sort.order.toLowerCase(),
+							}
+						: undefined,
+					skip: pagination
+						? pagination.perPage * (pagination.page - 1)
+						: undefined,
+					take: pagination?.perPage,
+					where,
+				};
 
-			switch (resource) {
-				case 'hunt': {
-					const hunts = await db.hunt.findMany({
-						...query,
-						include: {
-							hunters: {
-								select: { id: true },
+				switch (resource) {
+					case 'group': {
+						const groups = await db.hunterGroup.findMany({
+							...query,
+							include: {
+								hunters: { select: { id: true } },
 							},
-							photos: {
-								select: { id: true },
+							where: {
+								...where,
+								name: filter?.q
+									? {
+											contains: filter.q,
+										}
+									: undefined,
 							},
-						},
-					});
-					return {
-						data: hunts.map(({ hunters, photos, ...hunt }) => ({
-							...hunt,
-							hunterIds: extractIds(hunters),
-							photoIds: extractIds(photos),
-						})),
-						total: await db.hunt.count({ where }),
-					};
-				}
-				case 'hunter': {
-					const hunters = await db.hunter.findMany({
-						...query,
-						include: {
-							hunts: {
-								select: {
-									id: true,
+						});
+
+						return {
+							data: groups.map(({ hunters, ...group }) => ({
+								...group,
+								hunterIds: extractIds(hunters),
+							})),
+							total: await db.hunterGroup.count(query),
+						};
+					}
+					case 'hunt': {
+						const hunts = await db.hunt.findMany({
+							...query,
+							include: {
+								hunters: {
+									select: { id: true },
+								},
+								photos: {
+									select: { id: true },
 								},
 							},
-						},
-					});
-					return {
-						data: hunters.map(({ hunts, ...hunter }) => ({
-							...hunter,
-							huntIds: extractIds(hunts),
-						})),
-						total: await db.hunter.count({ where }),
-					};
-				}
-				case 'photo': {
-					const photos = await db.photo.findMany({
-						...query,
-						where: {
-							...where,
-							OR: !meta?.showAll
-								? [
-										{
-											hunterId: {
-												not: null,
+							where: {
+								...where,
+								name: filter?.q
+									? {
+											contains: filter.q,
+										}
+									: undefined,
+							},
+						});
+						return {
+							data: hunts.map(({ hunters, photos, ...hunt }) => ({
+								...hunt,
+								hunterIds: extractIds(hunters),
+								photoIds: extractIds(photos),
+							})),
+							total: await db.hunt.count({ where }),
+						};
+					}
+					case 'hunter': {
+						const hunters = await db.hunter.findMany({
+							...query,
+							include: {
+								hunts: {
+									select: {
+										id: true,
+									},
+								},
+							},
+							where: {
+								...where,
+								groupId: filter?.noGroup ? null : undefined,
+								OR: filter?.q
+									? [
+											{ name: { contains: filter.q } },
+											{ handle: { contains: filter.q } },
+										]
+									: undefined,
+							},
+						});
+						return {
+							data: hunters.map(({ hunts, ...hunter }) => ({
+								...hunter,
+								huntIds: extractIds(hunts),
+							})),
+							total: await db.hunter.count({ where }),
+						};
+					}
+					case 'photo': {
+						const photos = await db.photo.findMany({
+							...query,
+							where: {
+								...where,
+								OR: !meta?.showAll
+									? [
+											{
+												hunterId: {
+													not: null,
+												},
 											},
-										},
-										{ huntId: { not: null } },
-									]
-								: undefined,
-						},
-					});
-					return {
-						data: photos.map((photo) => ({
-							...photo,
-							url: photoUrl(photo),
-						})),
-						total: await db.photo.count({ where }),
-					};
-				}
-				case 'user': {
-					const users = await db.user.findMany({
-						...query,
-						include: {
-							hunters: {
-								orderBy: {
-									alive: 'desc',
-								},
-								select: { id: true },
+											{ huntId: { not: null } },
+										]
+									: undefined,
 							},
-						},
-						omit: { password: true },
-					});
-					return {
-						data: users.map(({ hunters, ...user }) => ({
-							...user,
-							hunterIds: extractIds(hunters),
-						})),
-						total: await db.user.count({ where }),
-					};
+						});
+						return {
+							data: photos.map((photo) => ({
+								...photo,
+								url: photoUrl(photo),
+							})),
+							total: await db.photo.count({ where }),
+						};
+					}
+					case 'user': {
+						const users = await db.user.findMany({
+							...query,
+							include: {
+								hunters: {
+									orderBy: {
+										alive: 'desc',
+									},
+									select: { id: true },
+								},
+							},
+							omit: { password: true },
+							where: {
+								...where,
+								name: filter?.q
+									? {
+											contains: filter.q,
+										}
+									: undefined,
+							},
+						});
+						return {
+							data: users.map(({ hunters, ...user }) => ({
+								...user,
+								hunterIds: extractIds(hunters),
+							})),
+							total: await db.user.count({ where }),
+						};
+					}
 				}
-			}
-		}),
+			},
+		),
 
 	getOne: adminProcedure
 		.input(
@@ -243,9 +327,24 @@ export const adminRouter = router({
 		.query(async ({ input: { id, resource } }) => {
 			const query = { where: { id } };
 			switch (resource) {
+				case 'group': {
+					const { hunters, ...group } =
+						await db.hunterGroup.findUniqueOrThrow({
+							...query,
+							include: {
+								hunters: {
+									select: { id: true },
+								},
+							},
+						});
+					return {
+						...group,
+						hunterIds: extractIds(hunters),
+					};
+				}
 				case 'hunt': {
 					const { hunters, photos, ...hunt } =
-						await db.hunt.findFirstOrThrow({
+						await db.hunt.findUniqueOrThrow({
 							...query,
 							include: {
 								hunters: {
@@ -256,28 +355,19 @@ export const adminRouter = router({
 						});
 					return {
 						...hunt,
-						// This is specifically for autocomplete input.
 						hunterIds: extractIds(hunters),
 						photoIds: extractIds(photos),
 					};
 				}
 				case 'hunter': {
-					const hunter = await db.hunter.findFirstOrThrow({
-						...query,
-						include: { avatar: true },
-					});
-					return {
-						...hunter,
-						avatar: hunter.avatar
-							? outputPhoto({ photo: hunter.avatar })
-							: null,
-					};
+					const hunter = await db.hunter.findUniqueOrThrow(query);
+					return hunter;
 				}
 				case 'photo':
-					return db.photo.findFirstOrThrow(query);
+					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					const { hunters, ...user } = await db.user.findFirstOrThrow(
-						{
+					const { hunters, ...user } =
+						await db.user.findUniqueOrThrow({
 							...query,
 							include: {
 								hunters: {
@@ -288,8 +378,7 @@ export const adminRouter = router({
 								},
 							},
 							omit: { password: true },
-						},
-					);
+						});
 					return { hunterIds: extractIds(hunters), ...user };
 				}
 			}
@@ -320,6 +409,11 @@ export const adminRouter = router({
 				};
 
 				switch (resource) {
+					case 'group':
+						return {
+							data: await db.hunterGroup.findMany(query),
+							total: await db.hunterGroup.count({ where }),
+						};
 					case 'hunt':
 						return {
 							data: await db.hunt.findMany(query),
@@ -327,12 +421,7 @@ export const adminRouter = router({
 						};
 					case 'hunter':
 						return {
-							data: await db.hunter.findMany({
-								...query,
-								include: {
-									avatar: true,
-								},
-							}),
+							data: await db.hunter.findMany(query),
 							total: await db.hunter.count({ where }),
 						};
 					case 'photo':
@@ -359,6 +448,12 @@ export const adminRouter = router({
 		.mutation(async ({ input: { data, ids, resource } }) => {
 			const where = { id: { in: ids } };
 			switch (resource) {
+				case 'group':
+					await db.hunterGroup.updateMany({
+						data,
+						where,
+					});
+					break;
 				case 'hunt':
 					await db.hunt.updateMany({
 						data,
@@ -391,6 +486,24 @@ export const adminRouter = router({
 		.input(adminInput.and(z.object({ id: idSchemaCoerce })))
 		.mutation(async ({ input: { data, id, resource } }) => {
 			switch (resource) {
+				case 'group': {
+					const { hunters, ...group } = await db.hunterGroup.update({
+						data: {
+							hunters: {
+								set: idsToObjects(data.hunterIds),
+							},
+							name: data.name,
+						},
+						include: {
+							hunters: { select: { id: true } },
+						},
+						where: { id },
+					});
+					return {
+						...group,
+						hunterIds: extractIds(hunters),
+					};
+				}
 				case 'hunt': {
 					if (
 						data.hunterIds &&
@@ -404,9 +517,12 @@ export const adminRouter = router({
 					}
 					const { hunters, ...result } = await db.hunt.update({
 						data: {
-							...omit(data, 'hunterIds'),
+							...omit(data, 'hunterIds', 'photoIds'),
 							hunters: {
-								set: data.hunterIds?.map((id) => ({ id })),
+								set: idsToObjects(data.hunterIds),
+							},
+							photos: {
+								set: idsToObjects(data.photoIds),
 							},
 						},
 						include: {
@@ -438,7 +554,7 @@ export const adminRouter = router({
 						data: {
 							...omit(data, 'hunterIds'),
 							hunters: {
-								set: data.hunterIds?.map((id) => ({ id })),
+								set: idsToObjects(data.hunterIds),
 							},
 						},
 						where: { id },

@@ -1,56 +1,103 @@
+import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
 import {
+	groupSchema,
 	hunterSchema,
 	hunterTypeSchema,
-	idSchema,
 	idSchemaCoerce,
 } from '@/lib/schemas';
 
 import { db } from '../db';
 import { uploadPhoto } from '../photo';
 import { outputHuntSchema } from '../schema';
-import { adminProcedure, router, userProcedure } from '../trpc';
+import { adminProcedure, debugProcedure, router, userProcedure } from '../trpc';
 
 export const hunterRouter = router({
-	getOne: userProcedure
+	getGroup: userProcedure
 		.input(
-			z.object({
-				hunterId: idSchema,
-			}),
+			z
+				.object({
+					hunterId: idSchemaCoerce.optional(),
+				})
+				.optional(),
 		)
-		.output(
-			hunterSchema.extend({
-				count: z.number().min(0),
-				followers: z.array(hunterSchema),
-				hunts: z.array(
-					outputHuntSchema.omit({ hunters: true, photos: true }),
-				),
-				rating: z.number().min(0).max(5),
-			}),
-		)
-		.query(async ({ input: { hunterId: id } }) => {
-			const {
-				_count: { hunts: count },
-				...hunter
-			} = await db.hunter.findFirstOrThrow({
+		.output(groupSchema.nullable())
+		.query(async ({ ctx: { hunter }, input }) => {
+			const hunterId = input?.hunterId ?? hunter.id;
+			if (!hunterId) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'No hunter provided',
+				});
+			}
+			const group = await db.hunterGroup.findFirst({
 				include: {
-					_count: {
-						select: {
-							hunts: {
-								where: {
-									status: HuntStatus.Complete,
-								},
-							},
-						},
-					},
-					avatar: true,
-					followers: {
+					hunters: {
 						include: {
 							avatar: true,
 						},
 					},
+				},
+				where: {
+					hunters: {
+						some: {
+							id: hunterId,
+						},
+					},
+				},
+			});
+			if (!group) {
+				return null;
+			}
+			return {
+				...group,
+				hunters: group?.hunters.filter(({ id }) => id !== hunterId),
+			};
+		}),
+
+	getMany: debugProcedure.query(
+		async ({ ctx: { hunter: currentHunter } }) => {
+			const hunters = await db.hunter.findMany({
+				orderBy: {
+					handle: 'asc',
+				},
+				where: {
+					alive: true,
+					userId: {
+						not: null,
+					},
+				},
+			});
+
+			return hunters.map(({ handle, id }) => ({
+				handle,
+				id,
+				me: id === currentHunter?.id,
+			}));
+		},
+	),
+
+	getOne: userProcedure
+		.input(
+			z.object({
+				hunterId: idSchemaCoerce,
+			}),
+		)
+		.output(
+			hunterSchema.extend({
+				alive: z.boolean(),
+				groupId: idSchemaCoerce.nullish(),
+				hunts: z.array(
+					outputHuntSchema.omit({ hunters: true, photos: true }),
+				),
+			}),
+		)
+		.query(async ({ input: { hunterId: id } }) => {
+			const hunter = await db.hunter.findUniqueOrThrow({
+				include: {
+					avatar: true,
 					hunts: {
 						where: {
 							status: HuntStatus.Complete,
@@ -59,25 +106,9 @@ export const hunterRouter = router({
 				},
 				where: { id },
 			});
-			const rating = await db.hunt.aggregate({
-				_avg: {
-					rating: true,
-				},
-				where: {
-					hunters: {
-						some: { id },
-					},
-				},
-			});
 
 			return {
 				...hunter,
-				count,
-				followers: hunter.followers.map((follower) => ({
-					...follower,
-					type: hunterTypeSchema.parse(follower.type),
-				})),
-				rating: rating._avg.rating ?? 1,
 				type: hunterTypeSchema.parse(hunter.type),
 			};
 		}),

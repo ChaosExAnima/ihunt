@@ -1,11 +1,15 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Crosshair, Image, Swords, UserRound } from 'lucide-react';
+import { Crosshair, Image, Swords, UserRound, UsersRound } from 'lucide-react';
+import { useEffect } from 'react';
 import { Admin, DataProvider, Resource } from 'react-admin';
 
 import { queryClient } from '@/lib/api';
 
 import { LoginPage } from './components/login';
 import { authProvider, dataProvider } from './data';
+import { GroupCreate } from './group/create';
+import { GroupEdit } from './group/edit';
+import { GroupList } from './group/list';
 import { HuntCreate } from './hunt/create';
 import { HuntEdit } from './hunt/edit';
 import { HuntList } from './hunt/list';
@@ -17,6 +21,14 @@ import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
 
 export function App() {
+	useEffect(() => {
+		const oldTitle = document.title;
+		document.title = 'iHunt Admin';
+		return () => {
+			document.title = oldTitle;
+		};
+	}, []);
+
 	return (
 		<Admin
 			authProvider={authProvider}
@@ -39,6 +51,14 @@ export function App() {
 				list={HunterList}
 				name="hunter"
 				recordRepresentation="handle"
+			/>
+			<Resource
+				create={GroupCreate}
+				edit={GroupEdit}
+				icon={UsersRound}
+				list={GroupList}
+				name="group"
+				recordRepresentation="name"
 			/>
 			<Resource
 				edit={UserEdit}

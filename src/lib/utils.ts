@@ -3,12 +3,33 @@ import { twMerge } from 'tailwind-merge';
 
 import { Entity } from './types';
 
+export function arrayOfLength(length: number): number[] {
+	if (length <= 0) {
+		return [];
+	}
+	return [...Array(length).keys()];
+}
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
 export function extractIds<T extends Entity>(obj: T[]): number[] {
-	return obj.map(({ id }) => id);
+	return extractKey(obj, 'id');
+}
+
+export function extractKey<
+	T extends Record<string, unknown>,
+	K extends keyof T = keyof T,
+>(obj: T[], key: K) {
+	return obj.map(({ [key]: value }) => value);
+}
+
+export function idsToObjects(ids?: number[]): Entity[] | undefined {
+	if (!ids) {
+		return undefined;
+	}
+	return ids.map((id) => ({ id }));
 }
 
 export function isDev() {

@@ -20,11 +20,6 @@ export const queryClient = new QueryClient({
 				toast({ description: err.message, title: 'Error' });
 			},
 		},
-		queries: {
-			// With SSR, we usually want to set some default staleTime
-			// above 0 to avoid refetching immediately on the client
-			staleTime: 60 * 1000,
-		},
 	},
 });
 

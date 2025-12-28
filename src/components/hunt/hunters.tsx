@@ -1,19 +1,37 @@
 import { HuntSchema } from '@/lib/schemas';
+import { arrayOfLength } from '@/lib/utils';
 
-import { HunterList } from '../hunter-list';
+import Avatar, { AvatarEmpty, AvatarLocked } from '../avatar';
 
 interface HuntHuntersDisplayProps {
-	isAccepted?: boolean;
+	isReserved?: boolean;
 }
 
 export function HuntHuntersDisplay({
-	hunters,
+	hunters = [],
+	isReserved = false,
 	maxHunters,
 }: HuntHuntersDisplayProps & Pick<HuntSchema, 'hunters' | 'maxHunters'>) {
+	const emptySpots = arrayOfLength(maxHunters - hunters.length);
 	return (
 		<div className="flex gap-2 items-center text-sm">
 			<p>Hunters:</p>
-			<HunterList hunters={hunters ?? []} max={maxHunters} />
+			<ul className="flex gap-2">
+				{hunters.map((hunter) => (
+					<li key={hunter.id}>
+						<Avatar hunter={hunter} />
+					</li>
+				))}
+				{emptySpots.map((index) => (
+					<li key={index}>
+						{isReserved ? (
+							<AvatarLocked className="pl-1" />
+						) : (
+							<AvatarEmpty />
+						)}
+					</li>
+				))}
+			</ul>
 		</div>
 	);
 }

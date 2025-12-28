@@ -1,5 +1,5 @@
 import { CircleAlert } from 'lucide-react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,6 @@ interface HuntBaseProps {
 	className?: string;
 	hideHeader?: boolean;
 	hunt: HuntSchema;
-	isAccepted: boolean;
 }
 
 export default function HuntBase({
@@ -23,9 +22,11 @@ export default function HuntBase({
 	className,
 	hideHeader = false,
 	hunt,
-	isAccepted,
 }: PropsWithChildren<HuntBaseProps>) {
 	const [showCW, setShowCW] = useState(false);
+	const handleToggleCW = useCallback(() => {
+		setShowCW((prev) => !prev);
+	}, []);
 	return (
 		<Card className={cn(className, 'flex flex-col gap-2 p-4')}>
 			{!hideHeader && <HuntHeader {...hunt} />}
@@ -33,7 +34,7 @@ export default function HuntBase({
 
 			<HuntHuntersDisplay
 				hunters={hunt.hunters}
-				isAccepted={isAccepted}
+				isReserved={hunt.reserved?.status === 'reserved'}
 				maxHunters={hunt.maxHunters}
 			/>
 
@@ -44,7 +45,7 @@ export default function HuntBase({
 				{!!hunt.warnings && (
 					<Button
 						className="text-rose-700 shrink-0"
-						onClick={() => setShowCW(!showCW)}
+						onClick={handleToggleCW}
 						size="icon"
 						variant="ghost"
 					>

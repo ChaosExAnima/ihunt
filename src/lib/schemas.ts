@@ -51,12 +51,20 @@ export const hunterSchema = z.object({
 	money: z.coerce.number().int(),
 	name: z.string(),
 	pronouns: z.string().nullable(),
+	rating: z.number().positive().max(5),
 	type: z
 		.string()
 		.transform((type) => hunterTypeSchema.parse(type))
 		.nullable(),
 });
 export type HunterSchema = z.infer<typeof hunterSchema>;
+
+export const huntReservedSchema = z.object({
+	expires: z.coerce.date(),
+	status: z.enum(['invited', 'reserved', 'sent']),
+});
+export type HuntReservedSchema = z.infer<typeof huntReservedSchema>;
+export type HuntReservedStatusSchema = HuntReservedSchema['status'];
 
 export const huntSchema = z.object({
 	comment: z.string().nullable(),
@@ -71,9 +79,17 @@ export const huntSchema = z.object({
 	photos: z.array(photoHuntSchema),
 	place: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
+	reserved: huntReservedSchema.nullish(),
 	scheduledAt: z.coerce.date().nullable(),
 	status: huntStatus,
 	warnings: z.string().nullish(),
 });
 export type HuntSchema = z.infer<typeof huntSchema>;
 export const huntsSchema = z.array(huntSchema);
+
+export const groupSchema = z.object({
+	hunters: z.array(hunterSchema),
+	id: idSchema,
+	name: z.string(),
+});
+export type GroupSchema = z.infer<typeof groupSchema>;

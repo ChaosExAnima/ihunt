@@ -42,8 +42,8 @@ export function outputPhoto({
 }: PhotoUrlOptions & {
 	photo: Photo;
 }) {
-	const actualHeight = Math.max(targetHeight, photo.height);
-	const actualWidth = Math.max(targetWidth, photo.width);
+	const actualHeight = Math.min(targetHeight, photo.height);
+	const actualWidth = Math.min(targetWidth, photo.width);
 	return {
 		...omit(photo, 'huntId', 'hunterId', 'path'),
 		height: actualHeight,

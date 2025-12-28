@@ -1,4 +1,10 @@
-import { PropsWithChildren, RefObject, SyntheticEvent, useState } from 'react';
+import {
+	PropsWithChildren,
+	RefObject,
+	SyntheticEvent,
+	useCallback,
+	useState,
+} from 'react';
 import ReactCrop, {
 	centerCrop,
 	makeAspectCrop,
@@ -32,10 +38,22 @@ export default function UploadCropper({
 }: UploadCropperProps) {
 	const [crop, setCrop] = useState<PercentCrop>();
 
-	const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
-		const { height, width } = event.currentTarget;
-		setCrop(centerAspectCrop(width, height, aspect));
-	};
+	const handleChange = useCallback((_: unknown, percentage: PercentCrop) => {
+		setCrop(percentage);
+	}, []);
+	const handleComplete = useCallback(
+		(crop: PixelCrop) => {
+			onComplete(crop);
+		},
+		[onComplete],
+	);
+	const handleLoad = useCallback(
+		(event: SyntheticEvent<HTMLImageElement>) => {
+			const { height, width } = event.currentTarget;
+			setCrop(centerAspectCrop(width, height, aspect));
+		},
+		[aspect],
+	);
 
 	return (
 		<ReactCrop
@@ -45,8 +63,8 @@ export default function UploadCropper({
 			crop={crop}
 			disabled={disabled}
 			minHeight={100}
-			onChange={(_, percentage) => setCrop(percentage)}
-			onComplete={(crop) => onComplete(crop)}
+			onChange={handleChange}
+			onComplete={handleComplete}
 		>
 			<img
 				alt="New image"

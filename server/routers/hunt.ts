@@ -1,11 +1,22 @@
+import { Prisma } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { idSchemaCoerce } from '@/lib/schemas';
+import {
+	HuntReservedSchema,
+	HuntReservedStatusSchema,
+	idSchemaCoerce,
+} from '@/lib/schemas';
 
 import { db } from '../db';
+import {
+	expireInvites,
+	fetchDailyHuntCount,
+	fetchUnclaimedSpots,
+} from '../invite';
 import { uploadPhoto } from '../photo';
-import { outputHuntSchema } from '../schema';
+import { InviteStatus, outputHuntSchema } from '../schema';
 import { adminProcedure, router, userProcedure } from '../trpc';
 
 export const huntRouter = router({
@@ -28,30 +39,54 @@ export const huntRouter = router({
 			}),
 	),
 
-	getActiveCount: userProcedure.query(({ ctx: { hunter } }) =>
-		db.hunt.count({
-			where: {
-				hunters: {
-					some: {
-						id: hunter.id,
+	getAvailable: userProcedure
+		.output(z.array(outputHuntSchema))
+		.query(async ({ ctx: { hunter: currentHunter } }) => {
+			const result = await db.hunt.findMany({
+				include: {
+					...huntDisplayInclude,
+					invites: {
+						where: {
+							status: InviteStatus.Pending,
+						},
 					},
 				},
-				status: HuntStatus.Active,
-			},
-		}),
-	),
+				orderBy: {
+					createdAt: 'desc',
+				},
+				where: {
+					status: HuntStatus.Available,
+				},
+			});
 
-	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() =>
-		db.hunt.findMany({
-			include: huntDisplayInclude,
-			orderBy: {
-				createdAt: 'desc',
-			},
-			where: {
-				status: HuntStatus.Available,
-			},
+			const invites = await expireInvites(
+				result.flatMap(({ invites }) => invites),
+			);
+			const invitedHuntMap = new Map<number, HuntReservedSchema>();
+			for (const invite of invites) {
+				const mapData = invitedHuntMap.get(invite.huntId);
+				let status: HuntReservedStatusSchema =
+					mapData?.status ?? 'reserved';
+
+				if (invite.fromHunterId === currentHunter.id) {
+					status = 'sent';
+				} else if (
+					invite.toHunterId === currentHunter.id &&
+					status !== 'sent'
+				) {
+					status = 'invited';
+				}
+				invitedHuntMap.set(invite.huntId, {
+					expires: invite.expiresAt,
+					status,
+				});
+			}
+
+			return result.map(({ invites: _, ...hunt }) => ({
+				...hunt,
+				reserved: invitedHuntMap.get(hunt.id) ?? null,
+			}));
 		}),
-	),
 
 	getCompleted: userProcedure
 		.output(z.array(outputHuntSchema))
@@ -71,6 +106,10 @@ export const huntRouter = router({
 				},
 			}),
 		),
+
+	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) =>
+		fetchDailyHuntCount(hunter.id),
+	),
 
 	getOne: userProcedure
 		.input(
@@ -106,50 +145,98 @@ export const huntRouter = router({
 	join: userProcedure
 		.input(z.object({ huntId: idSchemaCoerce }))
 		.mutation(async ({ ctx: { hunter: currentHunter }, input }) => {
-			const { huntId: id } = input;
-			const hunt = await db.hunt.findFirstOrThrow({
-				select: {
-					hunters: {
-						select: { id: true },
-					},
-					maxHunters: true,
-					status: true,
-				},
-				where: {
-					id,
-				},
-			});
-			if (hunt.status !== HuntStatus.Available) {
-				throw new Error(`Hunt ${id} is not open to hunters`);
-			}
-			if (hunt.hunters.some((hunter) => hunter.id === currentHunter.id)) {
+			const { huntId } = input;
+			try {
+				const { hunt, invitedCount, joined, joinedCount } =
+					await fetchUnclaimedSpots(huntId);
+
+				// If we already joined, leave the hunt.
+				if (joined.has(currentHunter.id)) {
+					await db.hunt.update({
+						data: {
+							hunters: {
+								disconnect: {
+									id: currentHunter.id,
+								},
+							},
+						},
+						where: { id: huntId },
+					});
+					await db.huntInvite.updateMany({
+						data: { status: InviteStatus.Expired },
+						where: {
+							fromHunterId: currentHunter.id,
+							huntId,
+						},
+					});
+					console.log(
+						`${currentHunter.name} canceled hunt with ID ${huntId}`,
+					);
+					return { accepted: false, huntId };
+				}
+
+				if (joinedCount + invitedCount >= hunt.maxHunters) {
+					throw new Error('Hunt is already full');
+				}
+
+				// Join the hunt.
 				await db.hunt.update({
 					data: {
 						hunters: {
-							disconnect: {
+							connect: {
 								id: currentHunter.id,
 							},
 						},
 					},
-					where: { id },
+					where: { id: huntId },
 				});
 				console.log(
-					`${currentHunter.name} canceled hunt with ID ${id}`,
+					`${currentHunter.name} accepted hunt with ID ${huntId}`,
 				);
-				return { accepted: false, huntId: id };
-			}
-			await db.hunt.update({
-				data: {
-					hunters: {
-						connect: {
-							id: currentHunter.id,
+
+				// Update the invite to show the hunter accepted.
+				const invite = hunt.invites.find(
+					(invite) => invite.toHunterId === currentHunter.id,
+				);
+				if (invite) {
+					await db.huntInvite.update({
+						data: {
+							status: InviteStatus.Accepted,
 						},
-					},
-				},
-				where: { id },
-			});
-			console.log(`${currentHunter.name} accepted hunt with ID ${id}`);
-			return { accepted: true, huntId: id };
+						where: {
+							id: invite.id,
+						},
+					});
+				}
+
+				return { accepted: true, huntId };
+			} catch (err: unknown) {
+				if (err instanceof TRPCError) {
+					throw err;
+				}
+				let message = 'Unknown issue joining the hunt';
+				if (err instanceof Prisma.PrismaClientKnownRequestError) {
+					if (err.code === 'P2001' || err.code === 'P2015') {
+						throw new TRPCError({
+							cause: err,
+							code: 'NOT_FOUND',
+							message: 'Could not find requested information',
+						});
+					}
+					throw new TRPCError({
+						cause: err,
+						code: 'INTERNAL_SERVER_ERROR',
+						message,
+					});
+				}
+				if (err instanceof Error && err.message) {
+					message = err.message;
+				}
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message,
+				});
+			}
 		}),
 
 	remove: adminProcedure

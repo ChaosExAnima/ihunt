@@ -1,53 +1,58 @@
-import { Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
-import { useHunterId } from '@/hooks/use-hunter';
 import { HUNT_MAX_HUNTERS } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
+import { arrayOfLength, cn } from '@/lib/utils';
 
 import Avatar, { AvatarEmpty } from './avatar';
 
 interface HunterListProps {
+	className?: string;
+	emptyClassName?: string;
 	hunters: HunterSchema[];
 	max?: number;
 }
 
-export function HunterList({ hunters, max = 0 }: HunterListProps) {
+export function HunterList({
+	className,
+	emptyClassName,
+	hunters,
+	max = 0,
+}: HunterListProps) {
 	const slots = useMemo(
-		() => Array.from(Array(Math.min(max, HUNT_MAX_HUNTERS))),
-		[max],
+		() => arrayOfLength(Math.min(max, HUNT_MAX_HUNTERS) || hunters.length),
+		[hunters.length, max],
 	);
 
 	return (
-		<ul className="flex gap-2">
+		<ul className={cn('flex gap-2', className)}>
 			{slots.map((_, index) => (
-				<HunterSlot hunter={hunters[index]} key={index} />
+				<HunterSlot
+					emptyClassName={emptyClassName}
+					hunter={hunters[index]}
+					key={index}
+				/>
 			))}
 		</ul>
 	);
 }
 
-function HunterSlot({ hunter }: { hunter?: HunterSchema }) {
-	const currentHunterId = useHunterId();
+function HunterSlot({
+	emptyClassName,
+	hunter,
+}: Pick<HunterListProps, 'emptyClassName'> & {
+	hunter?: HunterSchema;
+}) {
 	if (!hunter) {
 		return (
 			<li>
-				<AvatarEmpty />
+				<AvatarEmpty className={emptyClassName} />
 			</li>
 		);
 	}
 	return (
 		<li>
-			<Link
-				params={{ hunterId: hunter.id }}
-				to={
-					hunter.id === currentHunterId
-						? '/settings'
-						: '/hunters/$hunterId'
-				}
-			>
-				<Avatar hunter={hunter} />
-			</Link>
+			<Avatar hunter={hunter} link />
 		</li>
 	);
 }

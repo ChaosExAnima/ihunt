@@ -40,21 +40,18 @@ export const Route = createFileRoute('/')({
 		return {};
 	},
 	async beforeLoad({ context: { queryClient }, search }) {
-		try {
-			const session = await cookieStore.get(SESSION_COOKIE_NAME);
-			if (!session) {
-				return;
-			}
-			const player = await queryClient.fetchQuery(
-				trpc.auth.me.queryOptions(),
-			);
-			if (player) {
-				throw redirect({
-					to: search.redirect ?? '/hunts',
-				});
-			}
-		} catch {
-			// Nothing
+		const session = await cookieStore.get(SESSION_COOKIE_NAME);
+		if (!session) {
+			return;
+		}
+		const player = await queryClient.fetchQuery(
+			trpc.auth.me.queryOptions(),
+		);
+
+		if (player) {
+			throw redirect({
+				to: search.redirect ?? '/hunts',
+			});
 		}
 	},
 	component: Index,
