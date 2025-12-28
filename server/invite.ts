@@ -1,6 +1,6 @@
 import { HuntInvite } from '@prisma/client';
 
-import { HUNT_MAX_PER_DAY, HuntStatus } from '@/lib/constants';
+import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
 import { extractIds, extractKey } from '@/lib/utils';
 
@@ -9,7 +9,7 @@ import { InviteStatus } from './schema';
 
 interface FetchInviteesForHuntArgs {
 	fromHunterId: number;
-	hunterIds: number[];
+	groupId: number;
 	huntId: number;
 }
 
@@ -57,7 +57,11 @@ export async function fetchDailyHuntCount(hunterId: number) {
 				gte: dateStart,
 			},
 			status: {
-				in: [HuntStatus.Active, HuntStatus.Available],
+				in: [
+					HuntStatus.Active,
+					HuntStatus.Available,
+					HuntStatus.Complete,
+				],
 			},
 		},
 	});
@@ -66,37 +70,20 @@ export async function fetchDailyHuntCount(hunterId: number) {
 
 export async function fetchInviteesForHunt({
 	fromHunterId,
-	hunterIds,
+	groupId,
 	huntId,
 }: FetchInviteesForHuntArgs): Promise<number[]> {
-	const dateStart = new Date(todayStart());
 	const hunters = await db.hunter.findMany({
 		select: {
-			_count: {
-				select: {
-					hunts: {
-						where: {
-							scheduledAt: {
-								gte: dateStart,
-							},
-							status: {
-								in: [HuntStatus.Active, HuntStatus.Available],
-							},
-						},
-					},
-				},
-			},
 			id: true,
 		},
 		where: {
 			alive: true,
+			groupId,
 			hunts: {
 				none: {
 					id: huntId,
 				},
-			},
-			id: {
-				in: hunterIds,
 			},
 		},
 	});
@@ -116,7 +103,6 @@ export async function fetchInviteesForHunt({
 	for (const hunter of hunters) {
 		if (
 			hunter.id === fromHunterId ||
-			hunter._count.hunts >= HUNT_MAX_PER_DAY ||
 			oldInviteHunterIds.includes(hunter.id)
 		) {
 			continue;

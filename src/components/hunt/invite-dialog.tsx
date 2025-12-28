@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 
+import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
 import { HUNT_INVITE_TIME } from '@/lib/constants';
 
@@ -33,7 +34,14 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		[onClose],
 	);
 
-	const { mutate } = useMutation(trpc.invite.sendInvites.mutationOptions());
+	const invalidate = useInvalidate();
+	const { mutate } = useMutation(
+		trpc.invite.sendInvites.mutationOptions({
+			onSuccess() {
+				invalidate([trpc.hunt.getAvailable.queryKey()]);
+			},
+		}),
+	);
 	const handleSend = useCallback(() => {
 		mutate({ huntId });
 		onClose();

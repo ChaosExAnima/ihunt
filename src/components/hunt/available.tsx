@@ -39,7 +39,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 
 	return (
 		<HuntBase {...props}>
-			{!hasAccepted && <HuntInvite reserved={reserved} />}
+			<HuntInvite noHunts={remainingHunts === 0} reserved={reserved} />
 
 			<div className="flex gap-2 justify-center">
 				{!hasAccepted && canJoinHunt && (
@@ -83,7 +83,10 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	);
 }
 
-function HuntInvite({ reserved }: Pick<HuntSchema, 'reserved'>) {
+function HuntInvite({
+	noHunts,
+	reserved,
+}: Pick<HuntSchema, 'reserved'> & { noHunts: boolean }) {
 	const expiresTs = reserved?.expires.getTime();
 	const [minutesLeft, setMinutesLeft] = useState(() =>
 		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
@@ -108,7 +111,17 @@ function HuntInvite({ reserved }: Pick<HuntSchema, 'reserved'>) {
 			<p className="text-center">
 				Your group invited you to join this hunt!
 				<br />
-				You have {minutesLeft} minutes left to accept or decline.
+				{!noHunts
+					? `You have ${minutesLeft} minutes left to accept or decline.`
+					: `You must leave other hunts within ${minutesLeft} minutes to accept.`}
+			</p>
+		);
+	} else if (reserved.status === 'sent') {
+		return (
+			<p className="text-center">
+				You have invited your group.
+				<br />
+				They have {minutesLeft} minutes left to accept or decline.
 			</p>
 		);
 	}

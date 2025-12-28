@@ -41,7 +41,7 @@ export const inviteRouter = router({
 			const groupHunterIds = extractIds(group.hunters);
 			const invitees = await fetchInviteesForHunt({
 				fromHunterId: hunter.id,
-				hunterIds: groupHunterIds,
+				groupId: hunter.groupId,
 				huntId,
 			});
 			return {
@@ -99,20 +99,11 @@ export const inviteRouter = router({
 				});
 			}
 
-			const group = await db.hunterGroup.findUniqueOrThrow({
-				include: {
-					hunters: {
-						select: { id: true },
-					},
-				},
-				where: { id: hunter.groupId },
-			});
-
 			// Get the invitees
 			const invites: HuntInvite[] = [];
 			const invitees = await fetchInviteesForHunt({
 				fromHunterId: hunter.id,
-				hunterIds: extractIds(group.hunters),
+				groupId: hunter.groupId,
 				huntId,
 			});
 

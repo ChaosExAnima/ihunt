@@ -3,7 +3,11 @@ import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { HuntReservedSchema, idSchemaCoerce } from '@/lib/schemas';
+import {
+	HuntReservedSchema,
+	HuntReservedStatusSchema,
+	idSchemaCoerce,
+} from '@/lib/schemas';
 
 import { db } from '../db';
 import {
@@ -61,16 +65,21 @@ export const huntRouter = router({
 			const invitedHuntMap = new Map<number, HuntReservedSchema>();
 			for (const invite of invites) {
 				const mapData = invitedHuntMap.get(invite.huntId);
-				// If the user is already invited, we don't need to process this.
-				if (mapData?.status !== 'invited') {
-					invitedHuntMap.set(invite.huntId, {
-						expires: invite.expiresAt,
-						status:
-							invite.toHunterId === currentHunter.id
-								? 'invited'
-								: 'reserved',
-					});
+				let status: HuntReservedStatusSchema =
+					mapData?.status ?? 'reserved';
+
+				if (invite.fromHunterId === currentHunter.id) {
+					status = 'sent';
+				} else if (
+					invite.toHunterId === currentHunter.id &&
+					status !== 'sent'
+				) {
+					status = 'invited';
 				}
+				invitedHuntMap.set(invite.huntId, {
+					expires: invite.expiresAt,
+					status,
+				});
 			}
 
 			return result.map(({ invites: _, ...hunt }) => ({
