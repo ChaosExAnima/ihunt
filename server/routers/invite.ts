@@ -3,11 +3,13 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
+import { HUNT_INVITE_TIME } from '@/lib/constants';
+import { MINUTE } from '@/lib/formats';
 import { idSchemaCoerce } from '@/lib/schemas';
 import { extractIds } from '@/lib/utils';
 
 import { db } from '../db';
-import { fetchInviteesForHunt, inviteExpiryDate } from '../invite';
+import { expireInvites, fetchInviteesForHunt } from '../invite';
 import { InviteStatus } from '../schema';
 import { router, userProcedure } from '../trpc';
 
@@ -59,32 +61,29 @@ export const inviteRouter = router({
 			},
 		});
 
-		const expiryDate = inviteExpiryDate();
-		const validInvites: HuntInvite[] = [];
-		const expiredInvites: HuntInvite[] = [];
-		for (const invite of invites) {
-			if (invite.createdAt >= expiryDate) {
-				validInvites.push(invite);
-			} else {
-				expiredInvites.push(invite);
-			}
-		}
+		return expireInvites(invites);
+	}),
 
-		if (expiredInvites.length > 0) {
+	rejectInvite: userProcedure
+		.input(
+			z.object({
+				huntId: idSchemaCoerce,
+			}),
+		)
+		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
 			await db.huntInvite.updateMany({
 				data: {
-					status: InviteStatus.Expired,
+					status: InviteStatus.Rejected,
 				},
 				where: {
-					id: {
-						in: extractIds(expiredInvites),
-					},
+					huntId,
+					status: InviteStatus.Pending,
+					toHunterId: hunter.id,
 				},
 			});
-		}
 
-		return validInvites;
-	}),
+			return { success: true };
+		}),
 
 	sendInvites: userProcedure
 		.input(
@@ -118,10 +117,12 @@ export const inviteRouter = router({
 			});
 
 			// Try to create the invites
+			const expiresAt = new Date(Date.now() + MINUTE * HUNT_INVITE_TIME);
 			for (const inviteeId of invitees) {
 				try {
 					const invite = await db.huntInvite.create({
 						data: {
+							expiresAt,
 							fromHunterId: hunter.id,
 							huntId,
 							toHunterId: inviteeId,

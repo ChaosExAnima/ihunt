@@ -50,6 +50,8 @@ model Hunter {
     rating      Float        @default(1)
     invites     HuntInvite[] @relation("Invitee")
     sentInvites HuntInvite[] @relation("Inviter")
+
+    @@index([alive])
 }
 
 model HunterGroup {
@@ -67,9 +69,12 @@ model HuntInvite {
     hunt         Hunt     @relation(fields: [huntId], references: [id])
     huntId       Int
     createdAt    DateTime @default(now())
+    expiresAt    DateTime
     status       String   @default("pending")
 
     @@unique([fromHunterId, huntId, toHunterId], name: "fromToHunt")
+    @@index([toHunterId, status], name: "toHunterStatus")
+    @@index([expiresAt])
 }
 
 model Photo {

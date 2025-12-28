@@ -3,10 +3,14 @@ import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import { idSchemaCoerce } from '@/lib/schemas';
+import { HuntReservedSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../db';
-import { fetchDailyHuntCount, fetchUnclaimedSpots } from '../invite';
+import {
+	expireInvites,
+	fetchDailyHuntCount,
+	fetchUnclaimedSpots,
+} from '../invite';
 import { uploadPhoto } from '../photo';
 import { InviteStatus, outputHuntSchema } from '../schema';
 import { adminProcedure, router, userProcedure } from '../trpc';
@@ -31,24 +35,49 @@ export const huntRouter = router({
 			}),
 	),
 
-	getAvailable: userProcedure.output(z.array(outputHuntSchema)).query(() => {
-		const result = db.hunt.findMany({
-			include: {
-				...huntDisplayInclude,
-				invites: {
-					select: { id: true },
-					where: { status: InviteStatus.Pending },
+	getAvailable: userProcedure
+		.output(z.array(outputHuntSchema))
+		.query(async ({ ctx: { hunter: currentHunter } }) => {
+			const result = await db.hunt.findMany({
+				include: {
+					...huntDisplayInclude,
+					invites: {
+						where: {
+							status: InviteStatus.Pending,
+						},
+					},
 				},
-			},
-			orderBy: {
-				createdAt: 'desc',
-			},
-			where: {
-				status: HuntStatus.Available,
-			},
-		});
-		return result;
-	}),
+				orderBy: {
+					createdAt: 'desc',
+				},
+				where: {
+					status: HuntStatus.Available,
+				},
+			});
+
+			const invites = await expireInvites(
+				result.flatMap(({ invites }) => invites),
+			);
+			const invitedHuntMap = new Map<number, HuntReservedSchema>();
+			for (const invite of invites) {
+				const mapData = invitedHuntMap.get(invite.huntId);
+				// If the user is already invited, we don't need to process this.
+				if (mapData?.status !== 'invited') {
+					invitedHuntMap.set(invite.huntId, {
+						expires: invite.expiresAt,
+						status:
+							invite.toHunterId === currentHunter.id
+								? 'invited'
+								: 'reserved',
+					});
+				}
+			}
+
+			return result.map(({ invites: _, ...hunt }) => ({
+				...hunt,
+				reserved: invitedHuntMap.get(hunt.id) ?? null,
+			}));
+		}),
 
 	getCompleted: userProcedure
 		.output(z.array(outputHuntSchema))
