@@ -35,7 +35,6 @@ export function HuntDisplayActive({
 			className={cn('mx-4', className)}
 			hideHeader={index > 0}
 			hunt={hunt}
-			isAccepted
 		>
 			<div className="flex mt-4 gap-2 items-center justify-center text-rose-700 text-center font-semibold">
 				<Crosshair className="size-4 shrink-0" />
