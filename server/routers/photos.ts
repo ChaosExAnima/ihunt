@@ -20,7 +20,7 @@ export const photosRouter = router({
 	delete: loggedInProcedure
 		.input(z.object({ id: idSchema }))
 		.mutation(async ({ ctx: { admin, hunter }, input: { id } }) => {
-			const photo = await db.photo.findFirstOrThrow({
+			const photo = await db.photo.findUniqueOrThrow({
 				select: { hunterId: true },
 				where: { id },
 			});
@@ -40,7 +40,7 @@ export const photosRouter = router({
 			}),
 		)
 		.query(async ({ input: { id, ...options } }) => {
-			const photo = await db.photo.findFirstOrThrow({
+			const photo = await db.photo.findUniqueOrThrow({
 				where: { id },
 			});
 			return outputPhoto({ photo, ...options });
@@ -62,7 +62,7 @@ export const photosRouter = router({
 			}),
 		)
 		.query(async ({ input: { id, sizes, ...options } }) => {
-			const photo = await db.photo.findFirstOrThrow({
+			const photo = await db.photo.findUniqueOrThrow({
 				where: { id },
 			});
 			return sizes.map((size) =>
@@ -104,7 +104,7 @@ export const photosRouter = router({
 
 			// Check if the hunter is part of the hunt and it's finished.
 			if (huntId && hunterId && !admin) {
-				const hunt = await db.hunt.findFirstOrThrow({
+				const hunt = await db.hunt.findUniqueOrThrow({
 					include: {
 						hunters: {
 							select: {

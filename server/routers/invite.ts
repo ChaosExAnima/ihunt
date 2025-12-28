@@ -74,7 +74,7 @@ export const inviteRouter = router({
 				});
 			}
 
-			const group = await db.hunterGroup.findFirstOrThrow({
+			const group = await db.hunterGroup.findUniqueOrThrow({
 				include: {
 					hunters: {
 						select: { id: true },

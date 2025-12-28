@@ -329,7 +329,7 @@ export const adminRouter = router({
 			switch (resource) {
 				case 'group': {
 					const { hunters, ...group } =
-						await db.hunterGroup.findFirstOrThrow({
+						await db.hunterGroup.findUniqueOrThrow({
 							...query,
 							include: {
 								hunters: {
@@ -344,7 +344,7 @@ export const adminRouter = router({
 				}
 				case 'hunt': {
 					const { hunters, photos, ...hunt } =
-						await db.hunt.findFirstOrThrow({
+						await db.hunt.findUniqueOrThrow({
 							...query,
 							include: {
 								hunters: {
@@ -360,14 +360,14 @@ export const adminRouter = router({
 					};
 				}
 				case 'hunter': {
-					const hunter = await db.hunter.findFirstOrThrow(query);
+					const hunter = await db.hunter.findUniqueOrThrow(query);
 					return hunter;
 				}
 				case 'photo':
-					return db.photo.findFirstOrThrow(query);
+					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					const { hunters, ...user } = await db.user.findFirstOrThrow(
-						{
+					const { hunters, ...user } =
+						await db.user.findUniqueOrThrow({
 							...query,
 							include: {
 								hunters: {
@@ -378,8 +378,7 @@ export const adminRouter = router({
 								},
 							},
 							omit: { password: true },
-						},
-					);
+						});
 					return { hunterIds: extractIds(hunters), ...user };
 				}
 			}

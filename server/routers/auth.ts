@@ -44,7 +44,7 @@ export const authRouter = router({
 			}) => {
 				try {
 					const password = await passwordToHash(plainPassword);
-					const user = await db.user.findFirstOrThrow({
+					const user = await db.user.findUniqueOrThrow({
 						where: { password },
 					});
 					session.userId = user.id;

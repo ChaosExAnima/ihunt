@@ -32,7 +32,7 @@ export async function createAuthContext({
 		return { req, res, session };
 	}
 	try {
-		const { hunters, ...user } = await db.user.findFirstOrThrow({
+		const { hunters, ...user } = await db.user.findUniqueOrThrow({
 			include: {
 				hunters: {
 					include: {

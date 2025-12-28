@@ -92,7 +92,7 @@ export const hunterRouter = router({
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const hunter = await db.hunter.findFirstOrThrow({
+			const hunter = await db.hunter.findUniqueOrThrow({
 				include: {
 					avatar: true,
 					hunts: {
