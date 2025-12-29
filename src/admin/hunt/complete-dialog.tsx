@@ -1,5 +1,11 @@
 import { Check } from 'lucide-react';
-import { ChangeEvent, FormEventHandler, useState } from 'react';
+import {
+	ChangeEvent,
+	FormEventHandler,
+	useCallback,
+	useMemo,
+	useState,
+} from 'react';
 import {
 	Button,
 	IconButtonWithTooltip,
@@ -18,17 +24,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { HuntStatus } from '@/lib/constants';
 import { currencyFormatter } from '@/lib/formats';
-import { HuntSchema } from '@/lib/schemas';
 
-export default function HuntCompleteDialog() {
-	const hunt = useRecordContext<HuntSchema>();
+import { AdminHuntSchema } from '../schemas';
+
+export function HuntCompleteDialog() {
+	const hunt = useRecordContext<AdminHuntSchema>();
 	const [modalOpen, setModalOpen] = useState(false);
 	const [modalData, setModalData] = useState({
-		comment: '',
+		comment: hunt?.comment ?? '',
 		payment: hunt?.payment ?? 0,
-		rating: 1,
+		rating: hunt?.rating ?? 5,
 	});
-	const [update, { isLoading }] = useUpdate<HuntSchema>();
+	const [update, { isLoading }] = useUpdate<AdminHuntSchema>();
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
 		event.preventDefault();
@@ -41,19 +48,27 @@ export default function HuntCompleteDialog() {
 			id: hunt?.id,
 		});
 	};
-	const createFieldHandler =
+	const createFieldHandler = useCallback(
 		(field: keyof typeof modalData) =>
-		(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-			setModalData((prevData) => ({
-				...prevData,
-				[field]:
-					field === 'comment'
-						? event.target.value
-						: parseFloat(event.target.value),
-			}));
+			(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+				setModalData((prevData) => ({
+					...prevData,
+					[field]:
+						field === 'comment'
+							? event.target.value
+							: parseFloat(event.target.value),
+				})),
+		[],
+	);
 
-	const formattedOriginal = currencyFormatter.format(hunt?.payment ?? 0);
-	const formattedPayment = currencyFormatter.format(modalData.payment);
+	const formattedOriginal = useMemo(
+		() => currencyFormatter.format(hunt?.payment ?? 0),
+		[hunt?.payment],
+	);
+	const formattedPayment = useMemo(
+		() => currencyFormatter.format(modalData.payment),
+		[modalData.payment],
+	);
 
 	return (
 		<Dialog onOpenChange={setModalOpen} open={modalOpen}>
@@ -67,7 +82,10 @@ export default function HuntCompleteDialog() {
 					<DialogTitle>Complete hunt</DialogTitle>
 				</DialogHeader>
 				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-					<p>{`You are paying the hunters ${formattedPayment} of ${formattedOriginal}.`}</p>
+					<p>
+						You are paying the hunters {formattedPayment} of{' '}
+						{formattedOriginal}.
+					</p>
 					<Input
 						min={0}
 						onChange={createFieldHandler('payment')}

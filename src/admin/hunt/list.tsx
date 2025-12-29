@@ -19,7 +19,7 @@ import { HuntStatus, Locale } from '@/lib/constants';
 import { AdminHuntHunters } from '../components/hunter-list';
 import { AdminHuntSchema } from '../schemas';
 import { huntStatusChoices, renderHuntStatus } from './common';
-import HuntCompleteDialog from './complete-dialog';
+import { HuntCompleteDialog } from './complete-dialog';
 
 export function HuntList() {
 	return (
