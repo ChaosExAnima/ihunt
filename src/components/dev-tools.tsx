@@ -42,7 +42,7 @@ export default function DevTools() {
 				<ExternalLink href="/">
 					<Home />
 				</ExternalLink>
-				<ExternalLink href="http://localhost:5556" name="Prisma Studio">
+				<ExternalLink href="http://localhost:5555" name="Prisma Studio">
 					<Database />
 				</ExternalLink>
 				<ExternalLink href="/admin" name="Admin">
