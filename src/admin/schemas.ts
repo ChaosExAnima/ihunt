@@ -114,3 +114,59 @@ export const adminInput = z.discriminatedUnion('resource', [
 		resource: z.literal('user'),
 	}),
 ]);
+
+export const adminFilter = z.discriminatedUnion('resource', [
+	z.object({
+		...schemaToFilter(adminHuntSchema),
+		resource: z.literal('hunt'),
+	}),
+	z.object({
+		...schemaToFilter(
+			adminHunterSchema,
+			[],
+			['avatarId', 'groupId', 'userId'],
+		),
+		resource: z.literal('hunter'),
+	}),
+	z.object({
+		...schemaToFilter(
+			adminGroupSchema,
+			['hunterIds', 'name'],
+			['hunterIds'],
+		),
+		resource: z.literal('group'),
+	}),
+	z.object({
+		...schemaToFilter(adminPhotoSchema),
+		resource: z.literal('photo'),
+	}),
+	z.object({
+		...schemaToFilter(adminUserSchema),
+		resource: z.literal('user'),
+	}),
+]);
+
+function schemaToFilter<TShape extends z.ZodRawShape>(
+	schema: z.ZodObject<TShape>,
+	filterOmit: (keyof TShape)[] = [],
+	sortOmit: (keyof TShape)[] = filterOmit,
+) {
+	const filter = filterOmit.reduce(
+		(obj, curr) => ({ ...obj, [curr]: true }),
+		{},
+	);
+	const sort = sortOmit.reduce((obj, curr) => ({ ...obj, [curr]: true }), {});
+	return {
+		filter: schema
+			.omit({ id: true, ...filter })
+			.extend({ q: z.string() })
+			.partial()
+			.optional(),
+		sort: z
+			.object({
+				field: schema.omit(sort).keyof(),
+				order: z.enum(['ASC', 'DESC']),
+			})
+			.optional(),
+	};
+}
