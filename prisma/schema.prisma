@@ -14,17 +14,19 @@ model Hunt {
     completedAt DateTime?
     name        String
     description String
+    place       String?
+    warnings    String?
     status      String       @default("pending")
-    maxHunters  Int          @default(4)
     danger      Int          @default(1)
+    maxHunters  Int          @default(5)
+    minRating   Int          @default(0)
     hunters     Hunter[]
+    invites     HuntInvite[]
     photos      Photo[]
     rating      Float?
     comment     String?
     payment     Int
-    place       String?
-    warnings    String?
-    invites     HuntInvite[]
+    paidHunters Boolean      @default(false)
 
     @@index([status])
     @@index([scheduledAt])
