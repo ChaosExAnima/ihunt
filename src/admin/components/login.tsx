@@ -7,6 +7,7 @@ export function LoginPage() {
 			<LoginForm>
 				<PasswordInput
 					autoComplete="current-password"
+					autoFocus
 					label="Password"
 					source="password"
 					validate={required()}

@@ -37,17 +37,20 @@ export function HuntCompleteDialog() {
 	});
 	const [update, { isLoading }] = useUpdate<AdminHuntSchema>();
 
-	const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-		event.preventDefault();
-		void update('hunt', {
-			data: {
-				...modalData,
-				completedAt: new Date(),
-				status: HuntStatus.Complete,
-			},
-			id: hunt?.id,
-		});
-	};
+	const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
+		(event) => {
+			event.preventDefault();
+			void update('hunt', {
+				data: {
+					...modalData,
+					completedAt: new Date(),
+					status: HuntStatus.Complete,
+				},
+				id: hunt?.id,
+			});
+		},
+		[hunt?.id, modalData, update],
+	);
 	const createFieldHandler = useCallback(
 		(field: keyof typeof modalData) =>
 			(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>

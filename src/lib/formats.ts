@@ -36,6 +36,10 @@ export function dateFormat(date: Date) {
 	return 'recently';
 }
 
+export function roundToHalves(input: number) {
+	return Math.floor(input * 2) / 2;
+}
+
 export function todayStart() {
 	return new Date().setHours(0, 0, 0, 0);
 }
