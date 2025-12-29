@@ -6,6 +6,7 @@ import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
+import { completeHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
@@ -525,17 +526,18 @@ export const adminRouter = router({
 							},
 						},
 						include: {
-							hunters: {
-								select: {
-									id: true,
-								},
-							},
+							hunters: true,
 						},
 						where: { id },
+					});
+					const updates = await completeHunt({
+						hunt: result,
+						hunters,
 					});
 					return {
 						...result,
 						hunterIds: extractIds(hunters),
+						paid: updates,
 					};
 				}
 				case 'hunter':

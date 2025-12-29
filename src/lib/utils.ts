@@ -10,6 +10,18 @@ export function arrayOfLength(length: number): number[] {
 	return [...Array(length).keys()];
 }
 
+export function clamp({
+	input,
+	max,
+	min = 0,
+}: {
+	input: number;
+	max: number;
+	min?: number;
+}) {
+	return Math.min(max, Math.max(min, input));
+}
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
