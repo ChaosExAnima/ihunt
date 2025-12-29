@@ -13,14 +13,15 @@ import Header from '../header';
 export function HuntsCompleted() {
 	const { data: hunts } = useQuery(trpc.hunt.getCompleted.queryOptions());
 
+	// TODO: Update dates as time passes.
 	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {
 		if (!hunts) {
 			return [];
 		}
 		const huntsByDate = new Map<string, HuntSchema[]>();
 		for (const hunt of hunts) {
-			const { completedAt, scheduledAt } = hunt;
-			const date = scheduledAt ?? completedAt ?? new Date(0);
+			const { completedAt, createdAt, scheduledAt } = hunt;
+			const date = completedAt ?? scheduledAt ?? createdAt;
 			const key = dateFormat(date);
 			const huntsInDate = huntsByDate.get(key) ?? [];
 			huntsInDate.push(hunt);
@@ -60,12 +61,10 @@ export function HuntsCompleted() {
 					</ul>
 				</li>
 			))}
-			<div className="grow flex flex-col justify-end">
-				<p className="text-muted text-sm">
-					For your safety, hunts older than 7 days are hidden. Please
-					contact support if you need access to older hunts.
-				</p>
-			</div>
+			<p className="text-muted text-sm">
+				For your safety, hunts older than 7 days are hidden. Please
+				contact support if you have any questions.
+			</p>
 		</ol>
 	);
 }

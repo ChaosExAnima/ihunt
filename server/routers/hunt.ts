@@ -94,7 +94,7 @@ export const huntRouter = router({
 			db.hunt.findMany({
 				include: huntDisplayInclude,
 				orderBy: {
-					createdAt: 'desc',
+					completedAt: 'desc',
 				},
 				where: {
 					hunters: {
