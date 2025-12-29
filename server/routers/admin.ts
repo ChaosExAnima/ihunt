@@ -5,10 +5,9 @@ import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
-
-import { db } from '../db';
-import { photoUrl } from '../photo';
-import { adminProcedure, router } from '../trpc';
+import { db } from '@/server/lib/db';
+import { photoUrl } from '@/server/lib/photo';
+import { adminProcedure, router } from '@/server/lib/trpc';
 
 const paginationSchema = z.object({
 	page: posIntSchema,

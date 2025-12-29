@@ -1,3 +1,5 @@
+import { router } from '@/server/lib/trpc';
+
 import { adminRouter } from './routers/admin';
 import { apiRouter } from './routers/api';
 import { authRouter } from './routers/auth';
@@ -6,7 +8,6 @@ import { hunterRouter } from './routers/hunter';
 import { inviteRouter } from './routers/invite';
 import { photosRouter } from './routers/photos';
 import { settingsRouter } from './routers/settings';
-import { router } from './trpc';
 
 export const appRouter = router({
 	admin: adminRouter,

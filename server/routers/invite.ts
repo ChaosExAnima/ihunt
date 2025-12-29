@@ -6,11 +6,10 @@ import z from 'zod';
 import { HUNT_INVITE_TIME } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idSchemaCoerce } from '@/lib/schemas';
-
-import { db } from '../db';
-import { expireInvites, fetchInviteesForHunt } from '../invite';
-import { InviteStatus } from '../schema';
-import { router, userProcedure } from '../trpc';
+import { db } from '@/server/lib/db';
+import { expireInvites, fetchInviteesForHunt } from '@/server/lib/invite';
+import { InviteStatus } from '@/server/lib/schema';
+import { router, userProcedure } from '@/server/lib/trpc';
 
 export const inviteRouter = router({
 	availableInvitees: userProcedure

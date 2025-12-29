@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 
-import { passwordToHash, stringToPassword } from '@/server/auth';
+import { passwordToHash, stringToPassword } from '@/server/lib/auth';
 
 import { db } from '../server';
 
