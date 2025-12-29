@@ -1,14 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Dot } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { Card } from '@/components/ui/card';
 import { trpc } from '@/lib/api';
-import { dateFormat, useCurrencyFormat } from '@/lib/formats';
+import { dateFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
 import Header from '../header';
+import { Rating } from '../rating';
 
 export function HuntsCompleted() {
 	const { data: hunts } = useQuery(trpc.hunt.getCompleted.queryOptions());
@@ -70,7 +71,6 @@ export function HuntsCompleted() {
 }
 
 function HuntCompleted({ hunt }: { hunt: HuntSchema }) {
-	const payment = useCurrencyFormat(hunt.payment);
 	return (
 		<li>
 			<Card
@@ -78,12 +78,14 @@ function HuntCompleted({ hunt }: { hunt: HuntSchema }) {
 				className="block border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
 			>
 				<Link
+					className="flex"
 					params={{ huntId: hunt.id.toString() }}
 					to="/hunts/$huntId"
 				>
-					{hunt.name}
-					{payment && `‒ ${payment}`}
-					<ArrowRight className="float-right" />
+					<span>{hunt.name}</span>
+					<Dot />
+					<Rating max={5} rating={hunt.rating} size={14} />
+					<ArrowRight className="ml-auto" />
 				</Link>
 			</Card>
 		</li>
