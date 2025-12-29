@@ -134,7 +134,7 @@ function SwitchUser() {
 			onSuccess() {
 				invalidate([
 					trpc.auth.me.queryKey(),
-					trpc.hunter.getMany.queryKey(),
+					trpc.hunter.pathKey(),
 					trpc.hunt.pathKey(),
 				]);
 			},
