@@ -73,10 +73,7 @@ export function HuntsCompleted() {
 function HuntCompleted({ hunt }: { hunt: HuntSchema }) {
 	return (
 		<li>
-			<Card
-				asChild
-				className="block border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
-			>
+			<Card asChild className="block border border-border p-4 shadow-lg">
 				<Link
 					className="flex"
 					params={{ huntId: hunt.id.toString() }}

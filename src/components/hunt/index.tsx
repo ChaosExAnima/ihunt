@@ -16,15 +16,13 @@ export interface HuntDisplayProps {
 }
 
 export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
-	const { hunt } = props;
-
-	switch (hunt.status) {
+	switch (props.hunt.status) {
 		case HuntStatus.Active:
-			return <HuntDisplayActive hunt={hunt} />;
+			return <HuntDisplayActive {...props} />;
 		case HuntStatus.Available:
 			return <HuntDisplayAvailable {...props} />;
 		case HuntStatus.Complete:
-			return <HuntDisplayCompleted hunt={hunt} />;
+			return <HuntDisplayCompleted {...props} />;
 		default:
 			return null;
 	}

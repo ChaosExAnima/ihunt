@@ -84,7 +84,7 @@
 		--popover-foreground: hsl(20 14.3% 4.1%);
 		--card: hsl(0 0% 100%);
 		--card-foreground: hsl(20 14.3% 4.1%);
-		--border: var(--color-stone-300);
+		--border: var(--color-stone-400);
 		--input: var(--color-stone-400);
 		--ring: hsl(20 14.3% 4.1%);
 	}
@@ -101,7 +101,7 @@
 
 		--card: hsl(20 14.3% 4.1%);
 		--card-foreground: hsl(60 9.1% 97.8%);
-		--border: var(--color-stone-600);
+		--border: var(--color-stone-800);
 		--input: var(--color-stone-600);
 		--ring: hsl(24 5.7% 82.9%);
 	}

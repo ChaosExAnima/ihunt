@@ -88,7 +88,7 @@ function Settings() {
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-secondary rounded-lg">
+			<section className="grid grid-cols-[auto_1fr] gap-4 items-center my-4">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
