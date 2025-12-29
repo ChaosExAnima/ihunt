@@ -13,6 +13,7 @@ interface HuntBaseProps {
 	afterHeader?: ReactNode;
 	className?: string;
 	hideHeader?: boolean;
+	hideText?: boolean;
 	hunt: HuntSchema;
 }
 
@@ -21,6 +22,7 @@ export default function HuntBase({
 	children,
 	className,
 	hideHeader = false,
+	hideText = false,
 	hunt,
 }: PropsWithChildren<HuntBaseProps>) {
 	const [showCW, setShowCW] = useState(false);
@@ -38,21 +40,23 @@ export default function HuntBase({
 				maxHunters={hunt.maxHunters}
 			/>
 
-			<div className="flex grow">
-				<p className="text-primary/60 text-sm grow">
-					{showCW ? `CWs: ${hunt.warnings}` : hunt.description}
-				</p>
-				{!!hunt.warnings && (
-					<Button
-						className="text-rose-700 shrink-0"
-						onClick={handleToggleCW}
-						size="icon"
-						variant="ghost"
-					>
-						<CircleAlert />
-					</Button>
-				)}
-			</div>
+			{!hideText && (
+				<div className="flex grow">
+					<p className="text-primary/60 text-sm grow">
+						{showCW ? `CWs: ${hunt.warnings}` : hunt.description}
+					</p>
+					{!!hunt.warnings && (
+						<Button
+							className="text-rose-700 shrink-0"
+							onClick={handleToggleCW}
+							size="icon"
+							variant="ghost"
+						>
+							<CircleAlert />
+						</Button>
+					)}
+				</div>
+			)}
 
 			{children}
 		</Card>
