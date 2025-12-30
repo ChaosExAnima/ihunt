@@ -7,6 +7,7 @@ import {
 	Link,
 	List,
 	NumberField,
+	NumberInput,
 	ReferenceArrayField,
 	SelectArrayInput,
 	TextField,
@@ -14,7 +15,7 @@ import {
 	useUpdate,
 } from 'react-admin';
 
-import { HuntStatus, Locale } from '@/lib/constants';
+import { HUNT_MAX_DANGER, HuntStatus, Locale } from '@/lib/constants';
 
 import { AdminHuntHunters } from '../components/hunter-list';
 import { AdminHuntSchema } from '../schemas';
@@ -47,11 +48,17 @@ export function HuntList() {
 					source="payment"
 				/>
 				<NumberField source="danger" />
-				<ReferenceArrayField reference="hunter" source="hunterIds">
+				<NumberField source="minRating" />
+				<ReferenceArrayField
+					reference="hunter"
+					sortable={false}
+					source="hunterIds"
+				>
 					<AdminHuntHunters />
 				</ReferenceArrayField>
 				<NumberField
 					label="Photos"
+					sortable={false}
 					source="photoIds"
 					transform={(photoIds: number[]) => photoIds.length}
 				/>
@@ -61,13 +68,14 @@ export function HuntList() {
 	);
 }
 
-export const listFilters = [
+const listFilters = [
 	<SelectArrayInput
 		alwaysOn
 		choices={huntStatusChoices()}
 		key="1"
 		source="status"
 	/>,
+	<NumberInput key="2" max={HUNT_MAX_DANGER} min={1} source="danger" />,
 ];
 
 function HuntActions() {

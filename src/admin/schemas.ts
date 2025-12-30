@@ -137,7 +137,7 @@ export const adminFilter = z.discriminatedUnion('resource', [
 		resource: z.literal('group'),
 	}),
 	z.object({
-		...schemaToFilter(adminPhotoSchema),
+		...schemaToFilter(adminPhotoSchema, ['url']),
 		resource: z.literal('photo'),
 	}),
 	z.object({

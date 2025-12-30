@@ -17,7 +17,11 @@ export function GroupList() {
 			>
 				<NumberField source="id" />
 				<TextField source="name" />
-				<ReferenceArrayField reference="hunter" source="hunterIds">
+				<ReferenceArrayField
+					reference="hunter"
+					sortable={false}
+					source="hunterIds"
+				>
 					<AdminHunters />
 				</ReferenceArrayField>
 			</Datagrid>

@@ -6,6 +6,7 @@ import {
 	List,
 	NumberField,
 	ReferenceField,
+	ReferenceInput,
 	TextField,
 	useRecordContext,
 } from 'react-admin';
@@ -15,9 +16,18 @@ import PhotoDisplay from '@/components/photo';
 import { AdminAvatar } from '../components/avatar';
 import { AdminPhotoSchema } from '../schemas';
 
+const queryFilter = [
+	<ReferenceInput key="hunterId" reference="hunter" source="hunterId" />,
+	<ReferenceInput key="huntId" reference="hunt" source="huntId" />,
+];
+
 export function PhotoList() {
 	return (
-		<List perPage={25} queryOptions={{ meta: { showAll: true } }}>
+		<List
+			filters={queryFilter}
+			perPage={25}
+			queryOptions={{ meta: { showAll: true } }}
+		>
 			<Datagrid
 				expand={<PhotoExpand />}
 				sort={{ field: 'id', order: 'ASC' }}
@@ -30,6 +40,7 @@ export function PhotoList() {
 							<TextField source="path" />
 						</Link>
 					)}
+					sortable={false}
 				/>
 				<NumberField source="width" />
 				<NumberField source="height" />

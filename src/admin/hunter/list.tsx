@@ -49,14 +49,18 @@ export function HunterList() {
 				<ReferenceField
 					empty={<em className="text-stone-400">No group</em>}
 					reference="group"
+					sortable={false}
 					source="groupId"
 				/>
 				<AdminAvatar label="Avatar" />
-				<FunctionField label="Type" render={renderType} />
-				<ReferenceField reference="user" source="userId" />
+				<FunctionField label="Type" render={renderType} sortBy="type" />
+				<ReferenceField
+					reference="user"
+					sortable={false}
+					source="userId"
+				/>
 				<NumberField
 					label="Rating"
-					sortable={false}
 					source="rating"
 					transform={roundToHalves}
 				/>

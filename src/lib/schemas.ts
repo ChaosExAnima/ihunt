@@ -75,6 +75,7 @@ export const huntSchema = z.object({
 	hunters: z.array(hunterSchema),
 	id: idSchema,
 	maxHunters: z.int().min(1).max(4),
+	minRating: z.number().min(0).max(5),
 	name: z.string().min(1),
 	payment: posIntSchema,
 	photos: z.array(photoHuntSchema),
