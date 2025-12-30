@@ -7,23 +7,13 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@/admin/schemas';
-import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
+import { idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
 import { completeHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
-
-const paginationSchema = z.object({
-	page: posIntSchema,
-	perPage: posIntSchema,
-});
-
-const sortSchema = z.object({
-	field: z.string(),
-	order: z.enum(['ASC', 'DESC']),
-});
 
 export const adminRouter = router({
 	create: adminProcedure
@@ -146,11 +136,6 @@ export const adminRouter = router({
 			adminFilter.and(
 				z.object({
 					ids: z.array(idSchemaCoerce).optional(),
-					meta: z
-						.record(z.string(), z.string().or(z.boolean()))
-						.optional(),
-					pagination: paginationSchema.optional(),
-					sort: sortSchema.optional(),
 				}),
 			),
 		)
@@ -407,11 +392,6 @@ export const adminRouter = router({
 			adminFilter.and(
 				z.object({
 					id: idSchemaCoerce,
-					meta: z
-						.record(z.string(), z.string().or(z.boolean()))
-						.optional(),
-					pagination: paginationSchema.optional(),
-					sort: sortSchema.optional(),
 					target: z.string(),
 				}),
 			),

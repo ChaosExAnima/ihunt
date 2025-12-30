@@ -115,47 +115,49 @@ export const adminInput = z.discriminatedUnion('resource', [
 	}),
 ]);
 
-export const adminFilter = z.discriminatedUnion('resource', [
-	z.object({
-		...schemaToFilter(adminHuntSchema),
-		resource: z.literal('hunt'),
-	}),
-	z.object({
-		...schemaToFilter(
-			adminHunterSchema,
-			[],
-			['avatarId', 'groupId', 'userId'],
-		),
-		resource: z.literal('hunter'),
-	}),
-	z.object({
-		...schemaToFilter(
-			adminGroupSchema,
-			['hunterIds', 'name'],
-			['hunterIds'],
-		),
-		resource: z.literal('group'),
-	}),
-	z.object({
-		...schemaToFilter(adminPhotoSchema, ['url']),
-		resource: z.literal('photo'),
-	}),
-	z.object({
-		...schemaToFilter(adminUserSchema),
-		resource: z.literal('user'),
-	}),
-]);
+export const adminFilter = z
+	.discriminatedUnion('resource', [
+		z.object({
+			...schemaToFilter(adminHuntSchema),
+			resource: z.literal('hunt'),
+		}),
+		z.object({
+			...schemaToFilter(adminHunterSchema, []),
+			resource: z.literal('hunter'),
+		}),
+		z.object({
+			...schemaToFilter(adminGroupSchema, ['hunterIds', 'name']),
+			resource: z.literal('group'),
+		}),
+		z.object({
+			...schemaToFilter(adminPhotoSchema, ['url']),
+			resource: z.literal('photo'),
+		}),
+		z.object({
+			...schemaToFilter(adminUserSchema),
+			resource: z.literal('user'),
+		}),
+	])
+	.and(
+		z.object({
+			meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
+			pagination: z
+				.object({
+					page: posIntSchema,
+					perPage: posIntSchema,
+				})
+				.optional(),
+		}),
+	);
 
 function schemaToFilter<TShape extends z.ZodRawShape>(
 	schema: z.ZodObject<TShape>,
 	filterOmit: (keyof TShape)[] = [],
-	sortOmit: (keyof TShape)[] = filterOmit,
 ) {
 	const filter = filterOmit.reduce(
 		(obj, curr) => ({ ...obj, [curr]: true }),
 		{},
 	);
-	const sort = sortOmit.reduce((obj, curr) => ({ ...obj, [curr]: true }), {});
 	return {
 		filter: schema
 			.omit({ id: true, ...filter })
@@ -164,7 +166,7 @@ function schemaToFilter<TShape extends z.ZodRawShape>(
 			.optional(),
 		sort: z
 			.object({
-				field: schema.omit(sort).keyof(),
+				field: z.string(),
 				order: z.enum(['ASC', 'DESC']),
 			})
 			.optional(),
