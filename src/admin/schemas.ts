@@ -114,3 +114,61 @@ export const adminInput = z.discriminatedUnion('resource', [
 		resource: z.literal('user'),
 	}),
 ]);
+
+export const adminFilter = z
+	.discriminatedUnion('resource', [
+		z.object({
+			...schemaToFilter(adminHuntSchema),
+			resource: z.literal('hunt'),
+		}),
+		z.object({
+			...schemaToFilter(adminHunterSchema, []),
+			resource: z.literal('hunter'),
+		}),
+		z.object({
+			...schemaToFilter(adminGroupSchema, ['hunterIds', 'name']),
+			resource: z.literal('group'),
+		}),
+		z.object({
+			...schemaToFilter(adminPhotoSchema, ['url']),
+			resource: z.literal('photo'),
+		}),
+		z.object({
+			...schemaToFilter(adminUserSchema),
+			resource: z.literal('user'),
+		}),
+	])
+	.and(
+		z.object({
+			meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
+			pagination: z
+				.object({
+					page: posIntSchema,
+					perPage: posIntSchema,
+				})
+				.optional(),
+		}),
+	);
+
+function schemaToFilter<TShape extends z.ZodRawShape>(
+	schema: z.ZodObject<TShape>,
+	filterOmit: (keyof TShape)[] = [],
+) {
+	const filter = filterOmit.reduce(
+		(obj, curr) => ({ ...obj, [curr]: true }),
+		{},
+	);
+	return {
+		filter: schema
+			.omit({ id: true, ...filter })
+			.extend({ q: z.string() })
+			.partial()
+			.optional(),
+		sort: z
+			.object({
+				field: z.string(),
+				order: z.enum(['ASC', 'DESC']),
+			})
+			.optional(),
+	};
+}

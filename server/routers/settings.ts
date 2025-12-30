@@ -1,8 +1,8 @@
 import z from 'zod';
 
-import { db } from '../db';
-import { uploadPhoto } from '../photo';
-import { router, userProcedure } from '../trpc';
+import { db } from '@/server/lib/db';
+import { uploadPhoto } from '@/server/lib/photo';
+import { router, userProcedure } from '@/server/lib/trpc';
 
 export const settingsRouter = router({
 	updateAvatar: userProcedure

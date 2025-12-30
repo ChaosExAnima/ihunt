@@ -3,10 +3,9 @@ import z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
 import { idSchema, idSchemaCoerce, posIntSchema } from '@/lib/schemas';
-
-import { db } from '../db';
-import { outputPhoto, photoUrl, uploadPhoto } from '../photo';
-import { loggedInProcedure, router } from '../trpc';
+import { db } from '@/server/lib/db';
+import { outputPhoto, photoUrl, uploadPhoto } from '@/server/lib/photo';
+import { loggedInProcedure, router } from '@/server/lib/trpc';
 
 const resizingTypeSchema = z.enum([
 	'fill',

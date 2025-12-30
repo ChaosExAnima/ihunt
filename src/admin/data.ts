@@ -74,7 +74,9 @@ export const dataProvider = {
 	async getList(resource, params) {
 		const { data, total } = await trpcPlain.admin.getList.query({
 			resource,
-			...params,
+			...params.pagination,
+			filter: params.filter,
+			sort: params.sort,
 		});
 		return { data: data as any, total };
 	},

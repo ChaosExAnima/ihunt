@@ -1,27 +1,22 @@
-import { QueryClient, QueryKey, useQueryClient } from '@tanstack/react-query';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 import { useCallback } from 'react';
-
-export async function invalidateQueries(
-	queries: QueryKey[],
-	queryClient: QueryClient,
-) {
-	return Promise.allSettled(
-		queries.map((query) =>
-			queryClient.invalidateQueries({
-				queryKey: query,
-			}),
-		),
-	);
-}
 
 export function useInvalidate() {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	const invalidate = useCallback(
 		(queries: QueryKey[]) => {
-			void invalidateQueries(queries, queryClient);
+			void Promise.allSettled(
+				queries.map((query) =>
+					queryClient.invalidateQueries({
+						queryKey: query,
+					}),
+				),
+			).then(() => void router.invalidate());
 		},
-		[queryClient],
+		[queryClient, router],
 	);
 	return invalidate;
 }

@@ -7,9 +7,9 @@ import fastify from 'fastify';
 import { resolve } from 'path';
 
 import { isDev } from '@/lib/utils';
+import { createAuthContext } from '@/server/lib/auth';
+import { config } from '@/server/lib/config';
 
-import { createAuthContext } from './auth';
-import { config } from './config';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {

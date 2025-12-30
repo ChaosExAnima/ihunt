@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { ArrowLeft } from 'lucide-react';
 
 import { HuntDisplay } from '@/components/hunt';
+import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth/hunts/$huntId')({
@@ -20,5 +22,15 @@ function RouteComponent() {
 	if (!hunt || !player?.hunter) {
 		return null;
 	}
-	return <HuntDisplay className="h-full" hunt={hunt} />;
+	return (
+		<>
+			<HuntDisplay className="h-full grow" hunt={hunt} />
+			<Button asChild variant="secondary">
+				<Link to="/hunts">
+					<ArrowLeft />
+					Back
+				</Link>
+			</Button>
+		</>
+	);
 }

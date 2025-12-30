@@ -31,6 +31,7 @@ for (const key in process.env) {
 		configVars[camelCaseKey] = process.env[key];
 	}
 }
+
 const _config = configSchema.safeParse(configVars);
 
 if (!_config.success) {
@@ -39,4 +40,5 @@ if (!_config.success) {
 			JSON.stringify(z.treeifyError(_config.error), null, 4),
 	);
 }
+
 export const config = _config.data;

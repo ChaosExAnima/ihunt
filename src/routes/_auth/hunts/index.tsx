@@ -2,8 +2,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 
-import { HuntDisplay, HuntDisplayActive } from '@/components/hunt';
-import { HuntsCompleted } from '@/components/hunt/completed';
+import Header from '@/components/header';
+import { HuntDisplay } from '@/components/hunt';
+import { HuntsCompleted } from '@/components/hunt/completed-list';
 import { HuntInviteModal } from '@/components/hunt/invite-dialog';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
@@ -75,14 +76,14 @@ function RouteComponent() {
 				<CarouselContent className="min-h-full" slot="ul">
 					{isLoadingAvailable && isLoadingActive && (
 						<CarouselItem>
-							<HuntLoading className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg" />
+							<HuntLoading className="flex flex-col h-full mx-4 border border-border p-4 shadow-lg" />
 						</CarouselItem>
 					)}
 					{!isLoadingActive &&
 						activeHunts?.map((hunt) => (
 							<CarouselItem key={hunt.id}>
-								<HuntDisplayActive
-									className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+								<HuntDisplay
+									className="flex flex-col h-full mx-4 border border-border p-4 shadow-lg"
 									hunt={hunt}
 								/>
 							</CarouselItem>
@@ -91,7 +92,7 @@ function RouteComponent() {
 						availableHunts?.map((hunt) => (
 							<CarouselItem key={hunt.id}>
 								<HuntDisplay
-									className="flex flex-col h-full mx-4 border border-stone-400 dark:border-stone-800 p-4 shadow-lg"
+									className="flex flex-col h-full mx-4 border border-border p-4 shadow-lg"
 									hunt={hunt}
 									onAcceptHunt={handleAcceptHunt}
 									remainingHunts={
@@ -100,6 +101,21 @@ function RouteComponent() {
 								/>
 							</CarouselItem>
 						))}
+					{availableHunts?.length === 0 &&
+						activeHunts?.length === 0 && (
+							<CarouselItem>
+								<div className="mx-4 border border-border p-4 rounded-xl">
+									<Header level={3}>
+										No hunts available
+									</Header>
+									<p className="mt-4">
+										Sorry, there aren't any hunts available
+										to you right now. There may be some more
+										available later!
+									</p>
+								</div>
+							</CarouselItem>
+						)}
 					<CarouselItem>
 						<HuntsCompleted />
 					</CarouselItem>

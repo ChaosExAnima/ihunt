@@ -69,11 +69,13 @@ export type HuntReservedStatusSchema = HuntReservedSchema['status'];
 export const huntSchema = z.object({
 	comment: z.string().nullable(),
 	completedAt: z.coerce.date().nullable(),
+	createdAt: z.coerce.date(),
 	danger: z.int().min(1).max(HUNT_MAX_DANGER),
 	description: z.string(),
 	hunters: z.array(hunterSchema),
 	id: idSchema,
 	maxHunters: z.int().min(1).max(4),
+	minRating: z.number().min(0).max(5),
 	name: z.string().min(1),
 	payment: posIntSchema,
 	photos: z.array(photoHuntSchema),

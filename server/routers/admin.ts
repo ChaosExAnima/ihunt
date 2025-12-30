@@ -1,38 +1,19 @@
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
-import { adminCreateInput, adminInput, resourceSchema } from '@/admin/schemas';
-import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
+import {
+	adminCreateInput,
+	adminFilter,
+	adminInput,
+	resourceSchema,
+} from '@/admin/schemas';
+import { idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
-
-import { db } from '../db';
-import { photoUrl } from '../photo';
-import { adminProcedure, router } from '../trpc';
-
-const paginationSchema = z.object({
-	page: posIntSchema,
-	perPage: posIntSchema,
-});
-
-const sortSchema = z.object({
-	field: z.string(),
-	order: z.enum(['ASC', 'DESC']),
-});
-
-const findManySchema = z.object({
-	filter: z
-		.object({
-			noGroup: z.boolean().optional(),
-			q: z.string().optional(),
-		})
-		.optional(),
-	ids: z.array(idSchemaCoerce).optional(),
-	meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
-	pagination: paginationSchema.optional(),
-	resource: resourceSchema,
-	sort: sortSchema.optional(),
-});
+import { db } from '@/server/lib/db';
+import { completeHunt } from '@/server/lib/hunt';
+import { photoUrl } from '@/server/lib/photo';
+import { adminProcedure, router } from '@/server/lib/trpc';
 
 export const adminRouter = router({
 	create: adminProcedure
@@ -151,7 +132,13 @@ export const adminRouter = router({
 		}),
 
 	getList: adminProcedure
-		.input(findManySchema)
+		.input(
+			adminFilter.and(
+				z.object({
+					ids: z.array(idSchemaCoerce).optional(),
+				}),
+			),
+		)
 		.query(
 			async ({
 				input: { filter, ids, meta, pagination, resource, sort },
@@ -178,6 +165,7 @@ export const adminRouter = router({
 
 				switch (resource) {
 					case 'group': {
+						const { q: queryString, ...filterWhere } = filter ?? {};
 						const groups = await db.hunterGroup.findMany({
 							...query,
 							include: {
@@ -185,9 +173,10 @@ export const adminRouter = router({
 							},
 							where: {
 								...where,
-								name: filter?.q
+								...filterWhere,
+								name: queryString
 									? {
-											contains: filter.q,
+											contains: queryString,
 										}
 									: undefined,
 							},
@@ -198,10 +187,13 @@ export const adminRouter = router({
 								...group,
 								hunterIds: extractIds(hunters),
 							})),
-							total: await db.hunterGroup.count(query),
+							total: await db.hunterGroup.count({
+								where: { ...filter, ...where },
+							}),
 						};
 					}
 					case 'hunt': {
+						const { q: queryString, ...filterWhere } = filter ?? {};
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
@@ -214,9 +206,10 @@ export const adminRouter = router({
 							},
 							where: {
 								...where,
-								name: filter?.q
+								...filterWhere,
+								name: queryString
 									? {
-											contains: filter.q,
+											contains: queryString,
 										}
 									: undefined,
 							},
@@ -227,10 +220,13 @@ export const adminRouter = router({
 								hunterIds: extractIds(hunters),
 								photoIds: extractIds(photos),
 							})),
-							total: await db.hunt.count({ where }),
+							total: await db.hunt.count({
+								where: { ...filter, ...where },
+							}),
 						};
 					}
 					case 'hunter': {
+						const { q: queryString, ...filterWhere } = filter ?? {};
 						const hunters = await db.hunter.findMany({
 							...query,
 							include: {
@@ -242,11 +238,15 @@ export const adminRouter = router({
 							},
 							where: {
 								...where,
-								groupId: filter?.noGroup ? null : undefined,
-								OR: filter?.q
+								...filterWhere,
+								OR: queryString
 									? [
-											{ name: { contains: filter.q } },
-											{ handle: { contains: filter.q } },
+											{ name: { contains: queryString } },
+											{
+												handle: {
+													contains: queryString,
+												},
+											},
 										]
 									: undefined,
 							},
@@ -256,7 +256,9 @@ export const adminRouter = router({
 								...hunter,
 								huntIds: extractIds(hunts),
 							})),
-							total: await db.hunter.count({ where }),
+							total: await db.hunter.count({
+								where: { ...filter, ...where },
+							}),
 						};
 					}
 					case 'photo': {
@@ -264,6 +266,7 @@ export const adminRouter = router({
 							...query,
 							where: {
 								...where,
+								...filter,
 								OR: !meta?.showAll
 									? [
 											{
@@ -386,9 +389,12 @@ export const adminRouter = router({
 
 	getReferences: adminProcedure
 		.input(
-			findManySchema
-				.omit({ ids: true })
-				.extend({ id: idSchemaCoerce, target: z.string() }),
+			adminFilter.and(
+				z.object({
+					id: idSchemaCoerce,
+					target: z.string(),
+				}),
+			),
 		)
 		.query(
 			async ({ input: { id, pagination, resource, sort, target } }) => {
@@ -526,17 +532,18 @@ export const adminRouter = router({
 							},
 						},
 						include: {
-							hunters: {
-								select: {
-									id: true,
-								},
-							},
+							hunters: true,
 						},
 						where: { id },
+					});
+					const updates = await completeHunt({
+						hunt: result,
+						hunters,
 					});
 					return {
 						...result,
 						hunterIds: extractIds(hunters),
+						paid: updates,
 					};
 				}
 				case 'hunter':

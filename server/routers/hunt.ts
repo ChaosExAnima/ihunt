@@ -8,16 +8,15 @@ import {
 	HuntReservedStatusSchema,
 	idSchemaCoerce,
 } from '@/lib/schemas';
-
-import { db } from '../db';
+import { db } from '@/server/lib/db';
 import {
 	expireInvites,
 	fetchDailyHuntCount,
 	fetchUnclaimedSpots,
-} from '../invite';
-import { uploadPhoto } from '../photo';
-import { InviteStatus, outputHuntSchema } from '../schema';
-import { adminProcedure, router, userProcedure } from '../trpc';
+} from '@/server/lib/invite';
+import { uploadPhoto } from '@/server/lib/photo';
+import { InviteStatus, outputHuntSchema } from '@/server/lib/schema';
+import { adminProcedure, router, userProcedure } from '@/server/lib/trpc';
 
 export const huntRouter = router({
 	getActive: userProcedure.output(z.array(outputHuntSchema)).query(
@@ -94,7 +93,7 @@ export const huntRouter = router({
 			db.hunt.findMany({
 				include: huntDisplayInclude,
 				orderBy: {
-					createdAt: 'desc',
+					completedAt: 'desc',
 				},
 				where: {
 					hunters: {

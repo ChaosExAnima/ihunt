@@ -1,4 +1,4 @@
-import { publicProcedure, router } from '../trpc';
+import { publicProcedure, router } from '@/server/lib/trpc';
 
 export const apiRouter = router({
 	hello: publicProcedure.query(() => {

@@ -8,16 +8,15 @@ import {
 	hunterSchema,
 	idSchemaCoerce,
 } from '@/lib/schemas';
-
-import { passwordToHash } from '../auth';
-import { config } from '../config';
-import { db } from '../db';
+import { passwordToHash } from '@/server/lib/auth';
+import { config } from '@/server/lib/config';
+import { db } from '@/server/lib/db';
 import {
 	debugProcedure,
 	publicProcedure,
 	router,
 	userProcedure,
-} from '../trpc';
+} from '@/server/lib/trpc';
 
 export const authRouter = router({
 	adminLogin: publicProcedure

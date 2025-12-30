@@ -12,6 +12,7 @@ import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useInvalidate } from '@/hooks/use-invalidate';
 import { useTheme } from '@/hooks/use-theme';
 import { trpc } from '@/lib/api';
 import { useCurrencyFormat } from '@/lib/formats';
@@ -26,18 +27,16 @@ export const Route = createFileRoute('/_auth/settings')({
 function Settings() {
 	const {
 		player: { hunter },
-		queryClient,
 	} = Route.useRouteContext();
 
+	const invalidate = useInvalidate();
 	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
 		trpc.settings.updateMoney.mutationOptions({
-			async onSuccess() {
-				await queryClient.invalidateQueries({
-					queryKey: [
-						trpc.auth.me.queryKey(),
-						trpc.hunter.getOne.queryKey(),
-					],
-				});
+			onSuccess() {
+				invalidate([
+					trpc.auth.me.queryKey(),
+					trpc.hunter.getOne.queryKey(),
+				]);
 			},
 		}),
 	);
@@ -47,13 +46,11 @@ function Settings() {
 
 	const { mutate: updateFields } = useMutation(
 		trpc.settings.updateFields.mutationOptions({
-			async onSuccess() {
-				await queryClient.invalidateQueries({
-					queryKey: [
-						trpc.auth.me.queryKey(),
-						trpc.hunter.getOne.queryKey(),
-					],
-				});
+			onSuccess() {
+				invalidate([
+					trpc.auth.me.queryKey(),
+					trpc.hunter.getOne.queryKey(),
+				]);
 			},
 		}),
 	);
@@ -91,7 +88,7 @@ function Settings() {
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center p-4 bg-secondary rounded-lg">
+			<section className="grid grid-cols-[auto_1fr] gap-4 items-center my-4">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>

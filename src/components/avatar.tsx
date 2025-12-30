@@ -40,7 +40,7 @@ export default function Avatar({
 	return (
 		<div
 			className={cn(
-				'border border-stone-400 dark:border-stone-800',
+				'border border-border',
 				'relative flex size-10 shrink-0 overflow-hidden rounded-full',
 				className,
 			)}
@@ -59,7 +59,7 @@ export function AvatarEmpty({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border border-stone-400 dark:border-stone-800',
+				'border border-border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}
@@ -73,7 +73,7 @@ export function AvatarLocked({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border border-stone-400 dark:border-stone-800',
+				'border border-border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}

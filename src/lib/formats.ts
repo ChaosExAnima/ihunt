@@ -27,12 +27,17 @@ export function dateFormat(date: Date) {
 			return `${Math.floor(diff / DAY)} days ago`;
 		}
 		return 'a day ago';
-	} else if (diff >= HOUR * 2) {
+	} else if (diff >= HOUR) {
 		if (diff >= HOUR * 2) {
 			return `${Math.floor(diff / HOUR)} hours ago`;
 		}
+		return 'an hour ago';
 	}
 	return 'recently';
+}
+
+export function roundToHalves(input: number) {
+	return Math.floor(input * 2) / 2;
 }
 
 export function todayStart() {
@@ -49,8 +54,4 @@ export function useCurrencyFormat(amount: number) {
 		return '';
 	}
 	return formatted;
-}
-
-export function useDateFormat(date: Date) {
-	return useMemo(() => dateFormat(date), [date]);
 }
