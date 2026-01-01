@@ -5,7 +5,7 @@ interface ImportMeta {
 }
 
 interface ImportMetaEnv {
-	readonly VITE_IMAGE_HOST: string;
+	readonly VITE_VAPID_PUB_KEY: string;
 }
 
 interface ViteTypeOptions {
