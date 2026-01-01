@@ -135,13 +135,13 @@ function Index() {
 							Forgot your code? Click here for help!
 						</PopoverTrigger>
 						<PopoverContent className="text-sm/relaxed">
-							OC: Your login code is the first six characters of
-							your character&rsquo;s handle. For example: If your
-							character&rsquo;s handle is{' '}
-							<strong>darkknight666</strong>, your login code
-							is&nbsp;
+							OC: Your login code is the first six English letters
+							and numbers of your character&rsquo;s handle, all
+							lowercase. For example: If your character&rsquo;s
+							handle is <strong>d@rkKnight666</strong>, your login
+							code is&nbsp;
 							<code className="border border-muted p-1 rounded-sm">
-								darkkn
+								drkkni
 							</code>
 							.
 						</PopoverContent>
