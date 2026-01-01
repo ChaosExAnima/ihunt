@@ -1,7 +1,7 @@
 import { UserVapid } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
-import webpush from 'web-push';
+import webpush, { WebPushError } from 'web-push';
 
 import { config } from './config';
 import { db } from './db';
@@ -50,9 +50,28 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 		},
 	});
 
-	await Promise.all(
-		endpoints.map((vapid) => sendMessage({ body, title, vapid })),
-	);
+	const now = new Date();
+	const toPrune: string[] = [];
+	let succeeded = false;
+	for (const endpoint of endpoints) {
+		if (endpoint.expirationTime && endpoint.expirationTime > now) {
+			toPrune.push(endpoint.id);
+		} else {
+			const result = await sendMessage({ body, title, vapid: endpoint });
+			if (result) {
+				succeeded = true;
+			} else {
+				toPrune.push(endpoint.id);
+			}
+		}
+	}
+
+	if (toPrune.length > 0) {
+		await db.userVapid.deleteMany({
+			where: { id: { in: toPrune } },
+		});
+	}
+	return succeeded;
 }
 
 export async function saveSubscription({
@@ -106,11 +125,21 @@ async function sendMessage({
 	vapid,
 }: Pick<NotifyArgs, 'body' | 'title'> & { vapid: UserVapid }) {
 	const subscription = subscriptionSchema.parse(JSON.parse(vapid.payload));
-	await webpush.sendNotification(
-		subscription,
-		JSON.stringify({ body, title }),
-		{
-			vapidDetails: getVapidDetails(),
-		},
-	);
+	try {
+		await webpush.sendNotification(
+			subscription,
+			JSON.stringify({ body, title }),
+			{
+				vapidDetails: getVapidDetails(),
+			},
+		);
+		return true;
+	} catch (err) {
+		// When we get GONE, delete the userVapid record.
+		if (err instanceof WebPushError && err.statusCode === 410) {
+			return false;
+		} else {
+			throw err;
+		}
+	}
 }
