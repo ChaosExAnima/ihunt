@@ -3,6 +3,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import Navbar from '@/components/navbar';
 import { PlayerSettingsProvider } from '@/components/providers/player';
+import { useNotifyRequest } from '@/hooks/use-subscribe';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
@@ -28,6 +29,8 @@ function Page() {
 		...trpc.auth.me.queryOptions(),
 		initialData,
 	});
+
+	useNotifyRequest();
 
 	return (
 		<PlayerSettingsProvider settings={player}>
