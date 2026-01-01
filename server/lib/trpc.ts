@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 
+import { MINUTE, SECOND } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 
 import { Context } from './auth';
@@ -10,6 +11,16 @@ import { Context } from './auth';
  * Should be done only once per backend!
  */
 const t = initTRPC.context<Context>().create({
+	sse: {
+		client: {
+			reconnectAfterInactivityMs: 5 * SECOND,
+		},
+		maxDurationMs: 5 * MINUTE,
+		ping: {
+			enabled: true,
+			intervalMs: 3 * SECOND,
+		},
+	},
 	transformer: superjson,
 });
 

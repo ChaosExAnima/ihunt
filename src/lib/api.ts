@@ -3,7 +3,9 @@ import {
 	createTRPCClient,
 	httpBatchLink,
 	httpLink,
+	httpSubscriptionLink,
 	isNonJsonSerializable,
+	loggerLink,
 	splitLink,
 } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
@@ -26,13 +28,23 @@ export const queryClient = new QueryClient({
 const url = '/trpc';
 const trpcClient = createTRPCClient<AppRouter>({
 	links: [
+		loggerLink({
+			enabled: () => !!localStorage.getItem('debugApi'),
+		}),
 		splitLink({
-			condition: (op) => isNonJsonSerializable(op.input),
-			false: httpBatchLink({
+			condition: (op) => op.type === 'subscription',
+			false: splitLink({
+				condition: (op) => isNonJsonSerializable(op.input),
+				false: httpBatchLink({
+					transformer: superjson,
+					url,
+				}),
+				true: httpLink({ transformer: superjson, url }),
+			}),
+			true: httpSubscriptionLink({
 				transformer: superjson,
 				url,
 			}),
-			true: httpLink({ transformer: superjson, url }),
 		}),
 	],
 });
