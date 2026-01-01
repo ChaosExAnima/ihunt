@@ -54,3 +54,4 @@ data
 
 # build
 dist
+src/dev-dist

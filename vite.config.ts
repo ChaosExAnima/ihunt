@@ -25,6 +25,10 @@ export default defineConfig({
 		tailwindcss(),
 		react(),
 		VitePWA({
+			devOptions: {
+				enabled: true,
+				type: 'module',
+			},
 			manifest: {
 				description: 'We help you hunt for success!',
 				icons: [
