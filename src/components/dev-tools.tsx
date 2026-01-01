@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	ArrowDownUp,
 	Database,
@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { PropsWithChildren, useCallback } from 'react';
 
-import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
 
 import {
@@ -128,14 +127,20 @@ function SwitchUser() {
 		trpc.hunter.getMany.queryOptions(),
 	);
 
-	const invalidate = useInvalidate();
+	const queryClient = useQueryClient();
 	const { mutate } = useMutation(
 		trpc.auth.switch.mutationOptions({
-			onSuccess() {
-				invalidate([
-					trpc.auth.me.queryKey(),
-					trpc.hunter.pathKey(),
-					trpc.hunt.pathKey(),
+			async onSuccess() {
+				await Promise.all([
+					queryClient.invalidateQueries({
+						queryKey: trpc.auth.me.queryKey(),
+					}),
+					queryClient.invalidateQueries({
+						queryKey: trpc.hunter.pathKey(),
+					}),
+					queryClient.invalidateQueries({
+						queryKey: trpc.hunt.pathKey(),
+					}),
 				]);
 			},
 		}),
