@@ -73,6 +73,17 @@ export function useNotifyRequest() {
 		});
 	}, [mutate]);
 
+	useEffect(() => {
+		const listener = (event: MessageEvent) => {
+			console.log('Received a message from service worker:', event.data);
+		};
+		// Listen for messages from the service worker
+		navigator.serviceWorker.addEventListener('message', listener);
+		return () => {
+			navigator.serviceWorker.removeEventListener('message', listener);
+		};
+	}, []);
+
 	const curPermission = Notification.permission;
 	const notifyToast = useRef<null | ReturnType<typeof toast>>(null);
 	useEffect(() => {
@@ -126,9 +137,4 @@ async function requestNotifyPermission(
 	} catch (err) {
 		console.log('Failed to subscribe the user: ', err);
 	}
-
-	// Listen for messages from the service worker
-	navigator.serviceWorker.addEventListener('message', (event) => {
-		console.log('Received a message from service worker:', event.data);
-	});
 }

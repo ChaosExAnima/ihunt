@@ -48,6 +48,9 @@ export default defineConfig({
 				theme_color: 'oklch(51.4% 0.222 16.935)',
 			},
 			registerType: 'autoUpdate',
+			workbox: {
+				importScripts: ['/public/service_worker.js'],
+			},
 		}),
 		process.env.ANALYZE_BUNDLE === '1' && (visualizer() as PluginOption),
 	],
