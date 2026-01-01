@@ -1,3 +1,4 @@
+import fastifyStatic from '@fastify/static';
 import fastifyVite from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
@@ -47,10 +48,17 @@ async function startServer() {
 		);
 	});
 
+	const root = resolve(import.meta.dirname, '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
-		root: resolve(import.meta.dirname, '..'),
+		distDir: resolve(root, 'dist'),
+		root,
 		spa: true,
+	});
+
+	server.register(fastifyStatic, {
+		prefix: '/public/',
+		root: resolve(root, 'public'),
 	});
 
 	server.get('*', async (_req, reply) => {
