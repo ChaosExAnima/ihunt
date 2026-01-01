@@ -11,6 +11,11 @@ const configSchema = z.object({
 	mediaSecure: z.boolean().default(true),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
+	vapidPrivKey: z.string().optional(),
+	vapidPubKey: z.string().optional(),
+	vapidSubject: z
+		.url({ protocol: /^(https|mailto)$/i })
+		.default('mailto:notify@ihunt.local'),
 });
 
 const configVars: Record<string, string | undefined> = {};
