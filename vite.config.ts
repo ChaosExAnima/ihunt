@@ -29,6 +29,7 @@ export default defineConfig({
 				enabled: true,
 				type: 'module',
 			},
+			filename: 'sw.ts',
 			manifest: {
 				description: 'We help you hunt for success!',
 				icons: [
@@ -48,9 +49,9 @@ export default defineConfig({
 				theme_color: 'oklch(51.4% 0.222 16.935)',
 			},
 			registerType: 'autoUpdate',
-			workbox: {
-				importScripts: ['/public/service_worker.js'],
-			},
+			scope: '/',
+			srcDir: 'workers',
+			strategies: 'injectManifest',
 		}),
 		process.env.ANALYZE_BUNDLE === '1' && (visualizer() as PluginOption),
 	],
