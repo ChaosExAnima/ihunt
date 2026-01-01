@@ -6,6 +6,7 @@ import { authRouter } from './routers/auth';
 import { huntRouter } from './routers/hunt';
 import { hunterRouter } from './routers/hunter';
 import { inviteRouter } from './routers/invite';
+import { notifyRouter } from './routers/notify';
 import { photosRouter } from './routers/photos';
 import { settingsRouter } from './routers/settings';
 
@@ -16,6 +17,7 @@ export const appRouter = router({
 	hunt: huntRouter,
 	hunter: hunterRouter,
 	invite: inviteRouter,
+	notify: notifyRouter,
 	photos: photosRouter,
 	settings: settingsRouter,
 });
