@@ -28,6 +28,7 @@ function Page() {
 		...trpc.auth.me.queryOptions(),
 		initialData,
 	});
+
 	return (
 		<PlayerSettingsProvider settings={player}>
 			<div className="grow flex flex-col w-full justify-stretch">
