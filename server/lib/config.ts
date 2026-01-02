@@ -15,6 +15,7 @@ const configSchema = z.object({
 	mediaSecure: z.boolean().default(true),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
+	redisUrl: z.string().optional(),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z
