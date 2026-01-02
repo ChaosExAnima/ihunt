@@ -11,23 +11,6 @@ import { toast, useToast } from './use-toast';
 
 export function useNotify() {
 	const { toast } = useToast();
-	useSubscription(
-		trpc.notify.onNotify.subscriptionOptions(skipToken, {
-			onData(data) {
-				console.log('got data:', data);
-				// if (Notification.permission === 'granted') {
-				// 	new Notification(data, {
-				// 		body: data.body,
-				// 	});
-				// 	toast({
-				// 		description: data.body,
-				// 		title: data.title,
-				// 	});
-				// }
-			},
-		}),
-	);
-
 	return useCallback(
 		({ body, title }: { body?: string; title: string }) => {
 			if (focusManager.isFocused()) {
@@ -101,6 +84,19 @@ export function useNotifyRequest() {
 			handleSubscribe();
 		}
 	}, [curPermission, handleSubscribe, mutate]);
+
+	useSubscription(
+		trpc.notify.onNotify.subscriptionOptions(skipToken, {
+			onData(data) {
+				if (data.type === 'message') {
+					toast({
+						description: data.body,
+						title: data.title,
+					});
+				}
+			},
+		}),
+	);
 }
 
 function NotificationAction({ onSubscribe }: { onSubscribe: () => void }) {

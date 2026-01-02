@@ -4,6 +4,7 @@ import { HuntStatus } from '@/lib/constants';
 import { clamp } from '@/lib/utils';
 
 import { db } from './db';
+import { notifyUser } from './notify';
 
 export function calculateNewRating({
 	hunterRating,
@@ -21,7 +22,7 @@ export async function completeHunt({
 	hunters,
 }: {
 	hunt: Hunt;
-	hunters: Pick<Hunter, 'id' | 'rating'>[];
+	hunters: Hunter[];
 }) {
 	// Early checks to ensure we're good.
 	const { payment, rating: huntRating } = hunt;
@@ -37,31 +38,35 @@ export async function completeHunt({
 
 	const perHunterPayment = Math.floor(payment / hunters.length); // Rounding errors to iHunt, inc
 
-	// Update the hunters.
-	const updatedHunters = await Promise.allSettled(
-		hunters.map((hunter) => {
-			const newRating = calculateNewRating({
-				hunterRating: hunter.rating,
-				huntRating: huntRating,
-			});
-			return db.hunter.update({
-				data: {
-					money: {
-						increment: perHunterPayment,
-					},
-					rating: {
-						set: newRating,
-					},
+	// Update and notify the hunters.
+	for (const hunter of hunters) {
+		if (!hunter.alive) {
+			continue;
+		}
+
+		const newRating = calculateNewRating({
+			hunterRating: hunter.rating,
+			huntRating: huntRating,
+		});
+		await db.hunter.update({
+			data: {
+				money: {
+					increment: perHunterPayment,
 				},
-				select: {
-					id: true,
-					money: true,
-					rating: true,
+				rating: {
+					set: newRating,
 				},
-				where: { id: hunter.id },
+			},
+			where: { id: hunter.id },
+		});
+		if (hunter.userId) {
+			await notifyUser({
+				body: hunt.comment ?? undefined,
+				title: `You got ${hunt.rating ?? 1} star!`,
+				userId: hunter.userId,
 			});
-		}),
-	);
+		}
+	}
 
 	// Mark as paid so we don't do it again.
 	await db.hunt.update({
@@ -72,7 +77,6 @@ export async function completeHunt({
 	});
 
 	return {
-		hunters: updatedHunters,
 		paymentPerHunter: perHunterPayment,
 		totalPayment: hunt.payment,
 	};
