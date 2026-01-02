@@ -7,6 +7,8 @@ import { isDev } from '@/lib/utils';
 
 import { config } from './config';
 
+// TODO: Switch to node-redis directly.
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Use any as a default.
 let store: KeyvRedis<any> | null = null;
 if (config.redisUrl) {

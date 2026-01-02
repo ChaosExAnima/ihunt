@@ -45,7 +45,6 @@ export function onNotificationClick(event: NotificationEvent) {
 
 	event.waitUntil(reactToNotificationClick);
 }
-
 const eventSchema = z.object({
 	body: z.string().optional(),
 	title: z.string(),

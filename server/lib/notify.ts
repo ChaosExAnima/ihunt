@@ -99,9 +99,14 @@ export async function saveSubscription({
 	);
 }
 
-export async function userSubType(userId: number) {
-	const type = await keyval.get(`user:${userId}:subtype`);
-	return type;
+// TODO: Remove if it's not needed.
+export async function userConnected(userId: number, connected?: boolean) {
+	const key = `user:${userId}:connected`;
+	if (connected === undefined) {
+		return !!(await keyval.get(key));
+	}
+	await keyval.set(key, connected);
+	return connected;
 }
 
 function keyName(userId: number, subscription?: SubscriptionSchema) {
