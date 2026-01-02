@@ -101,18 +101,7 @@ model User {
     run       Int     @default(1)
     hideMoney Boolean @default(false)
 
-    createdAt  DateTime    @default(now())
-    updatedAt  DateTime    @updatedAt
-    hunters    Hunter[]
-    userVapids UserVapid[]
-}
-
-model UserVapid {
-    id             String    @id
-    userId         Int
-    user           User      @relation(fields: [userId], references: [id])
-    payload        String
-    expirationTime DateTime?
-
-    @@index([userId, expirationTime])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    hunters   Hunter[]
 }
