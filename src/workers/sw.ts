@@ -38,8 +38,7 @@ self.addEventListener('push', onPush);
 self.addEventListener('notificationclick', onNotificationClick);
 
 export function onNotificationClick(event: NotificationEvent) {
-	const schema = z.object({ url: z.url() });
-	const { data } = schema.safeParse(event.notification.data);
+	const data = toData(event.notification.data, z.object({ url: z.url() }));
 	if (!data) {
 		return;
 	}
@@ -53,8 +52,10 @@ export function onNotificationClick(event: NotificationEvent) {
 
 export function onPush(event: PushEvent) {
 	console.log('[Service Worker] Push Received.');
-	const schema = z.object({ body: z.string().optional(), title: z.string() });
-	const { data } = schema.safeParse(event.data?.json());
+	const data = toData(
+		event.data?.json(),
+		z.object({ body: z.string().optional(), title: z.string() }),
+	);
 	if (data) {
 		const { body, title } = data;
 		event.waitUntil(self.registration.showNotification(title, { body }));
@@ -84,4 +85,9 @@ async function openUrl(url: string) {
 	}
 
 	await self.clients.openWindow(url);
+}
+
+function toData<TSchema extends z.ZodObject>(input: unknown, schema: TSchema) {
+	const { data } = schema.safeParse(input);
+	return data;
 }
