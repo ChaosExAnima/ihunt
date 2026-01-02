@@ -55,6 +55,7 @@ export default defineConfig([
 				},
 			],
 			'@typescript-eslint/only-throw-error': 'off',
+			'@typescript-eslint/unbound-method': 'off',
 			'perfectionist/sort-modules': 'warn',
 			'prettier/prettier': 'warn',
 		},
