@@ -34,8 +34,10 @@ async function main() {
 
 	let count = 0;
 	for (const userId of userIds) {
-		await notifyUser({ body, title, userId });
-		count++;
+		const success = await notifyUser({ body, title, userId });
+		if (success) {
+			count++;
+		}
 	}
 
 	console.log('sent', count, 'notifications');

@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
 
+import { cacheIterator, keyval } from './cache';
 import { config } from './config';
-import { db } from './db';
-import { SubscriptionSchema, subscriptionSchema } from './schema';
+import { SubscriptionSchema } from './schema';
 
 type EventMap<T> = Record<keyof T, unknown[]>;
 
@@ -47,49 +47,35 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 	}
 	webpush.setVapidDetails(vapidSubject, vapidPubKey, vapidPrivKey);
 
-	const endpoints = await db.userVapid.findMany({
-		where: {
-			userId,
-		},
-	});
+	if (!keyval.iterator) {
+		throw new Error('Cache does not support iteration');
+	}
 
-	const now = new Date();
-	const toPrune: string[] = [];
 	let succeeded = false;
-	for (const endpoint of endpoints) {
-		if (endpoint.expirationTime && endpoint.expirationTime > now) {
-			toPrune.push(endpoint.id);
-		} else {
-			const subscription = subscriptionSchema.parse(
-				JSON.parse(endpoint.payload),
+	for await (const [key, subscription] of cacheIterator<SubscriptionSchema>(
+		keyName(userId),
+	)) {
+		try {
+			const result = await webpush.sendNotification(
+				subscription,
+				JSON.stringify({ body, title }),
 			);
-			try {
-				const result = await webpush.sendNotification(
-					subscription,
-					JSON.stringify({ body, title }),
-				);
-				if (result) {
-					succeeded = true;
-				} else {
-					toPrune.push(endpoint.id);
-				}
-			} catch (err) {
-				// When we get GONE, delete the userVapid record.
-				if (err instanceof WebPushError && err.statusCode === 410) {
-					toPrune.push(endpoint.id);
-				} else {
-					throw err;
-				}
+			if (result) {
+				succeeded = true;
+			} else {
+				await keyval.delete(key);
+			}
+		} catch (err) {
+			// When we get GONE, delete the userVapid record.
+			if (err instanceof WebPushError && err.statusCode === 410) {
+				await keyval.delete(key);
+			} else {
+				throw err;
 			}
 		}
-
-		if (toPrune.length > 0) {
-			await db.userVapid.deleteMany({
-				where: { id: { in: toPrune } },
-			});
-		}
-		return succeeded;
 	}
+
+	return succeeded;
 }
 
 export async function saveSubscription({
@@ -99,28 +85,33 @@ export async function saveSubscription({
 	subscription: SubscriptionSchema;
 	userId: number;
 }) {
+	const key = keyName(userId, subscription);
+
+	const value = await keyval.get(key);
+	if (value) {
+		return false;
+	}
+
+	return keyval.set(
+		key,
+		subscription,
+		subscription?.expirationTime ?? undefined,
+	);
+}
+
+export async function userSubType(userId: number) {
+	const type = await keyval.get(`user:${userId}:subtype`);
+	return type;
+}
+
+function keyName(userId: number, subscription?: SubscriptionSchema) {
+	const keyPrefix = `user:${userId}:pushapi`;
+	if (!subscription) {
+		return keyPrefix;
+	}
 	const payload = JSON.stringify(subscription);
-	const expirationTime = subscription.expirationTime
-		? new Date(subscription.expirationTime)
-		: null;
 
 	const hash = createHash('md5');
 	hash.update(payload);
-	const id = hash.copy().digest('base64');
-
-	const existing = await db.userVapid.findUnique({
-		where: { id },
-	});
-	if (existing) {
-		return null;
-	}
-
-	return db.userVapid.create({
-		data: {
-			expirationTime,
-			id: hash.digest('base64'),
-			payload,
-			userId,
-		},
-	});
+	return `${keyPrefix}:${hash.digest('hex')}`;
 }
