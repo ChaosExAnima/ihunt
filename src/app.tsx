@@ -5,17 +5,16 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { WifiOff } from 'lucide-react';
 import { useState } from 'react';
 
-import DevTools from '@/components/dev-tools';
-import { toast } from '@/hooks/use-toast';
-import { isDev } from '@/lib/utils';
+import DevTools from './components/dev-tools';
+import { Toaster } from './components/ui/toaster';
+import { useTheme } from './hooks/use-theme';
+import { toast } from './hooks/use-toast';
+import { queryClient } from './lib/api';
+import { isDev } from './lib/utils';
+import { routeTree } from './routeTree.gen';
 
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
-
-import { Toaster } from './components/ui/toaster';
-import { useTheme } from './hooks/use-theme';
-import { queryClient } from './lib/api';
-import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({

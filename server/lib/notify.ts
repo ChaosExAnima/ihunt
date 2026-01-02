@@ -1,4 +1,3 @@
-import { UserVapid } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
@@ -42,7 +41,11 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { body, title, type: 'message' });
 
-	getVapidDetails(); // Check the config works before we start hitting the database.
+	const { vapidPrivKey, vapidPubKey, vapidSubject } = config;
+	if (!vapidPrivKey || !vapidPubKey || !vapidSubject) {
+		throw new Error('Missing configs for VAPID');
+	}
+	webpush.setVapidDetails(vapidSubject, vapidPubKey, vapidPrivKey);
 
 	const endpoints = await db.userVapid.findMany({
 		where: {
@@ -57,21 +60,36 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 		if (endpoint.expirationTime && endpoint.expirationTime > now) {
 			toPrune.push(endpoint.id);
 		} else {
-			const result = await sendMessage({ body, title, vapid: endpoint });
-			if (result) {
-				succeeded = true;
-			} else {
-				toPrune.push(endpoint.id);
+			const subscription = subscriptionSchema.parse(
+				JSON.parse(endpoint.payload),
+			);
+			try {
+				const result = await webpush.sendNotification(
+					subscription,
+					JSON.stringify({ body, title }),
+				);
+				if (result) {
+					succeeded = true;
+				} else {
+					toPrune.push(endpoint.id);
+				}
+			} catch (err) {
+				// When we get GONE, delete the userVapid record.
+				if (err instanceof WebPushError && err.statusCode === 410) {
+					toPrune.push(endpoint.id);
+				} else {
+					throw err;
+				}
 			}
 		}
-	}
 
-	if (toPrune.length > 0) {
-		await db.userVapid.deleteMany({
-			where: { id: { in: toPrune } },
-		});
+		if (toPrune.length > 0) {
+			await db.userVapid.deleteMany({
+				where: { id: { in: toPrune } },
+			});
+		}
+		return succeeded;
 	}
-	return succeeded;
 }
 
 export async function saveSubscription({
@@ -105,41 +123,4 @@ export async function saveSubscription({
 			userId,
 		},
 	});
-}
-
-function getVapidDetails() {
-	const { vapidPrivKey, vapidPubKey, vapidSubject } = config;
-	if (!vapidPrivKey || !vapidPubKey || !vapidSubject) {
-		throw new Error('Missing configs for VAPID');
-	}
-	return {
-		privateKey: vapidPrivKey,
-		publicKey: vapidPubKey,
-		subject: vapidSubject,
-	};
-}
-
-async function sendMessage({
-	body,
-	title,
-	vapid,
-}: Pick<NotifyArgs, 'body' | 'title'> & { vapid: UserVapid }) {
-	const subscription = subscriptionSchema.parse(JSON.parse(vapid.payload));
-	try {
-		await webpush.sendNotification(
-			subscription,
-			JSON.stringify({ body, title }),
-			{
-				vapidDetails: getVapidDetails(),
-			},
-		);
-		return true;
-	} catch (err) {
-		// When we get GONE, delete the userVapid record.
-		if (err instanceof WebPushError && err.statusCode === 410) {
-			return false;
-		} else {
-			throw err;
-		}
-	}
 }
