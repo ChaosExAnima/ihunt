@@ -1,4 +1,5 @@
 import {
+	BulkDeleteWithConfirmButton,
 	Datagrid,
 	List,
 	NumberField,
@@ -8,11 +9,12 @@ import {
 } from 'react-admin';
 
 import { AdminHunterSchema } from '../schemas';
+import { MessageDialog } from './message-dialog';
 
 export function UserList() {
 	return (
 		<List>
-			<Datagrid>
+			<Datagrid bulkActionButtons={<BulkActionButtons />}>
 				<TextField source="name" />
 				<NumberField source="run" />
 				<ReferenceManyField<AdminHunterSchema>
@@ -24,5 +26,14 @@ export function UserList() {
 				</ReferenceManyField>
 			</Datagrid>
 		</List>
+	);
+}
+
+function BulkActionButtons() {
+	return (
+		<>
+			<BulkDeleteWithConfirmButton />
+			<MessageDialog />
+		</>
 	);
 }

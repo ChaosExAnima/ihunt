@@ -1,8 +1,33 @@
-import { ee, saveSubscription } from '../lib/notify';
+import z from 'zod';
+
+import { idSchemaCoerce } from '@/lib/schemas';
+
+import { ee, notifyUser, saveSubscription } from '../lib/notify';
 import { subscriptionSchema } from '../lib/schema';
-import { router, userProcedure } from '../lib/trpc';
+import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
 export const notifyRouter = router({
+	message: adminProcedure
+		.input(
+			z.object({
+				body: z.string().optional(),
+				ids: z.array(idSchemaCoerce),
+				title: z.string(),
+			}),
+		)
+		.mutation(async ({ input: { body, ids, title } }) => {
+			let sent = 0;
+			for (const userId of ids) {
+				const result = await notifyUser({ body, title, userId });
+				if (result) {
+					sent++;
+				}
+			}
+			return {
+				sent,
+			};
+		}),
+
 	onNotify: userProcedure.subscription(async function* ({
 		ctx: { user },
 		signal,
