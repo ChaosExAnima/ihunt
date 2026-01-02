@@ -4,14 +4,13 @@ import {
 	DeleteButton,
 	ReferenceField,
 	ReferenceFieldProps,
-	useDataProvider,
 	useRecordContext,
 	useRefresh,
 } from 'react-admin';
 
 import UploadPhoto from '@/components/upload-photo';
 
-import { AdminDataProvider } from '../data';
+import { useTypedDataProvider } from '../data';
 import { AdminHunterSchema } from '../schemas';
 import { AdminPhotoField } from './photo-field';
 
@@ -65,7 +64,7 @@ function AdminAvatarInputUpload({
 }) {
 	const refresh = useRefresh();
 
-	const dataProvider = useDataProvider<AdminDataProvider>();
+	const dataProvider = useTypedDataProvider();
 	const handleCrop = useCallback(
 		async (blob: Blob) => {
 			const result = await dataProvider.uploadPhoto({ blob, hunterId });

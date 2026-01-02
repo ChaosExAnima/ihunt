@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { isTRPCClientError } from '@trpc/client';
-import { AuthProvider, DataProvider } from 'react-admin';
+import { AuthProvider, DataProvider, useDataProvider } from 'react-admin';
 
 import { trpcPlain } from '@/lib/api';
 import { adminAuthSchema } from '@/lib/schemas';
@@ -104,6 +104,13 @@ export const dataProvider = {
 		});
 		return { data: result as any };
 	},
+
+	// Send message to players
+	async message(params: { body?: string; ids: number[]; title: string }) {
+		const result = await trpcPlain.notify.message.mutate(params);
+		return result;
+	},
+
 	// update a record based on a patch
 	async update(resource, params) {
 		const result = await trpcPlain.admin.updateOne.mutate({
@@ -115,6 +122,7 @@ export const dataProvider = {
 			data: result as any,
 		};
 	},
+
 	// update a list of records based on an array of ids and a common patch
 	async updateMany(resource, params) {
 		const result = await trpcPlain.admin.updateMany.mutate({
@@ -135,13 +143,14 @@ export const dataProvider = {
 		if (params.huntId) {
 			formData.append('huntId', params.huntId.toString());
 		}
-		console.log('uploading:', params);
 
 		return trpcPlain.photos.upload.mutate(formData);
 	},
 } satisfies DataProvider<Resources>;
 
 export type AdminDataProvider = DataProvider & typeof dataProvider;
+
+export const useTypedDataProvider = () => useDataProvider<AdminDataProvider>();
 
 export type AdminUploadPhotoArgs = {
 	blob: Blob;
