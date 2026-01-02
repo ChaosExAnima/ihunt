@@ -15,11 +15,15 @@ import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
 	const server = fastify({
-		logger: {
-			transport: {
-				target: '@fastify/one-line-logger',
-			},
-		},
+		...(config.logging.includes('server')
+			? {
+					logger: {
+						transport: {
+							target: '@fastify/one-line-logger',
+						},
+					},
+				}
+			: null),
 		maxParamLength: 5000,
 	});
 

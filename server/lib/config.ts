@@ -6,6 +6,10 @@ const configSchema = z.object({
 	adminPassword: z.string(),
 	authPepper: z.string(),
 	authSession: z.string(),
+	logging: z
+		.string()
+		.transform((l) => l.split(','))
+		.default([]),
 	mediaHost: z.string().min(2),
 	mediaPath: z.string().min(2),
 	mediaSecure: z.boolean().default(true),
