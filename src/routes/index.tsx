@@ -101,6 +101,7 @@ function Index() {
 									<InputOTP
 										autoFocus
 										containerClassName="justify-center"
+										inputMode="text"
 										maxLength={PASSWORD_CHAR_COUNT}
 										pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
 										{...field}
