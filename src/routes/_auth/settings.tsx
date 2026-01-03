@@ -12,23 +12,21 @@ import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useHunter } from '@/hooks/use-hunter';
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { useTheme } from '@/hooks/use-theme';
 import { trpc } from '@/lib/api';
 import { useCurrencyFormat } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth/settings')({
-	async beforeLoad({ context: { queryClient } }) {
-		await queryClient.ensureQueryData(trpc.hunter.getGroup.queryOptions());
-	},
 	component: Settings,
+	loader({ context: { queryClient } }) {
+		void queryClient.prefetchQuery(trpc.hunter.getGroup.queryOptions());
+	},
 });
 
 function Settings() {
-	const {
-		player: { hunter },
-	} = Route.useRouteContext();
-
+	const hunter = useHunter();
 	const invalidate = useInvalidate();
 	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
 		trpc.settings.updateMoney.mutationOptions({
@@ -84,6 +82,10 @@ function Settings() {
 	const { theme, toggleTheme } = useTheme();
 
 	const idBase = useId();
+
+	if (!hunter) {
+		return null;
+	}
 
 	return (
 		<>

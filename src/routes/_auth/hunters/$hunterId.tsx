@@ -29,7 +29,7 @@ export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 			}),
 		);
 		if (hunter.groupId) {
-			await queryClient.ensureQueryData(
+			void queryClient.prefetchQuery(
 				trpc.hunter.getGroup.queryOptions({
 					hunterId: hunter.id,
 				}),

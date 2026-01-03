@@ -7,30 +7,25 @@ import { useNotifyRequest } from '@/hooks/use-subscribe';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
-	async beforeLoad({ context: { queryClient }, location }) {
+	component: Page,
+	async loader({ context: { queryClient }, location }) {
 		try {
-			const player = await queryClient.fetchQuery(
-				trpc.auth.me.queryOptions(),
-			);
-			if (player) {
-				return { player };
-			}
+			return queryClient.prefetchQuery(trpc.auth.me.queryOptions());
 		} catch {
 			// Empty
 		}
 		throw redirect({ search: { redirect: location.href }, to: '/' });
 	},
-	component: Page,
 });
 
 function Page() {
-	const { player: initialData } = Route.useRouteContext();
-	const { data: player } = useQuery({
-		...trpc.auth.me.queryOptions(),
-		initialData,
-	});
+	const { data: player } = useQuery(trpc.auth.me.queryOptions());
 
 	useNotifyRequest();
+
+	if (!player) {
+		return null;
+	}
 
 	return (
 		<PlayerSettingsProvider settings={player}>

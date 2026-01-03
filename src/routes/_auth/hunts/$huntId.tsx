@@ -8,8 +8,8 @@ import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth/hunts/$huntId')({
 	component: RouteComponent,
-	async loader({ context: { queryClient }, params: { huntId } }) {
-		await queryClient.ensureQueryData(
+	loader({ context: { queryClient }, params: { huntId } }) {
+		void queryClient.prefetchQuery(
 			trpc.hunt.getOne.queryOptions({ huntId }),
 		);
 	},
@@ -17,11 +17,12 @@ export const Route = createFileRoute('/_auth/hunts/$huntId')({
 
 function RouteComponent() {
 	const { huntId } = Route.useParams();
-	const { player } = Route.useRouteContext();
 	const { data: hunt } = useQuery(trpc.hunt.getOne.queryOptions({ huntId }));
-	if (!hunt || !player?.hunter) {
+
+	if (!hunt) {
 		return null;
 	}
+
 	return (
 		<>
 			<HuntDisplay className="h-full grow" hunt={hunt} />
