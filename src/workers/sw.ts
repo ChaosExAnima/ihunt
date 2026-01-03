@@ -3,6 +3,7 @@
 
 // credit to https://github.com/vite-pwa/docs/issues/132
 
+import { clientsClaim } from 'workbox-core';
 import {
 	cleanupOutdatedCaches,
 	createHandlerBoundToURL,
@@ -13,13 +14,8 @@ import z from 'zod';
 
 declare const self: ServiceWorkerGlobalScope;
 
-self.addEventListener('message', (event) => {
-	const schema = z.object({ type: z.string() });
-	const { data } = schema.safeParse(event.data);
-	if (data?.type === 'SKIP_WAITING') {
-		void self.skipWaiting();
-	}
-});
+await self.skipWaiting();
+clientsClaim();
 
 const entries = self.__WB_MANIFEST;
 
@@ -50,15 +46,17 @@ export function onNotificationClick(event: NotificationEvent) {
 	event.waitUntil(reactToNotificationClick);
 }
 
+const eventSchema = z.object({
+	body: z.string().optional(),
+	title: z.string(),
+});
+type EventSchema = z.infer<typeof eventSchema>;
+
 export function onPush(event: PushEvent) {
 	console.log('[Service Worker] Push Received.');
-	const data = toData(
-		event.data?.json(),
-		z.object({ body: z.string().optional(), title: z.string() }),
-	);
+	const data = toData(event.data?.json(), eventSchema);
 	if (data) {
-		const { body, title } = data;
-		event.waitUntil(self.registration.showNotification(title, { body }));
+		event.waitUntil(notify(data));
 	}
 }
 
@@ -73,6 +71,21 @@ function findBestClient(clients: readonly WindowClient[]) {
 	}
 
 	return bestClient || clients[0];
+}
+
+async function notify({ body, title }: EventSchema) {
+	const clients = await self.clients.matchAll({
+		includeUncontrolled: true,
+		type: 'window',
+	});
+	if (
+		clients.some(
+			(client) => client.focused || client.visibilityState === 'visible',
+		)
+	) {
+		return;
+	}
+	await self.registration.showNotification(title, { body });
 }
 
 async function openUrl(url: string) {
