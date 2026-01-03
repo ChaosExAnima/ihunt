@@ -36,12 +36,18 @@ export const notifyRouter = router({
 			signal,
 		});
 
+		console.log('user', user.id, 'subscribed to notify events');
+
 		// yield any new posts from the event emitter
-		for await (const [userId, payload] of iterable) {
-			if (user.id === userId) {
-				console.log('yielding:', payload, 'to', userId);
-				yield payload;
+		try {
+			for await (const [userId, payload] of iterable) {
+				if (user.id === userId) {
+					console.log('yielding:', payload, 'to', userId);
+					yield payload;
+				}
 			}
+		} finally {
+			console.log('user', user.id, 'unsubbed to events');
 		}
 	}),
 
