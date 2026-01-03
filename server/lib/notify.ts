@@ -41,12 +41,6 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { body, title, type: 'message' });
 
-	const listening = ee.listenerCount('notify');
-
-	if (listening > 0) {
-		return;
-	}
-
 	const { vapidPrivKey, vapidPubKey, vapidSubject } = config;
 	if (!vapidPrivKey || !vapidPubKey || !vapidSubject) {
 		throw new Error('Missing configs for VAPID');
