@@ -128,8 +128,6 @@ async function requestNotifyPermission(
 		});
 
 		await serverCallback(subscription);
-
-		console.log('User is subscribed:', subscription);
 	} catch (err) {
 		console.log('Failed to subscribe the user: ', err);
 	}
