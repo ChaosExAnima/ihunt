@@ -2,6 +2,7 @@ import z from 'zod';
 
 import { idSchemaCoerce } from '@/lib/schemas';
 
+import { handleError } from '../lib/error';
 import { ee, notifyUser, saveSubscription } from '../lib/notify';
 import { subscriptionSchema } from '../lib/schema';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
@@ -18,9 +19,13 @@ export const notifyRouter = router({
 		.mutation(async ({ input: { body, ids, title } }) => {
 			let sent = 0;
 			for (const userId of ids) {
-				const result = await notifyUser({ body, title, userId });
-				if (result) {
-					sent++;
+				try {
+					const result = await notifyUser({ body, title, userId });
+					if (result) {
+						sent++;
+					}
+				} catch (err) {
+					handleError({ err, throws: false });
 				}
 			}
 			return {

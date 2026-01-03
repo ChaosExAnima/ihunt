@@ -11,6 +11,8 @@ import { expireInvites, fetchInviteesForHunt } from '@/server/lib/invite';
 import { InviteStatus } from '@/server/lib/schema';
 import { router, userProcedure } from '@/server/lib/trpc';
 
+import { handleError } from '../lib/error';
+
 export const inviteRouter = router({
 	availableInvitees: userProcedure
 		.input(
@@ -25,28 +27,33 @@ export const inviteRouter = router({
 				return [];
 			}
 
-			// Load the hunt and check if we're already full.
-			const hunt = await db.hunt.findUniqueOrThrow({
-				include: {
-					hunters: {
-						select: { id: true },
+			try {
+				// Load the hunt and check if we're already full.
+				const hunt = await db.hunt.findUniqueOrThrow({
+					include: {
+						hunters: {
+							select: { id: true },
+						},
 					},
-				},
-				where: { id: huntId },
-			});
+					where: { id: huntId },
+				});
 
-			if (hunt.hunters.length >= hunt.maxHunters) {
+				if (hunt.hunters.length >= hunt.maxHunters) {
+					return [];
+				}
+
+				// Get the invitees
+				const invitees = await fetchInviteesForHunt({
+					fromHunterId: hunter.id,
+					groupId: hunter.groupId,
+					huntId,
+				});
+
+				return invitees;
+			} catch (err) {
+				handleError({ err });
 				return [];
 			}
-
-			// Get the invitees
-			const invitees = await fetchInviteesForHunt({
-				fromHunterId: hunter.id,
-				groupId: hunter.groupId,
-				huntId,
-			});
-
-			return invitees;
 		}),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
@@ -67,18 +74,23 @@ export const inviteRouter = router({
 			}),
 		)
 		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
-			await db.huntInvite.updateMany({
-				data: {
-					status: InviteStatus.Rejected,
-				},
-				where: {
-					huntId,
-					status: InviteStatus.Pending,
-					toHunterId: hunter.id,
-				},
-			});
+			try {
+				await db.huntInvite.updateMany({
+					data: {
+						status: InviteStatus.Rejected,
+					},
+					where: {
+						huntId,
+						status: InviteStatus.Pending,
+						toHunterId: hunter.id,
+					},
+				});
 
-			return { success: true };
+				return { success: true };
+			} catch (err) {
+				handleError({ err });
+				return { success: false };
+			}
 		}),
 
 	sendInvites: userProcedure
@@ -122,6 +134,8 @@ export const inviteRouter = router({
 						err.code === 'P2002'
 					) {
 						continue;
+					} else {
+						handleError({ err });
 					}
 				}
 			}

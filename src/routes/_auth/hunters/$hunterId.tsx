@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, notFound } from '@tanstack/react-router';
+import { isTRPCClientError } from '@trpc/client';
 import z from 'zod';
 
 import Header from '@/components/header';
@@ -24,28 +25,43 @@ export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
 	async loader({ context: { queryClient }, params: { hunterId } }) {
-		const hunter = await queryClient.ensureQueryData(
-			trpc.hunter.getOne.queryOptions({
-				hunterId,
-			}),
-		);
-		if (hunter.groupId) {
-			void queryClient.prefetchQuery(
-				trpc.hunter.getGroup.queryOptions({
-					hunterId: hunter.id,
+		try {
+			const hunter = await queryClient.ensureQueryData(
+				trpc.hunter.getOne.queryOptions({
+					hunterId,
 				}),
 			);
+			if (hunter.groupId) {
+				void queryClient.prefetchQuery(
+					trpc.hunter.getGroup.queryOptions({
+						hunterId: hunter.id,
+					}),
+				);
+			}
+		} catch (err) {
+			if (isTRPCClientError(err) && err.message === 'NOT_FOUND') {
+				throw notFound();
+			}
+			throw err;
 		}
 	},
 });
 
 function RouteComponent() {
 	const { hunterId } = Route.useParams();
-	const { data: hunter } = useQuery(
+	const {
+		data: hunter,
+		error,
+		isError,
+	} = useQuery(
 		trpc.hunter.getOne.queryOptions({
 			hunterId,
 		}),
 	);
+
+	if (isError) {
+		console.log('error here:', error);
+	}
 
 	if (!hunter) {
 		return <Loading />;

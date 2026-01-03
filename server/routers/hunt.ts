@@ -18,6 +18,8 @@ import { uploadPhoto } from '@/server/lib/photo';
 import { InviteStatus, outputHuntSchema } from '@/server/lib/schema';
 import { adminProcedure, router, userProcedure } from '@/server/lib/trpc';
 
+import { handleError, wrapRoute } from '../lib/error';
+
 export const huntRouter = router({
 	getActive: userProcedure.output(z.array(outputHuntSchema)).query(
 		({
@@ -25,89 +27,98 @@ export const huntRouter = router({
 				hunter: { id },
 			},
 		}) =>
-			db.hunt.findMany({
-				include: huntDisplayInclude,
-				where: {
-					hunters: {
-						some: {
-							id,
+			wrapRoute(
+				db.hunt.findMany({
+					include: huntDisplayInclude,
+					where: {
+						hunters: {
+							some: {
+								id,
+							},
 						},
+						status: HuntStatus.Active,
 					},
-					status: HuntStatus.Active,
-				},
-			}),
+				}),
+			),
 	),
 
 	getAvailable: userProcedure
 		.output(z.array(outputHuntSchema))
 		.query(async ({ ctx: { hunter: currentHunter } }) => {
-			const result = await db.hunt.findMany({
-				include: {
-					...huntDisplayInclude,
-					invites: {
-						where: {
-							status: InviteStatus.Pending,
+			try {
+				const result = await db.hunt.findMany({
+					include: {
+						...huntDisplayInclude,
+						invites: {
+							where: {
+								status: InviteStatus.Pending,
+							},
 						},
 					},
-				},
-				orderBy: {
-					createdAt: 'desc',
-				},
-				where: {
-					status: HuntStatus.Available,
-				},
-			});
-
-			const invites = await expireInvites(
-				result.flatMap(({ invites }) => invites),
-			);
-			const invitedHuntMap = new Map<number, HuntReservedSchema>();
-			for (const invite of invites) {
-				const mapData = invitedHuntMap.get(invite.huntId);
-				let status: HuntReservedStatusSchema =
-					mapData?.status ?? 'reserved';
-
-				if (invite.fromHunterId === currentHunter.id) {
-					status = 'sent';
-				} else if (
-					invite.toHunterId === currentHunter.id &&
-					status !== 'sent'
-				) {
-					status = 'invited';
-				}
-				invitedHuntMap.set(invite.huntId, {
-					expires: invite.expiresAt,
-					status,
+					orderBy: {
+						createdAt: 'desc',
+					},
+					where: {
+						status: HuntStatus.Available,
+					},
 				});
-			}
 
-			return result.map(({ invites: _, ...hunt }) => ({
-				...hunt,
-				reserved: invitedHuntMap.get(hunt.id) ?? null,
-			}));
+				const invites = await expireInvites(
+					result.flatMap(({ invites }) => invites),
+				);
+				const invitedHuntMap = new Map<number, HuntReservedSchema>();
+				for (const invite of invites) {
+					const mapData = invitedHuntMap.get(invite.huntId);
+					let status: HuntReservedStatusSchema =
+						mapData?.status ?? 'reserved';
+
+					if (invite.fromHunterId === currentHunter.id) {
+						status = 'sent';
+					} else if (
+						invite.toHunterId === currentHunter.id &&
+						status !== 'sent'
+					) {
+						status = 'invited';
+					}
+					invitedHuntMap.set(invite.huntId, {
+						expires: invite.expiresAt,
+						status,
+					});
+				}
+
+				return result.map(({ invites: _, ...hunt }) => ({
+					...hunt,
+					reserved: invitedHuntMap.get(hunt.id) ?? null,
+				}));
+			} catch (err) {
+				handleError({ err });
+				return [];
+			}
 		}),
 
 	getCompleted: userProcedure
 		.output(z.array(outputHuntSchema))
 		.query(({ ctx: { hunter } }) =>
-			db.hunt.findMany({
-				include: huntDisplayInclude,
-				orderBy: {
-					completedAt: 'desc',
-				},
-				where: {
-					hunters: {
-						some: {
-							id: hunter.id,
-						},
+			wrapRoute(
+				db.hunt.findMany({
+					include: huntDisplayInclude,
+					orderBy: {
+						completedAt: 'desc',
 					},
-					status: HuntStatus.Complete,
-				},
-			}),
+					where: {
+						hunters: {
+							some: {
+								id: hunter.id,
+							},
+						},
+						status: HuntStatus.Complete,
+					},
+				}),
+			),
 		),
 
 	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) =>
-		fetchDailyHuntCount(hunter.id),
+		wrapRoute(fetchDailyHuntCount(hunter.id)),
 	),
 
 	getOne: userProcedure
@@ -118,27 +129,31 @@ export const huntRouter = router({
 		)
 		.output(outputHuntSchema.nullable())
 		.query(({ input: { huntId: id } }) =>
-			db.hunt.findUnique({
-				include: huntDisplayInclude,
-				where: { id },
-			}),
+			wrapRoute(
+				db.hunt.findUnique({
+					include: huntDisplayInclude,
+					where: { id },
+				}),
+			),
 		),
 
 	getPublic: userProcedure.output(z.array(outputHuntSchema)).query(() =>
-		db.hunt.findMany({
-			include: huntDisplayInclude,
-			orderBy: [
-				{
-					status: 'asc',
+		wrapRoute(
+			db.hunt.findMany({
+				include: huntDisplayInclude,
+				orderBy: [
+					{
+						status: 'asc',
+					},
+					{
+						createdAt: 'desc',
+					},
+				],
+				where: {
+					status: HuntStatus.Available,
 				},
-				{
-					createdAt: 'desc',
-				},
-			],
-			where: {
-				status: HuntStatus.Available,
-			},
-		}),
+			}),
+		),
 	),
 
 	join: userProcedure

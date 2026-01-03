@@ -5,21 +5,24 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import { BackButton } from './components/back-button';
 import DevTools from './components/dev-tools';
+import { ErrorHandler } from './components/error-handler';
 import { Loading } from './components/loading';
 import { useOffline } from './hooks/use-offline';
 import { useTheme } from './hooks/use-theme';
 import { queryClient } from './lib/api';
 import { isDev } from './lib/utils';
-import { routeTree } from './routeTree.gen';
 
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
+
+import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({
 	context: {
 		queryClient,
 	},
+	defaultErrorComponent: (props) => <ErrorHandler {...props} />,
 	defaultNotFoundComponent: () => <NotFound />,
 	defaultPendingComponent: () => <Loading />,
 	defaultPendingMinMs: 0,
