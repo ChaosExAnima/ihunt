@@ -1,8 +1,9 @@
+import { HUNT_MAX_HUNTERS } from '@/lib/constants';
 import { PropsWithClassName } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import { HunterList } from '../hunter-list';
 import { Card } from '../ui/card';
+import { HuntHuntersDisplay } from './hunters';
 
 export function HuntLoading({ className }: PropsWithClassName) {
 	return (
@@ -12,7 +13,7 @@ export function HuntLoading({ className }: PropsWithClassName) {
 			</div>
 			<div className="flex gap-2 items-center text-sm">
 				<p>Hunters:</p>
-				<HunterList hunters={[]} max={4} />
+				<HuntHuntersDisplay maxHunters={HUNT_MAX_HUNTERS} />
 			</div>
 			<div className="flex flex-col gap-1">
 				<p className="bg-border grow animate-pulse h-4" />
