@@ -2,12 +2,8 @@ import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 import z from 'zod';
 
-import {
-	adminAuthSchema,
-	authSchema,
-	hunterSchema,
-	idSchemaCoerce,
-} from '@/lib/schemas';
+import { adminAuthSchema } from '@/admin/schemas';
+import { authSchema, hunterSchema, idSchemaCoerce } from '@/lib/schemas';
 import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';

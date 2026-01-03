@@ -9,6 +9,8 @@ import {
 	posIntSchema,
 } from '@/lib/schemas';
 
+export const adminAuthSchema = z.object({ password: z.string().min(4) });
+
 export const resourceSchema = z.enum([
 	'hunt',
 	'hunter',

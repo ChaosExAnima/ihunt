@@ -10,8 +10,6 @@ export const authSchema = z.object({
 		.length(PASSWORD_CHAR_COUNT, 'Code must be exactly six characters'),
 });
 
-export const adminAuthSchema = z.object({ password: z.string().min(4) });
-
 export const posIntSchema = z.int().positive();
 
 export const idSchema = posIntSchema.min(1);
