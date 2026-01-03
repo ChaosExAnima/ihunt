@@ -1,17 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isTRPCClientError } from '@trpc/client';
+import {
+	createTRPCClient,
+	httpBatchLink,
+	httpLink,
+	isNonJsonSerializable,
+	isTRPCClientError,
+	loggerLink,
+	splitLink,
+} from '@trpc/client';
 import { AuthProvider, DataProvider, useDataProvider } from 'react-admin';
+import superjson from 'superjson';
 
-import { trpcPlain } from '@/lib/api';
-import { adminAuthSchema } from '@/lib/schemas';
+import { AppRouter } from '@/server/index';
 
+import { adminAuthSchema } from './schemas';
 import { adminCreateInput } from './schemas';
+
+const url = '/trpc';
+const trpc = createTRPCClient<AppRouter>({
+	links: [
+		loggerLink({
+			enabled: () => !!localStorage.getItem('debugApi'),
+		}),
+		splitLink({
+			condition: (op) => isNonJsonSerializable(op.input),
+			false: httpBatchLink({
+				transformer: superjson,
+				url,
+			}),
+			true: httpLink({ transformer: superjson, url }),
+		}),
+	],
+});
 
 export const authProvider = {
 	// when the user navigates, make sure that their credentials are still valid
 	async checkAuth() {
 		try {
-			await trpcPlain.admin.isValid.query();
+			await trpc.admin.isValid.query();
 		} catch (err) {
 			if (isTRPCClientError(err)) {
 				throw new Error();
@@ -31,14 +57,14 @@ export const authProvider = {
 	// send username and password to the auth server and get back credentials
 	async login(params) {
 		const input = adminAuthSchema.parse(params);
-		const response = await trpcPlain.auth.adminLogin.mutate(input);
+		const response = await trpc.auth.adminLogin.mutate(input);
 		if (!response?.success) {
 			throw new Error('Could not log in');
 		}
 	},
 	// remove local credentials and notify the auth server that the user logged out
 	async logout() {
-		await trpcPlain.auth.logOut.mutate();
+		await trpc.auth.logOut.mutate();
 	},
 } satisfies AuthProvider;
 
@@ -51,12 +77,12 @@ export const dataProvider = {
 			throw new Error('Cannot create a photo');
 		}
 		const input = adminCreateInput.parse({ data, resource });
-		const result = await trpcPlain.admin.create.mutate(input);
+		const result = await trpc.admin.create.mutate(input);
 		return { data: result } as { data: any };
 	},
 	// delete a record by id
 	async delete(resource, params) {
-		const result = await trpcPlain.admin.delete.mutate({
+		const result = await trpc.admin.delete.mutate({
 			id: params.id,
 			resource,
 		});
@@ -64,7 +90,7 @@ export const dataProvider = {
 	},
 	// delete a list of records based on an array of ids
 	async deleteMany(resource, params) {
-		const result = await trpcPlain.admin.deleteMany.mutate({
+		const result = await trpc.admin.deleteMany.mutate({
 			ids: params.ids,
 			resource,
 		});
@@ -72,7 +98,7 @@ export const dataProvider = {
 	},
 	// get a list of records based on sort, filter, and pagination
 	async getList(resource, params) {
-		const { data, total } = await trpcPlain.admin.getList.query({
+		const { data, total } = await trpc.admin.getList.query({
 			resource,
 			...params.pagination,
 			filter: params.filter,
@@ -82,7 +108,7 @@ export const dataProvider = {
 	},
 	// get a list of records based on an array of ids
 	async getMany(resource, params) {
-		const { data, total } = await trpcPlain.admin.getList.query({
+		const { data, total } = await trpc.admin.getList.query({
 			resource,
 			...params,
 		});
@@ -90,7 +116,7 @@ export const dataProvider = {
 	},
 	// get the records referenced to another record, e.g. comments for a post
 	async getManyReference(resource, params) {
-		const { data, total } = await trpcPlain.admin.getReferences.query({
+		const { data, total } = await trpc.admin.getReferences.query({
 			resource,
 			...params,
 		});
@@ -98,7 +124,7 @@ export const dataProvider = {
 	},
 	// get a single record by id
 	async getOne(resource, params) {
-		const result = await trpcPlain.admin.getOne.query({
+		const result = await trpc.admin.getOne.query({
 			id: params.id,
 			resource,
 		});
@@ -107,13 +133,13 @@ export const dataProvider = {
 
 	// Send message to players
 	async message(params: { body?: string; ids: number[]; title: string }) {
-		const result = await trpcPlain.notify.message.mutate(params);
+		const result = await trpc.notify.message.mutate(params);
 		return result;
 	},
 
 	// update a record based on a patch
 	async update(resource, params) {
-		const result = await trpcPlain.admin.updateOne.mutate({
+		const result = await trpc.admin.updateOne.mutate({
 			data: params.data,
 			id: params.id,
 			resource,
@@ -125,7 +151,7 @@ export const dataProvider = {
 
 	// update a list of records based on an array of ids and a common patch
 	async updateMany(resource, params) {
-		const result = await trpcPlain.admin.updateMany.mutate({
+		const result = await trpc.admin.updateMany.mutate({
 			data: params.data,
 			ids: params.ids,
 			resource,
@@ -144,7 +170,7 @@ export const dataProvider = {
 			formData.append('huntId', params.huntId.toString());
 		}
 
-		return trpcPlain.photos.upload.mutate(formData);
+		return trpc.photos.upload.mutate(formData);
 	},
 } satisfies DataProvider<Resources>;
 
