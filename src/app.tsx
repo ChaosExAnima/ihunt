@@ -1,20 +1,20 @@
-import { onlineManager, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { WifiOff } from 'lucide-react';
-import { useState } from 'react';
 
-import DevTools from '@/components/dev-tools';
-import { toast } from '@/hooks/use-toast';
-import { isDev } from '@/lib/utils';
+import { BackButton } from './components/back-button';
+import DevTools from './components/dev-tools';
+import { ErrorHandler } from './components/error-handler';
+import { Loading } from './components/loading';
+import { useOffline } from './hooks/use-offline';
+import { useTheme } from './hooks/use-theme';
+import { queryClient } from './lib/api';
+import { isDev } from './lib/utils';
 
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
 
-import { Toaster } from './components/ui/toaster';
-import { useTheme } from './hooks/use-theme';
-import { queryClient } from './lib/api';
 import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
@@ -22,6 +22,11 @@ const router = createRouter({
 	context: {
 		queryClient,
 	},
+	defaultErrorComponent: (props) => <ErrorHandler {...props} />,
+	defaultNotFoundComponent: () => <NotFound />,
+	defaultPendingComponent: () => <Loading />,
+	defaultPendingMinMs: 0,
+	defaultPendingMs: 0,
 	defaultPreload: 'intent',
 	// Since we're using React Query, we don't want loader calls to ever be stale
 	// This will ensure that the loader is always called when the route is preloaded or visited
@@ -38,37 +43,30 @@ declare module '@tanstack/react-router' {
 }
 
 export function App() {
-	const devMode = isDev();
-	const [offlineToast, setToast] = useState<null | ReturnType<typeof toast>>(
-		null,
-	);
-	onlineManager.subscribe((isOnline) => {
-		if (!offlineToast && !isOnline) {
-			setToast(
-				toast({
-					description: 'You are offline',
-					duration: Infinity,
-					icon: WifiOff,
-					permanent: true,
-					title: 'Offline',
-					variant: 'destructive',
-				}),
-			);
-		} else if (offlineToast && isOnline) {
-			offlineToast.dismiss();
-			setToast(null);
-		}
-	});
+	const devMode =
+		isDev() &&
+		(window.location.hostname.endsWith('.local') ||
+			window.location.hostname === 'localhost');
 
 	useTheme();
+	useOffline();
 
 	return (
 		<QueryClientProvider client={queryClient}>
 			<RouterProvider router={router} />
-			<ReactQueryDevtools />
-			<TanStackRouterDevtools router={router} />
+			{devMode && <ReactQueryDevtools />}
+			{devMode && <TanStackRouterDevtools router={router} />}
 			{devMode && <DevTools />}
-			<Toaster />
 		</QueryClientProvider>
+	);
+}
+
+function NotFound() {
+	return (
+		<div className="flex flex-col gap-2 items-center justify-center grow">
+			<p className="text-xl">Not found</p>
+			<p>There's nothing here!</p>
+			<BackButton />
+		</div>
 	);
 }

@@ -4,6 +4,8 @@ import { db } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';
 import { router, userProcedure } from '@/server/lib/trpc';
 
+import { handleError } from '../lib/error';
+
 export const settingsRouter = router({
 	updateAvatar: userProcedure
 		.input(
@@ -27,8 +29,8 @@ export const settingsRouter = router({
 					where: { id: hunter.id },
 				});
 				return { success: true };
-			} catch (error) {
-				console.error('Error uploading avatar:', error);
+			} catch (err) {
+				handleError({ err });
 				return { success: false };
 			}
 		}),
@@ -48,20 +50,30 @@ export const settingsRouter = router({
 				if (newBio === hunter.bio && newPronouns === hunter.pronouns) {
 					return;
 				}
-				await db.hunter.update({
-					data: { bio: newBio, pronouns: newPronouns },
-					where: { id: hunter.id },
-				});
+
+				try {
+					await db.hunter.update({
+						data: { bio: newBio, pronouns: newPronouns },
+						where: { id: hunter.id },
+					});
+				} catch (err) {
+					handleError({ err });
+				}
 			},
 		),
 
 	updateMoney: userProcedure.mutation(async ({ ctx: { user } }) => {
-		const { hideMoney } = await db.user.update({
-			data: {
-				hideMoney: !user.hideMoney,
-			},
-			where: { id: user.id },
-		});
-		return { hideMoney, success: true };
+		try {
+			const { hideMoney } = await db.user.update({
+				data: {
+					hideMoney: !user.hideMoney,
+				},
+				where: { id: user.id },
+			});
+			return { hideMoney, success: true };
+		} catch (err) {
+			handleError({ err });
+			return { success: false };
+		}
 	}),
 });

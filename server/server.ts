@@ -1,3 +1,4 @@
+import fastifyStatic from '@fastify/static';
 import fastifyVite from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
@@ -14,11 +15,15 @@ import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
 	const server = fastify({
-		logger: {
-			transport: {
-				target: '@fastify/one-line-logger',
-			},
-		},
+		...(config.logging.includes('server')
+			? {
+					logger: {
+						transport: {
+							target: '@fastify/one-line-logger',
+						},
+					},
+				}
+			: null),
 		maxParamLength: 5000,
 	});
 
@@ -47,10 +52,17 @@ async function startServer() {
 		);
 	});
 
+	const root = resolve(import.meta.dirname, '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
-		root: resolve(import.meta.dirname, '..'),
+		distDir: resolve(root, 'dist'),
+		root,
 		spa: true,
+	});
+
+	server.register(fastifyStatic, {
+		prefix: '/public/',
+		root: resolve(root, 'public'),
 	});
 
 	server.get('*', async (_req, reply) => {
@@ -58,7 +70,7 @@ async function startServer() {
 	});
 	try {
 		await server.vite.ready();
-		await server.listen({ port: config.port });
+		await server.listen({ host: '0.0.0.0', port: config.port });
 	} catch (err) {
 		console.error(err);
 		process.exit(1);

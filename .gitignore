@@ -29,6 +29,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+stats.html
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -50,3 +51,7 @@ ihunt.code-workspace
 # secrets
 server/secrets
 data
+
+# build
+dist
+src/dev-dist

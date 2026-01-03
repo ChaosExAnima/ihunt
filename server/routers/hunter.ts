@@ -18,6 +18,8 @@ import {
 	userProcedure,
 } from '@/server/lib/trpc';
 
+import { handleError } from '../lib/error';
+
 export const hunterRouter = router({
 	getGroup: userProcedure
 		.input(
@@ -36,29 +38,34 @@ export const hunterRouter = router({
 					message: 'No hunter provided',
 				});
 			}
-			const group = await db.hunterGroup.findFirst({
-				include: {
-					hunters: {
-						include: {
-							avatar: true,
+			try {
+				const group = await db.hunterGroup.findFirst({
+					include: {
+						hunters: {
+							include: {
+								avatar: true,
+							},
 						},
 					},
-				},
-				where: {
-					hunters: {
-						some: {
-							id: hunterId,
+					where: {
+						hunters: {
+							some: {
+								id: hunterId,
+							},
 						},
 					},
-				},
-			});
-			if (!group) {
+				});
+				if (!group) {
+					return null;
+				}
+				return {
+					...group,
+					hunters: group?.hunters.filter(({ id }) => id !== hunterId),
+				};
+			} catch (err) {
+				handleError({ err });
 				return null;
 			}
-			return {
-				...group,
-				hunters: group?.hunters.filter(({ id }) => id !== hunterId),
-			};
 		}),
 
 	getMany: debugProcedure.query(
@@ -99,22 +106,26 @@ export const hunterRouter = router({
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const hunter = await db.hunter.findUniqueOrThrow({
-				include: {
-					avatar: true,
-					hunts: {
-						where: {
-							status: HuntStatus.Complete,
+			try {
+				const hunter = await db.hunter.findUniqueOrThrow({
+					include: {
+						avatar: true,
+						hunts: {
+							where: {
+								status: HuntStatus.Complete,
+							},
 						},
 					},
-				},
-				where: { id },
-			});
+					where: { id },
+				});
 
-			return {
-				...hunter,
-				type: hunterTypeSchema.parse(hunter.type),
-			};
+				return {
+					...hunter,
+					type: hunterTypeSchema.parse(hunter.type),
+				};
+			} catch (err) {
+				throw handleError({ err });
+			}
 		}),
 
 	updateAvatar: adminProcedure
@@ -136,8 +147,8 @@ export const hunterRouter = router({
 					name: photo.name,
 				});
 				return { success: true, ...result };
-			} catch (error) {
-				console.error('Error uploading avatar:', error);
+			} catch (err) {
+				handleError({ err, throws: false });
 				return { success: false };
 			}
 		}),

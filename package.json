@@ -16,7 +16,8 @@
 	"packageManager": "yarn@4.12.0",
 	"dependencies": {
 		"@fastify/one-line-logger": "^2.0.2",
-		"@fastify/vite": "^8.2.0",
+		"@fastify/static": "^9.0.0",
+		"@fastify/vite": "^8.2.2",
 		"@fontsource-variable/geist-mono": "^5.2.6",
 		"@fontsource/kanit": "^5.2.6",
 		"@hookform/resolvers": "^5.2.1",
@@ -58,6 +59,7 @@
 		"tailwind-merge": "^3.3.1",
 		"tailwindcss-animate": "^1.0.7",
 		"thumbhash": "^0.1.1",
+		"web-push": "^3.6.7",
 		"zod": "^4.2.1"
 	},
 	"devDependencies": {
@@ -71,6 +73,7 @@
 		"@types/node": "^24.0.15",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
+		"@types/web-push": "^3",
 		"@vitejs/plugin-react": "^4.7.0",
 		"eslint": "^9.31.0",
 		"eslint-config-prettier": "^10.1.8",
@@ -83,12 +86,17 @@
 		"postcss": "^8.5.6",
 		"prettier": "^3.6.2",
 		"prisma": "^6.12.0",
+		"rollup-plugin-visualizer": "^6.0.5",
 		"tailwindcss": "^4.1.11",
-		"trpc-ui": "^1.0.15",
+		"trpc-ui": "npm:trpc-ui-zod4@^1.0.0",
 		"tsx": "^4.20.3",
 		"typescript": "^5.9.2",
 		"typescript-eslint": "^8.37.0",
-		"vite": "^7.1.11"
+		"vite": "^7.1.11",
+		"vite-plugin-pwa": "^1.2.0",
+		"workbox-core": "^7.4.0",
+		"workbox-precaching": "^7.4.0",
+		"workbox-routing": "^7.4.0"
 	},
 	"prettier": {
 		"singleQuote": true

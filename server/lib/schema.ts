@@ -21,3 +21,13 @@ export const inviteStatusSchema = z.enum([
 	'rejected',
 ]);
 export type InviteStatusSchema = z.infer<typeof inviteStatusSchema>;
+
+export const subscriptionSchema = z.object({
+	endpoint: z.url(),
+	expirationTime: z.int().positive().nullish(),
+	keys: z.object({
+		auth: z.string(),
+		p256dh: z.string(),
+	}),
+});
+export type SubscriptionSchema = z.infer<typeof subscriptionSchema>;

@@ -6,11 +6,20 @@ const configSchema = z.object({
 	adminPassword: z.string(),
 	authPepper: z.string(),
 	authSession: z.string(),
+	logging: z
+		.string()
+		.transform((l) => l.split(','))
+		.default([]),
 	mediaHost: z.string().min(2),
 	mediaPath: z.string().min(2),
 	mediaSecure: z.boolean().default(true),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
+	vapidPrivKey: z.string().optional(),
+	vapidPubKey: z.string().optional(),
+	vapidSubject: z
+		.url({ protocol: /^(https|mailto)$/i })
+		.default('mailto:notify@ihunt.local'),
 });
 
 const configVars: Record<string, string | undefined> = {};

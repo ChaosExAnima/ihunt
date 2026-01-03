@@ -10,8 +10,9 @@ interface HuntHuntersDisplayProps {
 export function HuntHuntersDisplay({
 	hunters = [],
 	isReserved = false,
-	maxHunters,
-}: HuntHuntersDisplayProps & Pick<HuntSchema, 'hunters' | 'maxHunters'>) {
+	maxHunters = 0,
+}: HuntHuntersDisplayProps &
+	Partial<Pick<HuntSchema, 'hunters' | 'maxHunters'>>) {
 	const emptySpots = arrayOfLength(maxHunters - hunters.length);
 	return (
 		<div className="flex gap-2 items-center text-sm">

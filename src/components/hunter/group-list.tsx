@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 
 import { trpc } from '@/lib/api';
 
-import { HunterList } from '../hunter-list';
+import { HunterList } from './hunter-list';
 
 interface HunterGroupListProps {
 	children?: ReactNode;

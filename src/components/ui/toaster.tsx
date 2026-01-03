@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import {
 	Toast,
 	ToastClose,
@@ -11,6 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 export function Toaster() {
 	const { toasts } = useToast();
 
+	const disableHandler = useCallback((event: Event) => {
+		event.preventDefault();
+	}, []);
+
 	return (
 		<ToastProvider>
 			{toasts.map(
@@ -23,10 +29,18 @@ export function Toaster() {
 					title,
 					...props
 				}) => (
-					<Toast key={id} {...props}>
-						<div className="grid gap-1">
+					<Toast
+						key={id}
+						{...props}
+						{...(permanent && {
+							onSwipeEnd: disableHandler,
+							onSwipeMove: disableHandler,
+							onSwipeStart: disableHandler,
+						})}
+					>
+						<div className="">
 							{title && (
-								<ToastTitle>
+								<ToastTitle className="flex gap-2 items-center mb-2">
 									{Icon && <Icon />}
 									{title}
 								</ToastTitle>

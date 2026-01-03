@@ -9,6 +9,7 @@ import { dateFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
 import Header from '../header';
+import { Loading } from '../loading';
 import { Rating } from '../rating';
 
 export function HuntsCompleted() {
@@ -33,7 +34,7 @@ export function HuntsCompleted() {
 	}, [hunts]);
 
 	if (!hunts) {
-		return null;
+		return <Loading />;
 	}
 
 	if (hunts.length === 0) {
