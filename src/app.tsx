@@ -37,7 +37,7 @@ declare module '@tanstack/react-router' {
 }
 
 export function App() {
-	const devMode = isDev();
+	const devMode = isDev() && window.location.hostname.endsWith('.local');
 	const [offlineToast, setToast] = useState<null | ReturnType<typeof toast>>(
 		null,
 	);
@@ -64,8 +64,8 @@ export function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<RouterProvider router={router} />
-			<ReactQueryDevtools />
-			<TanStackRouterDevtools router={router} />
+			{devMode && <ReactQueryDevtools />}
+			{devMode && <TanStackRouterDevtools router={router} />}
 			{devMode && <DevTools />}
 			<Toaster />
 		</QueryClientProvider>
