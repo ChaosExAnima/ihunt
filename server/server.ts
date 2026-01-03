@@ -70,7 +70,7 @@ async function startServer() {
 	});
 	try {
 		await server.vite.ready();
-		await server.listen({ port: config.port });
+		await server.listen({ host: '0.0.0.0', port: config.port });
 	} catch (err) {
 		console.error(err);
 		process.exit(1);

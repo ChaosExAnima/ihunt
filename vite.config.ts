@@ -13,7 +13,7 @@ export default defineConfig({
 	},
 	plugins: [
 		viteFastify({
-			// spa: true,
+			spa: true,
 			useRelativePaths: true,
 		}),
 		tanstackRouter({
@@ -45,6 +45,7 @@ export default defineConfig({
 					},
 				],
 				name: 'iHunt',
+				orientation: 'portrait-primary',
 				short_name: 'iHunt',
 				theme_color: 'oklch(51.4% 0.222 16.935)',
 			},
@@ -67,7 +68,7 @@ export default defineConfig({
 	},
 	root: 'src',
 	server: {
-		allowedHosts: ['ihunt.local'],
+		allowedHosts: true, // Unsafe, but this only runs in dev anyway.
 		strictPort: true,
 	},
 });
