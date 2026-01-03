@@ -3,22 +3,27 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
+import { BackButton } from './components/back-button';
 import DevTools from './components/dev-tools';
+import { Loading } from './components/loading';
 import { useOffline } from './hooks/use-offline';
 import { useTheme } from './hooks/use-theme';
 import { queryClient } from './lib/api';
 import { isDev } from './lib/utils';
+import { routeTree } from './routeTree.gen';
 
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
-
-import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({
 	context: {
 		queryClient,
 	},
+	defaultNotFoundComponent: () => <NotFound />,
+	defaultPendingComponent: () => <Loading />,
+	defaultPendingMinMs: 0,
+	defaultPendingMs: 0,
 	defaultPreload: 'intent',
 	// Since we're using React Query, we don't want loader calls to ever be stale
 	// This will ensure that the loader is always called when the route is preloaded or visited
@@ -50,5 +55,15 @@ export function App() {
 			{devMode && <TanStackRouterDevtools router={router} />}
 			{devMode && <DevTools />}
 		</QueryClientProvider>
+	);
+}
+
+function NotFound() {
+	return (
+		<div className="flex flex-col gap-2 items-center justify-center grow">
+			<p className="text-xl">Not found</p>
+			<p>There's nothing here!</p>
+			<BackButton />
+		</div>
 	);
 }

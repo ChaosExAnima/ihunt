@@ -5,6 +5,7 @@ import z from 'zod';
 import Header from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
+import { Loading } from '@/components/loading';
 import PhotoDisplay from '@/components/photo';
 import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
@@ -47,7 +48,7 @@ function RouteComponent() {
 	);
 
 	if (!hunter) {
-		return null;
+		return <Loading />;
 	}
 	const { avatar } = hunter;
 
@@ -72,7 +73,7 @@ function RouteComponent() {
 						type={hunter.type}
 					/>
 				</div>
-				{!!avatar && <PhotoDisplay photo={avatar} />}
+				{!!avatar && <PhotoDisplay className="w-full" photo={avatar} />}
 				<div
 					className={cn(
 						'text-white w-full text-sm',

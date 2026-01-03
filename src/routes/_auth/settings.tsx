@@ -6,6 +6,7 @@ import { useCallback, useId } from 'react';
 import Avatar from '@/components/avatar';
 import Header from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
+import { Loading } from '@/components/loading';
 import { Rating } from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
@@ -84,7 +85,7 @@ function Settings() {
 	const idBase = useId();
 
 	if (!hunter) {
-		return null;
+		return <Loading />;
 	}
 
 	return (

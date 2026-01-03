@@ -3,6 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
 import { HuntDisplay } from '@/components/hunt';
+import { Loading } from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/api';
 
@@ -20,7 +21,7 @@ function RouteComponent() {
 	const { data: hunt } = useQuery(trpc.hunt.getOne.queryOptions({ huntId }));
 
 	if (!hunt) {
-		return null;
+		return <Loading />;
 	}
 
 	return (

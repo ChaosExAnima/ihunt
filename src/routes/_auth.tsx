@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
+import { Loading } from '@/components/loading';
 import Navbar from '@/components/navbar';
 import { PlayerSettingsProvider } from '@/components/providers/player';
 import { useNotifyRequest } from '@/hooks/use-subscribe';
@@ -24,7 +25,7 @@ function Page() {
 	useNotifyRequest();
 
 	if (!player) {
-		return null;
+		return <Loading />;
 	}
 
 	return (
