@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { onlineManager, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { Loading } from '@/components/loading';
@@ -11,6 +11,9 @@ export const Route = createFileRoute('/_auth')({
 	component: Page,
 	async loader({ context: { queryClient }, location }) {
 		try {
+			if (onlineManager.isOnline()) {
+				await queryClient.ensureQueryData(trpc.auth.me.queryOptions());
+			}
 			return queryClient.prefetchQuery(trpc.auth.me.queryOptions());
 		} catch {
 			// Empty
