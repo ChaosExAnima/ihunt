@@ -1,9 +1,10 @@
-import z from 'zod';
+import * as z from 'zod';
 
 import {
 	groupSchema,
 	hunterSchema,
 	huntSchema,
+	idArray,
 	idSchemaCoerce,
 	photoSchema,
 	posIntSchema,
@@ -23,8 +24,8 @@ export type Resources = z.infer<typeof resourceSchema>;
 export const adminHuntSchema = huntSchema
 	.omit({ hunters: true, photos: true, reserved: true })
 	.extend({
-		hunterIds: z.array(idSchemaCoerce),
-		photoIds: z.array(idSchemaCoerce),
+		hunterIds: idArray,
+		photoIds: idArray,
 	});
 export type AdminHuntSchema = z.infer<typeof adminHuntSchema>;
 
@@ -41,7 +42,7 @@ export const adminHunterSchema = hunterSchema
 export type AdminHunterSchema = z.infer<typeof adminHunterSchema>;
 
 export const adminGroupSchema = groupSchema.omit({ hunters: true }).extend({
-	hunterIds: z.array(idSchemaCoerce),
+	hunterIds: idArray,
 });
 export type AdminGroupSchema = z.infer<typeof adminGroupSchema>;
 
@@ -59,7 +60,7 @@ export type AdminPhotoSchema = z.infer<typeof adminPhotoSchema>;
 
 export const adminUserSchema = z.object({
 	hideMoney: z.boolean(),
-	hunterIds: z.array(idSchemaCoerce),
+	hunterIds: idArray,
 	id: idSchemaCoerce,
 	name: z.string().nullable(),
 	run: posIntSchema.prefault(1),

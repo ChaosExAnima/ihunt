@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import 'dotenv/config';
-import { z } from 'zod';
+import * as z from 'zod';
 
 const configSchema = z.object({
 	adminPassword: z.string(),

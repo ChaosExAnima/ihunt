@@ -1,4 +1,4 @@
-import z from 'zod';
+import * as z from 'zod';
 
 import { db } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';

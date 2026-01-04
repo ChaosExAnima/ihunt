@@ -1,9 +1,9 @@
-import z from 'zod';
+import * as z from 'zod';
 
 import { huntSchema, huntStatus, photoHuntSchema } from '@/lib/schemas';
 
 export const outputHuntSchema = huntSchema.extend({
-	photos: z.array(photoHuntSchema),
+	photos: photoHuntSchema.array(),
 	rating: z.coerce.number().min(0).max(5).default(0),
 	status: z.string().transform((status) => huntStatus.parse(status)),
 });

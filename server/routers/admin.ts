@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import * as z from 'zod';
 
 import {
 	adminCreateInput,
@@ -7,7 +7,7 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@/admin/schemas';
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
@@ -81,7 +81,7 @@ export const adminRouter = router({
 	deleteMany: adminProcedure
 		.input(
 			z.object({
-				ids: z.array(idSchemaCoerce),
+				ids: idArray,
 				resource: resourceSchema,
 			}),
 		)
@@ -135,7 +135,7 @@ export const adminRouter = router({
 		.input(
 			adminFilter.and(
 				z.object({
-					ids: z.array(idSchemaCoerce).optional(),
+					ids: idArray.optional(),
 				}),
 			),
 		)
@@ -450,7 +450,7 @@ export const adminRouter = router({
 	isValid: adminProcedure.query(() => true),
 
 	updateMany: adminProcedure
-		.input(adminInput.and(z.object({ ids: z.array(idSchemaCoerce) })))
+		.input(adminInput.and(z.object({ ids: idArray })))
 		.mutation(async ({ input: { data, ids, resource } }) => {
 			const where = { id: { in: ids } };
 			switch (resource) {

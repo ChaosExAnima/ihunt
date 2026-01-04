@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
-import z from 'zod';
+import * as z from 'zod';
 
 import { adminAuthSchema } from '@/admin/schemas';
 import { authSchema, hunterSchema, idSchemaCoerce } from '@/lib/schemas';

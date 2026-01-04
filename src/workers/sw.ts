@@ -10,7 +10,7 @@ import {
 	precacheAndRoute,
 } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import z from 'zod';
+import * as z from 'zod';
 
 declare const self: ServiceWorkerGlobalScope;
 

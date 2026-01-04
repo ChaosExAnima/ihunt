@@ -1,11 +1,11 @@
 import { HuntInvite } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import * as z from 'zod';
 
 import { HUNT_INVITE_TIME } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { db } from '@/server/lib/db';
 import { expireInvites, fetchInviteesForHunt } from '@/server/lib/invite';
 import { InviteStatus } from '@/server/lib/schema';
@@ -20,7 +20,7 @@ export const inviteRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.output(z.array(idSchemaCoerce))
+		.output(idArray)
 		.query(async ({ ctx: { hunter }, input: { huntId } }) => {
 			// No group means nobody to invite.
 			if (!hunter.groupId) {

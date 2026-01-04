@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 import { HUNT_MAX_DANGER, HuntStatus, PASSWORD_CHAR_COUNT } from './constants';
 
@@ -17,6 +17,7 @@ export const idSchemaCoerce = z.preprocess(
 	(arg) => (typeof arg === 'string' ? Number.parseInt(arg) : arg),
 	idSchema,
 );
+export const idArray = idSchemaCoerce.array();
 
 export const huntStatus = z.enum(HuntStatus);
 
@@ -70,13 +71,13 @@ export const huntSchema = z.object({
 	createdAt: z.coerce.date(),
 	danger: z.int().min(1).max(HUNT_MAX_DANGER),
 	description: z.string(),
-	hunters: z.array(hunterSchema),
+	hunters: hunterSchema.array(),
 	id: idSchema,
 	maxHunters: z.int().min(1).max(4),
 	minRating: z.number().min(0).max(5),
 	name: z.string().min(1),
 	payment: posIntSchema,
-	photos: z.array(photoHuntSchema),
+	photos: photoHuntSchema.array(),
 	place: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
 	reserved: huntReservedSchema.nullish(),
@@ -85,10 +86,10 @@ export const huntSchema = z.object({
 	warnings: z.string().nullish(),
 });
 export type HuntSchema = z.infer<typeof huntSchema>;
-export const huntsSchema = z.array(huntSchema);
+export const huntsSchema = huntSchema.array();
 
 export const groupSchema = z.object({
-	hunters: z.array(hunterSchema),
+	hunters: hunterSchema.array(),
 	id: idSchema,
 	name: z.string(),
 });

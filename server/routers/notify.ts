@@ -1,6 +1,6 @@
-import z from 'zod';
+import * as z from 'zod';
 
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idArray } from '@/lib/schemas';
 
 import { handleError } from '../lib/error';
 import { ee, notifyUser, saveSubscription } from '../lib/notify';
@@ -12,7 +12,7 @@ export const notifyRouter = router({
 		.input(
 			z.object({
 				body: z.string().optional(),
-				ids: z.array(idSchemaCoerce),
+				ids: idArray,
 				title: z.string(),
 			}),
 		)

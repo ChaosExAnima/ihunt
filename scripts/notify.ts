@@ -1,7 +1,6 @@
 import { parseArgs } from 'node:util';
-import z from 'zod';
 
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idArray } from '@/lib/schemas';
 import { notifyUser } from '@/server/lib/notify';
 
 async function main() {
@@ -24,7 +23,7 @@ async function main() {
 
 	let userIds: number[] = [];
 	try {
-		userIds = z.array(idSchemaCoerce).parse(positionals);
+		userIds = idArray.parse(positionals);
 	} catch (err) {
 		throw new Error('Invalid user IDs', { cause: err });
 	}

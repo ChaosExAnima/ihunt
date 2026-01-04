@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { z } from 'zod';
+import * as z from 'zod';
 
 import { idSchemaCoerce, posIntSchema } from '@/lib/schemas';
 

@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import * as z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
 import {
@@ -21,7 +21,7 @@ import { adminProcedure, router, userProcedure } from '@/server/lib/trpc';
 import { handleError, wrapRoute } from '../lib/error';
 
 export const huntRouter = router({
-	getActive: userProcedure.output(z.array(outputHuntSchema)).query(
+	getActive: userProcedure.output(outputHuntSchema.array()).query(
 		({
 			ctx: {
 				hunter: { id },
@@ -43,7 +43,7 @@ export const huntRouter = router({
 	),
 
 	getAvailable: userProcedure
-		.output(z.array(outputHuntSchema))
+		.output(outputHuntSchema.array())
 		.query(async ({ ctx: { hunter: currentHunter } }) => {
 			try {
 				const result = await db.hunt.findMany({
@@ -97,7 +97,7 @@ export const huntRouter = router({
 		}),
 
 	getCompleted: userProcedure
-		.output(z.array(outputHuntSchema))
+		.output(outputHuntSchema.array())
 		.query(({ ctx: { hunter } }) =>
 			wrapRoute(
 				db.hunt.findMany({
@@ -137,7 +137,7 @@ export const huntRouter = router({
 			),
 		),
 
-	getPublic: userProcedure.output(z.array(outputHuntSchema)).query(() =>
+	getPublic: userProcedure.output(outputHuntSchema.array()).query(() =>
 		wrapRoute(
 			db.hunt.findMany({
 				include: huntDisplayInclude,
