@@ -1,7 +1,8 @@
-import { Hunt, Hunter, HuntInvite } from '@prisma/client';
+import { Hunt, Hunter, HuntInvite, Prisma } from '@prisma/client';
 
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
+import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
 import { extractIds, extractKey } from '@/lib/utils';
 
 import { db } from './db';
@@ -19,12 +20,9 @@ export async function expireInvites(invites: HuntInvite[]) {
 	const validInvites: HuntInvite[] = [];
 	const expiredInvites: HuntInvite[] = [];
 	for (const invite of invites) {
-		if (invite.status !== InviteStatus.Pending) {
-			continue;
-		}
-		if (invite.expiresAt >= now) {
+		if (invite.expiresAt >= now && invite.status !== InviteStatus.Expired) {
 			validInvites.push(invite);
-		} else {
+		} else if (invite.status === InviteStatus.Pending) {
 			expiredInvites.push(invite);
 		}
 	}
@@ -121,7 +119,9 @@ export async function fetchUnclaimedSpots(huntId: number) {
 			},
 			invites: {
 				where: {
-					status: InviteStatus.Pending,
+					status: {
+						in: [InviteStatus.Pending, InviteStatus.Accepted],
+					},
 				},
 			},
 		},
@@ -143,6 +143,37 @@ export async function fetchUnclaimedSpots(huntId: number) {
 		joined: joinedHunterIds,
 		joinedCount: joinedHunterIds.size,
 	};
+}
+
+export async function reservationsFromHunts(
+	hunts: Prisma.HuntGetPayload<{ include: { invites: true } }>[],
+	currentHunterId: number,
+) {
+	const invites = await expireInvites(
+		hunts.flatMap(({ invites }) => invites),
+	);
+	const invitedHuntMap = new Map<number, HuntReservedSchema>();
+	for (const invite of invites) {
+		const mapData = invitedHuntMap.get(invite.huntId);
+		let status: HuntReservedStatusSchema = mapData?.status ?? 'reserved';
+
+		if (invite.fromHunterId === currentHunterId) {
+			status = 'sent';
+		} else if (invite.toHunterId === currentHunterId && status !== 'sent') {
+			status =
+				invite.status === InviteStatus.Rejected
+					? 'declined'
+					: 'invited';
+		}
+
+		if (status) {
+			invitedHuntMap.set(invite.huntId, {
+				expires: invite.expiresAt,
+				status,
+			});
+		}
+	}
+	return invitedHuntMap;
 }
 
 export async function respondToInvites({
@@ -167,7 +198,9 @@ export async function respondToInvites({
 		},
 		where: {
 			huntId,
-			status: InviteStatus.Pending,
+			status: {
+				in: [InviteStatus.Pending, InviteStatus.Accepted],
+			},
 			toHunterId: currentHunter.id,
 		},
 	});

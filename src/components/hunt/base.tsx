@@ -29,6 +29,8 @@ export default function HuntBase({
 	const handleToggleCW = useCallback(() => {
 		setShowCW((prev) => !prev);
 	}, []);
+
+	const { status } = hunt.reserved ?? {};
 	return (
 		<Card className={cn(className, 'flex flex-col gap-2 p-4')}>
 			{!hideHeader && <HuntHeader {...hunt} />}
@@ -36,7 +38,7 @@ export default function HuntBase({
 
 			<HuntHuntersDisplay
 				hunters={hunt.hunters}
-				isReserved={hunt.reserved?.status === 'reserved'}
+				isReserved={status === 'reserved' || status === 'declined'}
 				maxHunters={hunt.maxHunters}
 			/>
 

@@ -2,16 +2,12 @@ import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
-import {
-	HuntReservedSchema,
-	HuntReservedStatusSchema,
-	idSchemaCoerce,
-} from '@/lib/schemas';
+import { idSchemaCoerce } from '@/lib/schemas';
 import { db } from '@/server/lib/db';
 import {
-	expireInvites,
 	fetchDailyHuntCount,
 	fetchUnclaimedSpots,
+	reservationsFromHunts,
 	respondToInvites,
 } from '@/server/lib/invite';
 import { uploadPhoto } from '@/server/lib/photo';
@@ -49,11 +45,7 @@ export const huntRouter = router({
 				const result = await db.hunt.findMany({
 					include: {
 						...huntDisplayInclude,
-						invites: {
-							where: {
-								status: InviteStatus.Pending,
-							},
-						},
+						invites: true,
 					},
 					orderBy: {
 						createdAt: 'desc',
@@ -63,28 +55,10 @@ export const huntRouter = router({
 					},
 				});
 
-				const invites = await expireInvites(
-					result.flatMap(({ invites }) => invites),
+				const invitedHuntMap = await reservationsFromHunts(
+					result,
+					currentHunter.id,
 				);
-				const invitedHuntMap = new Map<number, HuntReservedSchema>();
-				for (const invite of invites) {
-					const mapData = invitedHuntMap.get(invite.huntId);
-					let status: HuntReservedStatusSchema =
-						mapData?.status ?? 'reserved';
-
-					if (invite.fromHunterId === currentHunter.id) {
-						status = 'sent';
-					} else if (
-						invite.toHunterId === currentHunter.id &&
-						status !== 'sent'
-					) {
-						status = 'invited';
-					}
-					invitedHuntMap.set(invite.huntId, {
-						expires: invite.expiresAt,
-						status,
-					});
-				}
 
 				return result.map(({ invites: _, ...hunt }) => ({
 					...hunt,
@@ -161,7 +135,7 @@ export const huntRouter = router({
 		.mutation(async ({ ctx: { hunter: currentHunter }, input }) => {
 			const { huntId } = input;
 			try {
-				const { hunt, invitedCount, joined, joinedCount } =
+				const { hunt, invited, invitedCount, joined, joinedCount } =
 					await fetchUnclaimedSpots(huntId);
 
 				// If we already joined, leave the hunt.
@@ -189,7 +163,11 @@ export const huntRouter = router({
 					return { accepted: false, huntId };
 				}
 
-				if (joinedCount + invitedCount >= hunt.maxHunters) {
+				if (
+					joinedCount >= hunt.maxHunters ||
+					(joinedCount + invitedCount >= hunt.maxHunters &&
+						!invited.has(currentHunter.id))
+				) {
 					throw new TRPCError({
 						code: 'FORBIDDEN',
 						message: 'Hunt is already full',

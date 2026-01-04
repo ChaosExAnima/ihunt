@@ -60,7 +60,7 @@ export type HunterSchema = z.infer<typeof hunterSchema>;
 
 export const huntReservedSchema = z.object({
 	expires: z.coerce.date(),
-	status: z.enum(['invited', 'reserved', 'sent']),
+	status: z.enum(['invited', 'reserved', 'sent', 'declined']),
 });
 export type HuntReservedSchema = z.infer<typeof huntReservedSchema>;
 export type HuntReservedStatusSchema = HuntReservedSchema['status'];

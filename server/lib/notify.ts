@@ -35,8 +35,11 @@ class IterableEventEmitter<T extends EventMap<T>> extends EventEmitter<T> {
 export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
 	const { id, name, rating } = hunt;
 	let body = '';
-	if ((rating ?? 0) > 0) {
-		body = `Your client rated you ${rating}`;
+	if (rating !== null && rating > 0) {
+		body = `Your client gave you ${rating} stars.`;
+		if (rating > 3) {
+			body += ' Good job!';
+		}
 	}
 
 	return {
