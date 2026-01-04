@@ -28,7 +28,7 @@ export async function completeHunt({
 	const { payment, rating: huntRating } = hunt;
 	if (
 		hunt.paidHunters ||
-		hunt.status === HuntStatus.Complete ||
+		hunt.status !== HuntStatus.Complete ||
 		payment <= 0 ||
 		!huntRating ||
 		hunters.length === 0
@@ -62,7 +62,7 @@ export async function completeHunt({
 		if (hunter.userId) {
 			await notifyUser({
 				body: hunt.comment ?? undefined,
-				title: `You got ${hunt.rating ?? 1} star!`,
+				title: `You got ${huntRating} ${huntRating > 1 ? 'stars' : 'star'}!`,
 				userId: hunter.userId,
 			});
 		}
