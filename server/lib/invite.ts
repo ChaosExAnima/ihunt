@@ -1,10 +1,11 @@
-import { HuntInvite } from '@prisma/client';
+import { Hunt, Hunter, HuntInvite } from '@prisma/client';
 
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
 import { extractIds, extractKey } from '@/lib/utils';
 
 import { db } from './db';
+import { inviteResponseEvent, notifyUser } from './notify';
 import { InviteStatus } from './schema';
 
 interface FetchInviteesForHuntArgs {
@@ -142,4 +143,70 @@ export async function fetchUnclaimedSpots(huntId: number) {
 		joined: joinedHunterIds,
 		joinedCount: joinedHunterIds.size,
 	};
+}
+
+export async function respondToInvites({
+	currentHunter,
+	hunt,
+	huntId,
+	response,
+}: {
+	currentHunter: Hunter;
+	hunt?: Hunt;
+	huntId: number;
+	response: 'accept' | 'decline';
+}) {
+	hunt ??= await db.hunt.findUniqueOrThrow({
+		where: {
+			id: huntId,
+		},
+	});
+	const invites = await db.huntInvite.findMany({
+		include: {
+			fromHunter: true,
+		},
+		where: {
+			huntId,
+			status: InviteStatus.Pending,
+			toHunterId: currentHunter.id,
+		},
+	});
+
+	if (invites.length === 0) {
+		return 0;
+	}
+
+	await db.huntInvite.updateMany({
+		data: {
+			status:
+				response === 'accept'
+					? InviteStatus.Accepted
+					: InviteStatus.Rejected,
+		},
+		where: {
+			id: {
+				in: extractIds(invites),
+			},
+		},
+	});
+
+	let notified = 0;
+	for (const invite of invites) {
+		const userId = invite.fromHunter.userId;
+		if (!userId) {
+			continue;
+		}
+		const result = await notifyUser({
+			event: inviteResponseEvent({
+				fromHunter: currentHunter,
+				hunt,
+				response,
+			}),
+			userId,
+		});
+		if (result) {
+			notified++;
+		}
+	}
+	return notified;
 }

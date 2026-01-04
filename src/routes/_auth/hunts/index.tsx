@@ -42,9 +42,9 @@ function RouteComponent() {
 			onSuccess({ accepted, huntId }) {
 				invalidate([
 					trpc.hunt.getAvailable.queryKey(),
-					trpc.invite.availableInvitees.queryKey(),
+					trpc.invite.pathKey(),
 				]);
-				if (accepted) {
+				if (accepted && huntId) {
 					setAcceptingHuntId(huntId);
 				} else {
 					setAcceptingHuntId(0);

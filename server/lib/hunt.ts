@@ -4,7 +4,7 @@ import { HuntStatus } from '@/lib/constants';
 import { clamp } from '@/lib/utils';
 
 import { db } from './db';
-import { notifyUser } from './notify';
+import { huntCompleteEvent, notifyUser } from './notify';
 
 export function calculateNewRating({
 	hunterRating,
@@ -36,14 +36,12 @@ export async function completeHunt({
 		return null;
 	}
 
-	const perHunterPayment = Math.floor(payment / hunters.length); // Rounding errors to iHunt, inc
+	const aliveHunters = hunters.filter((hunter) => hunter.alive);
+
+	const perHunterPayment = Math.floor(payment / aliveHunters.length); // Rounding errors to iHunt, inc
 
 	// Update and notify the hunters.
-	for (const hunter of hunters) {
-		if (!hunter.alive) {
-			continue;
-		}
-
+	for (const hunter of aliveHunters) {
 		const newRating = calculateNewRating({
 			hunterRating: hunter.rating,
 			huntRating: huntRating,
@@ -61,8 +59,7 @@ export async function completeHunt({
 		});
 		if (hunter.userId) {
 			await notifyUser({
-				body: hunt.comment ?? undefined,
-				title: `You got ${huntRating} ${huntRating > 1 ? 'stars' : 'star'}!`,
+				event: huntCompleteEvent({ hunt }),
 				userId: hunter.userId,
 			});
 		}

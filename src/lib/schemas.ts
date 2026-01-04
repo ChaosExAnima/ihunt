@@ -94,3 +94,21 @@ export const groupSchema = z.object({
 	name: z.string(),
 });
 export type GroupSchema = z.infer<typeof groupSchema>;
+
+export const notifyEventSchema = z
+	.object({
+		body: z.string().optional(),
+		icon: z.url().optional(),
+		title: z.string(),
+		type: z.enum([
+			'message',
+			'hunt-starting',
+			'hunt-complete',
+			'invite-accept',
+			'invite-decline',
+			'invite-receive',
+		]),
+		url: z.url().optional(),
+	})
+	.and(z.record(z.string(), z.string().optional()));
+export type NotifyEventSchema = z.infer<typeof notifyEventSchema>;

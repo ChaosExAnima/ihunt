@@ -33,7 +33,7 @@ async function main() {
 
 	let count = 0;
 	for (const userId of userIds) {
-		await notifyUser({ body, title, userId });
+		await notifyUser({ event: { body, title, type: 'message' }, userId });
 		count++;
 	}
 

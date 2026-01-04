@@ -20,7 +20,10 @@ export const notifyRouter = router({
 			let sent = 0;
 			for (const userId of ids) {
 				try {
-					const result = await notifyUser({ body, title, userId });
+					const result = await notifyUser({
+						event: { body, title, type: 'message' },
+						userId,
+					});
 					if (result) {
 						sent++;
 					}

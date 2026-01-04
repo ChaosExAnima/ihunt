@@ -88,12 +88,10 @@ export function useNotifyRequest() {
 	useSubscription(
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {
 			onData(data) {
-				if (data.type === 'message') {
-					toast({
-						description: data.body,
-						title: data.title,
-					});
-				}
+				toast({
+					description: data.body,
+					title: data.title,
+				});
 			},
 		}),
 	);

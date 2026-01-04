@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
@@ -13,6 +12,7 @@ import {
 	expireInvites,
 	fetchDailyHuntCount,
 	fetchUnclaimedSpots,
+	respondToInvites,
 } from '@/server/lib/invite';
 import { uploadPhoto } from '@/server/lib/photo';
 import { InviteStatus, outputHuntSchema } from '@/server/lib/schema';
@@ -190,7 +190,10 @@ export const huntRouter = router({
 				}
 
 				if (joinedCount + invitedCount >= hunt.maxHunters) {
-					throw new Error('Hunt is already full');
+					throw new TRPCError({
+						code: 'FORBIDDEN',
+						message: 'Hunt is already full',
+					});
 				}
 
 				// Join the hunt.
@@ -208,48 +211,17 @@ export const huntRouter = router({
 					`${currentHunter.name} accepted hunt with ID ${huntId}`,
 				);
 
-				// Update the invite to show the hunter accepted.
-				const invite = hunt.invites.find(
-					(invite) => invite.toHunterId === currentHunter.id,
-				);
-				if (invite) {
-					await db.huntInvite.update({
-						data: {
-							status: InviteStatus.Accepted,
-						},
-						where: {
-							id: invite.id,
-						},
-					});
-				}
+				await respondToInvites({
+					currentHunter,
+					hunt,
+					huntId,
+					response: 'accept',
+				});
 
 				return { accepted: true, huntId };
 			} catch (err: unknown) {
-				if (err instanceof TRPCError) {
-					throw err;
-				}
-				let message = 'Unknown issue joining the hunt';
-				if (err instanceof Prisma.PrismaClientKnownRequestError) {
-					if (err.code === 'P2001' || err.code === 'P2015') {
-						throw new TRPCError({
-							cause: err,
-							code: 'NOT_FOUND',
-							message: 'Could not find requested information',
-						});
-					}
-					throw new TRPCError({
-						cause: err,
-						code: 'INTERNAL_SERVER_ERROR',
-						message,
-					});
-				}
-				if (err instanceof Error && err.message) {
-					message = err.message;
-				}
-				throw new TRPCError({
-					code: 'FORBIDDEN',
-					message,
-				});
+				handleError({ err, throws: false });
+				return { accepted: false, huntId: null };
 			}
 		}),
 
