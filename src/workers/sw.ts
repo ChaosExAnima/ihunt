@@ -14,7 +14,7 @@ import * as z from 'zod';
 
 declare const self: ServiceWorkerGlobalScope;
 
-await self.skipWaiting();
+void self.skipWaiting();
 clientsClaim();
 
 const entries = self.__WB_MANIFEST;
