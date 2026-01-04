@@ -102,6 +102,7 @@ export const notifyEventSchema = z
 		title: z.string(),
 		type: z.enum([
 			'message',
+			'hunt-join',
 			'hunt-starting',
 			'hunt-complete',
 			'invite-accept',

@@ -40,17 +40,20 @@ export const notifyRouter = router({
 		ctx: { user },
 		signal,
 	}) {
-		const iterable = ee.toIterable('notify', {
-			signal,
-		});
+		const iterable = ee.toIterable('notify', { signal });
 
 		console.log('user', user.id, 'subscribed to notify events');
 
 		// yield any new posts from the event emitter
 		try {
 			for await (const [userId, payload] of iterable) {
+				// Notify everyone except the original hunter on a join event.
+				if (payload.type === 'hunt-join' && userId !== user.id) {
+					yield payload;
+				}
+
+				// Otherwise, send the payload over.
 				if (user.id === userId) {
-					console.log('yielding:', payload, 'to', userId);
 					yield payload;
 				}
 			}

@@ -3,18 +3,19 @@ import * as z from 'zod';
 
 import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
 import { idSchemaCoerce } from '@/lib/schemas';
-import { db } from '@/server/lib/db';
+
+import { db } from '../lib/db';
+import { handleError, wrapRoute } from '../lib/error';
 import {
 	fetchDailyHuntCount,
 	fetchUnclaimedSpots,
 	reservationsFromHunts,
 	respondToInvites,
-} from '@/server/lib/invite';
-import { uploadPhoto } from '@/server/lib/photo';
-import { InviteStatus, outputHuntSchema } from '@/server/lib/schema';
-import { adminProcedure, router, userProcedure } from '@/server/lib/trpc';
-
-import { handleError, wrapRoute } from '../lib/error';
+} from '../lib/invite';
+import { ee } from '../lib/notify';
+import { uploadPhoto } from '../lib/photo';
+import { InviteStatus, outputHuntSchema } from '../lib/schema';
+import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
 export const huntRouter = router({
 	getActive: userProcedure.output(outputHuntSchema.array()).query(
@@ -132,7 +133,7 @@ export const huntRouter = router({
 
 	join: userProcedure
 		.input(z.object({ huntId: idSchemaCoerce }))
-		.mutation(async ({ ctx: { hunter: currentHunter }, input }) => {
+		.mutation(async ({ ctx: { hunter: currentHunter, user }, input }) => {
 			const { huntId } = input;
 			try {
 				const { hunt, invited, invitedCount, joined, joinedCount } =
@@ -160,6 +161,11 @@ export const huntRouter = router({
 					console.log(
 						`${currentHunter.name} canceled hunt with ID ${huntId}`,
 					);
+					// Notify the active clients to update their hunts.
+					ee.emit('notify', user.id, {
+						title: `Hunter ${currentHunter.handle} left hunt ${hunt.name}`,
+						type: 'hunt-join',
+					});
 					return { accepted: false, huntId };
 				}
 
@@ -188,6 +194,12 @@ export const huntRouter = router({
 				console.log(
 					`${currentHunter.name} accepted hunt with ID ${huntId}`,
 				);
+
+				// Notify the active clients to update their hunts.
+				ee.emit('notify', user.id, {
+					title: `Hunter ${currentHunter.handle} joined hunt ${hunt.name}`,
+					type: 'hunt-join',
+				});
 
 				await respondToInvites({
 					currentHunter,

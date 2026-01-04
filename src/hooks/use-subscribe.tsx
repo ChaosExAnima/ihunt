@@ -1,28 +1,31 @@
-import { focusManager, skipToken, useMutation } from '@tanstack/react-query';
+import { skipToken, useMutation } from '@tanstack/react-query';
 import { useSubscription } from '@trpc/tanstack-react-query';
-import { Bell } from 'lucide-react';
+import {
+	Bell,
+	CrosshairIcon,
+	MailCheckIcon,
+	MailIcon,
+	MailXIcon,
+	StarIcon,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { ToastAction } from '@/components/ui/toast';
 import { trpc } from '@/lib/api';
+import { NotifyEventSchema } from '@/lib/schemas';
 
+import { useInvalidate } from './use-invalidate';
 import { toast, useToast } from './use-toast';
 
 export function useNotify() {
 	const { toast } = useToast();
 	return useCallback(
-		({ body, title }: { body?: string; title: string }) => {
-			if (focusManager.isFocused()) {
-				toast({
-					description: body,
-					title,
-				});
-			} else if (Notification.permission === 'granted') {
-				new Notification(title, {
-					body,
-				});
-			}
+		({ body, title }: NotifyEventSchema) => {
+			toast({
+				description: body,
+				title,
+			});
 		},
 		[toast],
 	);
@@ -85,13 +88,18 @@ export function useNotifyRequest() {
 		}
 	}, [curPermission, handleSubscribe, mutate]);
 
+	const invalidate = useInvalidate();
 	useSubscription(
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {
 			onData(data) {
-				toast({
-					description: data.body,
-					title: data.title,
-				});
+				invalidate([trpc.hunt.getAvailable.queryKey()]);
+				if (data.type !== 'hunt-join') {
+					toast({
+						description: data.body,
+						icon: typeToIcon(data.type),
+						title: data.title,
+					});
+				}
 			},
 		}),
 	);
@@ -128,5 +136,20 @@ async function requestNotifyPermission(
 		await serverCallback(subscription);
 	} catch (err) {
 		console.log('Failed to subscribe the user: ', err);
+	}
+}
+
+function typeToIcon(type: NotifyEventSchema['type']) {
+	switch (type) {
+		case 'hunt-complete':
+			return StarIcon;
+		case 'hunt-starting':
+			return CrosshairIcon;
+		case 'invite-accept':
+			return MailCheckIcon;
+		case 'invite-decline':
+			return MailXIcon;
+		default:
+			return MailIcon;
 	}
 }
