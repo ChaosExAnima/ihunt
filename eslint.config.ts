@@ -21,7 +21,7 @@ export default defineConfig([
 		languageOptions: { globals: { ...globals.browser, ...globals.node } },
 		plugins: { js },
 	},
-	globalIgnores(['public', 'src/dev-dist']),
+	globalIgnores(['public', 'src/dev-dist', 'dist']),
 	tseslint.configs.recommendedTypeChecked,
 	{
 		languageOptions: {
