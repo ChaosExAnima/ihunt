@@ -11,7 +11,7 @@ import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
-import { completeHunt } from '@/server/lib/hunt';
+import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
@@ -536,14 +536,14 @@ export const adminRouter = router({
 						},
 						where: { id },
 					});
-					const updates = await completeHunt({
+					const updates = await updateHunt({
 						hunt: result,
 						hunters,
 					});
 					return {
 						...result,
 						hunterIds: extractIds(hunters),
-						paid: updates,
+						updates,
 					};
 				}
 				case 'hunter':

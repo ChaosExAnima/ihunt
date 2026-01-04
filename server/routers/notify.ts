@@ -48,12 +48,12 @@ export const notifyRouter = router({
 		try {
 			for await (const [userId, payload] of iterable) {
 				// Notify everyone except the original hunter on a join event.
-				if (payload.type === 'hunt-join' && userId !== user.id) {
+				if (payload.type === 'hunt-update' && userId !== user.id) {
 					yield payload;
 				}
 
 				// Otherwise, send the payload over.
-				if (user.id === userId) {
+				if (userId === null || user.id === userId) {
 					yield payload;
 				}
 			}

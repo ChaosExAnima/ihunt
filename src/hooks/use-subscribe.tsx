@@ -93,7 +93,7 @@ export function useNotifyRequest() {
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {
 			onData(data) {
 				invalidate([trpc.hunt.getAvailable.queryKey()]);
-				if (data.type !== 'hunt-join') {
+				if (data.title) {
 					toast({
 						description: data.body,
 						icon: typeToIcon(data.type),

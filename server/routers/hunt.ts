@@ -12,7 +12,7 @@ import {
 	reservationsFromHunts,
 	respondToInvites,
 } from '../lib/invite';
-import { ee } from '../lib/notify';
+import { notifyHuntsReload } from '../lib/notify';
 import { uploadPhoto } from '../lib/photo';
 import { InviteStatus, outputHuntSchema } from '../lib/schema';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
@@ -133,7 +133,7 @@ export const huntRouter = router({
 
 	join: userProcedure
 		.input(z.object({ huntId: idSchemaCoerce }))
-		.mutation(async ({ ctx: { hunter: currentHunter, user }, input }) => {
+		.mutation(async ({ ctx: { hunter: currentHunter }, input }) => {
 			const { huntId } = input;
 			try {
 				const { hunt, invited, invitedCount, joined, joinedCount } =
@@ -161,11 +161,7 @@ export const huntRouter = router({
 					console.log(
 						`${currentHunter.name} canceled hunt with ID ${huntId}`,
 					);
-					// Notify the active clients to update their hunts.
-					ee.emit('notify', user.id, {
-						title: `Hunter ${currentHunter.handle} left hunt ${hunt.name}`,
-						type: 'hunt-join',
-					});
+					notifyHuntsReload();
 					return { accepted: false, huntId };
 				}
 
@@ -195,11 +191,7 @@ export const huntRouter = router({
 					`${currentHunter.name} accepted hunt with ID ${huntId}`,
 				);
 
-				// Notify the active clients to update their hunts.
-				ee.emit('notify', user.id, {
-					title: `Hunter ${currentHunter.handle} joined hunt ${hunt.name}`,
-					type: 'hunt-join',
-				});
+				notifyHuntsReload();
 
 				await respondToInvites({
 					currentHunter,

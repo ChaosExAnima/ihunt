@@ -4,7 +4,12 @@ import { HuntStatus } from '@/lib/constants';
 import { clamp } from '@/lib/utils';
 
 import { db } from './db';
-import { huntCompleteEvent, notifyUser } from './notify';
+import {
+	huntAvailableEvent,
+	huntCompleteEvent,
+	notifyHuntsReload,
+	notifyUser,
+} from './notify';
 
 export function calculateNewRating({
 	hunterRating,
@@ -17,13 +22,23 @@ export function calculateNewRating({
 	return clamp({ input: (huntRating + hunterRating) / 2, max: 5 });
 }
 
-export async function completeHunt({
+export async function updateHunt({
 	hunt,
 	hunters,
 }: {
 	hunt: Hunt;
 	hunters: Hunter[];
 }) {
+	// Hunt newly up, notify hunters.
+	if (
+		hunt.status === HuntStatus.Available &&
+		hunt.scheduledAt &&
+		hunt.scheduledAt > new Date()
+	) {
+		notifyHuntsReload(huntAvailableEvent());
+		return null;
+	}
+
 	// Early checks to ensure we're good.
 	const { payment, rating: huntRating } = hunt;
 	if (

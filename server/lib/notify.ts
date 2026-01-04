@@ -18,7 +18,7 @@ interface NotifyArgs {
 }
 
 interface NotifyEvents {
-	notify: [userId: number, NotifyEventSchema];
+	notify: [userId: null | number, NotifyEventSchema];
 }
 
 class IterableEventEmitter<T extends EventMap<T>> extends EventEmitter<T> {
@@ -30,6 +30,13 @@ class IterableEventEmitter<T extends EventMap<T>> extends EventEmitter<T> {
 			T[TEventName]
 		>;
 	}
+}
+
+export function huntAvailableEvent(): NotifyEventSchema {
+	return {
+		title: 'New hunts are available',
+		type: 'hunt-update',
+	};
 }
 
 export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
@@ -102,6 +109,13 @@ export function inviteSendEvent({
 		type: 'invite-receive',
 		url: `/hunts/${hunt.id}`,
 	};
+}
+
+/**
+ * Notify all actively subscribed clients to update their hunts.
+ */
+export function notifyHuntsReload(event: Partial<NotifyEventSchema> = {}) {
+	ee.emit('notify', null, { ...event, type: 'hunt-update' });
 }
 
 export const ee = new IterableEventEmitter<NotifyEvents>();

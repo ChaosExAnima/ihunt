@@ -99,10 +99,10 @@ export const notifyEventSchema = z
 	.object({
 		body: z.string().optional(),
 		icon: z.url().optional(),
-		title: z.string(),
+		title: z.string().optional(),
 		type: z.enum([
 			'message',
-			'hunt-join',
+			'hunt-update',
 			'hunt-starting',
 			'hunt-complete',
 			'invite-accept',
