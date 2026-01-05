@@ -167,14 +167,15 @@ export async function notifyUser({ event, userId }: NotifyArgs) {
 				}
 			}
 		}
-
-		if (toPrune.length > 0) {
-			await db.userVapid.deleteMany({
-				where: { id: { in: toPrune } },
-			});
-		}
-		return succeeded;
 	}
+
+	if (toPrune.length > 0) {
+		await db.userVapid.deleteMany({
+			where: { id: { in: toPrune } },
+		});
+	}
+
+	return succeeded;
 }
 
 export async function saveSubscription({
@@ -187,7 +188,7 @@ export async function saveSubscription({
 	const payload = JSON.stringify(subscription);
 	const expirationTime = subscription.expirationTime
 		? new Date(subscription.expirationTime)
-		: null;
+		: null; // TODO: Set default expiration time so we don't keep data forever.
 
 	const hash = createHash('md5');
 	hash.update(payload);

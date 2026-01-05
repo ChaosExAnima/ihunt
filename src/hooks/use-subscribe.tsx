@@ -79,7 +79,6 @@ export function useNotifyRequest() {
 				description: 'Please enable notifications',
 				duration: Infinity,
 				icon: Bell,
-				permanent: true,
 				title: 'Notifications',
 			});
 		} else {
@@ -121,6 +120,7 @@ async function requestNotifyPermission(
 	//  Request permission for notifications
 	const permission = await Notification.requestPermission();
 	if (permission !== 'granted') {
+		// TODO: Handle not granting permission better.
 		console.log('Permission not granted for Notification');
 		return;
 	}
@@ -128,7 +128,7 @@ async function requestNotifyPermission(
 	const registration = await navigator.serviceWorker.ready;
 	try {
 		const subscription = await registration.pushManager.subscribe({
-			// Replace with your own VAPID public key
+			// TODO: Import key via API to allow it being set during runtime.
 			applicationServerKey: import.meta.env.VITE_VAPID_PUB_KEY,
 			userVisibleOnly: true,
 		});
