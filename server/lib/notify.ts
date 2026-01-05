@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
 
-import { MINUTE } from '@/lib/formats';
+import { DAY, MINUTE } from '@/lib/formats';
 import { NotifyEventSchema } from '@/lib/schemas';
 
 import { config } from './config';
@@ -188,7 +188,7 @@ export async function saveSubscription({
 	const payload = JSON.stringify(subscription);
 	const expirationTime = subscription.expirationTime
 		? new Date(subscription.expirationTime)
-		: null; // TODO: Set default expiration time so we don't keep data forever.
+		: new Date(Date.now() + DAY * 7);
 
 	const hash = createHash('md5');
 	hash.update(payload);
