@@ -12,16 +12,18 @@ export const notifyRouter = router({
 		.input(
 			z.object({
 				body: z.string().optional(),
+				force: z.boolean().optional(),
 				ids: idArray,
 				title: z.string(),
 			}),
 		)
-		.mutation(async ({ input: { body, ids, title } }) => {
+		.mutation(async ({ input: { body, force, ids, title } }) => {
 			let sent = 0;
 			for (const userId of ids) {
 				try {
 					const result = await notifyUser({
 						event: { body, title, type: 'message' },
+						force,
 						userId,
 					});
 					if (result) {

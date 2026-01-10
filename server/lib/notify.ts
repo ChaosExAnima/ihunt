@@ -14,6 +14,7 @@ type EventMap<T> = Record<keyof T, unknown[]>;
 
 interface NotifyArgs {
 	event: NotifyEventSchema;
+	force?: boolean;
 	userId: number;
 }
 
@@ -120,9 +121,11 @@ export function notifyHuntsReload(event: Partial<NotifyEventSchema> = {}) {
 
 export const ee = new IterableEventEmitter<NotifyEvents>();
 
-const icon = `/public/android-chrome-512x512.png`;
+const icon = `https://static.wixstatic.com/media/f8e847_06be9a2e24a64d1b82811948d083bd46~mv2.png`;
+const badge =
+	'https://raw.githubusercontent.com/ChaosExAnima/ihunt/43ddb23cafe8a6f8d694ec98d990cd3391e5ceb9/public/ihunt.svg';
 
-export async function notifyUser({ event, userId }: NotifyArgs) {
+export async function notifyUser({ event, force, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { icon, ...event });
 
@@ -142,7 +145,7 @@ export async function notifyUser({ event, userId }: NotifyArgs) {
 	const toPrune: string[] = [];
 	let succeeded = false;
 	for (const endpoint of endpoints) {
-		if (endpoint.expirationTime && endpoint.expirationTime > now) {
+		if (endpoint.expirationTime && endpoint.expirationTime < now) {
 			toPrune.push(endpoint.id);
 		} else {
 			const subscription = subscriptionSchema.parse(
@@ -151,7 +154,13 @@ export async function notifyUser({ event, userId }: NotifyArgs) {
 			try {
 				const result = await webpush.sendNotification(
 					subscription,
-					JSON.stringify({ icon, ...event }),
+					JSON.stringify({
+						badge,
+						force,
+						icon,
+						timestamp: now.getTime(),
+						...event,
+					}),
 				);
 				if (result) {
 					succeeded = true;
