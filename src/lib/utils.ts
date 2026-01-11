@@ -70,6 +70,37 @@ export function isPlainObject(value: unknown): value is object {
 	);
 }
 
+/**
+ * Deep merge two objects.
+ * @param target
+ * @param ...sources
+ */
+export function mergeDeep<TShape extends Record<string, unknown>>(
+	target: TShape,
+	...sources: TShape[]
+) {
+	if (!sources.length) return target;
+	const source = sources.shift();
+
+	if (isPlainObject(target) && isPlainObject(source)) {
+		for (const key in source) {
+			if (isPlainObject(source[key])) {
+				if (!target[key]) Object.assign(target, { [key]: {} });
+				if (isPlainObject(target[key])) {
+					mergeDeep(
+						target[key] as Record<string, unknown>,
+						source[key] as Record<string, unknown>,
+					);
+				}
+			} else {
+				Object.assign(target, { [key]: source[key] });
+			}
+		}
+	}
+
+	return mergeDeep(target, ...sources);
+}
+
 export function omit<T extends object, K extends keyof T>(
 	obj: T,
 	...keys: K[]

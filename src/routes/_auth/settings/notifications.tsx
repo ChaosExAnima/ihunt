@@ -1,9 +1,101 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useCallback, useId, useMemo } from 'react';
+
+import Header from '@/components/header';
+import { SettingBlock } from '@/components/settings/setting-block';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useSettings } from '@/hooks/use-settings';
+import { NotifyTypeSchema } from '@/lib/schemas';
 
 export const Route = createFileRoute('/_auth/settings/notifications')({
 	component: RouteComponent,
 });
 
+/* eslint-disable perfectionist/sort-objects */
+const notificationNames: Partial<Record<NotifyTypeSchema, string>> = {
+	'hunt-update': 'New hunts available',
+	'hunt-complete': 'Hunt complete',
+	'hunt-starting': 'Hunt starting',
+	'invite-accept': 'Sent invitation accepted',
+	'invite-decline': 'Sent invitation declined',
+	'invite-receive': 'New invitation',
+};
+/* eslint-enable */
+
+function NotificationControl({
+	fieldName,
+	id,
+	label,
+	notifications,
+	onUpdate,
+	pending,
+}: {
+	fieldName: string;
+	id: string;
+	label: string;
+	notifications: Partial<Record<NotifyTypeSchema, boolean>>;
+	onUpdate: (key: string) => void;
+	pending: boolean;
+}) {
+	const handleChange = useCallback(() => {
+		onUpdate(fieldName);
+	}, [fieldName, onUpdate]);
+	return (
+		<SettingBlock id={`${id}-${fieldName}`} label={label}>
+			<Switch
+				checked={
+					// Default to on.
+					notifications[fieldName as NotifyTypeSchema] ?? true
+				}
+				data-key={fieldName}
+				disabled={pending}
+				id={`${id}-${fieldName}`}
+				onCheckedChange={handleChange}
+			/>
+		</SettingBlock>
+	);
+}
+
 function RouteComponent() {
-	return <div>Hello "/_auth/settings/notifications"!</div>;
+	const [settings, { isPending, mutate: updateSettings }] = useSettings();
+	const notifications = useMemo(
+		() => settings?.notifications ?? {},
+		[settings],
+	);
+	const idBase = useId();
+	const handleChange = useCallback(
+		(key: string) => {
+			const value = notifications[key as NotifyTypeSchema] ?? true;
+			updateSettings({
+				notifications: {
+					[key as NotifyTypeSchema]: !value,
+				},
+			});
+		},
+		[notifications, updateSettings],
+	);
+	return (
+		<>
+			<Header>Notifications</Header>
+			<section className="grid grid-cols-[1fr_auto] gap-4 items-center my-4">
+				{Object.entries(notificationNames).map(([key, label]) => (
+					<NotificationControl
+						fieldName={key}
+						id={idBase}
+						key={key}
+						label={label}
+						notifications={notifications}
+						onUpdate={handleChange}
+						pending={isPending}
+					/>
+				))}
+			</section>
+			<Button asChild variant="secondary">
+				<Link className="mt-auto" to="/settings">
+					Back
+				</Link>
+			</Button>
+		</>
+	);
 }

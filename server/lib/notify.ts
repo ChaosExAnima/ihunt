@@ -8,7 +8,11 @@ import { NotifyEventSchema } from '@/lib/schemas';
 
 import { config } from './config';
 import { db } from './db';
-import { SubscriptionSchema, subscriptionSchema } from './schema';
+import {
+	SubscriptionSchema,
+	subscriptionSchema,
+	userSettingsDatabaseSchema,
+} from './schema';
 
 type EventMap<T> = Record<keyof T, unknown[]>;
 
@@ -128,6 +132,20 @@ const badge =
 export async function notifyUser({ event, force, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { icon, ...event });
+
+	const user = await db.user.findUniqueOrThrow({
+		where: {
+			id: userId,
+		},
+	});
+	const notificationSettings = userSettingsDatabaseSchema.parse(
+		user.settings,
+	).notifications;
+
+	// Only false so that it defaults to sending.
+	if (notificationSettings[event.type] === false) {
+		return;
+	}
 
 	const { vapidPrivKey, vapidPubKey, vapidSubject } = config;
 	if (!vapidPrivKey || !vapidPubKey || !vapidSubject) {

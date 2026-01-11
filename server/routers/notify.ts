@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-import { idArray } from '@/lib/schemas';
+import { idArray, notifyTypeSchema } from '@/lib/schemas';
 
 import { handleError } from '../lib/error';
 import { ee, notifyUser, saveSubscription } from '../lib/notify';
@@ -15,14 +15,15 @@ export const notifyRouter = router({
 				force: z.boolean().optional(),
 				ids: idArray,
 				title: z.string(),
+				type: notifyTypeSchema.optional(),
 			}),
 		)
-		.mutation(async ({ input: { body, force, ids, title } }) => {
+		.mutation(async ({ input: { body, force, ids, title, type } }) => {
 			let sent = 0;
 			for (const userId of ids) {
 				try {
 					const result = await notifyUser({
-						event: { body, title, type: 'message' },
+						event: { body, title, type: type ?? 'message' },
 						force,
 						userId,
 					});

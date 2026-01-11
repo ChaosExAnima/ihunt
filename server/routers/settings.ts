@@ -1,5 +1,6 @@
 import * as z from 'zod';
 
+import { mergeDeep } from '@/lib/utils';
 import { db } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';
 import { router, userProcedure } from '@/server/lib/trpc';
@@ -69,10 +70,7 @@ export const settingsRouter = router({
 			wrapRoute(async () => {
 				const updated = await db.user.update({
 					data: {
-						settings: {
-							...user.settings,
-							...input,
-						},
+						settings: mergeDeep(user.settings, input),
 					},
 					where: { id: user.id },
 				});
