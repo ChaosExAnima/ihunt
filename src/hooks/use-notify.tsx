@@ -77,13 +77,15 @@ export function useNotifySubscribe() {
 	const invalidate = useInvalidate();
 	useSubscription(
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {
-			onData(data) {
+			onData(event) {
+				console.log('Notify received:', event);
+
 				invalidate([trpc.hunt.getAvailable.queryKey()]);
-				if (data.title) {
+				if (event.title) {
 					toast({
-						description: data.body,
-						icon: typeToIcon(data.type),
-						title: data.title,
+						description: event.body,
+						icon: typeToIcon(event.type),
+						title: event.title,
 					});
 				}
 			},
@@ -129,6 +131,7 @@ function typeToIcon(type: NotifyEventSchema['type']) {
 		case 'hunt-complete':
 			return StarIcon;
 		case 'hunt-starting':
+		case 'hunt-update':
 			return CrosshairIcon;
 		case 'invite-accept':
 			return MailCheckIcon;

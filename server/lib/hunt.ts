@@ -30,11 +30,7 @@ export async function updateHunt({
 	hunters: Hunter[];
 }) {
 	// Hunt newly up, notify hunters.
-	if (
-		hunt.status === HuntStatus.Available &&
-		hunt.scheduledAt &&
-		hunt.scheduledAt > new Date()
-	) {
+	if (hunt.status === HuntStatus.Available) {
 		notifyHuntsReload(huntAvailableEvent());
 		return null;
 	}
@@ -48,6 +44,7 @@ export async function updateHunt({
 		!huntRating ||
 		hunters.length === 0
 	) {
+		notifyHuntsReload();
 		return null;
 	}
 

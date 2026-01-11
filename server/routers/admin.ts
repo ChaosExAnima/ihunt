@@ -460,12 +460,26 @@ export const adminRouter = router({
 						where,
 					});
 					break;
-				case 'hunt':
+				case 'hunt': {
 					await db.hunt.updateMany({
 						data,
 						where,
 					});
+					const hunts = await db.hunt.findMany({
+						include: {
+							hunters: true,
+						},
+						where,
+					});
+					for (const hunt of hunts) {
+						await updateHunt({
+							hunt,
+							hunters: hunt.hunters,
+						});
+					}
+
 					break;
+				}
 				case 'hunter':
 					await db.hunter.updateMany({
 						data,

@@ -50,13 +50,13 @@ export const notifyRouter = router({
 		// yield any new posts from the event emitter
 		try {
 			for await (const [userId, payload] of iterable) {
+				console.log('got event for user', userId, payload);
+
 				// Notify everyone except the original hunter on a join event.
 				if (payload.type === 'hunt-update' && userId !== user.id) {
 					yield payload;
-				}
-
-				// Otherwise, send the payload over.
-				if (userId === null || user.id === userId) {
+				} else if (userId === null || user.id === userId) {
+					// Otherwise, send the payload over.
 					yield payload;
 				}
 			}
