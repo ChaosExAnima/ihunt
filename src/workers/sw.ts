@@ -10,11 +10,11 @@ import {
 	precacheAndRoute,
 } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import z from 'zod';
+import * as z from 'zod';
 
 declare const self: ServiceWorkerGlobalScope;
 
-await self.skipWaiting();
+void self.skipWaiting();
 clientsClaim();
 
 const entries = self.__WB_MANIFEST;
@@ -47,14 +47,18 @@ export function onNotificationClick(event: NotificationEvent) {
 }
 
 const eventSchema = z.object({
+	badge: z.url(),
 	body: z.string().optional(),
+	force: z.boolean().optional(),
+	icon: z.url(),
+	timestamp: z.int().positive(),
 	title: z.string(),
 });
 type EventSchema = z.infer<typeof eventSchema>;
 
 export function onPush(event: PushEvent) {
-	console.log('[Service Worker] Push Received.');
 	const data = toData(event.data?.json(), eventSchema);
+	console.log('[Service Worker] Push Received:', data);
 	if (data) {
 		event.waitUntil(notify(data));
 	}
@@ -73,19 +77,24 @@ function findBestClient(clients: readonly WindowClient[]) {
 	return bestClient || clients[0];
 }
 
-async function notify({ body, title }: EventSchema) {
+async function notify(event: EventSchema) {
 	const clients = await self.clients.matchAll({
 		includeUncontrolled: true,
 		type: 'window',
 	});
 	if (
+		!event.force &&
 		clients.some(
 			(client) => client.focused || client.visibilityState === 'visible',
 		)
 	) {
+		console.log(
+			'[Service Worker] Skipping notification as window is visible:',
+			event,
+		);
 		return;
 	}
-	await self.registration.showNotification(title, { body });
+	await self.registration.showNotification(event.title, event);
 }
 
 async function openUrl(url: string) {
@@ -101,6 +110,9 @@ async function openUrl(url: string) {
 }
 
 function toData<TSchema extends z.ZodObject>(input: unknown, schema: TSchema) {
-	const { data } = schema.safeParse(input);
+	const { data, error } = schema.safeParse(input);
+	if (error) {
+		console.warn('[Service Worker] Error parsing payload:', input);
+	}
 	return data;
 }

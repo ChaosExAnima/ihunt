@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import z from 'zod';
+import * as z from 'zod';
 
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';

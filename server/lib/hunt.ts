@@ -4,7 +4,12 @@ import { HuntStatus } from '@/lib/constants';
 import { clamp } from '@/lib/utils';
 
 import { db } from './db';
-import { notifyUser } from './notify';
+import {
+	huntAvailableEvent,
+	huntCompleteEvent,
+	notifyHuntsReload,
+	notifyUser,
+} from './notify';
 
 export function calculateNewRating({
 	hunterRating,
@@ -17,33 +22,38 @@ export function calculateNewRating({
 	return clamp({ input: (huntRating + hunterRating) / 2, max: 5 });
 }
 
-export async function completeHunt({
+export async function updateHunt({
 	hunt,
 	hunters,
 }: {
 	hunt: Hunt;
 	hunters: Hunter[];
 }) {
+	// Hunt newly up, notify hunters.
+	if (hunt.status === HuntStatus.Available) {
+		notifyHuntsReload(huntAvailableEvent());
+		return null;
+	}
+
 	// Early checks to ensure we're good.
 	const { payment, rating: huntRating } = hunt;
 	if (
 		hunt.paidHunters ||
-		hunt.status === HuntStatus.Complete ||
+		hunt.status !== HuntStatus.Complete ||
 		payment <= 0 ||
 		!huntRating ||
 		hunters.length === 0
 	) {
+		notifyHuntsReload();
 		return null;
 	}
 
-	const perHunterPayment = Math.floor(payment / hunters.length); // Rounding errors to iHunt, inc
+	const aliveHunters = hunters.filter((hunter) => hunter.alive);
+
+	const perHunterPayment = Math.floor(payment / aliveHunters.length); // Rounding errors to iHunt, inc
 
 	// Update and notify the hunters.
-	for (const hunter of hunters) {
-		if (!hunter.alive) {
-			continue;
-		}
-
+	for (const hunter of aliveHunters) {
 		const newRating = calculateNewRating({
 			hunterRating: hunter.rating,
 			huntRating: huntRating,
@@ -61,8 +71,7 @@ export async function completeHunt({
 		});
 		if (hunter.userId) {
 			await notifyUser({
-				body: hunt.comment ?? undefined,
-				title: `You got ${hunt.rating ?? 1} star!`,
+				event: huntCompleteEvent({ hunt }),
 				userId: hunter.userId,
 			});
 		}

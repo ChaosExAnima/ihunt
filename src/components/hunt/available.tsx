@@ -35,7 +35,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const canJoinHunt =
 		remainingHunts > 0 &&
 		maxHunters - hunters.length > 0 &&
-		reserved?.status !== 'reserved';
+		reserved?.status !== 'reserved' &&
+		reserved?.status !== 'declined';
 
 	return (
 		<HuntBase {...props}>
@@ -122,6 +123,14 @@ function HuntInvite({
 				You have invited your group.
 				<br />
 				They have {minutesLeft} minutes left to accept or decline.
+			</p>
+		);
+	} else if (reserved.status === 'declined') {
+		return (
+			<p className="text-center">
+				You have rejected the invitation.
+				<br />
+				You can join in {minutesLeft} minutes.
 			</p>
 		);
 	}

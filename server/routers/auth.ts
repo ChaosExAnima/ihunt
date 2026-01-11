@@ -1,13 +1,9 @@
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
-import z from 'zod';
+import * as z from 'zod';
 
-import {
-	adminAuthSchema,
-	authSchema,
-	hunterSchema,
-	idSchemaCoerce,
-} from '@/lib/schemas';
+import { adminAuthSchema } from '@/admin/schemas';
+import { authSchema, hunterSchema, idSchemaCoerce } from '@/lib/schemas';
 import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
@@ -17,6 +13,8 @@ import {
 	router,
 	userProcedure,
 } from '@/server/lib/trpc';
+
+import { userSettingsDatabaseSchema } from '../lib/schema';
 
 export const authRouter = router({
 	adminLogin: publicProcedure
@@ -63,16 +61,12 @@ export const authRouter = router({
 		.output(
 			z.object({
 				hunter: hunterSchema,
-				settings: z.object({
-					hideMoney: z.boolean(),
-				}),
+				settings: userSettingsDatabaseSchema,
 			}),
 		)
 		.query(({ ctx: { hunter, user } }) => ({
 			hunter,
-			settings: {
-				hideMoney: user.hideMoney,
-			},
+			settings: user.settings,
 		})),
 
 	switch: debugProcedure

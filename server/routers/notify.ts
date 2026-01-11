@@ -1,6 +1,6 @@
-import z from 'zod';
+import * as z from 'zod';
 
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idArray, notifyTypeSchema } from '@/lib/schemas';
 
 import { handleError } from '../lib/error';
 import { ee, notifyUser, saveSubscription } from '../lib/notify';
@@ -12,15 +12,21 @@ export const notifyRouter = router({
 		.input(
 			z.object({
 				body: z.string().optional(),
-				ids: z.array(idSchemaCoerce),
+				force: z.boolean().optional(),
+				ids: idArray,
 				title: z.string(),
+				type: notifyTypeSchema.optional(),
 			}),
 		)
-		.mutation(async ({ input: { body, ids, title } }) => {
+		.mutation(async ({ input: { body, force, ids, title, type } }) => {
 			let sent = 0;
 			for (const userId of ids) {
 				try {
-					const result = await notifyUser({ body, title, userId });
+					const result = await notifyUser({
+						event: { body, title, type: type ?? 'message' },
+						force,
+						userId,
+					});
 					if (result) {
 						sent++;
 					}
@@ -37,17 +43,20 @@ export const notifyRouter = router({
 		ctx: { user },
 		signal,
 	}) {
-		const iterable = ee.toIterable('notify', {
-			signal,
-		});
+		const iterable = ee.toIterable('notify', { signal });
 
 		console.log('user', user.id, 'subscribed to notify events');
 
 		// yield any new posts from the event emitter
 		try {
 			for await (const [userId, payload] of iterable) {
-				if (user.id === userId) {
-					console.log('yielding:', payload, 'to', userId);
+				console.log('got event for user', userId, payload);
+
+				// Notify everyone except the original hunter on a join event.
+				if (payload.type === 'hunt-update' && userId !== user.id) {
+					yield payload;
+				} else if (userId === null || user.id === userId) {
+					// Otherwise, send the payload over.
 					yield payload;
 				}
 			}

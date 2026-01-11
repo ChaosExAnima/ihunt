@@ -1,27 +1,29 @@
+import { Hunt, Hunter } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
 
+import { DAY, MINUTE } from '@/lib/formats';
+import { NotifyEventSchema } from '@/lib/schemas';
+
 import { config } from './config';
 import { db } from './db';
-import { SubscriptionSchema, subscriptionSchema } from './schema';
+import {
+	SubscriptionSchema,
+	subscriptionSchema,
+	userSettingsDatabaseSchema,
+} from './schema';
 
 type EventMap<T> = Record<keyof T, unknown[]>;
 
 interface NotifyArgs {
-	body?: string;
-	title: string;
+	event: NotifyEventSchema;
+	force?: boolean;
 	userId: number;
 }
 
-interface SubscribeEvents {
-	notify: [
-		userId: number,
-		(
-			| { body?: string; title: string; type: 'message' }
-			| { id?: number; type: 'hunt' | 'invite' }
-		),
-	];
+interface NotifyEvents {
+	notify: [userId: null | number, NotifyEventSchema];
 }
 
 class IterableEventEmitter<T extends EventMap<T>> extends EventEmitter<T> {
@@ -35,11 +37,115 @@ class IterableEventEmitter<T extends EventMap<T>> extends EventEmitter<T> {
 	}
 }
 
-export const ee = new IterableEventEmitter<SubscribeEvents>();
+export function huntAvailableEvent(): NotifyEventSchema {
+	return {
+		title: 'New hunts are available',
+		type: 'hunt-update',
+	};
+}
 
-export async function notifyUser({ body, title, userId }: NotifyArgs) {
+export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
+	const { id, name, rating } = hunt;
+	let body = '';
+	if (rating !== null && rating > 0) {
+		body = `Your client gave you ${rating} stars.`;
+		if (rating > 3) {
+			body += ' Good job!';
+		}
+	}
+
+	return {
+		body,
+		title: `Hunt ${name} is complete!`,
+		type: 'hunt-complete',
+		url: `/hunts/${id}`,
+	};
+}
+
+export function huntStartingEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
+	const { name, scheduledAt } = hunt;
+	const timeDiff = (scheduledAt?.getTime() ?? 0) - Date.now();
+	let body = `${name} is starting shortly. Be ready to hunt!`;
+
+	if (timeDiff > MINUTE) {
+		body = `${name} is starting in ${Math.ceil(timeDiff / MINUTE)} minutes. Be ready to hunt!`;
+	}
+
+	return {
+		body,
+		title: `${name} is starting soon`,
+		type: 'hunt-starting',
+	};
+}
+
+export function inviteResponseEvent({
+	fromHunter,
+	hunt,
+	response,
+}: {
+	fromHunter: Hunter;
+	hunt: Hunt;
+	response: 'accept' | 'decline';
+}): NotifyEventSchema {
+	if (response === 'accept') {
+		return {
+			body: `${fromHunter.handle} has accepted your invitation to join the hunt ${hunt.name}`,
+			title: `${fromHunter.handle} has joined your hunt`,
+			type: 'invite-accept',
+		};
+	}
+	return {
+		body: `${fromHunter.handle} has declined your invitation to join the hunt ${hunt.name}`,
+		title: `${fromHunter.handle} has declined your invitation`,
+		type: 'invite-decline',
+	};
+}
+
+export function inviteSendEvent({
+	fromHunter,
+	hunt,
+}: {
+	fromHunter: Hunter;
+	hunt: Hunt;
+}): NotifyEventSchema {
+	return {
+		body: `${fromHunter.handle} has invited you to join them on the hunt ${hunt.name}.`,
+		title: `${fromHunter.handle} invited you to hunt`,
+		type: 'invite-receive',
+		url: `/hunts/${hunt.id}`,
+	};
+}
+
+/**
+ * Notify all actively subscribed clients to update their hunts.
+ */
+export function notifyHuntsReload(event: Partial<NotifyEventSchema> = {}) {
+	ee.emit('notify', null, { ...event, type: 'hunt-update' });
+}
+
+export const ee = new IterableEventEmitter<NotifyEvents>();
+
+// TODO: Move from the media host to public static host.
+const icon = `${config.mediaHost}/public/ihunt-logo.png`;
+const badge = `${config.mediaHost}/public/ihunt-badge.svg`;
+
+export async function notifyUser({ event, force, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.
-	ee.emit('notify', userId, { body, title, type: 'message' });
+	ee.emit('notify', userId, { icon, ...event });
+
+	const user = await db.user.findUniqueOrThrow({
+		where: {
+			id: userId,
+		},
+	});
+	const notificationSettings = userSettingsDatabaseSchema.parse(
+		user.settings,
+	).notifications;
+
+	// Only false so that it defaults to sending.
+	if (notificationSettings[event.type] === false) {
+		return;
+	}
 
 	const { vapidPrivKey, vapidPubKey, vapidSubject } = config;
 	if (!vapidPrivKey || !vapidPubKey || !vapidSubject) {
@@ -57,7 +163,7 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 	const toPrune: string[] = [];
 	let succeeded = false;
 	for (const endpoint of endpoints) {
-		if (endpoint.expirationTime && endpoint.expirationTime > now) {
+		if (endpoint.expirationTime && endpoint.expirationTime < now) {
 			toPrune.push(endpoint.id);
 		} else {
 			const subscription = subscriptionSchema.parse(
@@ -66,7 +172,13 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 			try {
 				const result = await webpush.sendNotification(
 					subscription,
-					JSON.stringify({ body, title }),
+					JSON.stringify({
+						badge,
+						force,
+						icon,
+						timestamp: now.getTime(),
+						...event,
+					}),
 				);
 				if (result) {
 					succeeded = true;
@@ -82,14 +194,15 @@ export async function notifyUser({ body, title, userId }: NotifyArgs) {
 				}
 			}
 		}
-
-		if (toPrune.length > 0) {
-			await db.userVapid.deleteMany({
-				where: { id: { in: toPrune } },
-			});
-		}
-		return succeeded;
 	}
+
+	if (toPrune.length > 0) {
+		await db.userVapid.deleteMany({
+			where: { id: { in: toPrune } },
+		});
+	}
+
+	return succeeded;
 }
 
 export async function saveSubscription({
@@ -102,7 +215,7 @@ export async function saveSubscription({
 	const payload = JSON.stringify(subscription);
 	const expirationTime = subscription.expirationTime
 		? new Date(subscription.expirationTime)
-		: null;
+		: new Date(Date.now() + DAY * 7);
 
 	const hash = createHash('md5');
 	hash.update(payload);

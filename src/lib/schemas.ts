@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 import { HUNT_MAX_DANGER, HuntStatus, PASSWORD_CHAR_COUNT } from './constants';
 
@@ -10,8 +10,6 @@ export const authSchema = z.object({
 		.length(PASSWORD_CHAR_COUNT, 'Code must be exactly six characters'),
 });
 
-export const adminAuthSchema = z.object({ password: z.string().min(4) });
-
 export const posIntSchema = z.int().positive();
 
 export const idSchema = posIntSchema.min(1);
@@ -19,6 +17,7 @@ export const idSchemaCoerce = z.preprocess(
 	(arg) => (typeof arg === 'string' ? Number.parseInt(arg) : arg),
 	idSchema,
 );
+export const idArray = idSchemaCoerce.array();
 
 export const huntStatus = z.enum(HuntStatus);
 
@@ -61,7 +60,7 @@ export type HunterSchema = z.infer<typeof hunterSchema>;
 
 export const huntReservedSchema = z.object({
 	expires: z.coerce.date(),
-	status: z.enum(['invited', 'reserved', 'sent']),
+	status: z.enum(['invited', 'reserved', 'sent', 'declined']),
 });
 export type HuntReservedSchema = z.infer<typeof huntReservedSchema>;
 export type HuntReservedStatusSchema = HuntReservedSchema['status'];
@@ -72,13 +71,13 @@ export const huntSchema = z.object({
 	createdAt: z.coerce.date(),
 	danger: z.int().min(1).max(HUNT_MAX_DANGER),
 	description: z.string(),
-	hunters: z.array(hunterSchema),
+	hunters: hunterSchema.array(),
 	id: idSchema,
 	maxHunters: z.int().min(1).max(4),
 	minRating: z.number().min(0).max(5),
 	name: z.string().min(1),
 	payment: posIntSchema,
-	photos: z.array(photoHuntSchema),
+	photos: photoHuntSchema.array(),
 	place: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
 	reserved: huntReservedSchema.nullish(),
@@ -87,11 +86,33 @@ export const huntSchema = z.object({
 	warnings: z.string().nullish(),
 });
 export type HuntSchema = z.infer<typeof huntSchema>;
-export const huntsSchema = z.array(huntSchema);
+export const huntsSchema = huntSchema.array();
 
 export const groupSchema = z.object({
-	hunters: z.array(hunterSchema),
+	hunters: hunterSchema.array(),
 	id: idSchema,
 	name: z.string(),
 });
 export type GroupSchema = z.infer<typeof groupSchema>;
+
+export const notifyTypeSchema = z.enum([
+	'message',
+	'hunt-update',
+	'hunt-starting',
+	'hunt-complete',
+	'invite-accept',
+	'invite-decline',
+	'invite-receive',
+]);
+export type NotifyTypeSchema = z.infer<typeof notifyTypeSchema>;
+
+export const notifyEventSchema = z
+	.object({
+		body: z.string().optional(),
+		icon: z.url().optional(),
+		title: z.string().optional(),
+		type: notifyTypeSchema,
+		url: z.url().optional(),
+	})
+	.and(z.record(z.string(), z.string().optional()));
+export type NotifyEventSchema = z.infer<typeof notifyEventSchema>;

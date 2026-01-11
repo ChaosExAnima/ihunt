@@ -1,9 +1,14 @@
-import z from 'zod';
+import * as z from 'zod';
 
-import { huntSchema, huntStatus, photoHuntSchema } from '@/lib/schemas';
+import {
+	huntSchema,
+	huntStatus,
+	notifyTypeSchema,
+	photoHuntSchema,
+} from '@/lib/schemas';
 
 export const outputHuntSchema = huntSchema.extend({
-	photos: z.array(photoHuntSchema),
+	photos: photoHuntSchema.array(),
 	rating: z.coerce.number().min(0).max(5).default(0),
 	status: z.string().transform((status) => huntStatus.parse(status)),
 });
@@ -31,3 +36,16 @@ export const subscriptionSchema = z.object({
 	}),
 });
 export type SubscriptionSchema = z.infer<typeof subscriptionSchema>;
+
+export const userSettingsSchema = z.object({
+	hideMoney: z.boolean(),
+	notifications: z.partialRecord(notifyTypeSchema, z.boolean()),
+});
+
+export const userSettingsDatabaseSchema = userSettingsSchema
+	.nullable()
+	.transform((arg) => arg ?? undefined)
+	.default({
+		hideMoney: false,
+		notifications: {},
+	});

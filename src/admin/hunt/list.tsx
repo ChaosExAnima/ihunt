@@ -1,5 +1,8 @@
-import { Edit, Play } from 'lucide-react';
+import { Edit, EyeClosedIcon, EyeIcon, Play } from 'lucide-react';
+import { useMemo } from 'react';
 import {
+	BulkDeleteWithConfirmButton,
+	BulkUpdateWithConfirmButton,
 	Datagrid,
 	DateField,
 	FunctionField,
@@ -11,6 +14,7 @@ import {
 	ReferenceArrayField,
 	SelectArrayInput,
 	TextField,
+	useListContext,
 	useRecordContext,
 	useUpdate,
 } from 'react-admin';
@@ -26,7 +30,7 @@ export function HuntList() {
 	return (
 		<List filters={listFilters}>
 			<Datagrid
-				bulkActionButtons={false}
+				bulkActionButtons={<HuntBulkActions />}
 				rowClick={false}
 				sort={{ field: 'id', order: 'ASC' }}
 			>
@@ -111,5 +115,44 @@ function HuntActions() {
 			)}
 			{hunt.status === HuntStatus.Active && <HuntCompleteDialog />}
 		</div>
+	);
+}
+
+function HuntBulkActions() {
+	const { data, selectedIds } = useListContext<AdminHuntSchema>();
+	const showType = useMemo(() => {
+		if (!data || data.length === 0 || selectedIds.length === 0) {
+			return null;
+		}
+
+		for (const hunt of data) {
+			if (!selectedIds.includes(hunt.id)) {
+				continue;
+			}
+			if (hunt.status === HuntStatus.Available) {
+				return 'hide';
+			} else if (hunt.status === HuntStatus.Pending) {
+				return 'show';
+			}
+		}
+		return null;
+	}, [data, selectedIds]);
+
+	return (
+		<>
+			{showType && (
+				<BulkUpdateWithConfirmButton
+					data={{
+						status:
+							showType === 'hide'
+								? HuntStatus.Pending
+								: HuntStatus.Available,
+					}}
+					icon={showType === 'hide' ? <EyeClosedIcon /> : <EyeIcon />}
+					label={showType === 'hide' ? 'Hide Hunts' : 'Show Hunts'}
+				/>
+			)}
+			<BulkDeleteWithConfirmButton />
+		</>
 	);
 }

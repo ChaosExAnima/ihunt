@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
-import z from 'zod';
+import * as z from 'zod';
 
 import Header from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
@@ -15,9 +15,9 @@ import { cn } from '@/lib/utils';
 
 export const hunterPageSchema = z.object({
 	...hunterSchema.shape,
-	friends: z.array(hunterSchema),
+	friends: hunterSchema.array(),
 	huntCount: z.number().min(0),
-	hunts: z.array(huntSchema),
+	hunts: huntSchema.array(),
 	rating: z.number().max(5).min(1),
 });
 export type HunterPageSchema = z.infer<typeof hunterPageSchema>;

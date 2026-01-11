@@ -1,10 +1,12 @@
-import { HuntInvite } from '@prisma/client';
+import { Hunt, Hunter, HuntInvite, Prisma } from '@prisma/client';
 
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
+import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
 import { extractIds, extractKey } from '@/lib/utils';
 
 import { db } from './db';
+import { inviteResponseEvent, notifyUser } from './notify';
 import { InviteStatus } from './schema';
 
 interface FetchInviteesForHuntArgs {
@@ -18,12 +20,9 @@ export async function expireInvites(invites: HuntInvite[]) {
 	const validInvites: HuntInvite[] = [];
 	const expiredInvites: HuntInvite[] = [];
 	for (const invite of invites) {
-		if (invite.status !== InviteStatus.Pending) {
-			continue;
-		}
-		if (invite.expiresAt >= now) {
+		if (invite.expiresAt >= now && invite.status !== InviteStatus.Expired) {
 			validInvites.push(invite);
-		} else {
+		} else if (invite.status === InviteStatus.Pending) {
 			expiredInvites.push(invite);
 		}
 	}
@@ -120,7 +119,9 @@ export async function fetchUnclaimedSpots(huntId: number) {
 			},
 			invites: {
 				where: {
-					status: InviteStatus.Pending,
+					status: {
+						in: [InviteStatus.Pending, InviteStatus.Accepted],
+					},
 				},
 			},
 		},
@@ -142,4 +143,103 @@ export async function fetchUnclaimedSpots(huntId: number) {
 		joined: joinedHunterIds,
 		joinedCount: joinedHunterIds.size,
 	};
+}
+
+export async function reservationsFromHunts(
+	hunts: Prisma.HuntGetPayload<{ include: { invites: true } }>[],
+	currentHunterId: number,
+) {
+	const invites = await expireInvites(
+		hunts.flatMap(({ invites }) => invites),
+	);
+	const invitedHuntMap = new Map<number, HuntReservedSchema>();
+	for (const invite of invites) {
+		const mapData = invitedHuntMap.get(invite.huntId);
+		let status: HuntReservedStatusSchema = mapData?.status ?? 'reserved';
+
+		if (invite.fromHunterId === currentHunterId) {
+			status = 'sent';
+		} else if (invite.toHunterId === currentHunterId && status !== 'sent') {
+			status =
+				invite.status === InviteStatus.Rejected
+					? 'declined'
+					: 'invited';
+		}
+
+		if (status) {
+			invitedHuntMap.set(invite.huntId, {
+				expires: invite.expiresAt,
+				status,
+			});
+		}
+	}
+	return invitedHuntMap;
+}
+
+export async function respondToInvites({
+	currentHunter,
+	hunt,
+	huntId,
+	response,
+}: {
+	currentHunter: Hunter;
+	hunt?: Hunt;
+	huntId: number;
+	response: 'accept' | 'decline';
+}) {
+	hunt ??= await db.hunt.findUniqueOrThrow({
+		where: {
+			id: huntId,
+		},
+	});
+	const invites = await db.huntInvite.findMany({
+		include: {
+			fromHunter: true,
+		},
+		where: {
+			huntId,
+			status: {
+				in: [InviteStatus.Pending, InviteStatus.Accepted],
+			},
+			toHunterId: currentHunter.id,
+		},
+	});
+
+	if (invites.length === 0) {
+		return 0;
+	}
+
+	await db.huntInvite.updateMany({
+		data: {
+			status:
+				response === 'accept'
+					? InviteStatus.Accepted
+					: InviteStatus.Rejected,
+		},
+		where: {
+			id: {
+				in: extractIds(invites),
+			},
+		},
+	});
+
+	let notified = 0;
+	for (const invite of invites) {
+		const userId = invite.fromHunter.userId;
+		if (!userId) {
+			continue;
+		}
+		const result = await notifyUser({
+			event: inviteResponseEvent({
+				fromHunter: currentHunter,
+				hunt,
+				response,
+			}),
+			userId,
+		});
+		if (result) {
+			notified++;
+		}
+	}
+	return notified;
 }

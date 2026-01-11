@@ -1,17 +1,22 @@
 import { HuntInvite } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import * as z from 'zod';
 
 import { HUNT_INVITE_TIME } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
-import { idSchemaCoerce } from '@/lib/schemas';
-import { db } from '@/server/lib/db';
-import { expireInvites, fetchInviteesForHunt } from '@/server/lib/invite';
-import { InviteStatus } from '@/server/lib/schema';
-import { router, userProcedure } from '@/server/lib/trpc';
+import { idArray, idSchemaCoerce } from '@/lib/schemas';
 
+import { db } from '../lib/db';
 import { handleError } from '../lib/error';
+import {
+	expireInvites,
+	fetchInviteesForHunt,
+	respondToInvites,
+} from '../lib/invite';
+import { inviteSendEvent, notifyUser } from '../lib/notify';
+import { InviteStatus } from '../lib/schema';
+import { router, userProcedure } from '../lib/trpc';
 
 export const inviteRouter = router({
 	availableInvitees: userProcedure
@@ -20,7 +25,7 @@ export const inviteRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.output(z.array(idSchemaCoerce))
+		.output(idArray)
 		.query(async ({ ctx: { hunter }, input: { huntId } }) => {
 			// No group means nobody to invite.
 			if (!hunter.groupId) {
@@ -75,20 +80,16 @@ export const inviteRouter = router({
 		)
 		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
 			try {
-				await db.huntInvite.updateMany({
-					data: {
-						status: InviteStatus.Rejected,
-					},
-					where: {
-						huntId,
-						status: InviteStatus.Pending,
-						toHunterId: hunter.id,
-					},
+				const count = await respondToInvites({
+					currentHunter: hunter,
+					huntId,
+					response: 'decline',
 				});
-
-				return { success: true };
+				return {
+					success: count > 0,
+				};
 			} catch (err) {
-				handleError({ err });
+				handleError({ err, throws: false });
 				return { success: false };
 			}
 		}),
@@ -147,7 +148,15 @@ export const inviteRouter = router({
 				});
 			}
 
-			// TODO: Send notifications here
+			const event = inviteSendEvent({
+				fromHunter: hunter,
+				hunt: await db.hunt.findUniqueOrThrow({
+					where: { id: huntId },
+				}),
+			});
+			for (const invite of invites) {
+				await notifyUser({ event, userId: invite.toHunterId });
+			}
 
 			return {
 				count: invites.length,

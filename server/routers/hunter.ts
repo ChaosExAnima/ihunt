@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import * as z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
 import {
@@ -100,9 +100,9 @@ export const hunterRouter = router({
 			hunterSchema.extend({
 				alive: z.boolean(),
 				groupId: idSchemaCoerce.nullish(),
-				hunts: z.array(
-					outputHuntSchema.omit({ hunters: true, photos: true }),
-				),
+				hunts: outputHuntSchema
+					.omit({ hunters: true, photos: true })
+					.array(),
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {

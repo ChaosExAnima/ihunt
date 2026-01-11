@@ -3,9 +3,11 @@ import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
 
 import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
+import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';
+import { userSettingsDatabaseSchema } from './schema';
 
 const { authPepper, authSession } = config;
 
@@ -47,7 +49,16 @@ export async function createAuthContext({
 				id: session.userId,
 			},
 		});
-		return { hunter: hunters.at(0), req, res, session, user };
+		return {
+			hunter: hunters.at(0),
+			req,
+			res,
+			session,
+			user: {
+				...omit(user, 'password', 'settings'),
+				settings: userSettingsDatabaseSchema.parse(user.settings),
+			},
+		};
 	} catch (err) {
 		console.warn(`Error logging in user ${session.userId}:`, err);
 		session.destroy();

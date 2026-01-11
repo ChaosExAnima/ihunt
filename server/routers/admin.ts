@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import * as z from 'zod';
 
 import {
 	adminCreateInput,
@@ -7,11 +7,11 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@/admin/schemas';
-import { idSchemaCoerce } from '@/lib/schemas';
+import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
-import { completeHunt } from '@/server/lib/hunt';
+import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
@@ -81,7 +81,7 @@ export const adminRouter = router({
 	deleteMany: adminProcedure
 		.input(
 			z.object({
-				ids: z.array(idSchemaCoerce),
+				ids: idArray,
 				resource: resourceSchema,
 			}),
 		)
@@ -135,7 +135,7 @@ export const adminRouter = router({
 		.input(
 			adminFilter.and(
 				z.object({
-					ids: z.array(idSchemaCoerce).optional(),
+					ids: idArray.optional(),
 				}),
 			),
 		)
@@ -450,7 +450,7 @@ export const adminRouter = router({
 	isValid: adminProcedure.query(() => true),
 
 	updateMany: adminProcedure
-		.input(adminInput.and(z.object({ ids: z.array(idSchemaCoerce) })))
+		.input(adminInput.and(z.object({ ids: idArray })))
 		.mutation(async ({ input: { data, ids, resource } }) => {
 			const where = { id: { in: ids } };
 			switch (resource) {
@@ -460,12 +460,26 @@ export const adminRouter = router({
 						where,
 					});
 					break;
-				case 'hunt':
+				case 'hunt': {
 					await db.hunt.updateMany({
 						data,
 						where,
 					});
+					const hunts = await db.hunt.findMany({
+						include: {
+							hunters: true,
+						},
+						where,
+					});
+					for (const hunt of hunts) {
+						await updateHunt({
+							hunt,
+							hunters: hunt.hunters,
+						});
+					}
+
 					break;
+				}
 				case 'hunter':
 					await db.hunter.updateMany({
 						data,
@@ -536,14 +550,14 @@ export const adminRouter = router({
 						},
 						where: { id },
 					});
-					const updates = await completeHunt({
+					const updates = await updateHunt({
 						hunt: result,
 						hunters,
 					});
 					return {
 						...result,
 						hunterIds: extractIds(hunters),
-						paid: updates,
+						updates,
 					};
 				}
 				case 'hunter':
