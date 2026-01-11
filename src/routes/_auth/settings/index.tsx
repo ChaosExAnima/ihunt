@@ -15,11 +15,12 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useHunter } from '@/hooks/use-hunter';
 import { useInvalidate } from '@/hooks/use-invalidate';
+import { useSettings } from '@/hooks/use-settings';
 import { useTheme } from '@/hooks/use-theme';
 import { trpc } from '@/lib/api';
 import { useCurrencyFormat } from '@/lib/formats';
 
-export const Route = createFileRoute('/_auth/settings')({
+export const Route = createFileRoute('/_auth/settings/')({
 	component: Settings,
 	loader({ context: { queryClient } }) {
 		void queryClient.prefetchQuery(trpc.hunter.getGroup.queryOptions());
@@ -29,19 +30,19 @@ export const Route = createFileRoute('/_auth/settings')({
 function Settings() {
 	const hunter = useHunter();
 	const invalidate = useInvalidate();
-	const { isPending: updatingMoney, mutate: updateMoney } = useMutation(
-		trpc.settings.updateMoney.mutationOptions({
+	const { isPending: updatingSettings, mutate: updateSettings } = useMutation(
+		trpc.settings.updateSettings.mutationOptions({
 			onSuccess() {
-				invalidate([
-					trpc.auth.me.queryKey(),
-					trpc.hunter.getOne.queryKey(),
-				]);
+				invalidate(trpc.auth.me.queryKey());
 			},
 		}),
 	);
+	const settings = useSettings();
 	const handleMoneyToggle = useCallback(() => {
-		updateMoney();
-	}, [updateMoney]);
+		updateSettings({
+			hideMoney: !settings?.hideMoney,
+		});
+	}, [settings?.hideMoney, updateSettings]);
 
 	const { mutate: updateFields } = useMutation(
 		trpc.settings.updateFields.mutationOptions({
@@ -135,7 +136,7 @@ function Settings() {
 					</div>
 					<Button
 						className="text-muted-foreground self-start"
-						disabled={updatingMoney}
+						disabled={updatingSettings}
 						onClick={handleMoneyToggle}
 						size="icon"
 						variant="ghost"

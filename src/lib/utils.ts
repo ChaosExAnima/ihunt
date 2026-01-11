@@ -78,3 +78,7 @@ export function omit<T extends object, K extends keyof T>(
 	keys.forEach((key) => delete _[key]);
 	return _;
 }
+
+export function toArray<T>(input: T | T[]): T[] {
+	return Array.isArray(input) ? input : [input];
+}
