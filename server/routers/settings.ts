@@ -4,7 +4,8 @@ import { db } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';
 import { router, userProcedure } from '@/server/lib/trpc';
 
-import { handleError } from '../lib/error';
+import { handleError, wrapRoute } from '../lib/error';
+import { userSettingsSchema } from '../lib/schema';
 
 export const settingsRouter = router({
 	updateAvatar: userProcedure
@@ -62,22 +63,20 @@ export const settingsRouter = router({
 			},
 		),
 
-	updateMoney: userProcedure.mutation(async ({ ctx: { user } }) => {
-		try {
-			const hideMoney = !user.settings.hideMoney;
-			await db.user.update({
-				data: {
-					settings: {
-						...user.settings,
-						hideMoney,
+	updateSettings: userProcedure
+		.input(userSettingsSchema.partial())
+		.mutation(async ({ ctx: { user }, input }) =>
+			wrapRoute(async () => {
+				const updated = await db.user.update({
+					data: {
+						settings: {
+							...user.settings,
+							...input,
+						},
 					},
-				},
-				where: { id: user.id },
-			});
-			return { hideMoney, success: true };
-		} catch (err) {
-			handleError({ err });
-			return { success: false };
-		}
-	}),
+					where: { id: user.id },
+				});
+				return updated.settings;
+			}),
+		),
 });

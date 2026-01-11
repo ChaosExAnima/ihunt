@@ -7,7 +7,7 @@ import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';
-import { userSettingsSchema } from './schema';
+import { userSettingsDatabaseSchema } from './schema';
 
 const { authPepper, authSession } = config;
 
@@ -56,7 +56,7 @@ export async function createAuthContext({
 			session,
 			user: {
 				...omit(user, 'password', 'settings'),
-				settings: userSettingsSchema.parse(user.settings),
+				settings: userSettingsDatabaseSchema.parse(user.settings),
 			},
 		};
 	} catch (err) {

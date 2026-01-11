@@ -37,12 +37,13 @@ export const subscriptionSchema = z.object({
 });
 export type SubscriptionSchema = z.infer<typeof subscriptionSchema>;
 
-export const userSettingsSchema = z
-	.object({
-		hideMoney: z.boolean(),
-		notifications: z.partialRecord(notifyTypeSchema, z.boolean()),
-	})
-	.nullish()
+export const userSettingsSchema = z.object({
+	hideMoney: z.boolean(),
+	notifications: z.partialRecord(notifyTypeSchema, z.boolean()),
+});
+
+export const userSettingsDatabaseSchema = userSettingsSchema
+	.nullable()
 	.transform((arg) => arg ?? undefined)
 	.default({
 		hideMoney: false,

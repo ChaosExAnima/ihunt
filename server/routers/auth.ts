@@ -14,6 +14,8 @@ import {
 	userProcedure,
 } from '@/server/lib/trpc';
 
+import { userSettingsDatabaseSchema } from '../lib/schema';
+
 export const authRouter = router({
 	adminLogin: publicProcedure
 		.input(adminAuthSchema)
@@ -59,16 +61,12 @@ export const authRouter = router({
 		.output(
 			z.object({
 				hunter: hunterSchema,
-				settings: z.object({
-					hideMoney: z.boolean(),
-				}),
+				settings: userSettingsDatabaseSchema,
 			}),
 		)
 		.query(({ ctx: { hunter, user } }) => ({
 			hunter,
-			settings: {
-				hideMoney: user.settings.hideMoney,
-			},
+			settings: user.settings,
 		})),
 
 	switch: debugProcedure
