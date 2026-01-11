@@ -30,14 +30,8 @@ export const Route = createFileRoute('/_auth/settings/')({
 function Settings() {
 	const hunter = useHunter();
 	const invalidate = useInvalidate();
-	const { isPending: updatingSettings, mutate: updateSettings } = useMutation(
-		trpc.settings.updateSettings.mutationOptions({
-			onSuccess() {
-				invalidate(trpc.auth.me.queryKey());
-			},
-		}),
-	);
-	const settings = useSettings();
+	const [settings, { isPending: updatingSettings, mutate: updateSettings }] =
+		useSettings();
 	const handleMoneyToggle = useCallback(() => {
 		updateSettings({
 			hideMoney: !settings?.hideMoney,
@@ -174,6 +168,9 @@ function Settings() {
 				>
 					Profile
 				</Link>
+			</Button>
+			<Button asChild variant="secondary">
+				<Link to="/settings/notifications">Notifications Settings</Link>
 			</Button>
 			<Button
 				className="w-full"

@@ -45,7 +45,7 @@ export function todayStart() {
 }
 
 export function useCurrencyFormat(amount: number) {
-	const settings = useSettings();
+	const [settings] = useSettings();
 	const formatted = useMemo(() => currencyFormatter.format(amount), [amount]);
 	if (!settings) {
 		return '';
