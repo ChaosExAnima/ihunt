@@ -5,7 +5,7 @@ import {
 	Outlet,
 } from '@tanstack/react-router';
 
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/providers/toaster';
 import { cn, isDev } from '@/lib/utils';
 
 const devMode = isDev();
