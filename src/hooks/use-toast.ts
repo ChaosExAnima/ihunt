@@ -145,6 +145,7 @@ export function toast(props: Toast) {
 			...props,
 			id,
 			onOpenChange: (open) => {
+				props.onOpenChange?.(open);
 				if (!open) dismiss();
 			},
 			open: true,

@@ -5,11 +5,12 @@ import Header from '@/components/header';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useNotifyRequest } from '@/hooks/use-notify';
 import { useSettings } from '@/hooks/use-settings';
 import { NotifyTypeSchema } from '@/lib/schemas';
 
 export const Route = createFileRoute('/_auth/settings/notifications')({
-	component: RouteComponent,
+	component: NotificationsPage,
 });
 
 /* eslint-disable perfectionist/sort-objects */
@@ -57,7 +58,7 @@ function NotificationControl({
 	);
 }
 
-function RouteComponent() {
+function NotificationsPage() {
 	const [settings, { isPending, mutate: updateSettings }] = useSettings();
 	const notifications = useMemo(
 		() => settings?.notifications ?? {},
@@ -75,9 +76,24 @@ function RouteComponent() {
 		},
 		[notifications, updateSettings],
 	);
+
+	const handleRequestNotify = useNotifyRequest();
+
+	const needsPermission = Notification.permission !== 'granted';
+
 	return (
 		<>
 			<Header>Notifications</Header>
+			{needsPermission && (
+				<>
+					<p className="text-accent">
+						You have disabled notifications.
+					</p>
+					<Button onClick={handleRequestNotify} variant="success">
+						Enable notifications
+					</Button>
+				</>
+			)}
 			<section className="grid grid-cols-[1fr_auto] gap-4 items-center my-4">
 				{Object.entries(notificationNames).map(([key, label]) => (
 					<NotificationControl
@@ -87,7 +103,7 @@ function RouteComponent() {
 						label={label}
 						notifications={notifications}
 						onUpdate={handleChange}
-						pending={isPending}
+						pending={isPending || needsPermission}
 					/>
 				))}
 			</section>

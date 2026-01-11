@@ -20,12 +20,8 @@ import { toast } from './use-toast';
 
 export function useNotifyRequest() {
 	const { mutate } = useMutation(trpc.notify.subscribe.mutationOptions());
-	const requested = useRef(false);
+
 	const handleSubscribe = useCallback(() => {
-		if (requested.current) {
-			return;
-		}
-		requested.current = true;
 		void requestNotifyPermission((subscription) => {
 			const {
 				endpoint,
@@ -46,22 +42,6 @@ export function useNotifyRequest() {
 		});
 	}, [mutate]);
 
-	const invalidate = useInvalidate();
-	useSubscription(
-		trpc.notify.onNotify.subscriptionOptions(skipToken, {
-			onData(data) {
-				invalidate([trpc.hunt.getAvailable.queryKey()]);
-				if (data.title) {
-					toast({
-						description: data.body,
-						icon: typeToIcon(data.type),
-						title: data.title,
-					});
-				}
-			},
-		}),
-	);
-
 	return handleSubscribe;
 }
 
@@ -70,12 +50,20 @@ export function useNotifyRequestToast() {
 	const curPermission = Notification.permission;
 	const notifyToast = useRef<null | ReturnType<typeof toast>>(null);
 	useEffect(() => {
+		if (localStorage.getItem('notify-toast') === 'dismissed') {
+			return;
+		}
 		if (curPermission !== 'granted') {
 			notifyToast.current ??= toast({
 				action: <NotificationAction onSubscribe={handleSubscribe} />,
 				description: 'Please enable notifications',
 				duration: Infinity,
 				icon: Bell,
+				onOpenChange(open) {
+					if (!open && Notification.permission !== 'granted') {
+						localStorage.setItem('notify-toast', 'dismissed');
+					}
+				},
 				title: 'Notifications',
 			});
 		} else {
@@ -119,8 +107,6 @@ async function requestNotifyPermission(
 	//  Request permission for notifications
 	const permission = await Notification.requestPermission();
 	if (permission !== 'granted') {
-		// TODO: Handle not granting permission better.
-		console.log('Permission not granted for Notification');
 		return;
 	}
 
