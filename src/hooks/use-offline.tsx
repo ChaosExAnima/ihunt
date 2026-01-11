@@ -1,10 +1,7 @@
 import { onlineManager } from '@tanstack/react-query';
 import { Wifi, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-
-import { SECOND } from '@/lib/formats';
-
-import { toast } from './use-toast';
+import { toast } from 'sonner';
 
 export function useOffline() {
 	const [offlineToast, setToast] = useState<null | ReturnType<typeof toast>>(
@@ -15,23 +12,18 @@ export function useOffline() {
 		(isOnline: boolean) => {
 			if (!offlineToast && !isOnline) {
 				setToast(
-					toast({
+					toast.error('Offline', {
 						description: 'You are offline',
 						duration: Infinity,
-						icon: WifiOff,
-						permanent: true,
-						title: 'Offline',
-						variant: 'destructive',
+						icon: <WifiOff className="size-4" />,
 					}),
 				);
 			} else if (offlineToast && isOnline) {
-				offlineToast.dismiss();
+				toast.dismiss(offlineToast);
 				setToast(null);
-				toast({
+				toast('Back online', {
 					description: 'You are back online!',
-					duration: 3 * SECOND,
-					icon: Wifi,
-					title: 'Back online',
+					icon: <Wifi className="size-4" />,
 				});
 			}
 		},

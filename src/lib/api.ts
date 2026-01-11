@@ -9,17 +9,16 @@ import {
 	splitLink,
 } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
+import { toast } from 'sonner';
 import superjson from 'superjson';
 
 import type { AppRouter } from '@/server/index';
-
-import { toast } from '@/hooks/use-toast';
 
 export const queryClient = new QueryClient({
 	defaultOptions: {
 		mutations: {
 			onError(err) {
-				toast({ description: err.message, title: 'Error' });
+				toast.error('Error', { description: err.message });
 			},
 		},
 	},

@@ -9,14 +9,12 @@ import {
 	StarIcon,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
-import { ToastAction } from '@/components/ui/toast';
 import { trpc } from '@/lib/api';
 import { NotifyEventSchema } from '@/lib/schemas';
 
 import { useInvalidate } from './use-invalidate';
-import { toast } from './use-toast';
 
 export function useNotifyRequest() {
 	const { mutate } = useMutation(trpc.notify.subscribe.mutationOptions());
@@ -54,20 +52,24 @@ export function useNotifyRequestToast() {
 			return;
 		}
 		if (curPermission !== 'granted') {
-			notifyToast.current ??= toast({
-				action: <NotificationAction onSubscribe={handleSubscribe} />,
+			notifyToast.current ??= toast('Notifications', {
+				action: {
+					label: 'Enable',
+					onClick: handleSubscribe,
+				},
 				description: 'Please enable notifications',
 				duration: Infinity,
-				icon: Bell,
-				onOpenChange(open) {
-					if (!open && Notification.permission !== 'granted') {
+				icon: <Bell className="size-4" />,
+				onDismiss() {
+					if (Notification.permission !== 'granted') {
 						localStorage.setItem('notify-toast', 'dismissed');
 					}
 				},
-				title: 'Notifications',
 			});
 		} else {
-			notifyToast?.current?.dismiss();
+			if (notifyToast?.current) {
+				toast.dismiss(notifyToast.current);
+			}
 			handleSubscribe();
 		}
 	}, [curPermission, handleSubscribe]);
@@ -82,24 +84,13 @@ export function useNotifySubscribe() {
 
 				invalidate([trpc.hunt.getAvailable.queryKey()]);
 				if (event.title) {
-					toast({
+					toast(event.title, {
 						description: event.body,
 						icon: typeToIcon(event.type),
-						title: event.title,
 					});
 				}
 			},
 		}),
-	);
-}
-
-function NotificationAction({ onSubscribe }: { onSubscribe: () => void }) {
-	return (
-		<ToastAction altText="Enable notifications" asChild>
-			<Button onClick={onSubscribe} variant="ghost">
-				Enable notifications
-			</Button>
-		</ToastAction>
 	);
 }
 
@@ -129,15 +120,15 @@ async function requestNotifyPermission(
 function typeToIcon(type: NotifyEventSchema['type']) {
 	switch (type) {
 		case 'hunt-complete':
-			return StarIcon;
+			return <StarIcon />;
 		case 'hunt-starting':
 		case 'hunt-update':
-			return CrosshairIcon;
+			return <CrosshairIcon />;
 		case 'invite-accept':
-			return MailCheckIcon;
+			return <MailCheckIcon />;
 		case 'invite-decline':
-			return MailXIcon;
+			return <MailXIcon />;
 		default:
-			return MailIcon;
+			return <MailIcon />;
 	}
 }

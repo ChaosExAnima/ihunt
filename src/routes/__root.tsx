@@ -5,7 +5,7 @@ import {
 	Outlet,
 } from '@tanstack/react-router';
 
-import { Toaster } from '@/components/providers/toaster';
+import { Toaster } from '@/components/ui/sonner';
 import { cn, isDev } from '@/lib/utils';
 
 const devMode = isDev();
@@ -22,7 +22,7 @@ export const Route = createRootRouteWithContext<{
 			)}
 		>
 			<Outlet />
-			<Toaster />
+			<Toaster closeButton visibleToasts={2} />
 		</div>
 	),
 	errorComponent: ErrorComponent,
