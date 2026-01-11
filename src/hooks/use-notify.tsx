@@ -16,20 +16,7 @@ import { trpc } from '@/lib/api';
 import { NotifyEventSchema } from '@/lib/schemas';
 
 import { useInvalidate } from './use-invalidate';
-import { toast, useToast } from './use-toast';
-
-export function useNotify() {
-	const { toast } = useToast();
-	return useCallback(
-		({ body, title }: NotifyEventSchema) => {
-			toast({
-				description: body,
-				title,
-			});
-		},
-		[toast],
-	);
-}
+import { toast } from './use-toast';
 
 export function useNotifyRequest() {
 	const { mutate } = useMutation(trpc.notify.subscribe.mutationOptions());
@@ -59,17 +46,27 @@ export function useNotifyRequest() {
 		});
 	}, [mutate]);
 
-	useEffect(() => {
-		const listener = (event: MessageEvent) => {
-			console.log('Received a message from service worker:', event.data);
-		};
-		// Listen for messages from the service worker
-		navigator.serviceWorker.addEventListener('message', listener);
-		return () => {
-			navigator.serviceWorker.removeEventListener('message', listener);
-		};
-	}, []);
+	const invalidate = useInvalidate();
+	useSubscription(
+		trpc.notify.onNotify.subscriptionOptions(skipToken, {
+			onData(data) {
+				invalidate([trpc.hunt.getAvailable.queryKey()]);
+				if (data.title) {
+					toast({
+						description: data.body,
+						icon: typeToIcon(data.type),
+						title: data.title,
+					});
+				}
+			},
+		}),
+	);
 
+	return handleSubscribe;
+}
+
+export function useNotifyRequestToast() {
+	const handleSubscribe = useNotifyRequest();
 	const curPermission = Notification.permission;
 	const notifyToast = useRef<null | ReturnType<typeof toast>>(null);
 	useEffect(() => {
@@ -85,8 +82,10 @@ export function useNotifyRequest() {
 			notifyToast?.current?.dismiss();
 			handleSubscribe();
 		}
-	}, [curPermission, handleSubscribe, mutate]);
+	}, [curPermission, handleSubscribe]);
+}
 
+export function useNotifySubscribe() {
 	const invalidate = useInvalidate();
 	useSubscription(
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {

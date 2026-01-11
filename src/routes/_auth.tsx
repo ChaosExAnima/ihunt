@@ -4,7 +4,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { Loading } from '@/components/loading';
 import Navbar from '@/components/navbar';
 import { PlayerInfoProvider } from '@/components/providers/player';
-import { useNotifyRequest } from '@/hooks/use-subscribe';
+import { useNotifyRequestToast, useNotifySubscribe } from '@/hooks/use-notify';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
@@ -25,7 +25,8 @@ export const Route = createFileRoute('/_auth')({
 function Page() {
 	const { data: player } = useQuery(trpc.auth.me.queryOptions());
 
-	useNotifyRequest();
+	useNotifyRequestToast();
+	useNotifySubscribe();
 
 	if (!player) {
 		return <Loading />;
