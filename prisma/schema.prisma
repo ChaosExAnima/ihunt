@@ -20,7 +20,7 @@ model Hunt {
     danger      Int          @default(1)
     maxHunters  Int          @default(5)
     minRating   Int          @default(0)
-    hunters     Hunter[]
+    hunters     Hunter[]     @relation("HuntToHunter")
     invites     HuntInvite[]
     photos      Photo[]
     rating      Float?
@@ -37,7 +37,7 @@ model Hunter {
     name        String
     handle      String       @unique
     alive       Boolean      @default(true)
-    hunts       Hunt[]
+    hunts       Hunt[]       @relation("HuntToHunter")
     photos      Photo[]      @relation("Photos")
     avatar      Photo?       @relation("Avatar", fields: [avatarId], references: [id])
     avatarId    Int?         @unique
@@ -75,7 +75,7 @@ model HuntInvite {
     status       String   @default("pending")
 
     @@unique([fromHunterId, huntId, toHunterId], name: "fromToHunt")
-    @@index([toHunterId, status], name: "toHunterStatus")
+    @@index([toHunterId, status], map: "toHunterStatus")
     @@index([expiresAt])
 }
 
@@ -95,12 +95,11 @@ model Photo {
 }
 
 model User {
-    id        Int     @id @default(autoincrement())
-    password  String  @unique
-    name      String?
-    run       Int     @default(1)
-    hideMoney Boolean @default(false)
-
+    id         Int         @id @default(autoincrement())
+    password   String      @unique
+    name       String?
+    run        Int         @default(1)
+    settings   Json?
     createdAt  DateTime    @default(now())
     updatedAt  DateTime    @updatedAt
     hunters    Hunter[]

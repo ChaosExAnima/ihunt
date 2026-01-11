@@ -1,6 +1,11 @@
 import * as z from 'zod';
 
-import { huntSchema, huntStatus, photoHuntSchema } from '@/lib/schemas';
+import {
+	huntSchema,
+	huntStatus,
+	notifyTypeSchema,
+	photoHuntSchema,
+} from '@/lib/schemas';
 
 export const outputHuntSchema = huntSchema.extend({
 	photos: photoHuntSchema.array(),
@@ -31,3 +36,15 @@ export const subscriptionSchema = z.object({
 	}),
 });
 export type SubscriptionSchema = z.infer<typeof subscriptionSchema>;
+
+export const userSettingsSchema = z
+	.object({
+		hideMoney: z.boolean(),
+		notifications: z.partialRecord(notifyTypeSchema, z.boolean()),
+	})
+	.nullish()
+	.transform((arg) => arg ?? undefined)
+	.default({
+		hideMoney: false,
+		notifications: {},
+	});

@@ -67,7 +67,7 @@ export const authRouter = router({
 		.query(({ ctx: { hunter, user } }) => ({
 			hunter,
 			settings: {
-				hideMoney: user.hideMoney,
+				hideMoney: user.settings.hideMoney,
 			},
 		})),
 

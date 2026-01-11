@@ -95,20 +95,23 @@ export const groupSchema = z.object({
 });
 export type GroupSchema = z.infer<typeof groupSchema>;
 
+export const notifyTypeSchema = z.enum([
+	'message',
+	'hunt-update',
+	'hunt-starting',
+	'hunt-complete',
+	'invite-accept',
+	'invite-decline',
+	'invite-receive',
+]);
+export type NotifyTypeSchema = z.infer<typeof notifyTypeSchema>;
+
 export const notifyEventSchema = z
 	.object({
 		body: z.string().optional(),
 		icon: z.url().optional(),
 		title: z.string().optional(),
-		type: z.enum([
-			'message',
-			'hunt-update',
-			'hunt-starting',
-			'hunt-complete',
-			'invite-accept',
-			'invite-decline',
-			'invite-receive',
-		]),
+		type: notifyTypeSchema,
 		url: z.url().optional(),
 	})
 	.and(z.record(z.string(), z.string().optional()));
