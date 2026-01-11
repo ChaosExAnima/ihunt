@@ -3,7 +3,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { Loading } from '@/components/loading';
 import Navbar from '@/components/navbar';
-import { PlayerSettingsProvider } from '@/components/providers/player';
+import { PlayerInfoProvider } from '@/components/providers/player';
 import { useNotifyRequest } from '@/hooks/use-subscribe';
 import { trpc } from '@/lib/api';
 
@@ -32,13 +32,13 @@ function Page() {
 	}
 
 	return (
-		<PlayerSettingsProvider settings={player}>
+		<PlayerInfoProvider info={player}>
 			<div className="grow flex flex-col w-full justify-stretch">
 				<Navbar hunter={player.hunter} isHuntActive={false} />
 				<main className="grow px-4 flex flex-col gap-2 pb-4">
 					<Outlet />
 				</main>
 			</div>
-		</PlayerSettingsProvider>
+		</PlayerInfoProvider>
 	);
 }

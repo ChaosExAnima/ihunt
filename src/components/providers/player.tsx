@@ -3,21 +3,21 @@ import { createContext, PropsWithChildren, useContext } from 'react';
 
 import { trpc } from '@/lib/api';
 
-export type PlayerSettings = inferOutput<typeof trpc.auth.me>;
+export type PlayerInfo = inferOutput<typeof trpc.auth.me>;
 
-const PlayerSettingsContext = createContext<null | PlayerSettings>(null);
+const PlayerInfoContext = createContext<null | PlayerInfo>(null);
 
-export function PlayerSettingsProvider({
+export function PlayerInfoProvider({
 	children,
-	settings,
-}: PropsWithChildren<{ settings: PlayerSettings }>) {
+	info,
+}: PropsWithChildren<{ info: PlayerInfo }>) {
 	return (
-		<PlayerSettingsContext.Provider value={settings ?? null}>
+		<PlayerInfoContext.Provider value={info ?? null}>
 			{children}
-		</PlayerSettingsContext.Provider>
+		</PlayerInfoContext.Provider>
 	);
 }
 
-export function usePlayerSettings() {
-	return useContext(PlayerSettingsContext);
+export function usePlayer() {
+	return useContext(PlayerInfoContext);
 }

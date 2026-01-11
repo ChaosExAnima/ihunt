@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { usePlayerSettings } from '@/components/providers/player';
+import { useSettings } from '@/hooks/use-settings';
 
 import { Currency, Locale } from './constants';
 
@@ -45,12 +45,12 @@ export function todayStart() {
 }
 
 export function useCurrencyFormat(amount: number) {
-	const player = usePlayerSettings();
+	const settings = useSettings();
 	const formatted = useMemo(() => currencyFormatter.format(amount), [amount]);
-	if (!player) {
+	if (!settings) {
 		return '';
 	}
-	if (player.settings.hideMoney) {
+	if (settings.hideMoney) {
 		return '';
 	}
 	return formatted;

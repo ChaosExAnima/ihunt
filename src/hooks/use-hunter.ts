@@ -1,8 +1,7 @@
-import { usePlayerSettings } from '@/components/providers/player';
+import { usePlayer } from '@/components/providers/player';
 
 export function useHunter() {
-	const settings = usePlayerSettings();
-	return settings?.hunter ?? null;
+	return usePlayer()?.hunter ?? null;
 }
 
 export function useHunterId() {
