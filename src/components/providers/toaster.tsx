@@ -37,8 +37,9 @@ export function Toaster() {
 							onSwipeMove: disableHandler,
 							onSwipeStart: disableHandler,
 						})}
+						className="mb-2"
 					>
-						<div className="">
+						<div>
 							{title && (
 								<ToastTitle className="flex gap-2 items-center mb-2">
 									{Icon && <Icon />}
