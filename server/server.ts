@@ -5,7 +5,7 @@ import {
 	FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify';
 import fastify from 'fastify';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 import { isDev } from '@/lib/utils';
 import { createAuthContext } from '@/server/lib/auth';
@@ -24,7 +24,9 @@ async function startServer() {
 					},
 				}
 			: null),
-		maxParamLength: 5000,
+		routerOptions: {
+			maxParamLength: 5000,
+		},
 	});
 
 	await server.register(fastifyTRPCPlugin, {
