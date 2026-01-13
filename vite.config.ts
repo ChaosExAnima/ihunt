@@ -46,6 +46,17 @@ export default defineConfig({
 				],
 				name: 'iHunt',
 				orientation: 'portrait-primary',
+				screenshots: [
+					{
+						sizes: '712x1284',
+						src: '/public/screenshot.png',
+					},
+					{
+						form_factor: 'wide',
+						sizes: '712x1284',
+						src: '/public/screenshot.png',
+					},
+				],
 				short_name: 'iHunt',
 				theme_color: 'oklch(51.4% 0.222 16.935)',
 			},
