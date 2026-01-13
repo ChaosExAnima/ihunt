@@ -28,4 +28,4 @@ services:
       IMGPROXY_PORT: "${IMGPROXY_PORT:-9000}"
       IMGPROXY_PATH: "${IMGPROXY_PATH:-}"
     ports:
-      - "4444:80"
+      - "9000:80"
