@@ -20,7 +20,7 @@ services:
     image: nginx
     restart: unless-stopped
     volumes:
-      - ./static.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./config/nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - ./data/cache:/var/cache/nginx:delegated
     links:
       - images:images
