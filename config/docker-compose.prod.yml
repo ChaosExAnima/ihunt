@@ -1,0 +1,32 @@
+services:
+  images:
+    image: ghcr.io/imgproxy/imgproxy:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/imgproxy:/mnt/data
+      - ${MEDIA_PATH}:/mnt/images:ro
+    environment:
+      PORT: 9000
+      IMGPROXY_KEY: "${IMGPROXY_KEY:-imgproxy_key}"
+      IMGPROXY_SALT: "${IMGPROXY_SALT:-imgproxy_salt}"
+      IMGPROXY_WORKERS: 20
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
+      IMGPROXY_PATH_PREFIX: /images
+
+  static:
+    image: nginx
+    restart: unless-stopped
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./data/cache/nginx:/var/cache/nginx:delegated
+      - ./dist/client:/etc/nginx/html:ro
+    links:
+      - images:images
+    environment:
+      IMGPROXY_PORT: 9000
+      IMGPROXY_PATH: /images
+      APP_PORT: "${PORT:-4000}"
+    ports:
+      - "80:80"
+      - "443:443"
