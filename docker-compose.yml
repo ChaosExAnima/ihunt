@@ -12,20 +12,5 @@ services:
       IMGPROXY_WORKERS: 20
       IMGPROXY_USE_ETAG: "true"
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
-      IMGPROXY_PATH_PREFIX: "${IMGPROXY_PATH:-}"
     ports:
-      - "9000:${IMGPROXY_PORT:-9000}"
-
-  static:
-    image: nginx
-    restart: unless-stopped
-    volumes:
-      - ./config/nginx.conf:/etc/nginx/templates/default.conf.template:ro
-      - ./data/cache:/var/cache/nginx:delegated
-    links:
-      - images:images
-    environment:
-      IMGPROXY_PORT: "${IMGPROXY_PORT:-9000}"
-      IMGPROXY_PATH: "${IMGPROXY_PATH:-}"
-    ports:
-      - "9000:80"
+      - "${IMGPROXY_PORT:-9000}:80"
