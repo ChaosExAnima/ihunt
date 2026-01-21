@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { HUNT_INVITE_TIME } from '@/lib/constants';
+import { HUNT_INVITE_MINUTES } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
 
@@ -116,7 +116,9 @@ export const inviteRouter = router({
 			});
 
 			// Try to create the invites
-			const expiresAt = new Date(Date.now() + MINUTE * HUNT_INVITE_TIME);
+			const expiresAt = new Date(
+				Date.now() + MINUTE * HUNT_INVITE_MINUTES,
+			);
 			for (const inviteeId of invitees) {
 				try {
 					const invite = await db.huntInvite.create({
