@@ -1,6 +1,11 @@
 import * as z from 'zod';
 
-import { HUNT_MAX_DANGER, HuntStatus, PASSWORD_CHAR_COUNT } from './constants';
+import {
+	HUNT_MAX_DANGER,
+	HUNT_MAX_HUNTERS,
+	HuntStatus,
+	PASSWORD_CHAR_COUNT,
+} from './constants';
 
 export const authSchema = z.object({
 	password: z
@@ -73,7 +78,7 @@ export const huntSchema = z.object({
 	description: z.string(),
 	hunters: hunterSchema.array(),
 	id: idSchema,
-	maxHunters: z.int().min(1).max(4),
+	maxHunters: z.int().min(1).max(HUNT_MAX_HUNTERS),
 	minRating: z.number().min(0).max(5),
 	name: z.string().min(1),
 	payment: posIntSchema,
