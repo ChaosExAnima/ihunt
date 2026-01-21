@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CircleCheckBig, X } from 'lucide-react';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useHunterId } from '@/hooks/use-hunter';
 import { useInterval } from '@/hooks/use-interval';
@@ -15,30 +15,14 @@ import { MINUTE, SECOND } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
 import { HuntDisplayProps } from '.';
+import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';
 import { Button } from '../ui/button';
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '../ui/dialog';
 import HuntBase from './base';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
 
-	const {
-		danger,
-		hunters = [],
-		id: huntId,
-		maxHunters,
-		reserved,
-		scheduledAt,
-	} = hunt;
+	const { danger, hunters = [], id: huntId, maxHunters, reserved } = hunt;
 
 	const currentHunterId = useHunterId();
 	const hasAccepted = useMemo(
@@ -60,6 +44,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		reserved?.status !== 'reserved' &&
 		reserved?.status !== 'declined';
 
+	const isLockedDown = useLockedDown(hunt.scheduledAt);
+
 	return (
 		<HuntBase {...props}>
 			<HuntInvite noHunts={remainingHunts === 0} reserved={reserved} />
@@ -68,8 +54,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 				{!hasAccepted && canJoinHunt && (
 					<HuntJoinButton
 						danger={danger}
+						isLockedDown={isLockedDown}
 						onAccept={handleAccept}
-						scheduledTs={scheduledAt?.getTime()}
 					/>
 				)}
 				{hasAccepted && (
@@ -187,24 +173,14 @@ function HuntInviteRejectButton({ huntId }: { huntId: number }) {
 
 function HuntJoinButton({
 	danger,
+	isLockedDown,
 	onAccept,
-	scheduledTs,
 }: {
 	danger: number;
+	isLockedDown?: boolean;
 	onAccept: () => void;
-	scheduledTs?: number;
 }) {
-	const [isLockedDown, setIsLockedDown] = useState(() =>
-		checkHuntTime(scheduledTs),
-	);
 	const [accepted, setAccepted] = useState(false);
-
-	const handleInterval = useCallback(() => {
-		if (!isLockedDown && checkHuntTime(scheduledTs)) {
-			setIsLockedDown(true);
-		}
-	}, [scheduledTs, isLockedDown]);
-	useInterval({ cb: handleInterval });
 
 	const handleAccept = useCallback(() => {
 		if (danger === HUNT_MAX_DANGER && isLockedDown && !accepted) {
@@ -214,23 +190,40 @@ function HuntJoinButton({
 		}
 	}, [danger, isLockedDown, accepted, onAccept]);
 
+	const dialogProps = useMemo(
+		() =>
+			({
+				onConfirm: handleAccept,
+				trigger: (
+					<Button
+						className="rounded-full font-bold"
+						variant="success"
+					>
+						<CircleCheckBig
+							aria-label="Accept hunt"
+							strokeWidth="3"
+						/>
+						Accept
+					</Button>
+				),
+			}) satisfies ConfirmDialogProps,
+		[handleAccept],
+	);
+
 	if (isLockedDown && !accepted) {
 		return (
-			<HuntJoinDialog
-				onAccept={handleAccept}
-				title="Confirm joining hunt"
-			>
+			<ConfirmDialog {...dialogProps} title="Confirm joining hunt">
 				Because this hunt is happening soon, once you accept this hunt
 				you <strong>cannot</strong> cancel.
-			</HuntJoinDialog>
+			</ConfirmDialog>
 		);
 	}
 
 	if (danger === HUNT_MAX_DANGER) {
 		return (
-			<HuntJoinDialog
+			<ConfirmDialog
+				{...dialogProps}
 				isDangerous
-				onAccept={handleAccept}
 				title="Confirm maximum danger"
 			>
 				<p>
@@ -248,7 +241,7 @@ function HuntJoinButton({
 					also understand that if this hunt is not completed iHunt may
 					at their discretion terminate your account for inactivity.
 				</p>
-			</HuntJoinDialog>
+			</ConfirmDialog>
 		);
 	}
 
@@ -264,45 +257,18 @@ function HuntJoinButton({
 	);
 }
 
-function HuntJoinDialog({
-	children,
-	isDangerous = false,
-	onAccept,
-	title,
-}: {
-	children?: ReactNode;
-	isDangerous?: boolean;
-	onAccept: () => void;
-	title: ReactNode;
-}) {
-	const [show, setShow] = useState(false);
-	return (
-		<Dialog onOpenChange={setShow} open={show}>
-			<DialogTrigger>
-				<Button className="rounded-full font-bold" variant="success">
-					<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
-					Accept
-				</Button>
-			</DialogTrigger>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
-				<DialogDescription className="text-primary">
-					{children}
-				</DialogDescription>
-				<DialogFooter>
-					<DialogClose asChild>
-						<Button variant="secondary">Close</Button>
-					</DialogClose>
-					<Button
-						onClick={onAccept}
-						variant={isDangerous ? 'destructive' : 'success'}
-					>
-						Confirm
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+function useLockedDown(scheduledAt: Date | null) {
+	const scheduledTs = scheduledAt?.getTime();
+	const [isLockedDown, setIsLockedDown] = useState(() =>
+		checkHuntTime(scheduledTs),
 	);
+
+	const handleInterval = useCallback(() => {
+		if (!isLockedDown && checkHuntTime(scheduledTs)) {
+			setIsLockedDown(true);
+		}
+	}, [scheduledTs, isLockedDown]);
+	useInterval({ cb: handleInterval });
+
+	return isLockedDown;
 }
