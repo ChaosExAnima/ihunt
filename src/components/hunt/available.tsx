@@ -1,22 +1,39 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CircleCheckBig, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useHunterId } from '@/hooks/use-hunter';
+import { useInterval } from '@/hooks/use-interval';
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
-import { HUNT_MAX_PER_DAY } from '@/lib/constants';
+import { HUNT_LOCKDOWN_MINUTES, HUNT_MAX_PER_DAY } from '@/lib/constants';
 import { MINUTE, SECOND } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
 import { HuntDisplayProps } from '.';
 import { Button } from '../ui/button';
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../ui/dialog';
 import HuntBase from './base';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
 
-	const { hunters = [], id: huntId, maxHunters, reserved } = hunt;
+	const {
+		hunters = [],
+		id: huntId,
+		maxHunters,
+		reserved,
+		scheduledAt,
+	} = hunt;
 
 	const currentHunterId = useHunterId();
 	const hasAccepted = useMemo(
@@ -44,17 +61,10 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 
 			<div className="flex gap-2 justify-center">
 				{!hasAccepted && canJoinHunt && (
-					<Button
-						className="rounded-full font-bold"
-						onClick={handleAccept}
-						variant="success"
-					>
-						<CircleCheckBig
-							aria-label="Accept hunt"
-							strokeWidth="3"
-						/>
-						Accept
-					</Button>
+					<HuntJoinButton
+						handleAccept={handleAccept}
+						scheduledTs={scheduledAt?.getTime()}
+					/>
 				)}
 				{hasAccepted && (
 					<Button
@@ -84,6 +94,10 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	);
 }
 
+function checkHuntTime(ts?: number) {
+	return !!ts && ts > Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE;
+}
+
 function HuntInvite({
 	noHunts,
 	reserved,
@@ -93,15 +107,12 @@ function HuntInvite({
 		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
 	);
 
-	useEffect(() => {
-		const id = setInterval(() => {
-			if (expiresTs) {
-				setMinutesLeft(Math.ceil((expiresTs - Date.now()) / MINUTE));
-			}
-		}, 10 * SECOND);
-
-		return () => clearInterval(id);
+	const handleInterval = useCallback(() => {
+		if (expiresTs) {
+			setMinutesLeft(Math.ceil((expiresTs - Date.now()) / MINUTE));
+		}
 	}, [expiresTs]);
+	useInterval({ cb: handleInterval, interval: 10 * SECOND });
 
 	if (!reserved || minutesLeft <= 0) {
 		return null;
@@ -165,5 +176,66 @@ function HuntInviteRejectButton({ huntId }: { huntId: number }) {
 			<X />
 			Decline
 		</Button>
+	);
+}
+
+function HuntJoinButton({
+	handleAccept,
+	scheduledTs,
+}: {
+	handleAccept: () => void;
+	scheduledTs?: number;
+}) {
+	const [isLockedDown, setIsLockedDown] = useState(() =>
+		checkHuntTime(scheduledTs),
+	);
+	const [show, setShow] = useState(false);
+
+	const handleInterval = useCallback(() => {
+		if (!isLockedDown && checkHuntTime(scheduledTs)) {
+			setIsLockedDown(true);
+		}
+	}, [scheduledTs, isLockedDown]);
+	useInterval({ cb: handleInterval });
+
+	if (!isLockedDown) {
+		return (
+			<Button
+				className="rounded-full font-bold"
+				onClick={handleAccept}
+				variant="success"
+			>
+				<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
+				Accept
+			</Button>
+		);
+	}
+
+	return (
+		<Dialog onOpenChange={setShow} open={show}>
+			<DialogTrigger>
+				<Button className="rounded-full font-bold" variant="success">
+					<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
+					Accept
+				</Button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Confirm joining?</DialogTitle>
+				</DialogHeader>
+				<DialogDescription className="text-primary">
+					Because this hunt is happening soon, once you accept this
+					hunt you <strong>cannot</strong> cancel.
+				</DialogDescription>
+				<DialogFooter className="gap-2">
+					<DialogClose asChild>
+						<Button variant="secondary">Close</Button>
+					</DialogClose>
+					<Button onClick={handleAccept} variant="success">
+						Confirm
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
 	);
 }

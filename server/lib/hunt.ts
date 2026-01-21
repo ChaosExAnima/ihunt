@@ -1,13 +1,16 @@
-import { HuntStatus } from '@/lib/constants';
-import { clamp } from '@/lib/utils';
+import { HUNT_LOCKDOWN_MINUTES, HuntStatus } from '@/lib/constants';
+import { MINUTE } from '@/lib/formats';
+import { clamp, extractIds } from '@/lib/utils';
 
 import { db, Hunt, Hunter, Prisma } from './db';
 import {
 	huntAvailableEvent,
 	huntCompleteEvent,
+	huntStartingEvent,
 	notifyHuntsReload,
 	notifyUser,
 } from './notify';
+import { InviteStatus } from './schema';
 
 export const huntDisplayInclude = {
 	hunters: {
@@ -27,6 +30,97 @@ export function calculateNewRating({
 }): number {
 	// Take the average of the hunter and hunt rating, and clamp it from 0-5.
 	return clamp({ input: (huntRating + hunterRating) / 2, max: 5 });
+}
+
+export function huntInLockdown(hunt: Hunt) {
+	return (
+		(hunt.status === HuntStatus.Available ||
+			hunt.status === HuntStatus.Active) &&
+		hunt.scheduledAt &&
+		hunt.scheduledAt.getTime() >=
+			Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE
+	);
+}
+
+const huntsNotified = new Set<number>();
+
+export async function onHuntInterval() {
+	// Get upcoming hunts within scheduled time.
+	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
+	const upcomingHunts = await db.hunt.findMany({
+		include: {
+			hunters: {
+				select: { userId: true },
+			},
+		},
+		where: {
+			scheduledAt: {
+				lte: lockdownTime,
+			},
+			status: HuntStatus.Available,
+		},
+	});
+
+	// Send notifications that hunt is upcoming.
+	const notifyPromises: Promise<boolean>[] = [];
+	for (const hunt of upcomingHunts) {
+		if (huntsNotified.has(hunt.id)) {
+			continue;
+		}
+		for (const hunter of hunt.hunters) {
+			if (hunter.userId) {
+				notifyPromises.push(
+					notifyUser({
+						event: huntStartingEvent({ hunt }),
+						userId: hunter.userId,
+					}),
+				);
+			}
+		}
+		huntsNotified.add(hunt.id);
+	}
+	const results = await Promise.all(notifyPromises);
+	const total = results.filter((v): v is true => !!v).length;
+	if (total) {
+		console.log(
+			`Notified ${total} users for ${upcomingHunts.length} hunts`,
+		);
+	}
+
+	// Set scheduled hunts to active.
+	const now = new Date();
+	const liveHunts = await db.hunt.updateMany({
+		data: {
+			status: HuntStatus.Active,
+		},
+		where: {
+			scheduledAt: {
+				gte: now,
+			},
+			status: HuntStatus.Available,
+		},
+	});
+	if (liveHunts.count > 0) {
+		console.log(`Set ${liveHunts.count} hunts to active`);
+	}
+
+	if (upcomingHunts.length === 0) {
+		return;
+	}
+
+	// Expire all invites.
+	const inviteResults = await db.huntInvite.updateMany({
+		data: { status: InviteStatus.Expired },
+		where: {
+			huntId: {
+				in: extractIds(upcomingHunts),
+			},
+			status: InviteStatus.Pending,
+		},
+	});
+	if (inviteResults.count) {
+		console.log(`Expired ${inviteResults.count} invites`);
+	}
 }
 
 export async function updateHunt({

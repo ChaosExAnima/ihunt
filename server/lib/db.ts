@@ -1,4 +1,5 @@
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { resolve } from 'node:path';
 
 import { isDev } from '@/lib/utils';
 
@@ -19,8 +20,9 @@ if (isDev()) {
 	}
 }
 
+const url = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
 const adapter = new PrismaBetterSqlite3({
-	url: `file://${process.env.DB_PATH ?? './prisma/dev.db'}`,
+	url: `file://${url}`,
 });
 export const db = new PrismaClient({
 	adapter,

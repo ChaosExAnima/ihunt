@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
-import { HUNT_INVITE_TIME } from '@/lib/constants';
+import { HUNT_INVITE_MINUTES } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
 
 import Avatar from '../avatar';
@@ -93,8 +93,8 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 					))}
 				</ul>
 				<p className="text-muted-foreground">
-					Your group will have {HUNT_INVITE_TIME} minutes to accept or
-					decline the hunt.
+					Your group will have {HUNT_INVITE_MINUTES} minutes to accept
+					or decline the hunt.
 				</p>
 				<Button className="grow" onClick={handleSend} variant="success">
 					Send invites

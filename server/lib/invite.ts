@@ -8,6 +8,7 @@ import { inviteResponseEvent, notifyUser } from './notify';
 import { InviteStatus } from './schema';
 
 interface FetchInviteesForHuntArgs {
+	exceptHunterIds: number[];
 	fromHunterId: number;
 	groupId: number;
 	huntId: number;
@@ -66,6 +67,7 @@ export async function fetchDailyHuntCount(hunterId: number) {
 }
 
 export async function fetchInviteesForHunt({
+	exceptHunterIds,
 	fromHunterId,
 	groupId,
 	huntId,
@@ -77,10 +79,8 @@ export async function fetchInviteesForHunt({
 		where: {
 			alive: true,
 			groupId,
-			hunts: {
-				none: {
-					id: huntId,
-				},
+			id: {
+				notIn: exceptHunterIds,
 			},
 		},
 	});
@@ -141,6 +141,20 @@ export async function fetchUnclaimedSpots(huntId: number) {
 		joined: joinedHunterIds,
 		joinedCount: joinedHunterIds.size,
 	};
+}
+
+export async function onInviteInterval() {
+	await db.huntInvite.updateMany({
+		data: {
+			status: InviteStatus.Expired,
+		},
+		where: {
+			expiresAt: {
+				gte: new Date(),
+			},
+			status: InviteStatus.Pending,
+		},
+	});
 }
 
 export async function reservationsFromHunts(

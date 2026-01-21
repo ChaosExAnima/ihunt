@@ -7,10 +7,13 @@ import {
 import fastify from 'fastify';
 import { resolve } from 'node:path';
 
+import { MINUTE } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 import { createAuthContext } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 
+import { onHuntInterval } from './lib/hunt';
+import { onInviteInterval } from './lib/invite';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
@@ -54,6 +57,11 @@ async function startServer() {
 		);
 	});
 
+	const timerId = setInterval(() => {
+		void onHuntInterval();
+		void onInviteInterval();
+	}, MINUTE);
+
 	const root = resolve(import.meta.dirname, '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
@@ -74,6 +82,7 @@ async function startServer() {
 		await server.vite.ready();
 		await server.listen({ host: '0.0.0.0', port: config.port });
 	} catch (err) {
+		timerId.close();
 		console.error(err);
 		process.exit(1);
 	}
