@@ -1,8 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
 import { HuntStatus } from '@/lib/constants';
-
-const db = new PrismaClient();
+import { db } from '@/server/lib/db';
 
 async function main() {
 	try {

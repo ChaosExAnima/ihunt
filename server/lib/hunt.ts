@@ -1,15 +1,22 @@
-import { Hunt, Hunter } from '@prisma/client';
-
 import { HuntStatus } from '@/lib/constants';
 import { clamp } from '@/lib/utils';
 
-import { db } from './db';
+import { db, Hunt, Hunter, Prisma } from './db';
 import {
 	huntAvailableEvent,
 	huntCompleteEvent,
 	notifyHuntsReload,
 	notifyUser,
 } from './notify';
+
+export const huntDisplayInclude = {
+	hunters: {
+		include: {
+			avatar: true,
+		},
+	},
+	photos: true,
+} as const satisfies Prisma.HuntInclude;
 
 export function calculateNewRating({
 	hunterRating,

@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-
 import type { HunterTypeSchema } from './schemas';
 
 export const Locale = 'de-DE';
@@ -21,19 +19,6 @@ export const HUNT_MAX_PER_DAY = 2;
 export const HUNT_MAX_HUNTERS = 5;
 export const HUNT_MAX_DANGER = 5;
 export const HUNT_INVITE_TIME = 30; // In minutes
-
-export const huntDisplayInclude = {
-	hunters: {
-		include: {
-			avatar: true,
-		},
-	},
-	photos: true,
-} as const satisfies Prisma.HuntInclude;
-
-export type HunterModel = Prisma.HunterGetPayload<{
-	include: { avatar: true };
-}>;
 
 export const HunterTypes = {
 	Evileena: 'evileena',

@@ -1,11 +1,9 @@
-import { Hunt, Hunter, HuntInvite, Prisma } from '@prisma/client';
-
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
 import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
 import { extractIds, extractKey } from '@/lib/utils';
 
-import { db } from './db';
+import { db, Hunt, Hunter, HuntInvite, Prisma } from './db';
 import { inviteResponseEvent, notifyUser } from './notify';
 import { InviteStatus } from './schema';
 

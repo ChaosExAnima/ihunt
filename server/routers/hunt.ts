@@ -1,11 +1,12 @@
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { huntDisplayInclude, HuntStatus } from '@/lib/constants';
+import { HuntStatus } from '@/lib/constants';
 import { idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../lib/db';
 import { handleError, wrapRoute } from '../lib/error';
+import { huntDisplayInclude } from '../lib/hunt';
 import {
 	fetchDailyHuntCount,
 	fetchUnclaimedSpots,
