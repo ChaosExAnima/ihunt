@@ -1,12 +1,16 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CircleCheckBig, X } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useHunterId } from '@/hooks/use-hunter';
 import { useInterval } from '@/hooks/use-interval';
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
-import { HUNT_LOCKDOWN_MINUTES, HUNT_MAX_PER_DAY } from '@/lib/constants';
+import {
+	HUNT_LOCKDOWN_MINUTES,
+	HUNT_MAX_DANGER,
+	HUNT_MAX_PER_DAY,
+} from '@/lib/constants';
 import { MINUTE, SECOND } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
@@ -64,7 +68,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 				{!hasAccepted && canJoinHunt && (
 					<HuntJoinButton
 						danger={danger}
-						handleAccept={handleAccept}
+						onAccept={handleAccept}
 						scheduledTs={scheduledAt?.getTime()}
 					/>
 				)}
@@ -182,17 +186,18 @@ function HuntInviteRejectButton({ huntId }: { huntId: number }) {
 }
 
 function HuntJoinButton({
-	handleAccept,
+	danger,
+	onAccept,
 	scheduledTs,
 }: {
 	danger: number;
-	handleAccept: () => void;
+	onAccept: () => void;
 	scheduledTs?: number;
 }) {
 	const [isLockedDown, setIsLockedDown] = useState(() =>
 		checkHuntTime(scheduledTs),
 	);
-	const [show, setShow] = useState(false);
+	const [accepted, setAccepted] = useState(false);
 
 	const handleInterval = useCallback(() => {
 		if (!isLockedDown && checkHuntTime(scheduledTs)) {
@@ -201,19 +206,76 @@ function HuntJoinButton({
 	}, [scheduledTs, isLockedDown]);
 	useInterval({ cb: handleInterval });
 
-	if (!isLockedDown) {
+	const handleAccept = useCallback(() => {
+		if (danger === HUNT_MAX_DANGER && isLockedDown && !accepted) {
+			setAccepted(true);
+		} else {
+			onAccept();
+		}
+	}, [danger, isLockedDown, accepted, onAccept]);
+
+	if (isLockedDown && !accepted) {
 		return (
-			<Button
-				className="rounded-full font-bold"
-				onClick={handleAccept}
-				variant="success"
+			<HuntJoinDialog
+				onAccept={handleAccept}
+				title="Confirm joining hunt"
 			>
-				<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
-				Accept
-			</Button>
+				Because this hunt is happening soon, once you accept this hunt
+				you <strong>cannot</strong> cancel.
+			</HuntJoinDialog>
 		);
 	}
 
+	if (danger === HUNT_MAX_DANGER) {
+		return (
+			<HuntJoinDialog
+				isDangerous
+				onAccept={handleAccept}
+				title="Confirm maximum danger"
+			>
+				<p>
+					This hunt is marked at the{' '}
+					<strong>highest danger rating</strong>.
+					<br />
+					Please confirm you understand and accept the risks.
+				</p>
+				<p className="text-muted text-sm mt-4">
+					By accepting this hunt, you agree that iHunt is not liable
+					nor is able to provide support for any events which occur as
+					a result of accepting this contract, including but not
+					limited to: injury, maiming, death, murder, property damage,
+					theft, breaking and entering, and grave desecration. You
+					also understand that if this hunt is not completed iHunt may
+					at their discretion terminate your account for inactivity.
+				</p>
+			</HuntJoinDialog>
+		);
+	}
+
+	return (
+		<Button
+			className="rounded-full font-bold"
+			onClick={handleAccept}
+			variant="success"
+		>
+			<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
+			Accept
+		</Button>
+	);
+}
+
+function HuntJoinDialog({
+	children,
+	isDangerous = false,
+	onAccept,
+	title,
+}: {
+	children?: ReactNode;
+	isDangerous?: boolean;
+	onAccept: () => void;
+	title: ReactNode;
+}) {
+	const [show, setShow] = useState(false);
 	return (
 		<Dialog onOpenChange={setShow} open={show}>
 			<DialogTrigger>
@@ -224,17 +286,19 @@ function HuntJoinButton({
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Confirm joining?</DialogTitle>
+					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<DialogDescription className="text-primary">
-					Because this hunt is happening soon, once you accept this
-					hunt you <strong>cannot</strong> cancel.
+					{children}
 				</DialogDescription>
 				<DialogFooter>
 					<DialogClose asChild>
 						<Button variant="secondary">Close</Button>
 					</DialogClose>
-					<Button onClick={handleAccept} variant="success">
+					<Button
+						onClick={onAccept}
+						variant={isDangerous ? 'destructive' : 'success'}
+					>
 						Confirm
 					</Button>
 				</DialogFooter>
