@@ -143,7 +143,7 @@ export async function notifyUser({ event, force, userId }: NotifyArgs) {
 
 	// Only false so that it defaults to sending.
 	if (notificationSettings[event.type] === false) {
-		return;
+		return false;
 	}
 
 	const { vapidPrivKey, vapidPubKey, vapidSubject } = config;

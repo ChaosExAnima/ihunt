@@ -6,6 +6,7 @@ import { db, Hunt, Hunter, Prisma } from './db';
 import {
 	huntAvailableEvent,
 	huntCompleteEvent,
+	huntStartingEvent,
 	notifyHuntsReload,
 	notifyUser,
 } from './notify';
@@ -42,6 +43,44 @@ export function huntInLockdown(hunt: Hunt) {
 }
 
 export async function onHuntInterval() {
+	// Get upcoming hunts within scheduled time.
+	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
+	const upcomingHunts = await db.hunt.findMany({
+		include: {
+			hunters: {
+				select: { userId: true },
+			},
+		},
+		where: {
+			scheduledAt: {
+				lte: lockdownTime,
+			},
+			status: HuntStatus.Available,
+		},
+	});
+
+	// Send notifications that hunt is upcoming.
+	const notifyPromises: Promise<boolean>[] = [];
+	for (const hunt of upcomingHunts) {
+		for (const hunter of hunt.hunters) {
+			if (hunter.userId) {
+				notifyPromises.push(
+					notifyUser({
+						event: huntStartingEvent({ hunt }),
+						userId: hunter.userId,
+					}),
+				);
+			}
+		}
+	}
+	const results = await Promise.all(notifyPromises);
+	const total = results.filter((v): v is true => !!v).length;
+	if (total) {
+		console.log(
+			`Notified ${total} users for ${upcomingHunts.length} hunts`,
+		);
+	}
+
 	// Set scheduled hunts to active.
 	const now = new Date();
 	const liveHunts = await db.hunt.updateMany({
@@ -59,40 +98,7 @@ export async function onHuntInterval() {
 		console.log(`Set ${liveHunts.count} hunts to active`);
 	}
 
-	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
-	const upcomingHunts = await db.hunt.findMany({
-		include: {
-			hunters: true,
-		},
-		where: {
-			scheduledAt: {
-				gte: lockdownTime,
-			},
-			status: HuntStatus.Available,
-		},
-	});
-	const notifyPromises: Promise<Awaited<ReturnType<typeof notifyUser>>>[] =
-		[];
-	for (const hunt of upcomingHunts) {
-		for (const hunter of hunt.hunters) {
-			if (hunter.userId) {
-				notifyPromises.push(
-					notifyUser({
-						event: huntCompleteEvent({ hunt }),
-						userId: hunter.userId,
-					}),
-				);
-			}
-		}
-	}
-	const results = await Promise.all(notifyPromises);
-	const total = results.filter((v): v is true => !!v).length;
-	if (total) {
-		console.log(
-			`Notified ${total} users for ${upcomingHunts.length} hunts`,
-		);
-	}
-
+	// Expire all invites.
 	const inviteResults = await db.huntInvite.updateMany({
 		data: { status: InviteStatus.Expired },
 		where: {
