@@ -1,9 +1,10 @@
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { HUNT_INVITE_MINUTES } from '@/lib/constants';
+import { HUNT_INVITE_MINUTES, HuntStatus } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
+import { extractIds } from '@/lib/utils';
 
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
 import { db, HuntInvite } from '../lib/db';
@@ -53,6 +54,7 @@ export const inviteRouter = router({
 
 				// Get the invitees
 				const invitees = await fetchInviteesForHunt({
+					exceptHunterIds: extractIds(hunt.hunters),
 					fromHunterId: hunter.id,
 					groupId: hunter.groupId,
 					huntId,
@@ -112,9 +114,28 @@ export const inviteRouter = router({
 				});
 			}
 
+			// Prevent creating invites when hunt is locked down or unavailable.
+			const hunt = await db.hunt.findUniqueOrThrow({
+				include: {
+					hunters: {
+						select: { id: true },
+					},
+				},
+				where: {
+					id: huntId,
+				},
+			});
+			if (hunt.status !== HuntStatus.Available || huntInLockdown(hunt)) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Hunt cannot have invites',
+				});
+			}
+
 			// Get the invitees
 			const invites: HuntInvite[] = [];
 			const invitees = await fetchInviteesForHunt({
+				exceptHunterIds: extractIds(hunt.hunters),
 				fromHunterId: hunter.id,
 				groupId: hunter.groupId,
 				huntId,
