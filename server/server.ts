@@ -13,6 +13,7 @@ import { createAuthContext } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 
 import { onHuntInterval } from './lib/hunt';
+import { onInviteInterval } from './lib/invite';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
@@ -58,6 +59,7 @@ async function startServer() {
 
 	const timerId = setInterval(() => {
 		void onHuntInterval();
+		void onInviteInterval();
 	}, MINUTE);
 
 	const root = resolve(import.meta.dirname, '..');

@@ -143,6 +143,20 @@ export async function fetchUnclaimedSpots(huntId: number) {
 	};
 }
 
+export async function onInviteInterval() {
+	await db.huntInvite.updateMany({
+		data: {
+			status: InviteStatus.Expired,
+		},
+		where: {
+			expiresAt: {
+				gte: new Date(),
+			},
+			status: InviteStatus.Pending,
+		},
+	});
+}
+
 export async function reservationsFromHunts(
 	hunts: Prisma.HuntGetPayload<{ include: { invites: true } }>[],
 	currentHunterId: number,
