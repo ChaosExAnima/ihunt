@@ -1,7 +1,6 @@
 import type { Options as PhotoUrlOptions } from '@imgproxy/imgproxy-js-core';
 
 import { generateImageUrl } from '@imgproxy/imgproxy-node';
-import { Photo } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -11,7 +10,7 @@ import { rgbaToThumbHash } from 'thumbhash';
 import { omit } from '@/lib/utils';
 
 import { config } from './config';
-import { db } from './db';
+import { db, Photo } from './db';
 
 type PhotoUrlArgs = PhotoUrlOptions & {
 	path: string;

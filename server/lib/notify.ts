@@ -1,4 +1,3 @@
-import { Hunt, Hunter } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
@@ -7,7 +6,7 @@ import { DAY, MINUTE } from '@/lib/formats';
 import { NotifyEventSchema } from '@/lib/schemas';
 
 import { config } from './config';
-import { db } from './db';
+import { db, Hunt, Hunter } from './db';
 import {
 	SubscriptionSchema,
 	subscriptionSchema,

@@ -1,5 +1,3 @@
-import { HuntInvite } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
@@ -7,7 +5,8 @@ import { HUNT_INVITE_TIME } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
 
-import { db } from '../lib/db';
+import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
+import { db, HuntInvite } from '../lib/db';
 import { handleError } from '../lib/error';
 import {
 	expireInvites,

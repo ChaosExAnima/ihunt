@@ -7,9 +7,16 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, PluginOption } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// We need to do this so the VitePWA plugin works,
+// because Prisma overwrites the __dirname constant.
+// Will be fixed once Fastify and Vite are split.
+Object.assign(globalThis, {
+	__dirname: undefined,
+});
+
 export default defineConfig({
 	build: {
-		outDir: resolve(__dirname, 'dist'),
+		outDir: resolve(import.meta.dirname, 'dist'),
 	},
 	plugins: [
 		viteFastify({
@@ -67,7 +74,7 @@ export default defineConfig({
 		}),
 		process.env.ANALYZE_BUNDLE === '1' && (visualizer() as PluginOption),
 	],
-	publicDir: resolve(__dirname, 'public'),
+	publicDir: resolve(import.meta.dirname, 'public'),
 	resolve: {
 		alias: [
 			{ find: '@', replacement: resolve(import.meta.dirname, './src') },

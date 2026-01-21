@@ -1,6 +1,7 @@
-import { Prisma } from '@prisma/client';
 import { TRPC_ERROR_CODE_KEY, TRPCError } from '@trpc/server';
 import z, { ZodError } from 'zod';
+
+import { Prisma } from './db';
 
 interface HandleErrorArgs {
 	code?: TRPC_ERROR_CODE_KEY;
