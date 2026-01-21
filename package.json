@@ -50,7 +50,7 @@
 		"iron-session": "^8.0.4",
 		"lucide-react": "^0.562.0",
 		"react": "^19.1.0",
-		"react-admin": "^5.10.1",
+		"react-admin": "^5.13.6",
 		"react-dom": "^19.1.0",
 		"react-hook-form": "^7.62.0",
 		"react-image-crop": "^11.0.10",
@@ -103,5 +103,9 @@
 	},
 	"prisma": {
 		"seed": "tsx prisma/seed.ts"
+	},
+	"resolutions": {
+		"react-router": "7.12.0",
+		"react-router-dom": "7.12.0"
 	}
 }
