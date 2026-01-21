@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CircleCheckBig, X } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 
 import { useHunterId } from '@/hooks/use-hunter';
 import { useInterval } from '@/hooks/use-interval';
@@ -190,12 +190,15 @@ function HuntJoinButton({
 		}
 	}, [danger, isLockedDown, accepted, onAccept]);
 
+	const id = useId();
 	const dialogProps = useMemo(
 		() =>
 			({
+				id,
 				onConfirm: handleAccept,
 				trigger: (
 					<Button
+						aria-controls={id}
 						className="rounded-full font-bold"
 						variant="success"
 					>
@@ -207,7 +210,7 @@ function HuntJoinButton({
 					</Button>
 				),
 			}) satisfies ConfirmDialogProps,
-		[handleAccept],
+		[handleAccept, id],
 	);
 
 	if (isLockedDown && !accepted) {
