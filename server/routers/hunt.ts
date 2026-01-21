@@ -7,6 +7,7 @@ import { idSchemaCoerce } from '@/lib/schemas';
 import { db } from '../lib/db';
 import { handleError, wrapRoute } from '../lib/error';
 import { huntDisplayInclude } from '../lib/hunt';
+import { huntInLockdown } from '../lib/hunt';
 import {
 	fetchDailyHuntCount,
 	fetchUnclaimedSpots,
@@ -142,6 +143,12 @@ export const huntRouter = router({
 
 				// If we already joined, leave the hunt.
 				if (joined.has(currentHunter.id)) {
+					if (huntInLockdown(hunt)) {
+						throw new TRPCError({
+							code: 'FORBIDDEN',
+							message: 'Cannot leave before hunt',
+						});
+					}
 					await db.hunt.update({
 						data: {
 							hunters: {

@@ -31,6 +31,16 @@ export function calculateNewRating({
 	return clamp({ input: (huntRating + hunterRating) / 2, max: 5 });
 }
 
+export function huntInLockdown(hunt: Hunt) {
+	return (
+		(hunt.status === HuntStatus.Available ||
+			hunt.status === HuntStatus.Active) &&
+		hunt.scheduledAt &&
+		hunt.scheduledAt.getTime() >=
+			Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE
+	);
+}
+
 export async function onHuntInterval() {
 	// Set scheduled hunts to active.
 	const now = new Date();

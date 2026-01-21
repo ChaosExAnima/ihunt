@@ -8,6 +8,7 @@ import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
 import { db, HuntInvite } from '../lib/db';
 import { handleError } from '../lib/error';
+import { huntInLockdown } from '../lib/hunt';
 import {
 	expireInvites,
 	fetchInviteesForHunt,
@@ -43,6 +44,10 @@ export const inviteRouter = router({
 				});
 
 				if (hunt.hunters.length >= hunt.maxHunters) {
+					return [];
+				}
+
+				if (huntInLockdown(hunt)) {
 					return [];
 				}
 
