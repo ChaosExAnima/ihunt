@@ -61,6 +61,10 @@ export async function onHuntInterval() {
 		},
 	});
 
+	if (upcomingHunts.length === 0) {
+		return;
+	}
+
 	// Send notifications that hunt is upcoming.
 	const notifyPromises: Promise<boolean>[] = [];
 	for (const hunt of upcomingHunts) {
@@ -85,27 +89,6 @@ export async function onHuntInterval() {
 		console.log(
 			`Notified ${total} users for ${upcomingHunts.length} hunts`,
 		);
-	}
-
-	// Set scheduled hunts to active.
-	const now = new Date();
-	const liveHunts = await db.hunt.updateMany({
-		data: {
-			status: HuntStatus.Active,
-		},
-		where: {
-			scheduledAt: {
-				gte: now,
-			},
-			status: HuntStatus.Available,
-		},
-	});
-	if (liveHunts.count > 0) {
-		console.log(`Set ${liveHunts.count} hunts to active`);
-	}
-
-	if (upcomingHunts.length === 0) {
-		return;
 	}
 
 	// Expire all invites.

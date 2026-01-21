@@ -6,34 +6,23 @@ import { useHunterId } from '@/hooks/use-hunter';
 import { useInterval } from '@/hooks/use-interval';
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
-import { HUNT_LOCKDOWN_MINUTES, HUNT_MAX_PER_DAY } from '@/lib/constants';
+import {
+	HUNT_LOCKDOWN_MINUTES,
+	HUNT_MAX_DANGER,
+	HUNT_MAX_PER_DAY,
+} from '@/lib/constants';
 import { MINUTE, SECOND } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
 import { HuntDisplayProps } from '.';
+import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';
 import { Button } from '../ui/button';
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '../ui/dialog';
 import HuntBase from './base';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
 
-	const {
-		hunters = [],
-		id: huntId,
-		maxHunters,
-		reserved,
-		scheduledAt,
-	} = hunt;
+	const { danger, hunters = [], id: huntId, maxHunters, reserved } = hunt;
 
 	const currentHunterId = useHunterId();
 	const hasAccepted = useMemo(
@@ -55,6 +44,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		reserved?.status !== 'reserved' &&
 		reserved?.status !== 'declined';
 
+	const isLockedDown = useLockedDown(hunt.scheduledAt);
+
 	return (
 		<HuntBase {...props}>
 			<HuntInvite noHunts={remainingHunts === 0} reserved={reserved} />
@@ -62,8 +53,9 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 			<div className="flex gap-2 justify-center">
 				{!hasAccepted && canJoinHunt && (
 					<HuntJoinButton
-						handleAccept={handleAccept}
-						scheduledTs={scheduledAt?.getTime()}
+						danger={danger}
+						isLockedDown={isLockedDown}
+						onAccept={handleAccept}
 					/>
 				)}
 				{hasAccepted && (
@@ -180,16 +172,96 @@ function HuntInviteRejectButton({ huntId }: { huntId: number }) {
 }
 
 function HuntJoinButton({
-	handleAccept,
-	scheduledTs,
+	danger,
+	isLockedDown,
+	onAccept,
 }: {
-	handleAccept: () => void;
-	scheduledTs?: number;
+	danger: number;
+	isLockedDown?: boolean;
+	onAccept: () => void;
 }) {
+	const [accepted, setAccepted] = useState(false);
+
+	const handleAccept = useCallback(() => {
+		if (danger === HUNT_MAX_DANGER && isLockedDown && !accepted) {
+			setAccepted(true);
+		} else {
+			onAccept();
+		}
+	}, [danger, isLockedDown, accepted, onAccept]);
+
+	const dialogProps = useMemo(
+		() =>
+			({
+				onConfirm: handleAccept,
+				trigger: (
+					<Button
+						className="rounded-full font-bold"
+						variant="success"
+					>
+						<CircleCheckBig
+							aria-label="Accept hunt"
+							strokeWidth="3"
+						/>
+						Accept
+					</Button>
+				),
+			}) satisfies ConfirmDialogProps,
+		[handleAccept],
+	);
+
+	if (isLockedDown && !accepted) {
+		return (
+			<ConfirmDialog {...dialogProps} title="Confirm joining hunt">
+				Because this hunt is happening soon, once you accept this hunt
+				you <strong>cannot</strong> cancel.
+			</ConfirmDialog>
+		);
+	}
+
+	if (danger === HUNT_MAX_DANGER) {
+		return (
+			<ConfirmDialog
+				{...dialogProps}
+				isDangerous
+				title="Confirm maximum danger"
+			>
+				<p>
+					This hunt is marked at the{' '}
+					<strong>highest danger rating</strong>.
+					<br />
+					Please confirm you understand and accept the risks.
+				</p>
+				<p className="text-muted text-sm mt-4">
+					By accepting this hunt, you agree that iHunt is not liable
+					nor is able to provide support for any events which occur as
+					a result of accepting this contract, including but not
+					limited to: injury, maiming, death, murder, property damage,
+					theft, breaking and entering, and grave desecration. You
+					also understand that if this hunt is not completed iHunt may
+					at their discretion terminate your account for inactivity.
+				</p>
+			</ConfirmDialog>
+		);
+	}
+
+	return (
+		<Button
+			className="rounded-full font-bold"
+			onClick={handleAccept}
+			variant="success"
+		>
+			<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
+			Accept
+		</Button>
+	);
+}
+
+function useLockedDown(scheduledAt: Date | null) {
+	const scheduledTs = scheduledAt?.getTime();
 	const [isLockedDown, setIsLockedDown] = useState(() =>
 		checkHuntTime(scheduledTs),
 	);
-	const [show, setShow] = useState(false);
 
 	const handleInterval = useCallback(() => {
 		if (!isLockedDown && checkHuntTime(scheduledTs)) {
@@ -198,44 +270,5 @@ function HuntJoinButton({
 	}, [scheduledTs, isLockedDown]);
 	useInterval({ cb: handleInterval });
 
-	if (!isLockedDown) {
-		return (
-			<Button
-				className="rounded-full font-bold"
-				onClick={handleAccept}
-				variant="success"
-			>
-				<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
-				Accept
-			</Button>
-		);
-	}
-
-	return (
-		<Dialog onOpenChange={setShow} open={show}>
-			<DialogTrigger>
-				<Button className="rounded-full font-bold" variant="success">
-					<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
-					Accept
-				</Button>
-			</DialogTrigger>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Confirm joining?</DialogTitle>
-				</DialogHeader>
-				<DialogDescription className="text-primary">
-					Because this hunt is happening soon, once you accept this
-					hunt you <strong>cannot</strong> cancel.
-				</DialogDescription>
-				<DialogFooter className="gap-2">
-					<DialogClose asChild>
-						<Button variant="secondary">Close</Button>
-					</DialogClose>
-					<Button onClick={handleAccept} variant="success">
-						Confirm
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
-	);
+	return isLockedDown;
 }

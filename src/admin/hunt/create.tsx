@@ -7,7 +7,7 @@ import {
 	TextInput,
 } from 'react-admin';
 
-import { HuntStatus } from '@/lib/constants';
+import { HUNT_MAX_DANGER, HUNT_MAX_HUNTERS, HuntStatus } from '@/lib/constants';
 
 import { SimpleForm } from '../components/simple-form';
 import { adminCreateHuntInput } from '../schemas';
@@ -34,7 +34,7 @@ export function HuntCreate() {
 					<TextInput source="warnings" />
 					<NumberInput
 						defaultValue={1}
-						max={3}
+						max={HUNT_MAX_DANGER}
 						min={1}
 						source="danger"
 					/>
@@ -47,8 +47,8 @@ export function HuntCreate() {
 					/>
 					<DateTimeInput defaultValue={null} source="scheduledAt" />
 					<NumberInput
-						defaultValue={4}
-						max={4}
+						defaultValue={HUNT_MAX_HUNTERS}
+						max={HUNT_MAX_HUNTERS}
 						min={1}
 						source="maxHunters"
 					/>

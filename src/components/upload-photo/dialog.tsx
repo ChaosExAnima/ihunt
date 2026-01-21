@@ -48,7 +48,7 @@ export default function UploadDialog({
 					</DialogDescription>
 				</DialogHeader>
 				{children}
-				<DialogFooter className="gap-2">
+				<DialogFooter>
 					<DialogClose asChild disabled={disabled}>
 						<Button variant="destructive">Cancel</Button>
 					</DialogClose>

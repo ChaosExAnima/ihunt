@@ -9,6 +9,8 @@ import {
 	TextInput,
 } from 'react-admin';
 
+import { HUNT_MAX_DANGER, HUNT_MAX_HUNTERS } from '@/lib/constants';
+
 import { AdminPhotoList } from '../components/photo-list';
 import { AdminPhotoInput } from '../components/photo-upload';
 import { SimpleForm } from '../components/simple-form';
@@ -35,7 +37,7 @@ export function HuntEdit() {
 					<TextInput source="warnings" />
 					<NumberInput
 						defaultValue={1}
-						max={3}
+						max={HUNT_MAX_DANGER}
 						min={1}
 						source="danger"
 					/>
@@ -43,8 +45,8 @@ export function HuntEdit() {
 					<NumberInput min={0} source="payment" step={10} />
 					<DateTimeInput source="scheduledAt" />
 					<NumberInput
-						defaultValue={4}
-						max={4}
+						defaultValue={HUNT_MAX_HUNTERS}
+						max={HUNT_MAX_HUNTERS}
 						min={1}
 						source="maxHunters"
 					/>
