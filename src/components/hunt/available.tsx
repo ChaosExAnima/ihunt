@@ -28,6 +28,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
 
 	const {
+		danger,
 		hunters = [],
 		id: huntId,
 		maxHunters,
@@ -62,6 +63,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 			<div className="flex gap-2 justify-center">
 				{!hasAccepted && canJoinHunt && (
 					<HuntJoinButton
+						danger={danger}
 						handleAccept={handleAccept}
 						scheduledTs={scheduledAt?.getTime()}
 					/>
@@ -183,6 +185,7 @@ function HuntJoinButton({
 	handleAccept,
 	scheduledTs,
 }: {
+	danger: number;
 	handleAccept: () => void;
 	scheduledTs?: number;
 }) {
@@ -227,7 +230,7 @@ function HuntJoinButton({
 					Because this hunt is happening soon, once you accept this
 					hunt you <strong>cannot</strong> cancel.
 				</DialogDescription>
-				<DialogFooter className="gap-2">
+				<DialogFooter>
 					<DialogClose asChild>
 						<Button variant="secondary">Close</Button>
 					</DialogClose>
