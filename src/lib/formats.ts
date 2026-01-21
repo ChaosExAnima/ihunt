@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useSettings } from '@/hooks/use-settings';
-
 import { Currency, Locale } from './constants';
 
 // Dates and times
@@ -42,16 +38,4 @@ export function roundToHalves(input: number) {
 
 export function todayStart() {
 	return new Date().setHours(0, 0, 0, 0);
-}
-
-export function useCurrencyFormat(amount: number) {
-	const [settings] = useSettings();
-	const formatted = useMemo(() => currencyFormatter.format(amount), [amount]);
-	if (!settings) {
-		return '';
-	}
-	if (settings.hideMoney) {
-		return '';
-	}
-	return formatted;
 }

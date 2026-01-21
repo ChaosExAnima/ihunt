@@ -18,7 +18,7 @@ import { useInvalidate } from '@/hooks/use-invalidate';
 import { useSettings } from '@/hooks/use-settings';
 import { useTheme } from '@/hooks/use-theme';
 import { trpc } from '@/lib/api';
-import { useCurrencyFormat } from '@/lib/formats';
+import { useCurrencyFormat } from '@/hooks/use-currency-format';
 
 export const Route = createFileRoute('/_auth/settings/')({
 	component: Settings,
