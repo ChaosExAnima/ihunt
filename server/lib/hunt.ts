@@ -42,6 +42,8 @@ export function huntInLockdown(hunt: Hunt) {
 	);
 }
 
+const huntsNotified = new Set<number>();
+
 export async function onHuntInterval() {
 	// Get upcoming hunts within scheduled time.
 	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
@@ -62,6 +64,9 @@ export async function onHuntInterval() {
 	// Send notifications that hunt is upcoming.
 	const notifyPromises: Promise<boolean>[] = [];
 	for (const hunt of upcomingHunts) {
+		if (huntsNotified.has(hunt.id)) {
+			continue;
+		}
 		for (const hunter of hunt.hunters) {
 			if (hunter.userId) {
 				notifyPromises.push(
@@ -72,6 +77,7 @@ export async function onHuntInterval() {
 				);
 			}
 		}
+		huntsNotified.add(hunt.id);
 	}
 	const results = await Promise.all(notifyPromises);
 	const total = results.filter((v): v is true => !!v).length;
@@ -96,6 +102,10 @@ export async function onHuntInterval() {
 	});
 	if (liveHunts.count > 0) {
 		console.log(`Set ${liveHunts.count} hunts to active`);
+	}
+
+	if (upcomingHunts.length === 0) {
+		return;
 	}
 
 	// Expire all invites.
