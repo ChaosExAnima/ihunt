@@ -13,18 +13,14 @@ export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 	);
 	return (
 		<HuntBase hideText hunt={hunt}>
-			<p className="mx-auto">
-				<Rating max={5} rating={hunt.rating} />
-			</p>
-			{payment && (
-				<p className="text-center text-lg">You earned {payment}!</p>
-			)}
+			{payment && <p className="text-lg">You earned {payment}!</p>}
 			{hunt.comment && (
 				<>
 					<p className="text-muted">
 						Here's what your client had to say:
 					</p>
 					<blockquote>
+						<Rating max={5} rating={hunt.rating} size="1em" />
 						{hunt.comment
 							.trim()
 							.split('\n')
