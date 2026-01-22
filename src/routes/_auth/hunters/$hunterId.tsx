@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
+import { useCallback, useMemo } from 'react';
+import { thumbHashToAverageRGBA } from 'thumbhash';
 import * as z from 'zod';
 
 import Header from '@/components/header';
@@ -10,6 +12,7 @@ import { Loading } from '@/components/loading';
 import { PhotoDisplay } from '@/components/photo';
 import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
+import { dateFormat } from '@/lib/formats';
 import { hunterSchema, huntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -47,26 +50,40 @@ export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	},
 });
 
+const LIGHT_THRESHOLD = 0.5;
+
 function RouteComponent() {
 	const { hunterId } = Route.useParams();
-	const {
-		data: hunter,
-		error,
-		isError,
-	} = useQuery(
+	const { data: hunter } = useQuery(
 		trpc.hunter.getOne.queryOptions({
 			hunterId,
 		}),
 	);
 
-	if (isError) {
-		console.log('error here:', error);
-	}
+	const thumbHash = hunter?.avatar?.blurry ?? null;
+	const isLightAvatar = useMemo(() => {
+		if (!thumbHash) {
+			return false;
+		}
+		const binary = new Uint8Array(
+			atob(thumbHash)
+				.split('')
+				.map((x) => x.charCodeAt(0)),
+		);
+		const average = thumbHashToAverageRGBA(binary);
+		return (
+			average.r >= LIGHT_THRESHOLD &&
+			average.g >= LIGHT_THRESHOLD &&
+			average.b >= LIGHT_THRESHOLD
+		);
+	}, [thumbHash]);
+
+	const formatDate = useCallback((date: Date) => dateFormat(date), []);
 
 	if (!hunter) {
 		return <Loading />;
 	}
-	const { avatar } = hunter;
+	const { avatar, hunts } = hunter;
 
 	return (
 		<>
@@ -80,14 +97,15 @@ function RouteComponent() {
 					className={cn(
 						'flex justify-between w-full',
 						avatar && 'absolute top-0 p-2',
+						isLightAvatar ? 'text-black' : 'text-white',
 					)}
 				>
-					<Rating max={5} rating={hunter.rating} />
-					<HunterTypeIcon
-						className="text-white"
-						size="2em"
-						type={hunter.type}
+					<Rating
+						fillClass="fill-current"
+						max={5}
+						rating={hunter.rating}
 					/>
+					<HunterTypeIcon size="2em" type={hunter.type} />
 				</div>
 				{!!avatar && <PhotoDisplay className="w-full" photo={avatar} />}
 				<div
@@ -120,19 +138,35 @@ function RouteComponent() {
 				<Header level={3}>Friends</Header>
 			</HunterGroupList>
 
-			<Header level={3}>Reviews</Header>
-			<ol>
-				{hunter.hunts.map((hunt) => (
-					<li key={hunt.id}>
-						<Rating max={5} rating={hunt.rating} size="1em" />{' '}
-						&ldquo;
-						{hunt.comment}&rdquo;
-					</li>
-				))}
-				{hunter.hunts.length === 0 && (
-					<li>This hunter hasn't been reviewed yet!</li>
-				)}
-			</ol>
+			{hunts.length > 0 && (
+				<>
+					<Header level={3}>Reviews</Header>
+					<ol>
+						{hunter.hunts.map((hunt) => (
+							<li
+								className="border-b last:border-0 py-2 first:pt-0"
+								key={hunt.id}
+							>
+								<p className="flex items-center gap-2">
+									<Rating
+										max={5}
+										rating={hunt.rating}
+										size="1em"
+									/>
+									<span className="text-muted">
+										{formatDate(
+											hunt.completedAt ??
+												hunt.scheduledAt ??
+												hunt.createdAt,
+										)}
+									</span>
+								</p>
+								<p>&ldquo;{hunt.comment}&rdquo;</p>
+							</li>
+						))}
+					</ol>
+				</>
+			)}
 		</>
 	);
 }
