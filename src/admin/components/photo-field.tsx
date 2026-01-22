@@ -1,6 +1,6 @@
 import { useRecordContext } from 'react-admin';
 
-import PhotoDisplay, { PhotoDisplayProps } from '@/components/photo';
+import { PhotoDisplay, PhotoDisplayProps } from '@/components/photo';
 
 import { AdminPhotoSchema } from '../schemas';
 

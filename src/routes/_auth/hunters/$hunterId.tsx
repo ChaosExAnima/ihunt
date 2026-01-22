@@ -7,7 +7,7 @@ import Header from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import { Loading } from '@/components/loading';
-import PhotoDisplay from '@/components/photo';
+import { PhotoDisplay } from '@/components/photo';
 import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
 import { hunterSchema, huntSchema } from '@/lib/schemas';

@@ -6,7 +6,7 @@ import { HunterSchema } from '@/lib/schemas';
 import { PropsWithClassName } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import PhotoDisplay from './photo';
+import { PhotoDisplay } from './photo';
 
 interface AvatarProps {
 	className?: string;
