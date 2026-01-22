@@ -6,7 +6,7 @@ import { Crosshair } from 'lucide-react';
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
-import Avatar from './avatar';
+import { Avatar } from './avatar';
 
 export interface NavbarProps {
 	hunter: HunterSchema;
@@ -20,7 +20,7 @@ interface NavbarItemProps {
 	noLabel?: boolean;
 }
 
-export default function Navbar({
+export function Navbar({
 	children,
 	hunter,
 	isHuntActive,

@@ -3,8 +3,8 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
 import { useCallback, useId } from 'react';
 
-import Avatar from '@/components/avatar';
-import Header from '@/components/header';
+import { Avatar } from '@/components/avatar';
+import { Header } from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
 import { Loading } from '@/components/loading';
 import { Rating } from '@/components/rating';

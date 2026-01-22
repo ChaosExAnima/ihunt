@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { thumbHashToAverageRGBA } from 'thumbhash';
 import * as z from 'zod';
 
-import Header from '@/components/header';
+import { Header } from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import { Loading } from '@/components/loading';

@@ -1,7 +1,7 @@
 import { HuntSchema } from '@/lib/schemas';
 import { arrayOfLength } from '@/lib/utils';
 
-import Avatar, { AvatarEmpty, AvatarLocked } from '../avatar';
+import { Avatar, AvatarEmpty, AvatarLocked } from '../avatar';
 
 interface HuntHuntersDisplayProps {
 	isReserved?: boolean;

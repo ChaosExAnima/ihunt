@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import { trpc } from '@/lib/api';
 
-import UploadPhoto from '../upload-photo';
+import { UploadPhoto } from '../upload-photo';
 
 export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	const queryClient = useQueryClient();

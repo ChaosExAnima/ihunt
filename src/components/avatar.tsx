@@ -14,11 +14,7 @@ interface AvatarProps {
 	link?: boolean;
 }
 
-export default function Avatar({
-	className,
-	hunter,
-	link = false,
-}: AvatarProps) {
+export function Avatar({ className, hunter, link = false }: AvatarProps) {
 	const photo = hunter.avatar;
 	const currentHunterId = useHunterId();
 

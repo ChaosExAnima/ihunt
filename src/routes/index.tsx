@@ -5,7 +5,7 @@ import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import Header from '@/components/header';
+import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import {
 	Form,

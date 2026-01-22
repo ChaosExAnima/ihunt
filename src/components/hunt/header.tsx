@@ -7,7 +7,7 @@ import { HuntSchema } from '@/lib/schemas';
 import { PropsWithClassName } from '@/lib/types';
 import { arrayOfLength, cn } from '@/lib/utils';
 
-import Header from '../header';
+import { Header } from '../header';
 import { PhotoDisplay } from '../photo';
 
 interface HuntDangerProps {

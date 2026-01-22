@@ -8,7 +8,7 @@ import {
 	useRefresh,
 } from 'react-admin';
 
-import UploadPhoto from '@/components/upload-photo';
+import { UploadPhoto } from '@/components/upload-photo';
 
 import { useTypedDataProvider } from '../data';
 import { AdminHunterSchema } from '../schemas';

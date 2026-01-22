@@ -1,7 +1,7 @@
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
-import Avatar from '../avatar';
+import { Avatar } from '../avatar';
 
 interface HunterListProps {
 	className?: string;
