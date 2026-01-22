@@ -21,8 +21,10 @@ export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 			)}
 			{hunt.comment && (
 				<>
-					<p>Here's what your client had to say:</p>
-					<blockquote className="pl-4 text-stone-400">
+					<p className="text-muted">
+						Here's what your client had to say:
+					</p>
+					<blockquote>
 						{hunt.comment
 							.trim()
 							.split('\n')
