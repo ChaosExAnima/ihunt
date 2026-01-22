@@ -16,11 +16,13 @@ export interface ConfirmDialogProps {
 	children?: ReactNode;
 	confirmLabel?: ReactNode;
 	description?: string;
+	disabled?: boolean;
 	id?: string;
 	isDangerous?: boolean;
 	noDescription?: boolean;
 	onCancel?: () => void;
 	onConfirm: () => void;
+	onOpen?: () => void;
 	open?: boolean;
 	title?: ReactNode;
 	trigger?: ReactNode;
@@ -30,11 +32,13 @@ export function ConfirmDialog({
 	children,
 	confirmLabel = 'Confirm',
 	description,
+	disabled,
 	id,
 	isDangerous,
 	noDescription,
 	onCancel,
 	onConfirm,
+	onOpen,
 	open = false,
 	title = 'Are you sure?',
 	trigger,
@@ -43,11 +47,13 @@ export function ConfirmDialog({
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
 			setShow(open);
-			if (!open) {
+			if (open) {
+				onOpen?.();
+			} else {
 				onCancel?.();
 			}
 		},
-		[onCancel],
+		[onCancel, onOpen],
 	);
 	return (
 		<Dialog onOpenChange={handleOpenChange} open={show}>
@@ -62,9 +68,12 @@ export function ConfirmDialog({
 				{noDescription && children}
 				<DialogFooter className="flex-row justify-end">
 					<DialogClose asChild>
-						<Button variant="secondary">Close</Button>
+						<Button disabled={disabled} variant="secondary">
+							Close
+						</Button>
 					</DialogClose>
 					<Button
+						disabled={disabled}
 						onClick={onConfirm}
 						variant={isDangerous ? 'destructive' : 'success'}
 					>
