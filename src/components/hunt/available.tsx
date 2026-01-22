@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { CircleCheckBig, X } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 
 import { useHunterId } from '@/hooks/use-hunter';
 import { useInterval } from '@/hooks/use-interval';
@@ -18,6 +18,7 @@ import { HuntDisplayProps } from '.';
 import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';
 import { Button } from '../ui/button';
 import { HuntBase } from './base';
+import { HuntInviteModal } from './invite-dialog';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
@@ -29,8 +30,10 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		() => (hunters ?? []).some((hunter) => hunter.id === currentHunterId),
 		[hunters, currentHunterId],
 	);
+	const [showInviteModal, setShowInviteModal] = useState(false);
 	const handleAccept = useCallback(() => {
 		onAcceptHunt?.(huntId);
+		setShowInviteModal(true);
 	}, [huntId, onAcceptHunt]);
 
 	const { data: huntsToday = 0 } = useQuery(
@@ -82,6 +85,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 					</strong>
 				</p>
 			)}
+
+			{showInviteModal && <HuntInviteModal huntId={huntId} />}
 		</HuntBase>
 	);
 }
@@ -190,12 +195,15 @@ function HuntJoinButton({
 		}
 	}, [danger, isLockedDown, accepted, onAccept]);
 
+	const id = useId();
 	const dialogProps = useMemo(
 		() =>
 			({
+				id,
 				onConfirm: handleAccept,
 				trigger: (
 					<Button
+						aria-controls={id}
 						className="rounded-full font-bold"
 						variant="success"
 					>
@@ -207,7 +215,7 @@ function HuntJoinButton({
 					</Button>
 				),
 			}) satisfies ConfirmDialogProps,
-		[handleAccept],
+		[handleAccept, id],
 	);
 
 	if (isLockedDown && !accepted) {
@@ -228,9 +236,8 @@ function HuntJoinButton({
 			>
 				<p>
 					This hunt is marked at the{' '}
-					<strong>highest danger rating</strong>.
-					<br />
-					Please confirm you understand and accept the risks.
+					<strong>highest danger rating</strong>. Please confirm you
+					understand and accept the risks.
 				</p>
 				<p className="text-muted text-sm mt-4">
 					By accepting this hunt, you agree that iHunt is not liable

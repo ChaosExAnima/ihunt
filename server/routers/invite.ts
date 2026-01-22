@@ -7,7 +7,7 @@ import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { extractIds } from '@/lib/utils';
 
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
-import { db, HuntInvite } from '../lib/db';
+import { db, Prisma } from '../lib/db';
 import { handleError } from '../lib/error';
 import { huntInLockdown } from '../lib/hunt';
 import {
@@ -133,7 +133,9 @@ export const inviteRouter = router({
 			}
 
 			// Get the invitees
-			const invites: HuntInvite[] = [];
+			const invites: Prisma.HuntInviteGetPayload<{
+				include: { toHunter: true };
+			}>[] = [];
 			const invitees = await fetchInviteesForHunt({
 				exceptHunterIds: extractIds(hunt.hunters),
 				fromHunterId: hunter.id,
@@ -153,6 +155,9 @@ export const inviteRouter = router({
 							fromHunterId: hunter.id,
 							huntId,
 							toHunterId: inviteeId,
+						},
+						include: {
+							toHunter: true,
 						},
 					});
 					invites.push(invite);
@@ -182,7 +187,9 @@ export const inviteRouter = router({
 				}),
 			});
 			for (const invite of invites) {
-				await notifyUser({ event, userId: invite.toHunterId });
+				if (invite.toHunter.userId) {
+					await notifyUser({ event, userId: invite.toHunter.userId });
+				}
 			}
 
 			return {

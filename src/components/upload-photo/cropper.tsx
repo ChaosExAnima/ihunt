@@ -66,13 +66,15 @@ export function UploadCropper({
 			onChange={handleChange}
 			onComplete={handleComplete}
 		>
-			<img
-				alt="New image"
-				className={cn(className)}
-				onLoad={handleLoad}
-				ref={imageRef}
-				src={imageSrc}
-			/>
+			{imageSrc && (
+				<img
+					alt="New image"
+					className={cn(className)}
+					onLoad={handleLoad}
+					ref={imageRef}
+					src={imageSrc}
+				/>
+			)}
 			{children}
 		</ReactCrop>
 	);

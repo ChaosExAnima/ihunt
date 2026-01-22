@@ -1,8 +1,8 @@
 import { Clock, MapPin, Skull } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { useCurrencyFormat } from '@/hooks/use-currency-format';
 import { Locale } from '@/lib/constants';
-import { useCurrencyFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 import { PropsWithClassName } from '@/lib/types';
 import { arrayOfLength, cn } from '@/lib/utils';
