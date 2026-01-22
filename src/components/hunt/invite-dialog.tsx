@@ -7,12 +7,11 @@ import { HUNT_INVITE_MINUTES } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
 
 import { Avatar } from '../avatar';
-import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { ConfirmDialog } from '../confirm-dialog';
 
 interface HuntInviteModalProps {
 	huntId: number;
-	onClose: () => void;
+	onClose?: () => void;
 }
 
 export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
@@ -22,7 +21,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 	const { data: group } = useQuery(trpc.hunter.getGroup.queryOptions());
 	useEffect(() => {
 		if (availableIds?.length === 0) {
-			onClose();
+			onClose?.();
 		}
 	}, [availableIds?.length, onClose]);
 
@@ -44,15 +43,6 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		return { availableHunters, unavailableHunters };
 	}, [availableIds, group?.hunters]);
 
-	const handleOpenChange = useCallback(
-		(open: boolean) => {
-			if (!open) {
-				onClose();
-			}
-		},
-		[onClose],
-	);
-
 	const invalidate = useInvalidate();
 	const { mutate } = useMutation(
 		trpc.invite.sendInvites.mutationOptions({
@@ -63,7 +53,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 	);
 	const handleSend = useCallback(() => {
 		mutate({ huntId });
-		onClose();
+		onClose?.();
 	}, [huntId, mutate, onClose]);
 
 	if (
@@ -74,35 +64,30 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 	}
 
 	return (
-		<Dialog onOpenChange={handleOpenChange} open>
-			<DialogHeader>
-				<DialogTitle>Invite hunters</DialogTitle>
-			</DialogHeader>
-			<DialogContent>
-				<p>Invite the rest of your group?</p>
-				<ul className="flex gap-2">
-					{availableHunters.map((hunter) => (
-						<li key={hunter.id}>
-							<Avatar hunter={hunter} />
-						</li>
-					))}
-					{unavailableHunters.map((hunter) => (
-						<li className="opacity-50" key={hunter.id}>
-							<Avatar hunter={hunter} />
-						</li>
-					))}
-				</ul>
-				<p className="text-muted-foreground">
-					Your group will have {HUNT_INVITE_MINUTES} minutes to accept
-					or decline the hunt.
-				</p>
-				<Button className="grow" onClick={handleSend} variant="success">
-					Send invites
-				</Button>
-				<Button onClick={onClose} variant="secondary">
-					No thanks
-				</Button>
-			</DialogContent>
-		</Dialog>
+		<ConfirmDialog
+			noDescription
+			onCancel={onClose}
+			onConfirm={handleSend}
+			open
+			title="Invite your group"
+		>
+			<p>Invite the rest of your group?</p>
+			<ul className="flex gap-2">
+				{availableHunters.map((hunter) => (
+					<li key={hunter.id}>
+						<Avatar hunter={hunter} />
+					</li>
+				))}
+				{unavailableHunters.map((hunter) => (
+					<li className="opacity-50" key={hunter.id}>
+						<Avatar hunter={hunter} />
+					</li>
+				))}
+			</ul>
+			<p className="text-muted-foreground">
+				Your group will have {HUNT_INVITE_MINUTES} minutes to accept or
+				decline the hunt.
+			</p>
+		</ConfirmDialog>
 	);
 }

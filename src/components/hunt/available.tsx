@@ -18,6 +18,7 @@ import { HuntDisplayProps } from '.';
 import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';
 import { Button } from '../ui/button';
 import { HuntBase } from './base';
+import { HuntInviteModal } from './invite-dialog';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
@@ -29,8 +30,10 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		() => (hunters ?? []).some((hunter) => hunter.id === currentHunterId),
 		[hunters, currentHunterId],
 	);
+	const [showInviteModal, setShowInviteModal] = useState(false);
 	const handleAccept = useCallback(() => {
 		onAcceptHunt?.(huntId);
+		setShowInviteModal(true);
 	}, [huntId, onAcceptHunt]);
 
 	const { data: huntsToday = 0 } = useQuery(
@@ -82,6 +85,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 					</strong>
 				</p>
 			)}
+
+			{showInviteModal && <HuntInviteModal huntId={huntId} />}
 		</HuntBase>
 	);
 }

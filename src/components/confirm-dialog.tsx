@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 
 import { Button } from './ui/button';
 import {
@@ -15,39 +15,49 @@ import {
 export interface ConfirmDialogProps {
 	children?: ReactNode;
 	confirmLabel?: ReactNode;
+	description?: string;
 	id?: string;
 	isDangerous?: boolean;
 	noDescription?: boolean;
+	onCancel?: () => void;
 	onConfirm: () => void;
+	open?: boolean;
 	title?: ReactNode;
-	trigger: ReactNode;
+	trigger?: ReactNode;
 }
 
 export function ConfirmDialog({
 	children,
 	confirmLabel = 'Confirm',
+	description,
 	id,
 	isDangerous,
 	noDescription,
+	onCancel,
 	onConfirm,
+	open = false,
 	title = 'Are you sure?',
 	trigger,
 }: ConfirmDialogProps) {
-	const DescChild = noDescription ? 'div' : 'p';
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(open);
+	const handleOpenChange = useCallback(
+		(open: boolean) => {
+			setShow(open);
+			if (!open) {
+				onCancel?.();
+			}
+		},
+		[onCancel],
+	);
 	return (
-		<Dialog onOpenChange={setShow} open={show}>
-			<DialogTrigger asChild>{trigger}</DialogTrigger>
-			<DialogContent id={id}>
+		<Dialog onOpenChange={handleOpenChange} open={show}>
+			{trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+			<DialogContent aria-description={description ?? ''} id={id}>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				{!noDescription && (
-					<DialogDescription asChild>
-						<DescChild className="text-primary">
-							{children}
-						</DescChild>
-					</DialogDescription>
+					<DialogDescription>{children}</DialogDescription>
 				)}
 				{noDescription && children}
 				<DialogFooter className="flex-row justify-end">
