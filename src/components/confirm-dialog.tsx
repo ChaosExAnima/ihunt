@@ -33,6 +33,7 @@ export function ConfirmDialog({
 	title = 'Are you sure?',
 	trigger,
 }: ConfirmDialogProps) {
+	const DescChild = noDescription ? 'div' : 'p';
 	const [show, setShow] = useState(false);
 	return (
 		<Dialog onOpenChange={setShow} open={show}>
@@ -43,11 +44,13 @@ export function ConfirmDialog({
 				</DialogHeader>
 				{!noDescription && (
 					<DialogDescription asChild>
-						<div className="text-primary">{children}</div>
+						<DescChild className="text-primary">
+							{children}
+						</DescChild>
 					</DialogDescription>
 				)}
 				{noDescription && children}
-				<DialogFooter>
+				<DialogFooter className="flex-row justify-end">
 					<DialogClose asChild>
 						<Button variant="secondary">Close</Button>
 					</DialogClose>

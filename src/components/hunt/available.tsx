@@ -231,9 +231,8 @@ function HuntJoinButton({
 			>
 				<p>
 					This hunt is marked at the{' '}
-					<strong>highest danger rating</strong>.
-					<br />
-					Please confirm you understand and accept the risks.
+					<strong>highest danger rating</strong>. Please confirm you
+					understand and accept the risks.
 				</p>
 				<p className="text-muted text-sm mt-4">
 					By accepting this hunt, you agree that iHunt is not liable
