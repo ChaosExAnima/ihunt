@@ -26,7 +26,7 @@ interface UploadCropperProps extends PropsWithChildren {
 	onComplete: (crop: PixelCrop) => void;
 }
 
-export default function UploadCropper({
+export function UploadCropper({
 	aspect = 1,
 	children,
 	circular,

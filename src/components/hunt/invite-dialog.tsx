@@ -6,7 +6,7 @@ import { trpc } from '@/lib/api';
 import { HUNT_INVITE_MINUTES } from '@/lib/constants';
 import { HunterSchema } from '@/lib/schemas';
 
-import Avatar from '../avatar';
+import { Avatar } from '../avatar';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 

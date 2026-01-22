@@ -4,7 +4,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import { BackButton } from './components/back-button';
-import DevTools from './components/dev-tools';
+import { DevTools } from './components/dev-tools';
 import { ErrorHandler } from './components/error-handler';
 import { Loading } from './components/loading';
 import { useOffline } from './hooks/use-offline';

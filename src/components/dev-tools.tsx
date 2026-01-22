@@ -34,7 +34,7 @@ interface LinkProps {
 	name?: string;
 }
 
-export default function DevTools() {
+export function DevTools() {
 	return (
 		<div className="hidden sm:block max-w-96 mx-auto">
 			<ul className="flex flex-wrap justify-center gap-4 my-4">

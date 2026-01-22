@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useCallback, useId, useMemo } from 'react';
 
-import Header from '@/components/header';
+import { Header } from '@/components/header';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';

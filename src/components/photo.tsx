@@ -20,7 +20,7 @@ export interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
 	width?: number;
 }
 
-export default function PhotoDisplay({
+export function PhotoDisplay({
 	alt = '',
 	fit = 'fit',
 	height,

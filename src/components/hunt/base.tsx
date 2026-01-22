@@ -1,6 +1,7 @@
 import { CircleAlert } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
+import { HuntStatus } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +18,7 @@ interface HuntBaseProps {
 	hunt: HuntSchema;
 }
 
-export default function HuntBase({
+export function HuntBase({
 	afterHeader,
 	children,
 	className,
@@ -39,7 +40,9 @@ export default function HuntBase({
 			<HuntHuntersDisplay
 				hunters={hunt.hunters}
 				isReserved={status === 'reserved' || status === 'declined'}
-				maxHunters={hunt.maxHunters}
+				maxHunters={
+					hunt.status !== HuntStatus.Available ? 0 : hunt.maxHunters
+				}
 			/>
 
 			{!hideText && (

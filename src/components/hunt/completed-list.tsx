@@ -8,7 +8,7 @@ import { trpc } from '@/lib/api';
 import { dateFormat } from '@/lib/formats';
 import { HuntSchema } from '@/lib/schemas';
 
-import Header from '../header';
+import { Header } from '../header';
 import { Loading } from '../loading';
 import { Rating } from '../rating';
 

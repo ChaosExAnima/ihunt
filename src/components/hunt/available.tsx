@@ -17,7 +17,7 @@ import { HuntSchema } from '@/lib/schemas';
 import { HuntDisplayProps } from '.';
 import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';
 import { Button } from '../ui/button';
-import HuntBase from './base';
+import { HuntBase } from './base';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;

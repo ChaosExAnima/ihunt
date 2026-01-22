@@ -5,6 +5,7 @@ import { arrayOfLength, cn } from '@/lib/utils';
 
 type RatingProps = Omit<LucideProps, 'fill'> & {
 	fill?: boolean;
+	fillClass?: string;
 	max?: number;
 	rating: number;
 };
@@ -12,6 +13,7 @@ type RatingProps = Omit<LucideProps, 'fill'> & {
 function RatingBase({
 	className,
 	fill = false,
+	fillClass,
 	max = 0,
 	rating,
 	...props
@@ -23,7 +25,10 @@ function RatingBase({
 		fill = true;
 	}
 
-	const starClassName = cn(fill && 'fill-black dark:fill-white', className);
+	const starClassName = cn(
+		fill && (fillClass ?? 'fill-black dark:fill-white'),
+		className,
+	);
 	return (
 		<span className="inline-flex items-center gap-1">
 			{arrayOfLength(baseStars).map((index) => (

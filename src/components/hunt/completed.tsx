@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 import { HuntDisplayProps } from '.';
 import { Rating } from '../rating';
-import HuntBase from './base';
+import { HuntBase } from './base';
 
 export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 	const payment = useCurrencyFormat(
@@ -13,16 +13,14 @@ export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 	);
 	return (
 		<HuntBase hideText hunt={hunt}>
-			<p className="mx-auto">
-				<Rating max={5} rating={hunt.rating} />
-			</p>
-			{payment && (
-				<p className="text-center text-lg">You earned {payment}!</p>
-			)}
+			{payment && <p className="text-lg">You earned {payment}!</p>}
 			{hunt.comment && (
 				<>
-					<p>Here's what your client had to say:</p>
-					<blockquote className="pl-4 text-stone-400">
+					<p className="text-muted">
+						Here's what your client had to say:
+					</p>
+					<blockquote>
+						<Rating max={5} rating={hunt.rating} size="1em" />
 						{hunt.comment
 							.trim()
 							.split('\n')

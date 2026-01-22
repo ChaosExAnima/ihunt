@@ -9,10 +9,10 @@ import { HunterSchema, PhotoHuntSchema } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import Avatar from '../avatar';
-import PhotoDisplay from '../photo';
+import { Avatar } from '../avatar';
+import { PhotoDisplay } from '../photo';
 import { Button } from '../ui/button';
-import UploadPhoto from '../upload-photo';
+import { UploadPhoto } from '../upload-photo';
 
 interface ActivePhotoProps {
 	hunters: HunterSchema[];

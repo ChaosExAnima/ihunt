@@ -8,8 +8,8 @@ import {
 } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
-import UploadCropper from './cropper';
-import UploadDialog, { UploadDialogProps } from './dialog';
+import { UploadCropper } from './cropper';
+import { UploadDialog, UploadDialogProps } from './dialog';
 import { blobToDataUrl, imageToBlob } from './functions';
 
 export interface UploadPhotoProps {
@@ -21,7 +21,7 @@ export interface UploadPhotoProps {
 	title: string;
 }
 
-export default function UploadPhoto({
+export function UploadPhoto({
 	aspect,
 	button,
 	circular = false,

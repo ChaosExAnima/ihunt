@@ -6,7 +6,7 @@ import {
 	useRefresh,
 } from 'react-admin';
 
-import UploadPhoto, { UploadPhotoProps } from '@/components/upload-photo';
+import { UploadPhoto, UploadPhotoProps } from '@/components/upload-photo';
 import { Entity } from '@/lib/types';
 
 import { AdminDataProvider } from '../data';

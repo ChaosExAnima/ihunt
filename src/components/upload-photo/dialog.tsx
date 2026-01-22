@@ -22,7 +22,7 @@ export interface UploadDialogProps {
 
 const defaultButton = <Button variant="secondary">Replace</Button>;
 
-export default function UploadDialog({
+export function UploadDialog({
 	button = defaultButton,
 	children,
 	disabled = false,

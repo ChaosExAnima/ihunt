@@ -7,7 +7,7 @@ interface HeaderProps extends HTMLProps<HTMLHeadingElement> {
 	level?: 1 | 2 | 3 | 4;
 }
 
-export default function Header({
+export function Header({
 	children,
 	className,
 	level = 1,

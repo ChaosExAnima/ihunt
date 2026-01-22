@@ -1,12 +1,12 @@
 import type { JSX, PropsWithChildren } from 'react';
 
 import { Link, LinkProps } from '@tanstack/react-router';
-import { Crosshair, MessageCircle } from 'lucide-react';
+import { Crosshair } from 'lucide-react';
 
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
-import Avatar from './avatar';
+import { Avatar } from './avatar';
 
 export interface NavbarProps {
 	hunter: HunterSchema;
@@ -20,7 +20,7 @@ interface NavbarItemProps {
 	noLabel?: boolean;
 }
 
-export default function Navbar({
+export function Navbar({
 	children,
 	hunter,
 	isHuntActive,
@@ -33,12 +33,6 @@ export default function Navbar({
 					icon={<Crosshair />}
 					name="Hunts"
 					to="/hunts"
-				/>
-				{/** See: https://gist.github.com/ghostrider-05/8f1a0bfc27c7c4509b4ea4e8ce718af0 */}
-				<NavbarItemLink
-					href="discord://-/"
-					icon={<MessageCircle />}
-					name="Messages"
 				/>
 				<NavbarItemLink
 					className="ml-auto"
@@ -68,7 +62,7 @@ function NavbarItemLink({
 				className="p-4 w-full text-center flex gap-2"
 			>
 				{icon}
-				{!noLabel && <span className="hidden sm:block">{name}</span>}
+				{!noLabel && name}
 			</Link>
 		</li>
 	);

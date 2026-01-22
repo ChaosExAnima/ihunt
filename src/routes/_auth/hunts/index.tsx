@@ -2,7 +2,7 @@ import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 
-import Header from '@/components/header';
+import { Header } from '@/components/header';
 import { HuntDisplay } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed-list';
 import { HuntInviteModal } from '@/components/hunt/invite-dialog';

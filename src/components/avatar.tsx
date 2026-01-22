@@ -6,7 +6,7 @@ import { HunterSchema } from '@/lib/schemas';
 import { PropsWithClassName } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import PhotoDisplay from './photo';
+import { PhotoDisplay } from './photo';
 
 interface AvatarProps {
 	className?: string;
@@ -14,11 +14,7 @@ interface AvatarProps {
 	link?: boolean;
 }
 
-export default function Avatar({
-	className,
-	hunter,
-	link = false,
-}: AvatarProps) {
+export function Avatar({ className, hunter, link = false }: AvatarProps) {
 	const photo = hunter.avatar;
 	const currentHunterId = useHunterId();
 
