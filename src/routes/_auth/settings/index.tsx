@@ -13,12 +13,12 @@ import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useCurrencyFormat } from '@/hooks/use-currency-format';
 import { useHunter } from '@/hooks/use-hunter';
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { useSettings } from '@/hooks/use-settings';
 import { useTheme } from '@/hooks/use-theme';
 import { trpc } from '@/lib/api';
-import { useCurrencyFormat } from '@/hooks/use-currency-format';
 
 export const Route = createFileRoute('/_auth/settings/')({
 	component: Settings,
