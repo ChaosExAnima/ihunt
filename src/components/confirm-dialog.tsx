@@ -42,8 +42,8 @@ export function ConfirmDialog({
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				{!noDescription && (
-					<DialogDescription className="text-primary">
-						{children}
+					<DialogDescription asChild>
+						<div className="text-primary">{children}</div>
 					</DialogDescription>
 				)}
 				{noDescription && children}
