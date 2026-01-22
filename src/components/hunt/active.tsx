@@ -5,7 +5,7 @@ import { HuntSchema, PhotoHuntSchema } from '@/lib/schemas';
 import { PropsWithClassName } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import HuntBase from './base';
+import { HuntBase } from './base';
 import { HuntPics } from './pics';
 
 interface HuntDisplayActiveProps {

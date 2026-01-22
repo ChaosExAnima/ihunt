@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 import { HuntDisplayProps } from '.';
 import { Rating } from '../rating';
-import HuntBase from './base';
+import { HuntBase } from './base';
 
 export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 	const payment = useCurrencyFormat(
