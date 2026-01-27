@@ -8,7 +8,6 @@ import { extractIds } from '@/lib/utils';
 
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
 import { db, Prisma } from '../lib/db';
-import { handleError } from '../lib/error';
 import { huntInLockdown } from '../lib/hunt';
 import {
 	expireInvites,
@@ -33,38 +32,33 @@ export const inviteRouter = router({
 				return [];
 			}
 
-			try {
-				// Load the hunt and check if we're already full.
-				const hunt = await db.hunt.findUniqueOrThrow({
-					include: {
-						hunters: {
-							select: { id: true },
-						},
+			// Load the hunt and check if we're already full.
+			const hunt = await db.hunt.findUniqueOrThrow({
+				include: {
+					hunters: {
+						select: { id: true },
 					},
-					where: { id: huntId },
-				});
+				},
+				where: { id: huntId },
+			});
 
-				if (hunt.hunters.length >= hunt.maxHunters) {
-					return [];
-				}
-
-				if (huntInLockdown(hunt)) {
-					return [];
-				}
-
-				// Get the invitees
-				const invitees = await fetchInviteesForHunt({
-					exceptHunterIds: extractIds(hunt.hunters),
-					fromHunterId: hunter.id,
-					groupId: hunter.groupId,
-					huntId,
-				});
-
-				return invitees;
-			} catch (err) {
-				handleError({ err });
+			if (hunt.hunters.length >= hunt.maxHunters) {
 				return [];
 			}
+
+			if (huntInLockdown(hunt)) {
+				return [];
+			}
+
+			// Get the invitees
+			const invitees = await fetchInviteesForHunt({
+				exceptHunterIds: extractIds(hunt.hunters),
+				fromHunterId: hunter.id,
+				groupId: hunter.groupId,
+				huntId,
+			});
+
+			return invitees;
 		}),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
@@ -85,19 +79,14 @@ export const inviteRouter = router({
 			}),
 		)
 		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
-			try {
-				const count = await respondToInvites({
-					currentHunter: hunter,
-					huntId,
-					response: 'decline',
-				});
-				return {
-					success: count > 0,
-				};
-			} catch (err) {
-				handleError({ err, throws: false });
-				return { success: false };
-			}
+			const count = await respondToInvites({
+				currentHunter: hunter,
+				huntId,
+				response: 'decline',
+			});
+			return {
+				success: count > 0,
+			};
 		}),
 
 	sendInvites: userProcedure
@@ -167,9 +156,8 @@ export const inviteRouter = router({
 						err.code === 'P2002'
 					) {
 						continue;
-					} else {
-						handleError({ err });
 					}
+					throw err;
 				}
 			}
 

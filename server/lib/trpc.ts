@@ -5,6 +5,7 @@ import { MINUTE, SECOND } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 
 import { Context } from './auth';
+import { handleError } from './error';
 
 /**
  * Initialization of tRPC backend
@@ -24,14 +25,40 @@ const t = initTRPC.context<Context>().create({
 	transformer: superjson,
 });
 
+const errorMiddleware = t.middleware(
+	async ({
+		ctx: {
+			req: { log },
+		},
+		next,
+	}) => {
+		try {
+			return await next();
+		} catch (error) {
+			log.error(error, 'TRPC error');
+			if (error instanceof Error) {
+				handleError({ err: error });
+			}
+
+			throw new TRPCError({
+				cause: error,
+				code: 'INTERNAL_SERVER_ERROR',
+			});
+		}
+	},
+);
+
 /**
  * Export reusable router and procedure helpers
  * that can be used throughout the router
  */
 export const router = t.router;
-export const publicProcedure = t.procedure;
 
-export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
+const baseProcedure = t.procedure.use(errorMiddleware);
+
+export const publicProcedure = baseProcedure;
+
+export const userProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.user) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
@@ -49,7 +76,7 @@ export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const adminProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.admin) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
@@ -60,7 +87,7 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const loggedInProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const loggedInProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.admin && !ctx.user && !ctx.hunter) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
@@ -73,7 +100,7 @@ export const loggedInProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const debugProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const debugProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!isDev()) {
 		throw new TRPCError({ code: 'FORBIDDEN' });
 	}

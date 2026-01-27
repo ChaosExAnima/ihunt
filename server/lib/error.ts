@@ -1,6 +1,7 @@
 import { TRPC_ERROR_CODE_KEY, TRPCError } from '@trpc/server';
 import z, { ZodError } from 'zod';
 
+import { logger } from '../server';
 import { Prisma } from './db';
 
 interface HandleErrorArgs {
@@ -18,7 +19,7 @@ export function handleError({
 	notFoundMsg = 'Not found',
 	throws = true,
 }: HandleErrorArgs) {
-	if (err instanceof TRPCError) {
+	if (err instanceof TRPCError && throws) {
 		throw err;
 	}
 
@@ -32,7 +33,7 @@ export function handleError({
 		message = z.treeifyError(err).errors.join(', ');
 	}
 
-	console.error(err);
+	logger.error(err, 'TRPC error');
 
 	if (throws) {
 		throw new TRPCError({
@@ -41,16 +42,4 @@ export function handleError({
 			message,
 		});
 	}
-}
-
-export function wrapRoute<TRet = unknown>(cb: (() => TRet) | TRet): TRet {
-	try {
-		if (typeof cb === 'function') {
-			return (cb as () => TRet)();
-		}
-		return cb;
-	} catch (err) {
-		handleError({ err });
-	}
-	throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
 }
