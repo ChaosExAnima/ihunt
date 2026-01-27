@@ -51,3 +51,6 @@ if (!_config.success) {
 }
 
 export const config = _config.data;
+
+export type Config = z.infer<typeof configSchema>;
+export type ConfigKey = keyof Config;
