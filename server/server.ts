@@ -6,10 +6,9 @@ import {
 } from '@trpc/server/adapters/fastify';
 import fastify, { FastifyServerOptions } from 'fastify';
 import { resolve } from 'node:path';
-import SuperJSON from 'superjson';
 
 import { MINUTE } from '@/lib/formats';
-import { isDev } from '@/lib/utils';
+import { isDev, isPlainObject } from '@/lib/utils';
 
 import { createAuthContext } from './lib/auth';
 import { Config, config } from './lib/config';
@@ -21,32 +20,44 @@ const envToLogger = {
 	development: {
 		serializers: {
 			req(request) {
-				// eslint-disable-next-line prefer-const
-				let [path, params] = request.url.split('?', 2);
-				const paramObj = Object.fromEntries(
-					new URLSearchParams(`?${params}`).entries(),
-				);
-				if (path.startsWith('/trpc')) {
-					path = '/trpc';
+				const [path, params] = request.url.split('?', 2);
 
-					if ('input' in paramObj) {
-						const input = SuperJSON.parse(paramObj.input);
-						paramObj.input = input as string;
-					}
-				}
-
-				return {
+				const response: Record<string, unknown> = {
 					method: request.method,
-					params: paramObj,
 					path,
 				};
+
+				if (isPlainObject(request.params) && !('*' in request.params)) {
+					response.parameters = request.params;
+				}
+
+				if (params) {
+					const queryParams = Object.fromEntries(
+						new URLSearchParams(`?${params}`).entries(),
+					);
+
+					if ('input' in queryParams) {
+						queryParams.input = JSON.parse(queryParams.input);
+					}
+					response.queryParams = queryParams;
+				}
+
+				if (path.startsWith('/trpc')) {
+					response.path = '/trpc';
+				}
+
+				if (path.startsWith('/@fs')) {
+					response.path = path.replace(process.cwd(), '');
+				}
+
+				return response;
 			},
 		},
 		transport: {
 			options: {
 				ignore: 'pid,hostname,reqId,req.method,req.path',
 				messageFormat:
-					'{msg} [{if reqId}id={reqId}{endif} {if req}{req.method} {req.path}{endif}]',
+					'{msg} | {if reqId}id={reqId}{endif}{if req.path} {req.method} {req.path}{endif}',
 				singleLine: true,
 				translateTime: 'HH:MM:ss Z',
 			},
