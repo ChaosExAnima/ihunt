@@ -6,6 +6,7 @@ import {
 } from '@trpc/server/adapters/fastify';
 import fastify, { FastifyServerOptions } from 'fastify';
 import { resolve } from 'node:path';
+import SuperJSON from 'superjson';
 
 import { MINUTE } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
@@ -18,9 +19,34 @@ import { appRouter, type AppRouter } from './router';
 
 const envToLogger = {
 	development: {
+		serializers: {
+			req(request) {
+				// eslint-disable-next-line prefer-const
+				let [path, params] = request.url.split('?', 2);
+				const paramObj = Object.fromEntries(
+					new URLSearchParams(`?${params}`).entries(),
+				);
+				if (path.startsWith('/trpc')) {
+					path = '/trpc';
+
+					if ('input' in paramObj) {
+						const input = SuperJSON.parse(paramObj.input);
+						paramObj.input = input as string;
+					}
+				}
+
+				return {
+					method: request.method,
+					params: paramObj,
+					path,
+				};
+			},
+		},
 		transport: {
 			options: {
-				ignore: 'pid,hostname',
+				ignore: 'pid,hostname,reqId,req.method,req.path',
+				messageFormat:
+					'{msg} [{if reqId}id={reqId}{endif} {if req}{req.method} {req.path}{endif}]',
 				singleLine: true,
 				translateTime: 'HH:MM:ss Z',
 			},
