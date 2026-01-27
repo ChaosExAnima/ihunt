@@ -133,9 +133,14 @@ export const huntRouter = router({
 		),
 	),
 
-	join: userProcedure
-		.input(z.object({ huntId: idSchemaCoerce }))
-		.mutation(async ({ ctx: { hunter: currentHunter }, input }) => {
+	join: userProcedure.input(z.object({ huntId: idSchemaCoerce })).mutation(
+		async ({
+			ctx: {
+				hunter: currentHunter,
+				req: { log },
+			},
+			input,
+		}) => {
 			const { huntId } = input;
 			try {
 				const { hunt, invited, invitedCount, joined, joinedCount } =
@@ -166,7 +171,7 @@ export const huntRouter = router({
 							huntId,
 						},
 					});
-					console.log(
+					log.info(
 						`${currentHunter.name} canceled hunt with ID ${huntId}`,
 					);
 					notifyHuntsReload();
@@ -195,7 +200,7 @@ export const huntRouter = router({
 					},
 					where: { id: huntId },
 				});
-				console.log(
+				log.info(
 					`${currentHunter.name} accepted hunt with ID ${huntId}`,
 				);
 
@@ -213,7 +218,8 @@ export const huntRouter = router({
 				handleError({ err, throws: false });
 				return { accepted: false, huntId: null };
 			}
-		}),
+		},
+	),
 
 	remove: adminProcedure
 		.input(z.object({ hunterId: idSchemaCoerce, huntId: idSchemaCoerce }))

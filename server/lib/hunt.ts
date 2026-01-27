@@ -2,6 +2,7 @@ import { HUNT_LOCKDOWN_MINUTES, HuntStatus } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { clamp, extractIds } from '@/lib/utils';
 
+import { logger } from '../server';
 import { db, Hunt, Hunter, Prisma } from './db';
 import {
 	huntAvailableEvent,
@@ -86,7 +87,7 @@ export async function onHuntInterval() {
 	const results = await Promise.all(notifyPromises);
 	const total = results.filter((v): v is true => !!v).length;
 	if (total) {
-		console.log(
+		logger.info(
 			`Notified ${total} users for ${upcomingHunts.length} hunts`,
 		);
 	}
@@ -102,7 +103,7 @@ export async function onHuntInterval() {
 		},
 	});
 	if (inviteResults.count) {
-		console.log(`Expired ${inviteResults.count} invites`);
+		logger.info(`Expired ${inviteResults.count} invites`);
 	}
 }
 
