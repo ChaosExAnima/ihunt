@@ -1,17 +1,38 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
+import z, { ZodError } from 'zod';
 
 import { MINUTE, SECOND } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 
 import { Context } from './auth';
-import { handleError } from './error';
+import { Prisma } from './db';
 
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!
  */
 const t = initTRPC.context<Context>().create({
+	errorFormatter(opts) {
+		const { error, shape } = opts;
+		const data = shape.data;
+		const cause = error.cause;
+		if (cause instanceof ZodError) {
+			data.code = 'BAD_REQUEST';
+			shape.message = z.treeifyError(cause).errors.join(', ');
+		} else if (cause instanceof Prisma.PrismaClientKnownRequestError) {
+			if (cause.code === 'P2001' || cause.code === 'P2025') {
+				data.code = 'NOT_FOUND';
+				shape.message = 'Not found';
+			} else {
+				shape.message = 'Internal error';
+			}
+		}
+		return {
+			...shape,
+			data,
+		};
+	},
 	sse: {
 		client: {
 			reconnectAfterInactivityMs: 5 * SECOND,
@@ -25,36 +46,13 @@ const t = initTRPC.context<Context>().create({
 	transformer: superjson,
 });
 
-const errorMiddleware = t.middleware(
-	async ({
-		ctx: {
-			req: { log },
-		},
-		next,
-	}) => {
-		try {
-			return await next();
-		} catch (error) {
-			log.error(error, 'TRPC error');
-			if (error instanceof Error) {
-				handleError({ err: error });
-			}
-
-			throw new TRPCError({
-				cause: error,
-				code: 'INTERNAL_SERVER_ERROR',
-			});
-		}
-	},
-);
-
 /**
  * Export reusable router and procedure helpers
  * that can be used throughout the router
  */
 export const router = t.router;
 
-const baseProcedure = t.procedure.use(errorMiddleware);
+const baseProcedure = t.procedure;
 
 export const publicProcedure = baseProcedure;
 
