@@ -18,8 +18,6 @@ import {
 	userProcedure,
 } from '@/server/lib/trpc';
 
-import { handleError } from '../lib/error';
-
 export const hunterRouter = router({
 	getGroup: userProcedure
 		.input(
@@ -38,34 +36,30 @@ export const hunterRouter = router({
 					message: 'No hunter provided',
 				});
 			}
-			try {
-				const group = await db.hunterGroup.findFirst({
-					include: {
-						hunters: {
-							include: {
-								avatar: true,
-							},
+
+			const group = await db.hunterGroup.findFirst({
+				include: {
+					hunters: {
+						include: {
+							avatar: true,
 						},
 					},
-					where: {
-						hunters: {
-							some: {
-								id: hunterId,
-							},
+				},
+				where: {
+					hunters: {
+						some: {
+							id: hunterId,
 						},
 					},
-				});
-				if (!group) {
-					return null;
-				}
-				return {
-					...group,
-					hunters: group?.hunters.filter(({ id }) => id !== hunterId),
-				};
-			} catch (err) {
-				handleError({ err });
+				},
+			});
+			if (!group) {
 				return null;
 			}
+			return {
+				...group,
+				hunters: group?.hunters.filter(({ id }) => id !== hunterId),
+			};
 		}),
 
 	getMany: debugProcedure.query(
@@ -106,26 +100,22 @@ export const hunterRouter = router({
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			try {
-				const hunter = await db.hunter.findUniqueOrThrow({
-					include: {
-						avatar: true,
-						hunts: {
-							where: {
-								status: HuntStatus.Complete,
-							},
+			const hunter = await db.hunter.findUniqueOrThrow({
+				include: {
+					avatar: true,
+					hunts: {
+						where: {
+							status: HuntStatus.Complete,
 						},
 					},
-					where: { id },
-				});
+				},
+				where: { id },
+			});
 
-				return {
-					...hunter,
-					type: hunterTypeSchema.parse(hunter.type),
-				};
-			} catch (err) {
-				throw handleError({ err });
-			}
+			return {
+				...hunter,
+				type: hunterTypeSchema.parse(hunter.type),
+			};
 		}),
 
 	updateAvatar: adminProcedure
@@ -140,16 +130,11 @@ export const hunterRouter = router({
 			),
 		)
 		.mutation(async ({ input: { hunterId, photo } }) => {
-			try {
-				const result = await uploadPhoto({
-					buffer: await photo.bytes(),
-					hunterId,
-					name: photo.name,
-				});
-				return { success: true, ...result };
-			} catch (err) {
-				handleError({ err, throws: false });
-				return { success: false };
-			}
+			const result = await uploadPhoto({
+				buffer: await photo.bytes(),
+				hunterId,
+				name: photo.name,
+			});
+			return { success: true, ...result };
 		}),
 });

@@ -40,17 +40,20 @@ export const notifyRouter = router({
 		}),
 
 	onNotify: userProcedure.subscription(async function* ({
-		ctx: { user },
+		ctx: {
+			req: { log },
+			user,
+		},
 		signal,
 	}) {
 		const iterable = ee.toIterable('notify', { signal });
 
-		console.log('user', user.id, 'subscribed to notify events');
+		log.info(`user ${user.id} subscribed to notify events`);
 
 		// yield any new posts from the event emitter
 		try {
 			for await (const [userId, payload] of iterable) {
-				console.log('got event for user', userId, payload);
+				log.info(payload, `got event for user ${userId}`);
 
 				// Notify everyone except the original hunter on a join event.
 				if (payload.type === 'hunt-update' && userId !== user.id) {
@@ -61,7 +64,7 @@ export const notifyRouter = router({
 				}
 			}
 		} finally {
-			console.log('user', user.id, 'unsubbed to events');
+			log.info(`user ${user.id} unsubbed to events`);
 		}
 	}),
 
