@@ -81,6 +81,9 @@ async function startServer() {
 		prefix: '/trpc',
 		trpcOptions: {
 			createContext: createAuthContext,
+			onError({ error: { code, ...error }, path, req }) {
+				req.log.error(error, `${code} at ${path}`);
+			},
 			router: appRouter,
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 	});
