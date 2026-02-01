@@ -1,5 +1,6 @@
 import fastifyStatic from '@fastify/static';
 import fastifyVite from '@fastify/vite';
+import ciao from '@homebridge/ciao';
 import {
 	fastifyTRPCPlugin,
 	FastifyTRPCPluginOptions,
@@ -15,6 +16,21 @@ import { Config, config } from './lib/config';
 import { onHuntInterval } from './lib/hunt';
 import { onInviteInterval } from './lib/invite';
 import { appRouter, type AppRouter } from './router';
+
+async function mDnsAdvertise() {
+	const responder = ciao.getResponder();
+	const service = responder.createService({
+		name: config.mdnsName,
+		port: config.port,
+		txt: {
+			test: 'value',
+		},
+		type: 'http',
+	});
+
+	console.log('mdns advertising on', config.mdnsName);
+	await service.advertise();
+}
 
 const envToLogger = {
 	development: {
@@ -138,4 +154,5 @@ async function startServer() {
 
 if (process.argv[1] === import.meta.filename) {
 	void startServer();
+	void mDnsAdvertise();
 }

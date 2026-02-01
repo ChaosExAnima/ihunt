@@ -10,6 +10,7 @@ const configSchema = z.object({
 		.string()
 		.transform((l) => l.split(','))
 		.default([]),
+	mdnsName: z.string().default('ihunt'),
 	mediaHost: z.string().min(2),
 	mediaPath: z.string().min(2),
 	mediaSecure: z.boolean().default(true),
