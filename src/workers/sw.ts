@@ -9,6 +9,7 @@ import {
 	createHandlerBoundToURL,
 	precacheAndRoute,
 } from 'workbox-precaching';
+import { imageCache } from 'workbox-recipes';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import * as z from 'zod';
 
@@ -20,6 +21,7 @@ clientsClaim();
 const entries = self.__WB_MANIFEST;
 
 precacheAndRoute(entries);
+imageCache();
 
 // clean old assets
 cleanupOutdatedCaches();
