@@ -2,7 +2,6 @@
 /// <reference types="vite/client" />
 
 import { RouteHandlerCallbackOptions } from 'workbox-core';
-import z from 'zod';
 
 import { SECOND } from '@/lib/formats';
 
@@ -26,10 +25,15 @@ export class WorkerServer {
 	async checkServer(host: string) {
 		try {
 			console.debug('checking server:', host);
-			z.url({ hostname: z.regexes.hostname, protocol: /^https?$/ }).parse(
-				host,
-			);
-			const response = await fetch(new URL('/trpc/api.hello', host), {
+			const url = new URL(host);
+			if (
+				self.location.protocol !== url.protocol &&
+				self.location.protocol === 'https:'
+			) {
+				return false;
+			}
+
+			const response = await fetch(new URL('/trpc/api.hello', url), {
 				method: 'HEAD',
 				signal: this.abortController.signal,
 			});
