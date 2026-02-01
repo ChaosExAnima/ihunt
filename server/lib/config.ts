@@ -16,6 +16,10 @@ const configSchema = z.object({
 	mediaSecure: z.boolean().default(true),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
+	serverHosts: z
+		.string()
+		.min(10)
+		.transform((s) => s.split(',')),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z

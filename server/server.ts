@@ -1,3 +1,4 @@
+import fastifyCors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import fastifyVite from '@fastify/vite';
 import ciao from '@homebridge/ciao';
@@ -93,6 +94,11 @@ const server = fastify({
 export const logger = server.log;
 
 async function startServer() {
+	server.register(fastifyCors, {
+		origin: config.serverHosts,
+	});
+
+	// Register TRPC
 	await server.register(fastifyTRPCPlugin, {
 		prefix: '/trpc',
 		trpcOptions: {
@@ -121,11 +127,7 @@ async function startServer() {
 		);
 	});
 
-	const timerId = setInterval(() => {
-		void onHuntInterval();
-		void onInviteInterval();
-	}, MINUTE);
-
+	// Register Vite
 	const root = resolve(import.meta.dirname, '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
@@ -134,14 +136,23 @@ async function startServer() {
 		spa: true,
 	});
 
+	// Static assets
 	server.register(fastifyStatic, {
 		prefix: '/public/',
 		root: resolve(root, 'public'),
 	});
 
+	// Render
 	server.get('*', async (_req, reply) => {
 		reply.html();
 	});
+
+	// Main loop
+	const timerId = setInterval(() => {
+		void onHuntInterval();
+		void onInviteInterval();
+	}, MINUTE);
+
 	try {
 		await server.vite.ready();
 		await server.listen({ host: '0.0.0.0', port: config.port });
