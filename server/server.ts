@@ -1,7 +1,5 @@
-import fastifyCors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import fastifyVite from '@fastify/vite';
-import ciao from '@homebridge/ciao';
 import {
 	fastifyTRPCPlugin,
 	FastifyTRPCPluginOptions,
@@ -17,21 +15,6 @@ import { Config, config } from './lib/config';
 import { onHuntInterval } from './lib/hunt';
 import { onInviteInterval } from './lib/invite';
 import { appRouter, type AppRouter } from './router';
-
-async function mDnsAdvertise() {
-	const responder = ciao.getResponder();
-	const service = responder.createService({
-		name: config.mdnsName,
-		port: config.port,
-		txt: {
-			test: 'value',
-		},
-		type: 'http',
-	});
-
-	console.log('mdns advertising on', config.mdnsName);
-	await service.advertise();
-}
 
 const envToLogger = {
 	development: {
@@ -94,8 +77,17 @@ const server = fastify({
 export const logger = server.log;
 
 async function startServer() {
-	server.register(fastifyCors, {
-		origin: config.serverHosts,
+	const origins = config.serverHosts.map((host) => new URL(host).hostname);
+	server.addHook('onRequest', (req, reply, done) => {
+		let reqOrigin = req.headers.origin ?? req.host;
+		if (reqOrigin.startsWith('http')) {
+			reqOrigin = reqOrigin.replace(/^https?:\/\//, '');
+		}
+		if (origins.includes(reqOrigin)) {
+			reply.header('access-control-allow-origin', `https://${reqOrigin}`);
+		}
+
+		done();
 	});
 
 	// Register TRPC
@@ -165,5 +157,4 @@ async function startServer() {
 
 if (process.argv[1] === import.meta.filename) {
 	void startServer();
-	void mDnsAdvertise();
 }
