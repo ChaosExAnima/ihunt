@@ -4,20 +4,13 @@ import { resolve } from 'node:path';
 import { isDev } from '@/lib/utils';
 
 import { Prisma, PrismaClient } from '../../prisma/generated/client';
-/**
- * Instantiates a single instance PrismaClient and save it on the global object.
- * @see https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
- */
-import { config } from './config';
+import { logger } from '../server';
 
 export * from '../../prisma/generated/client';
 
-const log: Prisma.LogLevel[] = ['error'];
+const levels: Prisma.LogLevel[] = ['error', 'warn'];
 if (isDev()) {
-	log.push('warn');
-	if (config.logging.includes('db')) {
-		log.push('query');
-	}
+	levels.push('query');
 }
 
 const url = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
@@ -26,5 +19,17 @@ const adapter = new PrismaBetterSqlite3({
 });
 export const db = new PrismaClient({
 	adapter,
-	log,
+	log: levels.map((level) => ({ emit: 'event', level })),
 });
+
+for (const level of levels) {
+	if (level === 'query') {
+		db.$on('query', (event) => {
+			logger.debug(event, `db query: ${event.target}`);
+		});
+		continue;
+	}
+	db.$on(level, (event) => {
+		logger[level](event, `db ${level}: ${event.target}`);
+	});
+}

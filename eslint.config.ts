@@ -43,7 +43,7 @@ export default defineConfig([
 			'@typescript-eslint/no-unsafe-call': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/no-unused-vars': [
-				'error',
+				'warn',
 				{
 					args: 'all',
 					argsIgnorePattern: '^_',
@@ -57,6 +57,7 @@ export default defineConfig([
 			'@typescript-eslint/only-throw-error': 'off',
 			'@typescript-eslint/unbound-method': 'off',
 			'perfectionist/sort-modules': 'warn',
+			'perfectionist/sort-objects': 'warn',
 			'prettier/prettier': 'warn',
 		},
 	},

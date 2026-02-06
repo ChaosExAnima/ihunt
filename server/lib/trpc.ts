@@ -1,16 +1,38 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
+import z, { ZodError } from 'zod';
 
 import { MINUTE, SECOND } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 
 import { Context } from './auth';
+import { Prisma } from './db';
 
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!
  */
 const t = initTRPC.context<Context>().create({
+	errorFormatter(opts) {
+		const { error, shape } = opts;
+		const data = shape.data;
+		const cause = error.cause;
+		if (cause instanceof ZodError) {
+			data.code = 'BAD_REQUEST';
+			shape.message = z.treeifyError(cause).errors.join(', ');
+		} else if (cause instanceof Prisma.PrismaClientKnownRequestError) {
+			if (cause.code === 'P2001' || cause.code === 'P2025') {
+				data.code = 'NOT_FOUND';
+				shape.message = 'Not found';
+			} else {
+				shape.message = 'Internal error';
+			}
+		}
+		return {
+			...shape,
+			data,
+		};
+	},
 	sse: {
 		client: {
 			reconnectAfterInactivityMs: 5 * SECOND,
@@ -29,9 +51,12 @@ const t = initTRPC.context<Context>().create({
  * that can be used throughout the router
  */
 export const router = t.router;
-export const publicProcedure = t.procedure;
 
-export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
+const baseProcedure = t.procedure;
+
+export const publicProcedure = baseProcedure;
+
+export const userProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.user) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
@@ -49,7 +74,7 @@ export const userProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const adminProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.admin) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
@@ -60,7 +85,7 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const loggedInProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const loggedInProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.admin && !ctx.user && !ctx.hunter) {
 		throw new TRPCError({ code: 'UNAUTHORIZED' });
 	}
@@ -73,7 +98,7 @@ export const loggedInProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const debugProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const debugProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!isDev()) {
 		throw new TRPCError({ code: 'FORBIDDEN' });
 	}

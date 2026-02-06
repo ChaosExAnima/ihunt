@@ -5,7 +5,6 @@ import { db } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';
 import { router, userProcedure } from '@/server/lib/trpc';
 
-import { handleError, wrapRoute } from '../lib/error';
 import { userSettingsSchema } from '../lib/schema';
 
 export const settingsRouter = router({
@@ -20,21 +19,16 @@ export const settingsRouter = router({
 			),
 		)
 		.mutation(async ({ ctx: { hunter }, input }) => {
-			try {
-				const photo = await uploadPhoto({
-					buffer: await input.photo.bytes(),
-					hunterId: hunter.id,
-					name: input.photo.name,
-				});
-				await db.hunter.update({
-					data: { avatarId: photo.id },
-					where: { id: hunter.id },
-				});
-				return { success: true };
-			} catch (err) {
-				handleError({ err });
-				return { success: false };
-			}
+			const photo = await uploadPhoto({
+				buffer: await input.photo.bytes(),
+				hunterId: hunter.id,
+				name: input.photo.name,
+			});
+			await db.hunter.update({
+				data: { avatarId: photo.id },
+				where: { id: hunter.id },
+			});
+			return { success: true };
 		}),
 
 	updateFields: userProcedure
@@ -53,28 +47,22 @@ export const settingsRouter = router({
 					return;
 				}
 
-				try {
-					await db.hunter.update({
-						data: { bio: newBio, pronouns: newPronouns },
-						where: { id: hunter.id },
-					});
-				} catch (err) {
-					handleError({ err });
-				}
+				await db.hunter.update({
+					data: { bio: newBio, pronouns: newPronouns },
+					where: { id: hunter.id },
+				});
 			},
 		),
 
 	updateSettings: userProcedure
 		.input(userSettingsSchema.partial())
-		.mutation(async ({ ctx: { user }, input }) =>
-			wrapRoute(async () => {
-				const updated = await db.user.update({
-					data: {
-						settings: mergeDeep(user.settings, input),
-					},
-					where: { id: user.id },
-				});
-				return updated.settings;
-			}),
-		),
+		.mutation(async ({ ctx: { user }, input }) => {
+			const updated = await db.user.update({
+				data: {
+					settings: mergeDeep(user.settings, input),
+				},
+				where: { id: user.id },
+			});
+			return updated.settings;
+		}),
 });

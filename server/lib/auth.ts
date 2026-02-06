@@ -60,7 +60,7 @@ export async function createAuthContext({
 			},
 		};
 	} catch (err) {
-		console.warn(`Error logging in user ${session.userId}:`, err);
+		req.log.warn(err, `Error logging in user ${session.userId}`);
 		session.destroy();
 	}
 	return { req, res, session };
