@@ -7310,7 +7310,9 @@ __metadata:
     web-push: "npm:^3.6.7"
     workbox-core: "npm:^7.4.0"
     workbox-precaching: "npm:^7.4.0"
+    workbox-recipes: "npm:^7.4.0"
     workbox-routing: "npm:^7.4.0"
+    workbox-strategies: "npm:^7.4.0"
     zod: "npm:^4.2.1"
   languageName: unknown
   linkType: soft
@@ -12227,7 +12229,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"workbox-recipes@npm:7.4.0":
+"workbox-recipes@npm:7.4.0, workbox-recipes@npm:^7.4.0":
   version: 7.4.0
   resolution: "workbox-recipes@npm:7.4.0"
   dependencies:
@@ -12250,7 +12252,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"workbox-strategies@npm:7.4.0":
+"workbox-strategies@npm:7.4.0, workbox-strategies@npm:^7.4.0":
   version: 7.4.0
   resolution: "workbox-strategies@npm:7.4.0"
   dependencies:

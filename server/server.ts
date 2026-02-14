@@ -77,6 +77,21 @@ const server = fastify({
 export const logger = server.log;
 
 async function startServer() {
+	const origins = config.serverHosts.map((host) => new URL(host).hostname);
+	server.addHook('onRequest', (req, reply, done) => {
+		let reqOrigin = req.headers.origin ?? req.host;
+		if (reqOrigin.startsWith('http')) {
+			reqOrigin = reqOrigin.replace(/^https?:\/\//, '');
+		}
+		if (origins.includes(reqOrigin)) {
+			reply.header('access-control-allow-origin', `https://${reqOrigin}`);
+		}
+		reply.header('access-control-allow-credentials', 'true');
+
+		done();
+	});
+
+	// Register TRPC
 	await server.register(fastifyTRPCPlugin, {
 		prefix: '/trpc',
 		trpcOptions: {
@@ -105,11 +120,7 @@ async function startServer() {
 		);
 	});
 
-	const timerId = setInterval(() => {
-		void onHuntInterval();
-		void onInviteInterval();
-	}, MINUTE);
-
+	// Register Vite
 	const root = resolve(import.meta.dirname, '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
@@ -118,14 +129,23 @@ async function startServer() {
 		spa: true,
 	});
 
+	// Static assets
 	server.register(fastifyStatic, {
 		prefix: '/public/',
 		root: resolve(root, 'public'),
 	});
 
+	// Render
 	server.get('*', async (_req, reply) => {
 		reply.html();
 	});
+
+	// Main loop
+	const timerId = setInterval(() => {
+		void onHuntInterval();
+		void onInviteInterval();
+	}, MINUTE);
+
 	try {
 		await server.vite.ready();
 		await server.listen({ host: '0.0.0.0', port: config.port });

@@ -82,7 +82,7 @@ export async function uploadPhoto({
 
 	const controller = new AbortController();
 	try {
-		const { mediaPath } = config;
+		const { uploadPath: mediaPath } = config;
 		await writeFile(resolve(process.cwd(), mediaPath, fileName), buffer, {
 			signal: controller.signal,
 		});

@@ -73,7 +73,9 @@ export function getSession({
 	return getIronSession<SessionData>(req.raw, res.raw, {
 		cookieName: SESSION_COOKIE_NAME,
 		cookieOptions: {
+			domain: config.cookieDomain,
 			httpOnly: false,
+			sameSite: 'none',
 		},
 		password: authSession,
 	});

@@ -9,17 +9,29 @@ import {
 	createHandlerBoundToURL,
 	precacheAndRoute,
 } from 'workbox-precaching';
+import { imageCache } from 'workbox-recipes';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import * as z from 'zod';
 
+import { WorkerServer } from './server';
+
 declare const self: ServiceWorkerGlobalScope;
+
+self.__WB_DISABLE_DEV_LOGS = true;
 
 void self.skipWaiting();
 clientsClaim();
 
 const entries = self.__WB_MANIFEST;
 
+const server = new WorkerServer();
+
+const trpcRoute = new RegExp('/trpc.*');
+registerRoute(trpcRoute, server.routeCallback.bind(server));
+
+// static assets
 precacheAndRoute(entries);
+imageCache();
 
 // clean old assets
 cleanupOutdatedCaches();
