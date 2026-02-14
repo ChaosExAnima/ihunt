@@ -6,6 +6,7 @@ const configSchema = z.object({
 	adminPassword: z.string(),
 	authPepper: z.string(),
 	authSession: z.string(),
+	cookieDomain: z.string().optional(),
 	logging: z
 		.string()
 		.transform((l) => l.split(','))

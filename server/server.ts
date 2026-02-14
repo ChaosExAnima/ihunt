@@ -86,6 +86,7 @@ async function startServer() {
 		if (origins.includes(reqOrigin)) {
 			reply.header('access-control-allow-origin', `https://${reqOrigin}`);
 		}
+		reply.header('access-control-allow-credentials', 'true');
 
 		done();
 	});

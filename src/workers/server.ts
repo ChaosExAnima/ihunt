@@ -22,7 +22,6 @@ export class WorkerServer {
 
 	async checkServer(host: string) {
 		try {
-			console.log('checking server:', host);
 			const url = new URL(host);
 			const response = await fetch(new URL('/trpc/api.hello', url), {
 				method: 'HEAD',
@@ -42,18 +41,19 @@ export class WorkerServer {
 		options: RouteHandlerCallbackOptions,
 	): Promise<Response> {
 		const { request, url } = options;
-		if (!this.currentServer || url.host === this.currentServer) {
-			console.log(`sending unmodified request for ${url}`);
-			return await fetch(request);
-		}
-		const newUrl = new URL(url, this.currentServer);
-		try {
-			console.log(`modified host to ${this.currentServer} for ${url}`);
-			const response = await fetch(newUrl, request);
-			return response;
-		} catch (err: unknown) {
-			// TODO: See if server isn't reachable, and retry with other servers.
-			console.log('error with request:', err, newUrl);
+		if (this.currentServer && url.host !== this.currentServer) {
+			const newUrl = new URL(url);
+			newUrl.host = new URL(this.currentServer).host;
+			try {
+				const response = await fetch(newUrl, {
+					...request,
+					credentials: 'include',
+				});
+				return response;
+			} catch (err: unknown) {
+				// TODO: See if server isn't reachable, and retry with other servers.
+				console.warn('error with request:', err, newUrl);
+			}
 		}
 		return await fetch(request);
 	}
@@ -61,22 +61,17 @@ export class WorkerServer {
 	async update() {
 		for (const host of serverHosts) {
 			const isAvailable = await this.checkServer(host);
-			console.log('got result:', isAvailable, host);
 			if (isAvailable) {
 				if (host !== this.currentServer) {
 					this.currentServer = host;
-					console.log('setting host to', host, this.currentServer);
 				} else {
 					this.delay = Math.min(this.delay * 5, MINUTE);
-					console.debug(
-						'backing off to',
-						this.delay / SECOND,
-						'due to same host',
-						host,
-					);
 				}
 				break;
 			}
+		}
+		if (this.timerId) {
+			clearTimeout(this.timerId);
 		}
 		this.timerId = self.setTimeout(this.update.bind(this), this.delay);
 	}
