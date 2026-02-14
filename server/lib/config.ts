@@ -11,9 +11,7 @@ const configSchema = z.object({
 		.string()
 		.transform((l) => l.split(','))
 		.default([]),
-	mdnsName: z.string().default('ihunt'),
 	mediaHost: z.string().min(2),
-	mediaPath: z.string().min(2),
 	mediaSecure: z.boolean().default(true),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
@@ -21,6 +19,7 @@ const configSchema = z.object({
 		.string()
 		.min(10)
 		.transform((s) => s.split(',')),
+	uploadPath: z.string().min(2),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z

@@ -20,7 +20,7 @@ async function main() {
 		photos.map(async (photo) => {
 			try {
 				const buffer = await readFile(
-					resolve(config.mediaPath, photo.path),
+					resolve(config.uploadPath, photo.path),
 				);
 				const image = sharp(buffer);
 				const blurry = await generateThumbhash(image);
