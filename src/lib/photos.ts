@@ -1,4 +1,4 @@
-import { PixelCrop } from 'react-image-crop';
+import type { PixelCrop } from 'react-image-crop';
 
 export function blobToDataUrl(blob: Blob): Promise<string> {
 	return new Promise((result, reject) => {
@@ -10,7 +10,6 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
 		reader.readAsDataURL(blob);
 	});
 }
-
 export async function imageToBlob(
 	image: HTMLImageElement,
 	crop: PixelCrop,

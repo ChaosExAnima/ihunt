@@ -1,17 +1,19 @@
+import type { PixelCrop } from 'react-image-crop';
+
 import { LoaderCircle } from 'lucide-react';
 import {
-	ChangeEvent,
-	ReactElement,
+	type ChangeEvent,
+	type ReactElement,
 	useCallback,
 	useRef,
 	useState,
 } from 'react';
-import { PixelCrop } from 'react-image-crop';
+
+import { blobToDataUrl, imageToBlob } from '@/lib/photos';
 
 import { ConfirmDialog } from '../confirm-dialog';
 import { Button } from '../ui/button';
 import { UploadCropper } from './cropper';
-import { blobToDataUrl, imageToBlob } from './functions';
 
 export interface UploadPhotoProps {
 	aspect?: number;
