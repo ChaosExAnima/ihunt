@@ -1,4 +1,7 @@
+import { DialogProps } from '@radix-ui/react-dialog';
 import { ReactNode, useCallback, useState } from 'react';
+
+import { cn } from '@/lib/utils';
 
 import { Button } from './ui/button';
 import {
@@ -29,19 +32,10 @@ export interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({
-	children,
-	confirmLabel = 'Confirm',
-	description,
-	disabled,
-	id,
-	isDangerous,
-	noDescription,
 	onCancel,
-	onConfirm,
 	onOpen,
-	open = false,
-	title = 'Are you sure?',
-	trigger,
+	open,
+	...props
 }: ConfirmDialogProps) {
 	const [show, setShow] = useState(open);
 	const handleOpenChange = useCallback(
@@ -55,16 +49,39 @@ export function ConfirmDialog({
 		},
 		[onCancel, onOpen],
 	);
+
 	return (
-		<Dialog onOpenChange={handleOpenChange} open={show}>
+		<ControllableDialog
+			{...props}
+			onOpenChange={handleOpenChange}
+			open={show}
+		/>
+	);
+}
+
+export function ControllableDialog({
+	children,
+	confirmLabel = 'Confirm',
+	description,
+	disabled,
+	id,
+	isDangerous,
+	noDescription,
+	onConfirm,
+	title = 'Are you sure?',
+	trigger,
+	...props
+}: DialogProps & Omit<ConfirmDialogProps, 'onCancel' | 'onOpen' | 'open'>) {
+	return (
+		<Dialog {...props}>
 			{trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 			<DialogContent aria-description={description ?? ''} id={id}>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				{!noDescription && (
-					<DialogDescription>{children}</DialogDescription>
-				)}
+				<DialogDescription className={cn(noDescription && 'hidden')}>
+					{description ?? children}
+				</DialogDescription>
 				{noDescription && children}
 				<DialogFooter className="flex-row justify-end">
 					<DialogClose asChild>
