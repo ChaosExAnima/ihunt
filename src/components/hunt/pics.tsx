@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Camera, Trash } from 'lucide-react';
+import { Camera, Trash, Upload } from 'lucide-react';
 import { useCallback } from 'react';
 import { useEffect, useMemo } from 'react';
 
@@ -13,6 +13,7 @@ import { Avatar } from '../avatar';
 import { PhotoDisplay } from '../photo';
 import { Button } from '../ui/button';
 import { UploadPhoto } from '../upload-photo';
+import { CameraUpload } from '../upload-photo/camera';
 
 interface ActivePhotoProps {
 	hunters: HunterSchema[];
@@ -58,7 +59,7 @@ export function HuntPics({
 		return <PicPicker huntId={huntId} />;
 	}
 	return (
-		<div className="">
+		<div>
 			{!!currentPhoto && showPhoto && (
 				<ActivePhoto hunters={hunters} photo={currentPhoto} />
 			)}
@@ -151,13 +152,29 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 		},
 		[huntId, mutateAsync],
 	);
-	const button = (
-		<Button className="w-full" variant="secondary">
-			Upload photos
-			<Camera />
-		</Button>
-	);
+
 	return (
-		<UploadPhoto button={button} onCrop={handleCrop} title="Upload a pic" />
+		<div className="grid grid-cols-2 gap-2">
+			<UploadPhoto
+				button={
+					<Button className="w-full" variant="secondary">
+						Upload photo
+						<Upload />
+					</Button>
+				}
+				onCrop={handleCrop}
+				title="Upload a pic"
+			/>
+			<CameraUpload
+				button={
+					<Button className="w-full" variant="success">
+						Take photo
+						<Camera />
+					</Button>
+				}
+				onCrop={handleCrop}
+				title="Take a photo"
+			/>
+		</div>
 	);
 }

@@ -1,17 +1,20 @@
+import type { PixelCrop } from 'react-image-crop';
+
 import { LoaderCircle } from 'lucide-react';
 import {
-	ChangeEvent,
-	ReactElement,
+	type ChangeEvent,
+	type ReactElement,
 	useCallback,
+	useEffect,
 	useRef,
 	useState,
 } from 'react';
-import { PixelCrop } from 'react-image-crop';
 
-import { ConfirmDialog } from '../confirm-dialog';
+import { blobToDataUrl, imageToBlob } from '@/lib/photos';
+
+import { ControllableDialog } from '../confirm-dialog';
 import { Button } from '../ui/button';
 import { UploadCropper } from './cropper';
-import { blobToDataUrl, imageToBlob } from './functions';
 
 export interface UploadPhotoProps {
 	aspect?: number;
@@ -33,6 +36,7 @@ export function UploadPhoto({
 	const [disabled, setDisabled] = useState(false);
 	const [imgSrc, setImgSrc] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
+	const [show, setShow] = useState(false);
 
 	const reset = useCallback(() => {
 		setDisabled(false);
@@ -60,7 +64,19 @@ export function UploadPhoto({
 			inputRef.current.value = '';
 		}
 		reset();
+		setShow(false);
 	}, [reset]);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) {
+			return;
+		}
+		input.addEventListener('cancel', handleDialogCancel);
+		return () => {
+			input.removeEventListener('cancel', handleDialogCancel);
+		};
+	}, [handleDialogCancel]);
 
 	const handleDialogOpen = useCallback(() => {
 		inputRef?.current?.click();
@@ -91,6 +107,18 @@ export function UploadPhoto({
 		})();
 	}, [imgSrc, onCrop, reset, tempCrop]);
 
+	const handleOpenChange = useCallback(
+		(open: boolean) => {
+			setShow(open);
+			if (open) {
+				handleDialogOpen();
+			} else {
+				handleDialogCancel();
+			}
+		},
+		[handleDialogCancel, handleDialogOpen],
+	);
+
 	return (
 		<>
 			<input
@@ -101,13 +129,13 @@ export function UploadPhoto({
 				ref={inputRef}
 				type="file"
 			/>
-			<ConfirmDialog
+			<ControllableDialog
 				description="Upload image"
 				disabled={disabled}
 				noDescription
-				onCancel={handleDialogCancel}
 				onConfirm={handleDialogConfirm}
-				onOpen={handleDialogOpen}
+				onOpenChange={handleOpenChange}
+				open={show}
 				title={title}
 				trigger={button}
 			>
@@ -134,7 +162,7 @@ export function UploadPhoto({
 						{errorMsg}
 					</p>
 				)}
-			</ConfirmDialog>
+			</ControllableDialog>
 		</>
 	);
 }
