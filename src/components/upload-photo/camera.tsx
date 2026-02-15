@@ -1,12 +1,16 @@
-import { LoaderCircle } from 'lucide-react';
+import { CameraIcon, LoaderCircle, SwitchCameraIcon } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
+
+import { blobToDataUrl } from '@/lib/photos';
+import { MaybePromise } from '@/lib/types';
 
 import { Button } from '../ui/button';
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -60,6 +64,12 @@ export function CameraUpload({
 		[handleClose],
 	);
 
+	const handleStartCrop = useCallback(async (photo: Blob) => {
+		const dataUri = await blobToDataUrl(photo);
+		setImageSrc(dataUri);
+		setState('crop');
+	}, []);
+
 	return (
 		<Dialog onOpenChange={handleOpenChange} open={state !== null}>
 			<DialogTrigger asChild>{button}</DialogTrigger>
@@ -67,25 +77,32 @@ export function CameraUpload({
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<CameraStream onError={setErrorMsg} />
-				<UploadCropper
-					aspect={aspect}
-					circular={circular}
-					className="rounded-lg"
-					disabled={disabled}
-					imageRef={imageRef}
-					imageSrc={imageSrc}
-					onComplete={setTempComp}
-				>
-					{disabled && (
-						<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
-							<LoaderCircle
-								className="animate-spin"
-								size="2rem"
-							/>
-						</div>
-					)}
-				</UploadCropper>
+				{state === 'camera' && (
+					<CameraStream
+						onError={setErrorMsg}
+						onSave={handleStartCrop}
+					/>
+				)}
+				{state === 'crop' && (
+					<UploadCropper
+						aspect={aspect}
+						circular={circular}
+						className="rounded-lg"
+						disabled={disabled}
+						imageRef={imageRef}
+						imageSrc={imageSrc}
+						onComplete={setTempComp}
+					>
+						{disabled && (
+							<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
+								<LoaderCircle
+									className="animate-spin"
+									size="2rem"
+								/>
+							</div>
+						)}
+					</UploadCropper>
+				)}
 				{!!errorMsg && (
 					<p className="text-red-500 font-bold text-right">
 						{errorMsg}
@@ -97,46 +114,34 @@ export function CameraUpload({
 	);
 }
 
-function CameraStream({ onError }: { onError: (message: string) => void }) {
+function CameraStream({
+	onError,
+	onSave,
+}: {
+	onError: (message: string) => void;
+	onSave: (photo: Blob) => MaybePromise<void>;
+}) {
+	const [state, setState] = useState<'back' | 'front'>('front');
+	const [hasBackCamera, setHasBackCamera] = useState(false);
 	const videoRef = useRef<HTMLVideoElement | null>(null);
-	const [backCamera, setBackCamera] = useState(false);
-
-	const handleStream = useCallback(
-		async (videoEle: HTMLVideoElement, useBack = false) => {
-			try {
-				// Clean up old tracks.
-				if (videoEle.srcObject instanceof MediaStream) {
-					videoEle.srcObject
-						.getTracks()
-						.forEach((track) => track.stop());
-				}
-
-				const stream = await navigator.mediaDevices.getUserMedia({
-					audio: false,
-					video: {
-						facingMode: {
-							ideal: useBack ? 'environment' : 'user',
-						},
-					},
-				});
-
-				videoEle.srcObject = stream;
-				// await videoEle.play();
-			} catch (err: unknown) {
-				console.warn('Stream error:', err);
-				onError('Could not start camera');
-			}
-		},
-		[onError],
-	);
 
 	const handlePlay = useCallback(() => {
 		void videoRef.current?.play();
 	}, []);
 
 	const handleSwap = useCallback(() => {
-		setBackCamera((prev) => !prev);
-	}, []);
+		if (hasBackCamera) {
+			setState((prev) => (prev === 'back' ? 'front' : 'back'));
+		}
+	}, [hasBackCamera]);
+
+	const handleSave = useCallback(() => {
+		const videoEle = videoRef.current;
+		if (!videoEle) {
+			return;
+		}
+		void saveVideoStill({ onError, onSave, videoEle });
+	}, [onError, onSave]);
 
 	useEffect(() => {
 		const videoEle = videoRef.current;
@@ -144,13 +149,23 @@ function CameraStream({ onError }: { onError: (message: string) => void }) {
 			return;
 		}
 
-		void handleStream(videoEle, backCamera);
+		try {
+			void startCameraStream({ useBack: state === 'back', videoEle });
+			void detectCameraCount().then((cameras) => {
+				if (cameras.length > 1) {
+					setHasBackCamera(true);
+				}
+			});
+		} catch (err: unknown) {
+			console.warn('Stream error:', err);
+			onError('Could not start camera');
+		}
 		return () => {
 			if (videoEle.srcObject instanceof MediaStream) {
 				videoEle.srcObject.getTracks().forEach((track) => track.stop());
 			}
 		};
-	}, [backCamera, handleStream]);
+	}, [state, onError]);
 
 	return (
 		<>
@@ -159,11 +174,23 @@ function CameraStream({ onError }: { onError: (message: string) => void }) {
 				onLoadedMetadata={handlePlay}
 				ref={videoRef}
 			/>
-			<Button onClick={handleSwap} variant="secondary">
-				Swap
-			</Button>
+			<DialogFooter>
+				{hasBackCamera && (
+					<Button onClick={handleSwap} variant="secondary">
+						Swap <SwitchCameraIcon />
+					</Button>
+				)}
+				<Button onClick={handleSave} variant="success">
+					Save <CameraIcon />
+				</Button>
+			</DialogFooter>
 		</>
 	);
+}
+
+async function detectCameraCount() {
+	const devices = await navigator.mediaDevices.enumerateDevices();
+	return devices.filter(({ kind }) => kind === 'videoinput');
 }
 
 function getTip() {
@@ -177,4 +204,85 @@ function getTip() {
 	];
 	const randIndex = Math.floor(Math.random() * messages.length);
 	return messages[randIndex];
+}
+
+async function saveVideoStill({
+	onError,
+	onSave,
+	videoEle,
+}: {
+	onError: (message: string) => void;
+	onSave: (image: Blob) => MaybePromise<void>;
+	videoEle: HTMLVideoElement;
+}) {
+	try {
+		videoEle.pause();
+
+		const stream = videoEle.srcObject;
+		if (!(stream instanceof MediaStream)) {
+			return;
+		}
+		let height: number | undefined, width: number | undefined;
+		const track = stream.getVideoTracks().at(0);
+		if (track) {
+			const imageCapture = new ImageCapture(track);
+			const capabilities = await imageCapture.getPhotoCapabilities();
+			if (capabilities.imageHeight) {
+				height = capabilities.imageHeight?.max;
+			}
+			if (capabilities.imageWidth) {
+				width = capabilities.imageWidth?.max;
+			}
+		}
+
+		if (!width || !height) {
+			onError('Invalid video size');
+			return;
+		}
+
+		const canvas = new OffscreenCanvas(width, height);
+		const ctx = canvas.getContext('2d');
+		if (!ctx) {
+			onError('Cannot save video');
+			return;
+		}
+		ctx.imageSmoothingQuality = 'high';
+
+		// Save original state.
+		ctx.drawImage(videoEle, 0, 0, width, height, 0, 0, width, height);
+		ctx.save();
+
+		const blob = await canvas.convertToBlob({
+			quality: 0.7,
+			type: 'image/jpeg',
+		});
+		await onSave(blob);
+	} catch (err) {
+		console.warn('Error with saving:', err);
+		onError('Unknown error saving video');
+	}
+}
+
+async function startCameraStream({
+	useBack = false,
+	videoEle,
+}: {
+	useBack?: boolean;
+	videoEle: HTMLVideoElement;
+}) {
+	// Clean up old tracks.
+	if (videoEle.srcObject instanceof MediaStream) {
+		videoEle.srcObject.getTracks().forEach((track) => track.stop());
+	}
+
+	const stream = await navigator.mediaDevices.getUserMedia({
+		audio: false,
+		video: {
+			facingMode: {
+				ideal: useBack ? 'environment' : 'user',
+			},
+		},
+	});
+
+	videoEle.srcObject = stream;
 }
