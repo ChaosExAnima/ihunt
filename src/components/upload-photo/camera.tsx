@@ -2,8 +2,15 @@ import { LoaderCircle } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
-import { ControllableDialog } from '../confirm-dialog';
 import { Button } from '../ui/button';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../ui/dialog';
 import { UploadCropper } from './cropper';
 
 interface CameraProps {
@@ -11,7 +18,7 @@ interface CameraProps {
 	button: ReactElement;
 	circular?: boolean;
 	onCrop: (blob: Blob) => Promise<boolean>;
-	title: string;
+	title?: string;
 }
 
 export function CameraUpload({
@@ -19,13 +26,14 @@ export function CameraUpload({
 	button,
 	circular = false,
 	// onCrop,
-	title,
+	title = 'Take a photo',
 }: CameraProps) {
-	const [show, setShow] = useState(false);
+	const [state, setState] = useState<'camera' | 'crop' | null>(null);
 	const [imageSrc, setImageSrc] = useState('');
 	const imageRef = useRef<HTMLImageElement>(null);
 	const [disabled, setDisabled] = useState(false);
 	const [errorMsg, setErrorMsg] = useState<null | string>(null);
+	const [tipMessage, setTipMessage] = useState(getTip);
 
 	const [_tempCrop, setTempComp] = useState<PixelCrop>();
 
@@ -37,17 +45,15 @@ export function CameraUpload({
 
 	const handleClose = useCallback(() => {
 		reset();
-		setShow(false);
+		setState(null);
 	}, [reset]);
-
-	const handleDialogConfirm = useCallback(() => {
-		// setShow(false);
-	}, []);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
-			setShow(open);
-			if (!open) {
+			if (open) {
+				setState('camera');
+				setTipMessage(getTip);
+			} else {
 				handleClose();
 			}
 		},
@@ -55,36 +61,39 @@ export function CameraUpload({
 	);
 
 	return (
-		<ControllableDialog
-			description="Upload image"
-			disabled={disabled}
-			noDescription
-			onConfirm={handleDialogConfirm}
-			onOpenChange={handleOpenChange}
-			open={show}
-			title={title}
-			trigger={button}
-		>
-			<CameraStream onError={setErrorMsg} />
-			<UploadCropper
-				aspect={aspect}
-				circular={circular}
-				className="rounded-lg"
-				disabled={disabled}
-				imageRef={imageRef}
-				imageSrc={imageSrc}
-				onComplete={setTempComp}
-			>
-				{disabled && (
-					<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
-						<LoaderCircle className="animate-spin" size="2rem" />
-					</div>
+		<Dialog onOpenChange={handleOpenChange} open={state !== null}>
+			<DialogTrigger asChild>{button}</DialogTrigger>
+			<DialogContent aria-description="Upload a photo">
+				<DialogHeader>
+					<DialogTitle>{title}</DialogTitle>
+				</DialogHeader>
+				<CameraStream onError={setErrorMsg} />
+				<UploadCropper
+					aspect={aspect}
+					circular={circular}
+					className="rounded-lg"
+					disabled={disabled}
+					imageRef={imageRef}
+					imageSrc={imageSrc}
+					onComplete={setTempComp}
+				>
+					{disabled && (
+						<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
+							<LoaderCircle
+								className="animate-spin"
+								size="2rem"
+							/>
+						</div>
+					)}
+				</UploadCropper>
+				{!!errorMsg && (
+					<p className="text-red-500 font-bold text-right">
+						{errorMsg}
+					</p>
 				)}
-			</UploadCropper>
-			{!!errorMsg && (
-				<p className="text-red-500 font-bold text-right">{errorMsg}</p>
-			)}
-		</ControllableDialog>
+				<DialogDescription>Tip: {tipMessage}</DialogDescription>
+			</DialogContent>
+		</Dialog>
 	);
 }
 
@@ -112,7 +121,7 @@ function CameraStream({ onError }: { onError: (message: string) => void }) {
 				});
 
 				videoEle.srcObject = stream;
-				await videoEle.play();
+				// await videoEle.play();
 			} catch (err: unknown) {
 				console.warn('Stream error:', err);
 				onError('Could not start camera');
@@ -121,6 +130,10 @@ function CameraStream({ onError }: { onError: (message: string) => void }) {
 		[onError],
 	);
 
+	const handlePlay = useCallback(() => {
+		void videoRef.current?.play();
+	}, []);
+
 	const handleSwap = useCallback(() => {
 		setBackCamera((prev) => !prev);
 	}, []);
@@ -128,19 +141,40 @@ function CameraStream({ onError }: { onError: (message: string) => void }) {
 	useEffect(() => {
 		const videoEle = videoRef.current;
 		if (!videoEle) {
-			console.warn('no video element:');
 			return;
 		}
 
 		void handleStream(videoEle, backCamera);
+		return () => {
+			if (videoEle.srcObject instanceof MediaStream) {
+				videoEle.srcObject.getTracks().forEach((track) => track.stop());
+			}
+		};
 	}, [backCamera, handleStream]);
 
 	return (
 		<>
-			<video className="w-full h-full bg-muted/50" ref={videoRef} />
+			<video
+				className="w-full h-full bg-muted/50"
+				onLoadedMetadata={handlePlay}
+				ref={videoRef}
+			/>
 			<Button onClick={handleSwap} variant="secondary">
 				Swap
 			</Button>
 		</>
 	);
+}
+
+function getTip() {
+	const messages = [
+		'Remember to smile!',
+		'Avoid showing too much blood on camera',
+		'A thumbs up shows you care!',
+		'Try to clean up before you submit your photo',
+		'Keep a can-do attitude!',
+		'Maintain a professional demeanor',
+	];
+	const randIndex = Math.floor(Math.random() * messages.length);
+	return messages[randIndex];
 }
