@@ -18,7 +18,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 
 interface UploadCropperProps extends PropsWithChildren {
 	aspect?: number;
-	circular: boolean;
+	circular?: boolean;
 	className?: string;
 	disabled?: boolean;
 	imageRef: RefObject<HTMLImageElement | null>;
@@ -29,7 +29,7 @@ interface UploadCropperProps extends PropsWithChildren {
 export function UploadCropper({
 	aspect = 1,
 	children,
-	circular,
+	circular = false,
 	className,
 	disabled = false,
 	imageRef,

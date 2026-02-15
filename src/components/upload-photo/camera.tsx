@@ -2,7 +2,13 @@ import { CameraIcon, LoaderCircle, SwitchCameraIcon } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
-import { blobToDataUrl, imageToBlob } from '@/lib/photos';
+import {
+	blobToDataUrl,
+	detectCameraCount,
+	imageToBlob,
+	saveVideoStill,
+	startCameraStream,
+} from '@/lib/photos';
 import { MaybePromise } from '@/lib/types';
 
 import { Button } from '../ui/button';
@@ -245,11 +251,6 @@ function CameraStream({
 	);
 }
 
-async function detectCameraCount() {
-	const devices = await navigator.mediaDevices.enumerateDevices();
-	return devices.filter(({ kind }) => kind === 'videoinput');
-}
-
 function getTip() {
 	const messages = [
 		'Remember to smile!',
@@ -261,85 +262,4 @@ function getTip() {
 	];
 	const randIndex = Math.floor(Math.random() * messages.length);
 	return messages[randIndex];
-}
-
-async function saveVideoStill({
-	onError,
-	onSave,
-	videoEle,
-}: {
-	onError: (message: string) => void;
-	onSave: (image: Blob) => MaybePromise<void>;
-	videoEle: HTMLVideoElement;
-}) {
-	try {
-		videoEle.pause();
-
-		const stream = videoEle.srcObject;
-		if (!(stream instanceof MediaStream)) {
-			return;
-		}
-		let height: number | undefined, width: number | undefined;
-		const track = stream.getVideoTracks().at(0);
-		if (track) {
-			const imageCapture = new ImageCapture(track);
-			const capabilities = await imageCapture.getPhotoCapabilities();
-			if (capabilities.imageHeight) {
-				height = capabilities.imageHeight?.max;
-			}
-			if (capabilities.imageWidth) {
-				width = capabilities.imageWidth?.max;
-			}
-		}
-
-		if (!width || !height) {
-			onError('Invalid video size');
-			return;
-		}
-
-		const canvas = new OffscreenCanvas(width, height);
-		const ctx = canvas.getContext('2d');
-		if (!ctx) {
-			onError('Cannot save video');
-			return;
-		}
-		ctx.imageSmoothingQuality = 'high';
-
-		// Save original state.
-		ctx.drawImage(videoEle, 0, 0, width, height, 0, 0, width, height);
-		ctx.save();
-
-		const blob = await canvas.convertToBlob({
-			quality: 0.7,
-			type: 'image/jpeg',
-		});
-		await onSave(blob);
-	} catch (err) {
-		console.warn('Error with saving:', err);
-		onError('Unknown error saving video');
-	}
-}
-
-async function startCameraStream({
-	useBack = false,
-	videoEle,
-}: {
-	useBack?: boolean;
-	videoEle: HTMLVideoElement;
-}) {
-	// Clean up old tracks.
-	if (videoEle.srcObject instanceof MediaStream) {
-		videoEle.srcObject.getTracks().forEach((track) => track.stop());
-	}
-
-	const stream = await navigator.mediaDevices.getUserMedia({
-		audio: false,
-		video: {
-			facingMode: {
-				ideal: useBack ? 'environment' : 'user',
-			},
-		},
-	});
-
-	videoEle.srcObject = stream;
 }
