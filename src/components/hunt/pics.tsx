@@ -154,7 +154,7 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 	);
 
 	return (
-		<div className="flex gap-2">
+		<div className="grid grid-cols-2 gap-2">
 			<UploadPhoto
 				button={
 					<Button className="w-full" variant="secondary">
