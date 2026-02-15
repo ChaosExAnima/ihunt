@@ -43,10 +43,7 @@ declare module '@tanstack/react-router' {
 }
 
 export function App() {
-	const devMode =
-		isDev() &&
-		(window.location.hostname.endsWith('.local') ||
-			window.location.hostname === 'localhost');
+	const devMode = isDev() && localStorage.getItem('no-dev') !== '1';
 
 	useTheme();
 	useOffline();
