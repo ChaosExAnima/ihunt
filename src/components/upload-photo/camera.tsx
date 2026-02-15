@@ -2,7 +2,7 @@ import { CameraIcon, LoaderCircle, SwitchCameraIcon } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
 
-import { blobToDataUrl } from '@/lib/photos';
+import { blobToDataUrl, imageToBlob } from '@/lib/photos';
 import { MaybePromise } from '@/lib/types';
 
 import { Button } from '../ui/button';
@@ -29,20 +29,16 @@ export function CameraUpload({
 	aspect,
 	button,
 	circular = false,
-	// onCrop,
+	onCrop,
 	title = 'Take a photo',
 }: CameraProps) {
 	const [state, setState] = useState<'camera' | 'crop' | null>(null);
 	const [imageSrc, setImageSrc] = useState('');
-	const imageRef = useRef<HTMLImageElement>(null);
-	const [disabled, setDisabled] = useState(false);
 	const [errorMsg, setErrorMsg] = useState<null | string>(null);
 	const [tipMessage, setTipMessage] = useState(getTip);
 
-	const [_tempCrop, setTempComp] = useState<PixelCrop>();
-
 	const reset = useCallback(() => {
-		setDisabled(false);
+		setState(null);
 		setImageSrc('');
 		setErrorMsg('');
 	}, []);
@@ -70,6 +66,22 @@ export function CameraUpload({
 		setState('crop');
 	}, []);
 
+	const handleCancelCrop = useCallback(() => {
+		setState('camera');
+	}, []);
+
+	const handleCropSave = useCallback(
+		async (image: Blob) => {
+			const success = await onCrop(image);
+			if (success) {
+				setState(null);
+			} else {
+				setErrorMsg('Could not save image');
+			}
+		},
+		[onCrop],
+	);
+
 	return (
 		<Dialog onOpenChange={handleOpenChange} open={state !== null}>
 			<DialogTrigger asChild>{button}</DialogTrigger>
@@ -84,24 +96,13 @@ export function CameraUpload({
 					/>
 				)}
 				{state === 'crop' && (
-					<UploadCropper
+					<CameraCropper
 						aspect={aspect}
 						circular={circular}
-						className="rounded-lg"
-						disabled={disabled}
-						imageRef={imageRef}
 						imageSrc={imageSrc}
-						onComplete={setTempComp}
-					>
-						{disabled && (
-							<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
-								<LoaderCircle
-									className="animate-spin"
-									size="2rem"
-								/>
-							</div>
-						)}
-					</UploadCropper>
+						onCancel={handleCancelCrop}
+						onSave={handleCropSave}
+					/>
 				)}
 				{!!errorMsg && (
 					<p className="text-red-500 font-bold text-right">
@@ -111,6 +112,62 @@ export function CameraUpload({
 				<DialogDescription>Tip: {tipMessage}</DialogDescription>
 			</DialogContent>
 		</Dialog>
+	);
+}
+
+function CameraCropper({
+	aspect,
+	circular,
+	imageSrc,
+	onCancel,
+	onSave,
+}: {
+	aspect?: number;
+	circular?: boolean;
+	imageSrc: string;
+	onCancel: () => void;
+	onSave: (photo: Blob) => MaybePromise<void>;
+}) {
+	const [tempCrop, setTempComp] = useState<PixelCrop>();
+	const imageRef = useRef<HTMLImageElement>(null);
+	const [disabled] = useState(false);
+
+	const handleSave = useCallback(() => {
+		if (imageRef.current && tempCrop) {
+			void imageToBlob(imageRef.current, tempCrop).then(onSave);
+		}
+	}, [onSave, tempCrop]);
+
+	return (
+		<>
+			<UploadCropper
+				aspect={aspect}
+				circular={circular}
+				className="rounded-lg"
+				disabled={disabled}
+				imageRef={imageRef}
+				imageSrc={imageSrc}
+				onComplete={setTempComp}
+			>
+				{disabled && (
+					<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
+						<LoaderCircle className="animate-spin" size="2rem" />
+					</div>
+				)}
+			</UploadCropper>
+			<DialogFooter>
+				<Button onClick={onCancel} variant="secondary">
+					Go Back
+				</Button>
+				<Button
+					disabled={!tempCrop}
+					onClick={handleSave}
+					variant="success"
+				>
+					Save
+				</Button>
+			</DialogFooter>
+		</>
 	);
 }
 
