@@ -16,6 +16,10 @@ const configSchema = z.object({
 	mediaHost: z.url(),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
+	postgresDatabase: z.string().default('ihunt'),
+	postgresHost: z.string(),
+	postgresPassword: z.string().default('password'),
+	postgresUser: z.string().default('ihunt'),
 	serverHosts: z
 		.string()
 		.min(10)
