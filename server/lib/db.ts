@@ -1,10 +1,10 @@
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
-import { resolve } from 'node:path';
+import { PrismaPostgresAdapter } from '@prisma/adapter-ppg';
 
 import { isDev } from '@/lib/utils';
 
 import { Prisma, PrismaClient } from '../../prisma/generated/client';
 import { logger } from '../server';
+import { config } from './config';
 
 export * from '../../prisma/generated/client';
 
@@ -13,10 +13,12 @@ if (isDev()) {
 	levels.push('query');
 }
 
-const url = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
-const adapter = new PrismaBetterSqlite3({
-	url: `file://${url}`,
+const { postgresDatabase, postgresHost, postgresPassword, postgresUser } =
+	config;
+const adapter = new PrismaPostgresAdapter({
+	connectionString: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}:5432/${postgresDatabase}`,
 });
+
 export const db = new PrismaClient({
 	adapter,
 	log: levels.map((level) => ({ emit: 'event', level })),

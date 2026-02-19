@@ -1,11 +1,12 @@
-import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 
-const url = `file://${process.env.DB_PATH ?? './prisma/dev.db'}`;
+import { config } from './server/lib/config';
 
+const { postgresDatabase, postgresHost, postgresPassword, postgresUser } =
+	config;
 export default defineConfig({
 	datasource: {
-		url,
+		url: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}:5432/${postgresDatabase}`,
 	},
 	migrations: {
 		path: 'prisma/migrations',
