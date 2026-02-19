@@ -4,7 +4,9 @@ services:
     restart: unless-stopped
     volumes:
       - ./data/imgproxy:/mnt/data
-      - ${MEDIA_PATH}:/mnt/images:ro
+      - ${UPLOAD_PATH}:/mnt/images:ro
+    networks:
+      - database
     environment:
       PORT: 9000
       IMGPROXY_KEY: "${IMGPROXY_KEY:-imgproxy_key}"
@@ -14,3 +16,18 @@ services:
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
     ports:
       - "${IMGPROXY_PORT:-9000}:9000"
+
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    networks:
+      - database
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DATABASE: ihunt
+    ports:
+      - 5555:5432
+
+networks:
+  database:
