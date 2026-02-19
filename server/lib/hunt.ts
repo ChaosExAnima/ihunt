@@ -1,8 +1,11 @@
+import { TRPCError } from '@trpc/server';
+
 import { HUNT_LOCKDOWN_MINUTES, HuntStatus } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { clamp, extractIds } from '@/lib/utils';
 
 import { logger } from '../server';
+import { config } from './config';
 import { db, Hunt, Hunter, Prisma } from './db';
 import {
 	huntAvailableEvent,
@@ -21,6 +24,15 @@ export const huntDisplayInclude = {
 	},
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
+
+export function assertHuntsEnabled() {
+	if (isHuntsDisabled()) {
+		throw new TRPCError({
+			code: 'FORBIDDEN',
+			message: 'Hunts are disabled',
+		});
+	}
+}
 
 export function calculateNewRating({
 	hunterRating,
@@ -41,6 +53,10 @@ export function huntInLockdown(hunt: Hunt) {
 		hunt.scheduledAt.getTime() >=
 			Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE
 	);
+}
+
+export function isHuntsDisabled() {
+	return !config.huntsDisabled;
 }
 
 const huntsNotified = new Set<number>();
