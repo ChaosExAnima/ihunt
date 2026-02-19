@@ -1,6 +1,3 @@
-import type { PixelCrop } from 'react-image-crop';
-
-import { LoaderCircle } from 'lucide-react';
 import {
 	type ChangeEvent,
 	type ReactElement,
@@ -10,17 +7,17 @@ import {
 	useState,
 } from 'react';
 
-import { blobToDataUrl, imageToBlob } from '@/lib/photos';
+import { blobToDataUrl } from '@/lib/photos';
 
 import { ControllableDialog } from '../confirm-dialog';
 import { Button } from '../ui/button';
-import { UploadCropper } from './cropper';
+import { PhotoSaveHandler, UploadCropper, useCropperData } from './cropper';
 
 export interface UploadPhotoProps {
 	aspect?: number;
 	button?: ReactElement;
 	circular?: boolean;
-	onSave: (blob: Blob) => Promise<boolean>;
+	onSave: PhotoSaveHandler;
 	title: string;
 }
 
@@ -33,90 +30,54 @@ export function UploadPhoto({
 	onSave,
 	title,
 }: UploadPhotoProps) {
-	const [disabled, setDisabled] = useState(false);
 	const [imgSrc, setImgSrc] = useState('');
-	const [errorMsg, setErrorMsg] = useState('');
 	const [show, setShow] = useState(false);
 
-	const reset = useCallback(() => {
-		setDisabled(false);
+	const { errorMsg, isError, isPending, reset, savePhoto, updateBlob } =
+		useCropperData(onSave);
+
+	const handleCancel = useCallback(() => {
 		setImgSrc('');
-		setErrorMsg('');
-	}, []);
+		reset();
+		setShow(false);
+		if (inputRef.current) {
+			inputRef.current.value = '';
+		}
+	}, [reset]);
 
 	const handleFileChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
 			if (event.target.files && event.target.files.length > 0) {
 				const file = event.target.files[0];
-				void blobToDataUrl(file).then((imgStr) => {
-					setImgSrc(imgStr);
-				});
-			} else {
-				reset();
+				void blobToDataUrl(file).then(setImgSrc);
 			}
 		},
-		[reset],
+		[],
 	);
 
 	const inputRef = useRef<HTMLInputElement>(null);
-	const handleDialogCancel = useCallback(() => {
-		if (inputRef.current) {
-			inputRef.current.value = '';
-		}
-		reset();
-		setShow(false);
-	}, [reset]);
 
 	useEffect(() => {
 		const input = inputRef.current;
 		if (!input) {
 			return;
 		}
-		input.addEventListener('cancel', handleDialogCancel);
+		input.addEventListener('cancel', handleCancel);
 		return () => {
-			input.removeEventListener('cancel', handleDialogCancel);
+			input.removeEventListener('cancel', handleCancel);
 		};
-	}, [handleDialogCancel]);
-
-	const handleDialogOpen = useCallback(() => {
-		inputRef?.current?.click();
-	}, []);
-
-	const [tempCrop, setTempComp] = useState<PixelCrop>();
-
-	const imageRef = useRef<HTMLImageElement>(null);
-	const handleDialogConfirm = useCallback(() => {
-		void (async () => {
-			if (!tempCrop || !imgSrc || !imageRef.current) {
-				return;
-			}
-			setDisabled(true);
-			try {
-				const blob = await imageToBlob(imageRef.current, tempCrop);
-				const result = await onSave(blob);
-				if (result) {
-					reset();
-					return;
-				}
-				setErrorMsg('Error saving image, try again');
-			} catch (err) {
-				console.error(err);
-				setErrorMsg('Cannot upload image, try again');
-			}
-			setDisabled(false);
-		})();
-	}, [imgSrc, onSave, reset, tempCrop]);
+	}, [handleCancel]);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
-			setShow(open);
 			if (open) {
-				handleDialogOpen();
+				setShow(true);
+				inputRef?.current?.click();
 			} else {
-				handleDialogCancel();
+				handleCancel();
 			}
 		},
-		[handleDialogCancel, handleDialogOpen],
+		[handleCancel],
 	);
 
 	return (
@@ -124,16 +85,16 @@ export function UploadPhoto({
 			<input
 				accept="image/*"
 				className="hidden"
-				disabled={disabled}
+				disabled={isPending}
 				onChange={handleFileChange}
 				ref={inputRef}
 				type="file"
 			/>
 			<ControllableDialog
 				description="Upload image"
-				disabled={disabled}
+				disabled={isPending}
 				noDescription
-				onConfirm={handleDialogConfirm}
+				onConfirm={savePhoto}
 				onOpenChange={handleOpenChange}
 				open={show}
 				title={title}
@@ -143,21 +104,10 @@ export function UploadPhoto({
 					aspect={aspect}
 					circular={circular}
 					className="rounded-lg"
-					disabled={disabled}
-					imageRef={imageRef}
-					imageSrc={imgSrc}
-					onComplete={setTempComp}
-				>
-					{disabled && (
-						<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
-							<LoaderCircle
-								className="animate-spin"
-								size="2rem"
-							/>
-						</div>
-					)}
-				</UploadCropper>
-				{!!errorMsg && (
+					onComplete={updateBlob}
+					originalSrc={imgSrc}
+				/>
+				{!!isError && (
 					<p className="text-red-500 font-bold text-right">
 						{errorMsg}
 					</p>

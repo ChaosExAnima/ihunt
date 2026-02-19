@@ -142,13 +142,12 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 			},
 		}),
 	);
-	const handleCrop = useCallback(
+	const handleSave = useCallback(
 		async (blob: Blob) => {
 			const formData = new FormData();
 			formData.append('photo', blob);
 			formData.append('huntId', String(huntId));
-			const result = await mutateAsync(formData);
-			return !!result.id;
+			await mutateAsync(formData);
 		},
 		[huntId, mutateAsync],
 	);
@@ -162,7 +161,7 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 						<Upload />
 					</Button>
 				}
-				onSave={handleCrop}
+				onSave={handleSave}
 				title="Upload a pic"
 			/>
 			<CameraUpload
@@ -172,7 +171,7 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 						<Camera />
 					</Button>
 				}
-				onCrop={handleCrop}
+				onSave={handleSave}
 				title="Take a photo"
 			/>
 		</div>

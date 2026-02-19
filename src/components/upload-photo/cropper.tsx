@@ -1,30 +1,28 @@
-import {
-	PropsWithChildren,
-	RefObject,
-	SyntheticEvent,
-	useCallback,
-	useState,
-} from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { LoaderCircle } from 'lucide-react';
+import { SyntheticEvent, useCallback, useRef, useState } from 'react';
+import 'react-image-crop/dist/ReactCrop.css';
 import ReactCrop, {
 	centerCrop,
 	makeAspectCrop,
-	PercentCrop,
 	PixelCrop,
+	ReactCropProps,
 } from 'react-image-crop';
 
+import { imageToBlob } from '@/lib/photos';
+import { MaybePromise } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import 'react-image-crop/dist/ReactCrop.css';
+export type PhotoSaveHandler = (photo: Blob) => MaybePromise<void>;
 
-interface UploadCropperProps extends PropsWithChildren {
-	aspect?: number;
+export type UploadCropperProps = Omit<
+	ReactCropProps,
+	'onChange' | 'onComplete'
+> & {
 	circular?: boolean;
-	className?: string;
-	disabled?: boolean;
-	imageRef: RefObject<HTMLImageElement | null>;
-	imageSrc: string;
-	onComplete: (crop: PixelCrop) => void;
-}
+	onComplete: (photo: Blob) => void;
+	originalSrc: string;
+};
 
 export function UploadCropper({
 	aspect = 1,
@@ -32,21 +30,13 @@ export function UploadCropper({
 	circular = false,
 	className,
 	disabled = false,
-	imageRef,
-	imageSrc,
 	onComplete,
+	originalSrc: imageSrc,
+	...otherProps
 }: UploadCropperProps) {
-	const [crop, setCrop] = useState<PercentCrop>();
+	const imageRef = useRef<HTMLImageElement>(null);
+	const [crop, setCrop] = useState<PixelCrop>();
 
-	const handleChange = useCallback((_: unknown, percentage: PercentCrop) => {
-		setCrop(percentage);
-	}, []);
-	const handleComplete = useCallback(
-		(crop: PixelCrop) => {
-			onComplete(crop);
-		},
-		[onComplete],
-	);
 	const handleLoad = useCallback(
 		(event: SyntheticEvent<HTMLImageElement>) => {
 			const { height, width } = event.currentTarget;
@@ -55,17 +45,30 @@ export function UploadCropper({
 		[aspect],
 	);
 
+	const handleComplete = useCallback(() => {
+		if (!crop || !imageRef.current) {
+			return;
+		}
+		console.log('updating photo blob');
+
+		void imageToBlob(imageRef.current, crop).then(onComplete);
+	}, [crop, onComplete]);
+
 	return (
 		<ReactCrop
-			aspect={aspect}
 			circularCrop={circular}
 			className="w-full"
 			crop={crop}
-			disabled={disabled}
 			minHeight={100}
-			onChange={handleChange}
+			onChange={setCrop}
 			onComplete={handleComplete}
+			{...otherProps}
 		>
+			{disabled && (
+				<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
+					<LoaderCircle className="animate-spin" size="2rem" />
+				</div>
+			)}
 			{imageSrc && (
 				<img
 					alt="New image"
@@ -80,6 +83,37 @@ export function UploadCropper({
 	);
 }
 
+export function useCropperData(onSave: PhotoSaveHandler) {
+	const [errorMsg, setErrorMsg] = useState<string>();
+	const [photoBlob, setPhotoBlob] = useState<Blob>();
+	const { isError, mutate, reset, ...rest } = useMutation({
+		mutationFn: async () => {
+			if (!photoBlob) {
+				throw new Error('Photo not set');
+			}
+			await onSave(photoBlob);
+		},
+		onError(error) {
+			setErrorMsg(error.message);
+		},
+	});
+
+	const handleReset = useCallback(() => {
+		reset();
+		setErrorMsg(undefined);
+	}, [reset]);
+
+	return {
+		errorMsg,
+		isError: isError || !!errorMsg,
+		reset: handleReset,
+		savePhoto: mutate,
+		setErrorMsg,
+		updateBlob: setPhotoBlob,
+		...rest,
+	};
+}
+
 function centerAspectCrop(
 	mediaWidth: number,
 	mediaHeight: number,
@@ -88,7 +122,7 @@ function centerAspectCrop(
 	return centerCrop(
 		makeAspectCrop(
 			{
-				unit: '%',
+				unit: 'px',
 				width: 90,
 			},
 			aspect,

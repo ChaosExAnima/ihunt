@@ -1,11 +1,10 @@
-import { CameraIcon, LoaderCircle, SwitchCameraIcon } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { CameraIcon, SwitchCameraIcon } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-import { PixelCrop } from 'react-image-crop';
 
 import {
 	blobToDataUrl,
 	detectCameraCount,
-	imageToBlob,
 	saveVideoStill,
 	startCameraStream,
 } from '@/lib/photos';
@@ -21,13 +20,18 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '../ui/dialog';
-import { UploadCropper } from './cropper';
+import {
+	PhotoSaveHandler,
+	UploadCropper,
+	UploadCropperProps,
+	useCropperData,
+} from './cropper';
 
 interface CameraProps {
 	aspect?: number;
 	button: ReactElement;
 	circular?: boolean;
-	onCrop: (blob: Blob) => Promise<boolean>;
+	onSave: PhotoSaveHandler;
 	title?: string;
 }
 
@@ -35,24 +39,20 @@ export function CameraUpload({
 	aspect,
 	button,
 	circular = false,
-	onCrop,
+	onSave,
 	title = 'Take a photo',
 }: CameraProps) {
 	const [state, setState] = useState<'camera' | 'crop' | null>(null);
-	const [imageSrc, setImageSrc] = useState('');
-	const [errorMsg, setErrorMsg] = useState<null | string>(null);
+	const [imageSrc, setImageSrc] = useState<string>();
 	const [tipMessage, setTipMessage] = useState(getTip);
 
-	const reset = useCallback(() => {
-		setState(null);
-		setImageSrc('');
-		setErrorMsg('');
-	}, []);
+	const { errorMsg, isError, savePhoto, setErrorMsg, updateBlob } =
+		useCropperData(onSave);
 
 	const handleClose = useCallback(() => {
-		reset();
 		setState(null);
-	}, [reset]);
+		setImageSrc(undefined);
+	}, []);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
@@ -76,20 +76,8 @@ export function CameraUpload({
 		setState('camera');
 	}, []);
 
-	const handleCropSave = useCallback(
-		async (image: Blob) => {
-			const success = await onCrop(image);
-			if (success) {
-				setState(null);
-			} else {
-				setErrorMsg('Could not save image');
-			}
-		},
-		[onCrop],
-	);
-
 	return (
-		<Dialog onOpenChange={handleOpenChange} open={state !== null}>
+		<Dialog onOpenChange={handleOpenChange} open={!!state}>
 			<DialogTrigger asChild>{button}</DialogTrigger>
 			<DialogContent aria-description="Upload a photo">
 				<DialogHeader>
@@ -101,16 +89,17 @@ export function CameraUpload({
 						onSave={handleStartCrop}
 					/>
 				)}
-				{state === 'crop' && (
+				{imageSrc && (
 					<CameraCropper
 						aspect={aspect}
 						circular={circular}
-						imageSrc={imageSrc}
 						onCancel={handleCancelCrop}
-						onSave={handleCropSave}
+						onComplete={updateBlob}
+						onSave={savePhoto}
+						originalSrc={imageSrc}
 					/>
 				)}
-				{!!errorMsg && (
+				{isError && (
 					<p className="text-red-500 font-bold text-right">
 						{errorMsg}
 					</p>
@@ -122,54 +111,23 @@ export function CameraUpload({
 }
 
 function CameraCropper({
-	aspect,
-	circular,
-	imageSrc,
+	disabled,
 	onCancel,
 	onSave,
-}: {
-	aspect?: number;
-	circular?: boolean;
-	imageSrc: string;
-	onCancel: () => void;
-	onSave: (photo: Blob) => MaybePromise<void>;
-}) {
-	const [tempCrop, setTempComp] = useState<PixelCrop>();
-	const imageRef = useRef<HTMLImageElement>(null);
-	const [disabled] = useState(false);
-
-	const handleSave = useCallback(() => {
-		if (imageRef.current && tempCrop) {
-			void imageToBlob(imageRef.current, tempCrop).then(onSave);
-		}
-	}, [onSave, tempCrop]);
-
+	...otherProps
+}: UploadCropperProps & { onCancel: () => void; onSave: () => void }) {
 	return (
 		<>
 			<UploadCropper
-				aspect={aspect}
-				circular={circular}
 				className="rounded-lg"
 				disabled={disabled}
-				imageRef={imageRef}
-				imageSrc={imageSrc}
-				onComplete={setTempComp}
-			>
-				{disabled && (
-					<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
-						<LoaderCircle className="animate-spin" size="2rem" />
-					</div>
-				)}
-			</UploadCropper>
+				{...otherProps}
+			/>
 			<DialogFooter>
 				<Button onClick={onCancel} variant="secondary">
 					Go Back
 				</Button>
-				<Button
-					disabled={!tempCrop}
-					onClick={handleSave}
-					variant="success"
-				>
+				<Button disabled={disabled} onClick={onSave} variant="success">
 					Save
 				</Button>
 			</DialogFooter>
@@ -184,7 +142,7 @@ function CameraStream({
 	onError: (message: string) => void;
 	onSave: (photo: Blob) => MaybePromise<void>;
 }) {
-	const [state, setState] = useState<'back' | 'front'>('front');
+	const [facing, setFacing] = useState<'back' | 'front'>('front');
 	const [hasBackCamera, setHasBackCamera] = useState(false);
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -194,17 +152,23 @@ function CameraStream({
 
 	const handleSwap = useCallback(() => {
 		if (hasBackCamera) {
-			setState((prev) => (prev === 'back' ? 'front' : 'back'));
+			setFacing((prev) => (prev === 'back' ? 'front' : 'back'));
 		}
 	}, [hasBackCamera]);
 
-	const handleSave = useCallback(() => {
-		const videoEle = videoRef.current;
-		if (!videoEle) {
-			return;
-		}
-		void saveVideoStill({ onError, onSave, videoEle });
-	}, [onError, onSave]);
+	const { isPending, mutate } = useMutation({
+		mutationFn: async () => {
+			const videoEle = videoRef.current;
+			if (!videoEle) {
+				throw new Error('No video element');
+			}
+			const photo = await saveVideoStill(videoEle);
+			await onSave(photo);
+		},
+		onError(error) {
+			onError(error.message);
+		},
+	});
 
 	useEffect(() => {
 		const videoEle = videoRef.current;
@@ -212,23 +176,29 @@ function CameraStream({
 			return;
 		}
 
-		try {
-			void startCameraStream({ useBack: state === 'back', videoEle });
-			void detectCameraCount().then((cameras) => {
+		const start = async () => {
+			try {
+				await startCameraStream({
+					useBack: facing === 'back',
+					videoEle,
+				});
+				const cameras = await detectCameraCount();
 				if (cameras.length > 1) {
 					setHasBackCamera(true);
 				}
-			});
-		} catch (err: unknown) {
-			console.warn('Stream error:', err);
-			onError('Could not start camera');
-		}
+			} catch (err: unknown) {
+				console.warn('Stream error:', err);
+				onError('Could not start camera');
+			}
+		};
+
+		void start();
 		return () => {
 			if (videoEle.srcObject instanceof MediaStream) {
 				videoEle.srcObject.getTracks().forEach((track) => track.stop());
 			}
 		};
-	}, [state, onError]);
+	}, [facing, onError]);
 
 	return (
 		<>
@@ -243,7 +213,11 @@ function CameraStream({
 						Swap <SwitchCameraIcon />
 					</Button>
 				)}
-				<Button onClick={handleSave} variant="success">
+				<Button
+					disabled={isPending}
+					onClick={() => mutate()}
+					variant="success"
+				>
 					Save <CameraIcon />
 				</Button>
 			</DialogFooter>
