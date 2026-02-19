@@ -7,6 +7,7 @@ const configSchema = z.object({
 	authPepper: z.string(),
 	authSession: z.string(),
 	cookieDomain: z.string().optional(),
+	huntsDisabled: z.coerce.boolean().default(false),
 	logging: z
 		.string()
 		.transform((l) => l.split(','))
