@@ -20,7 +20,7 @@ export interface UploadPhotoProps {
 	aspect?: number;
 	button?: ReactElement;
 	circular?: boolean;
-	onCrop: (blob: Blob) => Promise<boolean>;
+	onSave: (blob: Blob) => Promise<boolean>;
 	title: string;
 }
 
@@ -30,7 +30,7 @@ export function UploadPhoto({
 	aspect,
 	button = defaultButton,
 	circular = false,
-	onCrop,
+	onSave,
 	title,
 }: UploadPhotoProps) {
 	const [disabled, setDisabled] = useState(false);
@@ -93,7 +93,7 @@ export function UploadPhoto({
 			setDisabled(true);
 			try {
 				const blob = await imageToBlob(imageRef.current, tempCrop);
-				const result = await onCrop(blob);
+				const result = await onSave(blob);
 				if (result) {
 					reset();
 					return;
@@ -105,7 +105,7 @@ export function UploadPhoto({
 			}
 			setDisabled(false);
 		})();
-	}, [imgSrc, onCrop, reset, tempCrop]);
+	}, [imgSrc, onSave, reset, tempCrop]);
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {

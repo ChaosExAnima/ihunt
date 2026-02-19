@@ -37,7 +37,7 @@ export function AdminPhotoInput({
 		<UploadPhoto
 			button={<Button>{props.title}</Button>}
 			{...props}
-			onCrop={handleCrop}
+			onSave={handleCrop}
 		/>
 	);
 }

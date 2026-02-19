@@ -31,7 +31,7 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 	return (
 		<UploadPhoto
 			circular
-			onCrop={handleCrop}
+			onSave={handleCrop}
 			title={existing ? 'Replace avatar' : 'Add avatar'}
 		/>
 	);

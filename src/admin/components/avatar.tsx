@@ -77,7 +77,7 @@ function AdminAvatarInputUpload({
 		<UploadPhoto
 			button={<Button>{create ? 'Add avatar' : 'Replace avatar'}</Button>}
 			circular
-			onCrop={handleCrop}
+			onSave={handleCrop}
 			title="Avatar"
 		/>
 	);

@@ -162,7 +162,7 @@ function PicPicker({ huntId }: Pick<ActivePhotoProps, 'huntId'>) {
 						<Upload />
 					</Button>
 				}
-				onCrop={handleCrop}
+				onSave={handleCrop}
 				title="Upload a pic"
 			/>
 			<CameraUpload
