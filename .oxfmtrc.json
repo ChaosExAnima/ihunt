@@ -2,7 +2,22 @@
 	"$schema": "./node_modules/oxfmt/configuration_schema.json",
 	"singleQuote": true,
 	"printWidth": 80,
-	"experimentalSortPackageJson": false,
+	"experimentalSortImports": {
+		"newlinesBetween": true,
+		"groups": [
+			"type-import",
+			["value-builtin", "value-external"],
+			"type-internal",
+			"value-internal",
+			["type-parent", "type-sibling", "type-index"],
+			["value-parent", "value-sibling", "value-index"],
+			"unknown"
+		]
+	},
+	"experimentalTailwindcss": {
+		"functions": ["cn"],
+		"preserveWhitespace": true
+	},
 	"ignorePatterns": [
 		"src/**.gen.*",
 		"**/*.yml",
