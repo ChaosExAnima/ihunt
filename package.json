@@ -8,6 +8,8 @@
 		"build": "vite build && tsc --noEmit",
 		"start": "vite",
 		"lint": "oxlint --type-aware && tsc --noEmit",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",
 		"postinstall": "prisma generate"
 	},
