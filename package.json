@@ -11,7 +11,8 @@
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",
-		"postinstall": "prisma generate"
+		"postinstall": "prisma generate",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@fastify/one-line-logger": "^2.0.2",
@@ -76,6 +77,8 @@
 		"eslint": "^9.31.0",
 		"eslint-plugin-react-hooks": "^7.0.1",
 		"globals": "^16.3.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.7",
 		"nodemon": "^3.1.10",
 		"oxfmt": "^0.34.0",
 		"oxlint": "^1.49.0",
@@ -100,6 +103,13 @@
 	"resolutions": {
 		"react-router": "7.12.0",
 		"react-router-dom": "7.12.0"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx}": [
+			"yarn run lint",
+			"yarn run fmt"
+		],
+		"*.{json,md,mdx,css,scss,html,yml,yaml}": "yarn run fmt"
 	},
 	"engines": {
 		"node": ">=24.0.0"
