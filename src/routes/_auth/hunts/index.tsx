@@ -60,18 +60,18 @@ function RouteComponent() {
 
 	return (
 		<>
-			<Carousel className="-mx-4 flex flex-col grow">
+			<Carousel className="-mx-4 flex grow flex-col">
 				<CarouselContent className="min-h-full" slot="ul">
 					{isLoadingAvailable && isLoadingActive && (
 						<CarouselItem>
-							<HuntLoading className="flex flex-col h-full mx-4 border border-border p-4 shadow-lg" />
+							<HuntLoading className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg" />
 						</CarouselItem>
 					)}
 					{!isLoadingActive &&
 						activeHunts?.map((hunt) => (
 							<CarouselItem key={hunt.id}>
 								<HuntDisplay
-									className="flex flex-col h-full mx-4 border border-border p-4 shadow-lg"
+									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
 									hunt={hunt}
 								/>
 							</CarouselItem>
@@ -80,7 +80,7 @@ function RouteComponent() {
 						availableHunts?.map((hunt) => (
 							<CarouselItem key={hunt.id}>
 								<HuntDisplay
-									className="flex flex-col h-full mx-4 border border-border p-4 shadow-lg"
+									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
 									hunt={hunt}
 									onAcceptHunt={handleAcceptHunt}
 									remainingHunts={
@@ -92,7 +92,7 @@ function RouteComponent() {
 					{availableHunts?.length === 0 &&
 						activeHunts?.length === 0 && (
 							<CarouselItem>
-								<div className="mx-4 border border-border p-4 rounded-xl">
+								<div className="border-border mx-4 rounded-xl border p-4">
 									<Header level={3}>
 										No hunts available
 									</Header>

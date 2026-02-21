@@ -15,7 +15,7 @@ export function HuntHuntersDisplay({
 	Partial<Pick<HuntSchema, 'hunters' | 'maxHunters'>>) {
 	const emptySpots = arrayOfLength(maxHunters - hunters.length);
 	return (
-		<div className="flex gap-2 items-center text-sm">
+		<div className="flex items-center gap-2 text-sm">
 			<p>Hunters:</p>
 			<ul className="flex gap-2">
 				{hunters.map((hunter) => (

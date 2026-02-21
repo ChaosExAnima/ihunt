@@ -25,7 +25,7 @@ export const AdminPhotoList: FC<PropsWithClassName> = ({ className }) => {
 				<li key={photo.id}>
 					<RecordContext value={photo}>
 						<AdminPhotoField />
-						<div className="flex gap-2 mt-2 items-center">
+						<div className="mt-2 flex items-center gap-2">
 							<ReferenceField
 								reference="hunter"
 								source="hunterId"

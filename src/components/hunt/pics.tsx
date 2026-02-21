@@ -63,12 +63,12 @@ export function HuntPics({
 			{!!currentPhoto && showPhoto && (
 				<ActivePhoto hunters={hunters} photo={currentPhoto} />
 			)}
-			<ul className="grid grid-cols-6 gap-2 mb-2">
+			<ul className="mb-2 grid grid-cols-6 gap-2">
 				{photos.map((photo, index) => (
 					<li key={photo.id}>
 						<PhotoDisplay
 							className={cn(
-								'aspect-square w-full rounded-md cursor-pointer border border-transparent',
+								'aspect-square w-full cursor-pointer rounded-md border border-transparent',
 								index === activeIndex && 'border-rose-700',
 							)}
 							onClick={handlePick(index)}
@@ -93,10 +93,10 @@ function ActivePhoto({
 	const currentHunterId = useHunterId();
 	const isCurrentHunter = currentHunter?.id === currentHunterId;
 	return (
-		<div className="mb-2 rounded-md overflow-hidden relative">
+		<div className="relative mb-2 overflow-hidden rounded-md">
 			<PhotoDisplay className="w-full" photo={photo} />
 			{!!currentHunter && !isCurrentHunter && (
-				<span className="absolute right-0 bottom-0 p-2 text-white text-sm flex gap-2 items-center bg-black/40 rounded-tl-md">
+				<span className="absolute right-0 bottom-0 flex items-center gap-2 rounded-tl-md bg-black/40 p-2 text-sm text-white">
 					Uploaded by:
 					<Avatar hunter={currentHunter} link />
 				</span>

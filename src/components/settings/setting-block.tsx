@@ -20,7 +20,7 @@ export function SettingBlock({
 	return (
 		<>
 			<Label htmlFor={id}>{label}</Label>
-			<div className={cn('flex gap-4 items-center', className)}>
+			<div className={cn('flex items-center gap-4', className)}>
 				{children}
 			</div>
 			<Separator className="col-span-2 last:hidden" />

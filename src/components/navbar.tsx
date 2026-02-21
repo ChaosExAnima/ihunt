@@ -26,8 +26,8 @@ export function Navbar({
 	isHuntActive,
 }: PropsWithChildren<NavbarProps>) {
 	return (
-		<nav className="border-b border-border bg-white dark:bg-background shadow-md mb-4 sticky">
-			<ol className="flex gap-2 justify-start items-center">
+		<nav className="border-border dark:bg-background sticky mb-4 border-b bg-white shadow-md">
+			<ol className="flex items-center justify-start gap-2">
 				<NavbarItemLink
 					className={cn(isHuntActive && 'text-rose-700')}
 					icon={<Crosshair />}
@@ -59,7 +59,7 @@ function NavbarItemLink({
 			<Link
 				{...props}
 				aria-label={name}
-				className="p-4 w-full text-center flex gap-2"
+				className="flex w-full gap-2 p-4 text-center"
 			>
 				{icon}
 				{!noLabel && name}

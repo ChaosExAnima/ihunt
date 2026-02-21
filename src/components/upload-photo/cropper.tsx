@@ -11,10 +11,8 @@ import ReactCrop, {
 	PercentCrop,
 	PixelCrop,
 } from 'react-image-crop';
-
-import { cn } from '@/lib/utils';
-
 import 'react-image-crop/dist/ReactCrop.css';
+import { cn } from '@/lib/utils';
 
 interface UploadCropperProps extends PropsWithChildren {
 	aspect?: number;

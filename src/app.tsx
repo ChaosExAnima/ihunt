@@ -11,10 +11,8 @@ import { useOffline } from './hooks/use-offline';
 import { useTheme } from './hooks/use-theme';
 import { queryClient } from './lib/api';
 import { isDev } from './lib/utils';
-
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
-
 import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
@@ -60,7 +58,7 @@ export function App() {
 
 function NotFound() {
 	return (
-		<div className="flex flex-col gap-2 items-center justify-center grow">
+		<div className="flex grow flex-col items-center justify-center gap-2">
 			<p className="text-xl">Not found</p>
 			<p>There's nothing here!</p>
 			<BackButton />

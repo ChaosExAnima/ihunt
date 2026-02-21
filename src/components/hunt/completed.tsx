@@ -32,7 +32,7 @@ export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 			)}
 			<p
 				className={cn(
-					'flex my-4 gap-2 items-center justify-center font-semibold self-center',
+					'my-4 flex items-center justify-center gap-2 self-center font-semibold',
 					'text-green-500',
 				)}
 			>

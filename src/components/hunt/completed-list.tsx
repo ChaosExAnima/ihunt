@@ -52,7 +52,7 @@ export function HuntsCompleted() {
 	}
 
 	return (
-		<ol className="mx-4 flex flex-col min-h-full">
+		<ol className="mx-4 flex min-h-full flex-col">
 			{huntsByDate.map(([date, hunts]) => (
 				<li className="mb-4" key={date}>
 					<p className="mb-4">{date}</p>
@@ -74,7 +74,7 @@ export function HuntsCompleted() {
 function HuntCompleted({ hunt }: { hunt: HuntSchema }) {
 	return (
 		<li>
-			<Card asChild className="block border border-border p-4 shadow-lg">
+			<Card asChild className="border-border block border p-4 shadow-lg">
 				<Link
 					className="flex"
 					params={{ huntId: hunt.id.toString() }}

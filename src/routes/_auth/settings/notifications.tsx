@@ -13,7 +13,6 @@ export const Route = createFileRoute('/_auth/settings/notifications')({
 	component: NotificationsPage,
 });
 
-/* eslint-disable perfectionist/sort-objects */
 const notificationNames: Partial<Record<NotifyTypeSchema, string>> = {
 	'hunt-update': 'New hunts available',
 	'hunt-complete': 'Hunt complete',
@@ -94,7 +93,7 @@ function NotificationsPage() {
 					</Button>
 				</>
 			)}
-			<section className="grid grid-cols-[1fr_auto] gap-4 items-center my-4">
+			<section className="my-4 grid grid-cols-[1fr_auto] items-center gap-4">
 				{Object.entries(notificationNames).map(([key, label]) => (
 					<NotificationControl
 						fieldName={key}

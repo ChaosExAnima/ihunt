@@ -149,7 +149,7 @@ export function UploadPhoto({
 					onComplete={setTempComp}
 				>
 					{disabled && (
-						<div className="absolute top-0 bottom-0 left-0 right-0 bg-black/50 flex items-center justify-center">
+						<div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center bg-black/50">
 							<LoaderCircle
 								className="animate-spin"
 								size="2rem"
@@ -158,7 +158,7 @@ export function UploadPhoto({
 					)}
 				</UploadCropper>
 				{!!errorMsg && (
-					<p className="text-red-500 font-bold text-right">
+					<p className="text-right font-bold text-red-500">
 						{errorMsg}
 					</p>
 				)}

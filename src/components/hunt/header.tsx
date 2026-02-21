@@ -25,13 +25,13 @@ export function HuntDanger({
 	const paymentFormatted = useCurrencyFormat(payment);
 	return (
 		<div className={cn('p-2', className)}>
-			<div className="flex text-rose-700 mb-2">
+			<div className="mb-2 flex text-rose-700">
 				{arrayOfLength(danger).map((i) => (
 					<Skull key={i} />
 				))}
 			</div>
 			{payment > 0 && (
-				<span className="text-white font-semibold text-xl text-shadow">
+				<span className="text-shadow text-xl font-semibold text-white">
 					{paymentFormatted}
 				</span>
 			)}
@@ -46,13 +46,13 @@ export function HuntHeader(hunt: HuntHeaderProps) {
 	}
 
 	return (
-		<div className="relative rounded-lg overflow-hidden">
+		<div className="relative overflow-hidden rounded-lg">
 			<PhotoDisplay
 				className="w-full object-cover object-top"
 				photo={mainPhoto}
 			/>
 			<HuntDanger
-				className="top-0 left-0 absolute"
+				className="absolute top-0 left-0"
 				danger={hunt.danger}
 				payment={hunt.payment}
 			/>
@@ -87,11 +87,11 @@ export function HuntMeta({
 		return formatter.format(date);
 	}, [date]);
 	return (
-		<div className={cn('p-2 bg-black/40 w-full', className)}>
-			<Header className="flex gap-2 items-center text-white" level={3}>
+		<div className={cn('w-full bg-black/40 p-2', className)}>
+			<Header className="flex items-center gap-2 text-white" level={3}>
 				{name}
 			</Header>
-			<p className="text-rose-600 text-xs align-text-bottom">
+			<p className="align-text-bottom text-xs text-rose-600">
 				{place && (
 					<>
 						<MapPin className="inline-block" size="1em" />

@@ -36,7 +36,7 @@ export function HuntDisplayActive({
 			hideHeader={index > 0}
 			hunt={hunt}
 		>
-			<div className="flex mt-4 gap-2 items-center justify-center text-rose-700 text-center font-semibold">
+			<div className="mt-4 flex items-center justify-center gap-2 text-center font-semibold text-rose-700">
 				<Crosshair className="size-4 shrink-0" />
 				Good hunting!
 			</div>

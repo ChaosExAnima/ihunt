@@ -136,7 +136,7 @@ async function startServer() {
 	});
 
 	// Render
-	server.get('*', async (_req, reply) => {
+	server.get('*', (_req, reply) => {
 		reply.html();
 	});
 

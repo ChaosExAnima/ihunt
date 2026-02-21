@@ -34,9 +34,9 @@ function Page() {
 
 	return (
 		<PlayerInfoProvider info={player}>
-			<div className="grow flex flex-col w-full justify-stretch">
+			<div className="flex w-full grow flex-col justify-stretch">
 				<Navbar hunter={player.hunter} isHuntActive={false} />
-				<main className="grow px-4 flex flex-col gap-2 pb-4">
+				<main className="flex grow flex-col gap-2 px-4 pb-4">
 					<Outlet />
 				</main>
 			</div>

@@ -7,14 +7,13 @@
 		"dev": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules --exec tsx server/server.ts",
 		"build": "vite build && tsc --noEmit",
 		"start": "vite",
-		"lint": "eslint && tsc --noEmit",
+		"lint": "oxlint --type-aware && tsc --noEmit",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",
-		"postinstall": "prisma generate"
+		"postinstall": "prisma generate",
+		"prepare": "husky"
 	},
-	"engines": {
-		"node": ">=24.0.0"
-	},
-	"packageManager": "yarn@4.12.0",
 	"dependencies": {
 		"@fastify/one-line-logger": "^2.0.2",
 		"@fastify/static": "^9.0.0",
@@ -65,8 +64,6 @@
 		"zod": "^4.2.1"
 	},
 	"devDependencies": {
-		"@eslint/eslintrc": "^3.3.1",
-		"@eslint/js": "^9.31.0",
 		"@tailwindcss/postcss": "^4.1.11",
 		"@tanstack/eslint-plugin-query": "^5.81.2",
 		"@tanstack/eslint-plugin-router": "^1.125.0",
@@ -78,23 +75,23 @@
 		"@types/web-push": "^3",
 		"@vitejs/plugin-react": "^5.0.0",
 		"eslint": "^9.31.0",
-		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-perfectionist": "^5.1.0",
-		"eslint-plugin-prettier": "^5.5.3",
-		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^7.0.1",
 		"globals": "^16.3.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.7",
 		"nodemon": "^3.1.10",
+		"oxfmt": "^0.34.0",
+		"oxlint": "^1.49.0",
+		"oxlint-tsgolint": "^0.14.2",
 		"pino-pretty": "^13.1.3",
 		"postcss": "^8.5.6",
-		"prettier": "^3.6.2",
 		"prisma": "^7.0.0",
 		"rollup-plugin-visualizer": "^6.0.5",
 		"tailwindcss": "^4.1.11",
 		"trpc-ui": "npm:trpc-ui-zod4@^1.0.0",
 		"tsx": "^4.20.3",
 		"typescript": "^5.9.2",
-		"typescript-eslint": "^8.37.0",
+		"typescript-eslint": "^8.56.0",
 		"vite": "^7.1.11",
 		"vite-plugin-pwa": "^1.2.0",
 		"workbox-core": "^7.4.0",
@@ -103,11 +100,19 @@
 		"workbox-routing": "^7.4.0",
 		"workbox-strategies": "^7.4.0"
 	},
-	"prettier": {
-		"singleQuote": true
-	},
 	"resolutions": {
 		"react-router": "7.12.0",
 		"react-router-dom": "7.12.0"
-	}
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx}": [
+			"yarn run lint",
+			"yarn run fmt"
+		],
+		"*.{json,md,mdx,css,scss,html,yml,yaml}": "yarn run fmt"
+	},
+	"engines": {
+		"node": ">=24.0.0"
+	},
+	"packageManager": "yarn@4.12.0"
 }

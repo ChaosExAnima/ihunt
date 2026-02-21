@@ -1,5 +1,0 @@
-src/**.gen.*
-**/*.yml
-src/dev-dist
-dist
-prisma/generated

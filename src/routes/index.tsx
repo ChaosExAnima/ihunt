@@ -29,7 +29,6 @@ import { trpc } from '@/lib/api';
 import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 import { authSchema } from '@/lib/schemas';
 
-/* eslint-disable perfectionist/sort-objects */
 export const Route = createFileRoute('/')({
 	validateSearch(search) {
 		if (typeof search.redirect === 'string') {
@@ -56,7 +55,6 @@ export const Route = createFileRoute('/')({
 	},
 	component: Index,
 });
-/* eslint-enable perfectionist/sort-objects */
 
 function Index() {
 	const router = useRouter();
@@ -81,11 +79,11 @@ function Index() {
 		mutate(data);
 
 	return (
-		<main className="p-4 flex flex-col gap-4 grow">
+		<main className="flex grow flex-col gap-4 p-4">
 			<Header className="text-center">iHunt Alpha Access</Header>
 			<Form {...form}>
 				<form
-					className="grow w-full flex flex-col gap-4"
+					className="flex w-full grow flex-col gap-4"
 					// eslint-disable-next-line @typescript-eslint/no-misused-promises
 					onSubmit={form.handleSubmit(onSubmit)}
 				>
@@ -111,7 +109,7 @@ function Index() {
 												...Array(PASSWORD_CHAR_COUNT),
 											].map((_, index) => (
 												<InputOTPSlot
-													className="w-[calc(100%/6)] h-12"
+													className="h-12 w-[calc(100%/6)]"
 													index={index}
 													key={index}
 												/>
@@ -132,7 +130,7 @@ function Index() {
 						Log In
 					</Button>
 					<Popover>
-						<PopoverTrigger className="text-xs text-muted-foreground text-center cursor-pointer hover:underline">
+						<PopoverTrigger className="text-muted-foreground cursor-pointer text-center text-xs hover:underline">
 							Forgot your code? Click here for help!
 						</PopoverTrigger>
 						<PopoverContent className="text-sm/relaxed">
@@ -141,7 +139,7 @@ function Index() {
 							lowercase. For example: If your character&rsquo;s
 							handle is <strong>d@rkKnight666</strong>, your login
 							code is&nbsp;
-							<code className="border border-muted p-1 rounded-sm">
+							<code className="border-muted rounded-sm border p-1">
 								drkkni
 							</code>
 							.
@@ -149,7 +147,7 @@ function Index() {
 					</Popover>
 				</form>
 			</Form>
-			<p className="text-xs text-muted text-justify">
+			<p className="text-muted text-justify text-xs">
 				No unauthorized use. If you have not been invited to install
 				this application please immediately remove it from your device.
 				Usage of this application does not constitute an endorsement of
