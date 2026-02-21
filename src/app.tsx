@@ -58,7 +58,7 @@ export function App() {
 
 function NotFound() {
 	return (
-		<div className="flex flex-col gap-2 items-center justify-center grow">
+		<div className="flex grow flex-col items-center justify-center gap-2">
 			<p className="text-xl">Not found</p>
 			<p>There's nothing here!</p>
 			<BackButton />

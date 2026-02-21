@@ -95,7 +95,7 @@ function RouteComponent() {
 			>
 				<div
 					className={cn(
-						'flex justify-between w-full',
+						'flex w-full justify-between',
 						avatar && 'absolute top-0 p-2',
 						isLightAvatar ? 'text-black' : 'text-white',
 					)}
@@ -110,12 +110,12 @@ function RouteComponent() {
 				{!!avatar && <PhotoDisplay className="w-full" photo={avatar} />}
 				<div
 					className={cn(
-						'text-white w-full text-sm',
-						avatar && 'absolute bottom-0 p-2 bg-black/40',
+						'w-full text-sm text-white',
+						avatar && 'absolute bottom-0 bg-black/40 p-2',
 						!avatar && 'my-4',
 					)}
 				>
-					<div className="flex gap-2 items-baseline">
+					<div className="flex items-baseline gap-2">
 						<Header level={2}>{hunter.name}</Header>
 						<p>{hunter.pronouns ?? 'they/them'}</p>
 					</div>
@@ -123,7 +123,7 @@ function RouteComponent() {
 				</div>
 			</div>
 			{!hunter.alive && (
-				<p className="text-rose-600 text-xl">
+				<p className="text-xl text-rose-600">
 					User account deactivated
 				</p>
 			)}
@@ -144,7 +144,7 @@ function RouteComponent() {
 					<ol>
 						{hunter.hunts.map((hunt) => (
 							<li
-								className="border-b last:border-0 py-2 first:pt-0"
+								className="border-b py-2 first:pt-0 last:border-0"
 								key={hunt.id}
 							>
 								<p className="flex items-center gap-2">

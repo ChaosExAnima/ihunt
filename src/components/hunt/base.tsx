@@ -47,12 +47,12 @@ export function HuntBase({
 
 			{!hideText && (
 				<div className="flex grow">
-					<p className="text-primary/60 text-sm grow">
+					<p className="text-primary/60 grow text-sm">
 						{showCW ? `CWs: ${hunt.warnings}` : hunt.description}
 					</p>
 					{!!hunt.warnings && (
 						<Button
-							className="text-rose-700 shrink-0"
+							className="shrink-0 text-rose-700"
 							onClick={handleToggleCW}
 							size="icon"
 							variant="ghost"

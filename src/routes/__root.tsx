@@ -17,8 +17,8 @@ export const Route = createRootRouteWithContext<{
 		<div
 			className={cn(
 				'flex flex-col',
-				devMode && 'sm:border border-border',
-				devMode && 'w-full sm:w-90 min-h-172 mx-auto sm:mt-4',
+				devMode && 'border-border sm:border',
+				devMode && 'mx-auto min-h-172 w-full sm:mt-4 sm:w-90',
 			)}
 		>
 			<Outlet />

@@ -17,7 +17,7 @@ export function Loading({ loadingMsg = 'Loading…' }: LoadingProps) {
 			<div className={className}>
 				<WifiOffIcon className="size-1/4" />
 				<p className="text-xl">You are offline</p>
-				<p className="text-center max-w-3/4 text-muted">
+				<p className="text-muted max-w-3/4 text-center">
 					Try again when you have internet.
 				</p>
 
@@ -27,7 +27,7 @@ export function Loading({ loadingMsg = 'Loading…' }: LoadingProps) {
 	}
 	return (
 		<div className={className}>
-			<LoaderCircleIcon className="animate-spin size-1/4" />
+			<LoaderCircleIcon className="size-1/4 animate-spin" />
 			<p className="text-xl">{loadingMsg}</p>
 		</div>
 	);

@@ -36,8 +36,8 @@ interface LinkProps {
 
 export function DevTools() {
 	return (
-		<div className="hidden sm:block max-w-96 mx-auto">
-			<ul className="flex flex-wrap justify-center gap-4 my-4">
+		<div className="mx-auto hidden max-w-96 sm:block">
+			<ul className="my-4 flex flex-wrap justify-center gap-4">
 				<ExternalLink href="/">
 					<Home />
 				</ExternalLink>
@@ -111,7 +111,7 @@ function ExternalLink({ children, href, name }: PropsWithChildren<LinkProps>) {
 	return (
 		<li>
 			<a
-				className="text-stone-400 hover:text-stone-500 dark:text-stone-700 dark:hover:text-stone-400 transition-colors"
+				className="text-stone-400 transition-colors hover:text-stone-500 dark:text-stone-700 dark:hover:text-stone-400"
 				href={href}
 				rel="noreferrer"
 				target={href.startsWith('/') ? '_self' : '_blank'}

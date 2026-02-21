@@ -93,7 +93,7 @@ function NotificationsPage() {
 					</Button>
 				</>
 			)}
-			<section className="grid grid-cols-[1fr_auto] gap-4 items-center my-4">
+			<section className="my-4 grid grid-cols-[1fr_auto] items-center gap-4">
 				{Object.entries(notificationNames).map(([key, label]) => (
 					<NotificationControl
 						fieldName={key}

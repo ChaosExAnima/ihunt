@@ -41,7 +41,7 @@ export function Toaster() {
 					>
 						<div>
 							{title && (
-								<ToastTitle className="flex gap-2 items-center mb-2">
+								<ToastTitle className="mb-2 flex items-center gap-2">
 									{Icon && <Icon />}
 									{title}
 								</ToastTitle>

@@ -13,7 +13,7 @@ import { AdminAvatarInput } from '../components/avatar';
 
 export function HunterCommonDetails() {
 	return (
-		<div className="md:grid md:grid-cols-2 gap-4">
+		<div className="gap-4 md:grid md:grid-cols-2">
 			<TextInput source="name" />
 			<TextInput source="handle" />
 			<TextInput source="pronouns" />

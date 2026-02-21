@@ -36,7 +36,7 @@ export function Avatar({ className, hunter, link = false }: AvatarProps) {
 	return (
 		<div
 			className={cn(
-				'border border-border',
+				'border-border border',
 				'relative flex size-10 shrink-0 overflow-hidden rounded-full',
 				className,
 			)}
@@ -44,7 +44,7 @@ export function Avatar({ className, hunter, link = false }: AvatarProps) {
 			{photo && (
 				<PhotoDisplay fit="fill" height={40} photo={photo} width={40} />
 			)}
-			<span className="uppercase flex h-full w-full items-center justify-center rounded-full bg-muted text-muted-foreground">
+			<span className="bg-muted text-muted-foreground flex h-full w-full items-center justify-center rounded-full uppercase">
 				{hunter.handle.slice(0, 2)}
 			</span>
 		</div>
@@ -55,7 +55,7 @@ export function AvatarEmpty({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border border-border',
+				'border-border border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}
@@ -69,7 +69,7 @@ export function AvatarLocked({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border border-border',
+				'border-border border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}

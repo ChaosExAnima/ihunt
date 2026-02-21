@@ -28,7 +28,7 @@ import { MoneyDialog } from './money-dialog';
 const listFilters = [
 	<SearchInput alwaysOn key="1" source="name" />,
 	<BooleanInput
-		className="h-12 flex flex-col justify-center"
+		className="flex h-12 flex-col justify-center"
 		key="2"
 		source="alive"
 	/>,

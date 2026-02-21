@@ -86,7 +86,7 @@ function Settings() {
 	return (
 		<>
 			<Header>Settings</Header>
-			<section className="grid grid-cols-[auto_1fr] gap-4 items-center my-4">
+			<section className="my-4 grid grid-cols-[auto_1fr] items-center gap-4">
 				<SettingBlock label="Name">
 					<p>{hunter.name}</p>
 				</SettingBlock>
@@ -102,28 +102,28 @@ function Settings() {
 				<SettingBlock className="flex-col items-start" label="Rating">
 					<Rating max={5} rating={hunter.rating} />
 					{hunter.rating <= 1 && (
-						<p className="text-xs text-accent">
+						<p className="text-accent text-xs">
 							Your rating is low! Boost it with more jobs or your
 							account may be terminated.
 						</p>
 					)}
 					{hunter.rating > 4 && (
-						<p className="text-xs text-success">
+						<p className="text-success text-xs">
 							You are one of our top hunters!
 						</p>
 					)}
 				</SettingBlock>
 				<SettingBlock label="Cash">
-					<div className="flex-col items-start gap-0 grow">
+					<div className="grow flex-col items-start gap-0">
 						{money !== '' ? (
 							<>
 								<p>{money}</p>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									Money will arrive the next business day
 								</p>
 							</>
 						) : (
-							<p className="text-sm text-muted-foreground italic">
+							<p className="text-muted-foreground text-sm italic">
 								Money is hidden
 							</p>
 						)}

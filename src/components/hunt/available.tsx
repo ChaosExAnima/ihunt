@@ -53,7 +53,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		<HuntBase {...props}>
 			<HuntInvite noHunts={remainingHunts === 0} reserved={reserved} />
 
-			<div className="flex gap-2 justify-center">
+			<div className="flex justify-center gap-2">
 				{!hasAccepted && canJoinHunt && (
 					<HuntJoinButton
 						danger={danger}
@@ -239,7 +239,7 @@ function HuntJoinButton({
 					<strong>highest danger rating</strong>. Please confirm you
 					understand and accept the risks.
 				</p>
-				<p className="text-muted text-sm mt-4">
+				<p className="text-muted mt-4 text-sm">
 					By accepting this hunt, you agree that iHunt is not liable
 					nor is able to provide support for any events which occur as
 					a result of accepting this contract, including but not

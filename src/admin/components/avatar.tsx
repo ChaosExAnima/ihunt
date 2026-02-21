@@ -23,7 +23,7 @@ export const AdminAvatar: FC<
 	return (
 		<ReferenceField
 			empty={
-				<span className="uppercase flex size-10 items-center justify-center rounded-full bg-muted">
+				<span className="bg-muted flex size-10 items-center justify-center rounded-full uppercase">
 					{hunter?.name.slice(0, 2)}
 				</span>
 			}
@@ -45,7 +45,7 @@ const AdminAvatarInnerInput: FC<PropsWithChildren> = ({ children }) => {
 	return (
 		<>
 			<AdminPhotoField />
-			<div className="flex gap-4 mt-4 justify-between">
+			<div className="mt-4 flex justify-between gap-4">
 				{children}
 				<DeleteButton mutationMode="pessimistic" redirect={false}>
 					Delete Avatar
