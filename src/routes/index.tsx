@@ -29,7 +29,6 @@ import { trpc } from '@/lib/api';
 import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 import { authSchema } from '@/lib/schemas';
 
-/* eslint-disable perfectionist/sort-objects */
 export const Route = createFileRoute('/')({
 	validateSearch(search) {
 		if (typeof search.redirect === 'string') {
@@ -56,7 +55,6 @@ export const Route = createFileRoute('/')({
 	},
 	component: Index,
 });
-/* eslint-enable perfectionist/sort-objects */
 
 function Index() {
 	const router = useRouter();

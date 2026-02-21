@@ -13,7 +13,6 @@ export const Route = createFileRoute('/_auth/settings/notifications')({
 	component: NotificationsPage,
 });
 
-/* eslint-disable perfectionist/sort-objects */
 const notificationNames: Partial<Record<NotifyTypeSchema, string>> = {
 	'hunt-update': 'New hunts available',
 	'hunt-complete': 'Hunt complete',
