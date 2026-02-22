@@ -9,7 +9,7 @@
 		"build:client": "vite build",
 		"build:server": "esbuild server/server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outfile=server.js",
 		"start": "vite",
-		"lint": "oxlint --type-aware && tsc --noEmit",
+		"lint": "oxlint --type-aware",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",

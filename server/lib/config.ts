@@ -22,6 +22,7 @@ const configSchema = z.object({
 		.min(10)
 		.transform((s) => s.split(',')),
 	uploadPath: z.string().min(2),
+	clientConfigDir: z.string().optional(),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z

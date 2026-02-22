@@ -121,7 +121,7 @@ async function startServer() {
 	});
 
 	// Register Vite
-	const root = resolve(import.meta.dirname, '..');
+	const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
 		distDir: resolve(root, 'dist'),

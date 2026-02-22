@@ -3,8 +3,7 @@ services:
     image: ghcr.io/imgproxy/imgproxy:latest
     restart: unless-stopped
     volumes:
-      - ./data/imgproxy:/mnt/data
-      - ${MEDIA_PATH}:/mnt/images:ro
+      - ${UPLOAD_PATH}:/mnt/images:ro
     environment:
       PORT: 9000
       IMGPROXY_KEY: "${IMGPROXY_KEY:-imgproxy_key}"
