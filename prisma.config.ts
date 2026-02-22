@@ -1,11 +1,12 @@
 import 'dotenv/config';
+import { resolve } from 'node:path';
 import { defineConfig } from 'prisma/config';
 
-const url = `file://${process.env.DB_PATH ?? './prisma/dev.db'}`;
+const path = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
 
 export default defineConfig({
 	datasource: {
-		url,
+		url: `file://${path}`,
 	},
 	migrations: {
 		path: 'prisma/migrations',

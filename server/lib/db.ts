@@ -13,9 +13,9 @@ if (isDev()) {
 	levels.push('query');
 }
 
-const url = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
+const path = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
 const adapter = new PrismaBetterSqlite3({
-	url: `file://${url}`,
+	url: `file://${path}`,
 });
 export const db = new PrismaClient({
 	adapter,
