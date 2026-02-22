@@ -42,12 +42,12 @@ export default defineConfig({
 				icons: [
 					{
 						sizes: '192x192',
-						src: '/public/android-chrome-192x192.png',
+						src: '/android-chrome-192x192.png',
 						type: 'image/png',
 					},
 					{
 						sizes: '512x512',
-						src: '/public/android-chrome-512x512.png',
+						src: '/android-chrome-512x512.png',
 						type: 'image/png',
 					},
 				],
@@ -56,12 +56,12 @@ export default defineConfig({
 				screenshots: [
 					{
 						sizes: '712x1284',
-						src: '/public/screenshot.png',
+						src: '/screenshot.png',
 					},
 					{
 						form_factor: 'wide',
 						sizes: '712x1284',
-						src: '/public/screenshot.png',
+						src: '/screenshot.png',
 					},
 				],
 				short_name: 'iHunt',
@@ -74,7 +74,6 @@ export default defineConfig({
 		}),
 		process.env.ANALYZE_BUNDLE === '1' && (visualizer() as PluginOption),
 	],
-	publicDir: resolve(import.meta.dirname, 'public'),
 	resolve: {
 		alias: [
 			{ find: '@', replacement: resolve(import.meta.dirname, './src') },

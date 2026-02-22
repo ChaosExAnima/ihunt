@@ -3,21 +3,26 @@ services:
   api:
     build:
       dockerfile: "./config/Dockerfile"
+    restart: unless-stopped
     volumes:
-      - uploads:/media
-    env_file: .env
+      - ./config/data/uploads:/media
+      - ./config/data/db:/app/db
+    env_file: .env.production
     environment:
-      VITE_SERVER_HOSTS: ${VITE_SERVER_HOSTS}
+      SERVER_HOSTS: https://ihunt.local
+      NODE_ENV: production
+      DB_PATH: /app/db/prod.db
+      UPLOAD_PATH: /media
+      MEDIA_HOST: ihunt.local/images
 
   images:
     image: ghcr.io/imgproxy/imgproxy:latest
     restart: unless-stopped
     volumes:
-      - uploads:/mnt/images:ro
+      - ./config/data/uploads:/mnt/images:ro
+    env_file: .env.production
     environment:
       PORT: 9000
-      IMGPROXY_KEY: "${IMGPROXY_KEY:-imgproxy_key}"
-      IMGPROXY_SALT: "${IMGPROXY_SALT:-imgproxy_salt}"
       IMGPROXY_WORKERS: 20
       IMGPROXY_USE_ETAG: "true"
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
@@ -28,16 +33,13 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/nginx.conf:/etc/nginx/templates/default.conf.template:ro
-      - ./data/cache/nginx:/var/cache/nginx:delegated
       - ./dist/client:/etc/nginx/html:ro
+      - nginx_cache:/var/cache/nginx:delegated
     links:
       - images:images
-    environment:
-      IMGPROXY_PORT: 9000
-      IMGPROXY_PATH: /images
-      APP_PORT: "${PORT:-4000}"
+      - api:api
     ports:
       - "9999:80"
 
 volumes:
-  uploads:
+  nginx_cache:
