@@ -78,12 +78,12 @@ export async function uploadPhoto({
 	const hash = createHash('sha256');
 	hash.update(buffer);
 	const hex = hash.digest('hex');
-	const fileName = `${hex}.${metadata.format}`;
+	const fileName = `${hex}.${Date.now()}.${metadata.format}`;
 
 	const controller = new AbortController();
 	try {
-		const { uploadPath: mediaPath } = config;
-		await writeFile(resolve(process.cwd(), mediaPath, fileName), buffer, {
+		const { uploadPath } = config;
+		await writeFile(resolve(process.cwd(), uploadPath, fileName), buffer, {
 			signal: controller.signal,
 		});
 	} catch (err) {

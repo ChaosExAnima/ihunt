@@ -7,6 +7,8 @@ const configSchema = z.object({
 	authPepper: z.string(),
 	authSession: z.string(),
 	cookieDomain: z.string().optional(),
+	dbPath: z.string().optional(),
+	huntsDisabled: z.coerce.boolean().default(false),
 	logging: z
 		.string()
 		.transform((l) => l.split(','))
@@ -20,6 +22,7 @@ const configSchema = z.object({
 		.min(10)
 		.transform((s) => s.split(',')),
 	uploadPath: z.string().min(2),
+	clientConfigDir: z.string().optional(),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z

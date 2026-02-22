@@ -122,7 +122,7 @@ function Index() {
 						)}
 					/>
 					<Button
-						disabled={isPending || !form.formState.isValid}
+						disabled={isPending}
 						size="lg"
 						type="submit"
 						variant="success"

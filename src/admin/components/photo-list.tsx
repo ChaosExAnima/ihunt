@@ -6,8 +6,8 @@ import {
 	useChoicesContext,
 } from 'react-admin';
 
+import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 import { AdminPhotoSchema } from '../schemas';
 import { AdminPhotoField } from './photo-field';

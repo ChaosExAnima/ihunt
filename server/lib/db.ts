@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { isDev } from '@/lib/utils';
 
 import { Prisma, PrismaClient } from '../../prisma/generated/client';
-import { logger } from '../server';
+import { logger } from './server';
 
 export * from '../../prisma/generated/client';
 
@@ -13,9 +13,9 @@ if (isDev()) {
 	levels.push('query');
 }
 
-const url = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
+const path = resolve(process.cwd(), process.env.DB_PATH ?? './prisma/dev.db');
 const adapter = new PrismaBetterSqlite3({
-	url: `file://${url}`,
+	url: `file://${path}`,
 });
 export const db = new PrismaClient({
 	adapter,

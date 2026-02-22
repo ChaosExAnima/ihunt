@@ -1,7 +1,7 @@
 import { DialogProps } from '@radix-ui/react-dialog';
 import { ReactNode, useCallback, useState } from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
 
 import { Button } from './ui/button';
 import {

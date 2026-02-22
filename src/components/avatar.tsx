@@ -3,8 +3,8 @@ import { UserRound, UserRoundX } from 'lucide-react';
 
 import { useHunterId } from '@/hooks/use-hunter';
 import { HunterSchema } from '@/lib/schemas';
+import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 import { PhotoDisplay } from './photo';
 

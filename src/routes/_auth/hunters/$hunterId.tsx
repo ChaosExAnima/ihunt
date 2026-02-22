@@ -14,7 +14,7 @@ import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
 import { dateFormat } from '@/lib/formats';
 import { hunterSchema, huntSchema } from '@/lib/schemas';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
 
 export const hunterPageSchema = z.object({
 	...hunterSchema.shape,

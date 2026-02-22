@@ -1,80 +1,18 @@
-import fastifyStatic from '@fastify/static';
-import fastifyVite from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
 	FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify';
-import fastify, { FastifyServerOptions } from 'fastify';
 import { resolve } from 'node:path';
 
 import { MINUTE } from '@/lib/formats';
-import { isDev, isPlainObject } from '@/lib/utils';
+import { isDev } from '@/lib/utils';
 
 import { createAuthContext } from './lib/auth';
-import { Config, config } from './lib/config';
+import { config } from './lib/config';
 import { onHuntInterval } from './lib/hunt';
 import { onInviteInterval } from './lib/invite';
+import { server } from './lib/server';
 import { appRouter, type AppRouter } from './router';
-
-const envToLogger = {
-	development: {
-		serializers: {
-			req(request) {
-				const [path, params] = request.url.split('?', 2);
-
-				const response: Record<string, unknown> = {
-					method: request.method,
-					path,
-				};
-
-				if (isPlainObject(request.params) && !('*' in request.params)) {
-					response.parameters = request.params;
-				}
-
-				if (params) {
-					const queryParams = Object.fromEntries(
-						new URLSearchParams(`?${params}`).entries(),
-					);
-
-					if ('input' in queryParams) {
-						queryParams.input = JSON.parse(queryParams.input);
-					}
-					response.queryParams = queryParams;
-				}
-
-				if (path.startsWith('/trpc')) {
-					response.path = '/trpc';
-				}
-
-				if (path.startsWith('/@fs')) {
-					response.path = path.replace(process.cwd(), '');
-				}
-
-				return response;
-			},
-		},
-		transport: {
-			options: {
-				ignore: 'pid,hostname,reqId,req.method,req.path',
-				messageFormat:
-					'{msg} | {if reqId}id={reqId}{endif}{if req.path} {req.method} {req.path}{endif}',
-				singleLine: true,
-				translateTime: 'HH:MM:ss Z',
-			},
-			target: 'pino-pretty',
-		},
-	},
-	production: true,
-	test: false,
-} as const as Record<Config['nodeEnv'], FastifyServerOptions['logger']>;
-
-const server = fastify({
-	logger: envToLogger[config.nodeEnv],
-	routerOptions: {
-		maxParamLength: 5000,
-	},
-});
-export const logger = server.log;
 
 async function startServer() {
 	const origins = config.serverHosts.map((host) => new URL(host).hostname);
@@ -96,8 +34,8 @@ async function startServer() {
 		prefix: '/trpc',
 		trpcOptions: {
 			createContext: createAuthContext,
-			onError({ error: { code, ...error }, path, req }) {
-				req.log.error(error, `${code} at ${path}`);
+			onError({ error: { code, cause }, path, req }) {
+				req.log.error(cause, `${code} at ${path}: `);
 			},
 			router: appRouter,
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
@@ -120,8 +58,32 @@ async function startServer() {
 		);
 	});
 
+	// Main loop
+	const timerId = setInterval(() => {
+		void onHuntInterval();
+		void onInviteInterval();
+	}, MINUTE);
+
+	try {
+		await startDevMode();
+		await server.listen({ host: '0.0.0.0', port: config.port });
+	} catch (err) {
+		timerId.close();
+		server.log.error(err);
+		process.exit(1);
+	}
+}
+
+async function startDevMode() {
+	if (!isDev()) {
+		return;
+	}
+
+	const fastifyStatic = await import('@fastify/static');
+	const fastifyVite = await import('@fastify/vite');
+
 	// Register Vite
-	const root = resolve(import.meta.dirname, '..');
+	const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
 	await server.register(fastifyVite, {
 		dev: isDev(),
 		distDir: resolve(root, 'dist'),
@@ -140,20 +102,7 @@ async function startServer() {
 		reply.html();
 	});
 
-	// Main loop
-	const timerId = setInterval(() => {
-		void onHuntInterval();
-		void onInviteInterval();
-	}, MINUTE);
-
-	try {
-		await server.vite.ready();
-		await server.listen({ host: '0.0.0.0', port: config.port });
-	} catch (err) {
-		timerId.close();
-		logger.error(err);
-		process.exit(1);
-	}
+	await server.vite.ready();
 }
 
 if (process.argv[1] === import.meta.filename) {
