@@ -10,6 +10,7 @@
 		"build:server": "esbuild server/server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outfile=server.js",
 		"start": "vite",
 		"lint": "oxlint --type-aware",
+		"lint:all": "yarn lint && yarn typecheck && yarn fmt:check",
 		"typecheck": "tsc --noEmit",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
@@ -80,6 +81,7 @@
 		"globals": "^16.3.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
+		"lint-staged-tsc": "^0.2.1",
 		"nodemon": "^3.1.10",
 		"oxfmt": "^0.34.0",
 		"oxlint": "^1.49.0",
@@ -109,7 +111,7 @@
 			"yarn run fmt"
 		],
 		"*.{json,md,mdx,css,scss,html,yml,yaml}": "yarn run fmt",
-		"*.{ts,tsx}": "yarn run typecheck"
+		"*.{ts,tsx}": "lint-staged-tsc"
 	},
 	"engines": {
 		"node": ">=24.0.0"
