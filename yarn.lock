@@ -1925,7 +1925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/middie@npm:^9.0.3":
+"@fastify/middie@npm:^9.1.0":
   version: 9.1.0
   resolution: "@fastify/middie@npm:9.1.0"
   dependencies:
@@ -1985,11 +1985,11 @@ __metadata:
   linkType: hard
 
 "@fastify/vite@npm:^8.2.2":
-  version: 8.2.2
-  resolution: "@fastify/vite@npm:8.2.2"
+  version: 8.4.1
+  resolution: "@fastify/vite@npm:8.4.1"
   dependencies:
     "@fastify/deepmerge": "npm:^3.1.0"
-    "@fastify/middie": "npm:^9.0.3"
+    "@fastify/middie": "npm:^9.1.0"
     "@fastify/static": "npm:^9.0.0"
     fastify-plugin: "npm:^5.1.0"
     fs-extra: "npm:^11.3.3"
@@ -1999,7 +1999,7 @@ __metadata:
   peerDependencies:
     fastify: ">=5"
     vite: ">=6"
-  checksum: 10c0/e52098a0eae1bf2eefa5b730d4fd97c152b322660d58a52d5f0bec48ca8c961182a53e2e4b62d2621ca94fe1c9aed05cd7f64ad31f50d08741c3d05500b0b66f
+  checksum: 10c0/8bb5d4f12c6ed7f35f2609253b8c9207bdd3aa259e9546f3e052de5d3dcd0d661e00c7c3af126af46d2e954348a4ae485abc81d6500fff32c8ce5dc4e6195bd2
   languageName: node
   linkType: hard
 
