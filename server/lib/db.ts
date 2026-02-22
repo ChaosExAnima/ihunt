@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { isDev } from '@/lib/utils';
 
 import { Prisma, PrismaClient } from '../../prisma/generated/client';
-import { logger } from '../server';
+import { logger } from './server';
 
 export * from '../../prisma/generated/client';
 

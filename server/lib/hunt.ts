@@ -4,7 +4,6 @@ import { HUNT_LOCKDOWN_MINUTES, HuntStatus } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { clamp, extractIds } from '@/lib/utils';
 
-import { logger } from '../server';
 import { config } from './config';
 import { db, Hunt, Hunter, Prisma } from './db';
 import {
@@ -15,6 +14,7 @@ import {
 	notifyUser,
 } from './notify';
 import { InviteStatus } from './schema';
+import { logger } from './server';
 
 export const huntDisplayInclude = {
 	hunters: {

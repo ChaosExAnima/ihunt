@@ -1,8 +1,8 @@
 import { TRPC_ERROR_CODE_KEY, TRPCError } from '@trpc/server';
 import z, { ZodError } from 'zod';
 
-import { logger } from '../server';
 import { Prisma } from './db';
+import { logger } from './server';
 
 interface HandleErrorArgs {
 	code?: TRPC_ERROR_CODE_KEY;
