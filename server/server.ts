@@ -1,5 +1,3 @@
-import fastifyStatic from '@fastify/static';
-import fastifyVite from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
 	FastifyTRPCPluginOptions,
@@ -120,6 +118,30 @@ async function startServer() {
 		);
 	});
 
+	// Main loop
+	const timerId = setInterval(() => {
+		void onHuntInterval();
+		void onInviteInterval();
+	}, MINUTE);
+
+	try {
+		await startDevMode();
+		await server.listen({ host: '0.0.0.0', port: config.port });
+	} catch (err) {
+		timerId.close();
+		logger.error(err);
+		process.exit(1);
+	}
+}
+
+async function startDevMode() {
+	if (!isDev()) {
+		return;
+	}
+
+	const fastifyStatic = await import('@fastify/static');
+	const fastifyVite = await import('@fastify/vite');
+
 	// Register Vite
 	const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
 	await server.register(fastifyVite, {
@@ -140,20 +162,7 @@ async function startServer() {
 		reply.html();
 	});
 
-	// Main loop
-	const timerId = setInterval(() => {
-		void onHuntInterval();
-		void onInviteInterval();
-	}, MINUTE);
-
-	try {
-		await server.vite.ready();
-		await server.listen({ host: '0.0.0.0', port: config.port });
-	} catch (err) {
-		timerId.close();
-		logger.error(err);
-		process.exit(1);
-	}
+	await server.vite.ready();
 }
 
 if (process.argv[1] === import.meta.filename) {
