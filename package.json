@@ -7,7 +7,9 @@
 		"dev": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules --exec tsx server/server.ts",
 		"build": "yarn build:client && yarn build:server",
 		"build:client": "vite build",
+		"build:prisma": "prisma generate",
 		"build:server": "esbuild server/server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outfile=server.js",
+		"build:scripts": "esbuild scripts/*.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outdir=scripts/dist",
 		"start": "vite",
 		"lint": "oxlint --type-aware",
 		"lint:all": "yarn lint && yarn typecheck && yarn fmt:check",
@@ -15,8 +17,8 @@
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",
-		"postinstall": "prisma generate",
-		"prepare": "husky"
+		"prepare": "husky",
+		"docker:prod": "docker compose -f config/docker-compose.prod.yml --project-directory=."
 	},
 	"dependencies": {
 		"@fontsource-variable/geist-mono": "^5.2.6",
