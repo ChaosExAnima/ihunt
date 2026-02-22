@@ -3,7 +3,7 @@ import { PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { HuntStatus } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
 
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';

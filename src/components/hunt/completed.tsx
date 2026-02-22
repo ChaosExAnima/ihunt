@@ -1,7 +1,7 @@
 import { CircleCheckBig } from 'lucide-react';
 
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
 
 import { HuntDisplayProps } from '.';
 import { Rating } from '../rating';

@@ -1,6 +1,3 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
 import { Entity } from './types';
 
 export function arrayOfLength(length: number): number[] {
@@ -20,10 +17,6 @@ export function clamp({
 	min?: number;
 }) {
 	return Math.min(max, Math.max(min, input));
-}
-
-export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs));
 }
 
 export function extractIds<T extends Entity>(obj: T[]): number[] {

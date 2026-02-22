@@ -6,7 +6,8 @@ import {
 } from '@tanstack/react-router';
 
 import { Toaster } from '@/components/providers/toaster';
-import { cn, isDev } from '@/lib/utils';
+import { cn } from '@/lib/styles';
+import { isDev } from '@/lib/utils';
 
 const devMode = isDev();
 
