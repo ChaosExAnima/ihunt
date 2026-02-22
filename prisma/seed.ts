@@ -1,4 +1,5 @@
 import { HuntStatus } from '@/lib/constants';
+import { passwordToHash, stringToPassword } from '@/server/lib/auth';
 import { db } from '@/server/lib/db';
 
 async function main() {
@@ -48,33 +49,43 @@ async function main() {
 
 		await db.user.createMany({
 			data: [
-				{ id: 1, name: 'Player1', password: 'w1nche' },
-				{ id: 2, name: 'Player2', password: 'scooby' },
-				{ id: 3, name: 'Player3', password: 'chosen' },
+				{ id: 1, name: 'Player1', password: '' },
+				{ id: 2, name: 'Player2', password: '' },
+				{ id: 3, name: 'Player3', password: '' },
 			],
 		});
+		const hunters = [
+			{
+				handle: 'w1nch3ster',
+				id: 1,
+				name: 'Dean',
+				userId: 1,
+			},
+			{
+				handle: 'scoobysnac',
+				id: 2,
+				name: 'Velma',
+				userId: 2,
+			},
+			{
+				handle: 'chosen1',
+				id: 3,
+				name: 'Buffy',
+				userId: 3,
+			},
+		];
 		await db.hunter.createMany({
-			data: [
-				{
-					handle: 'w1nch3ster',
-					id: 1,
-					name: 'Dean',
-					userId: 1,
-				},
-				{
-					handle: 'scoobysnac',
-					id: 2,
-					name: 'Velma',
-					userId: 2,
-				},
-				{
-					handle: 'chosen1',
-					id: 3,
-					name: 'Buffy',
-					userId: 3,
-				},
-			],
+			data: hunters,
 		});
+
+		for (const hunter of hunters) {
+			const password = stringToPassword(hunter.handle);
+			const hashedPassword = await passwordToHash(password);
+			await db.user.update({
+				data: { password: hashedPassword },
+				where: { id: hunter.userId },
+			});
+		}
 
 		await db.photo.createMany({
 			data: [
