@@ -10330,9 +10330,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ra-core@npm:^5.13.6":
-  version: 5.13.6
-  resolution: "ra-core@npm:5.13.6"
+"ra-core@npm:^5.14.2":
+  version: 5.14.2
+  resolution: "ra-core@npm:5.14.2"
   dependencies:
     date-fns: "npm:^3.6.0"
     eventemitter3: "npm:^5.0.1"
@@ -10349,32 +10349,32 @@ __metadata:
     react-hook-form: ^7.65.0
     react-router: ^6.28.1 || ^7.1.1
     react-router-dom: ^6.28.1 || ^7.1.1
-  checksum: 10c0/3f7e831e2961ebd1420378f7198a1ae33c8c9764b92b85e9ec05ebdea76743004597c80dc228d671bdb5a40bac80efe9a13d61eb72fa998d80fe93c400168ddf
+  checksum: 10c0/755534bd075dfbae7860f3ebe3bbe2806ce382d919fd7c0450a385129db76d1b22e5c424be6d18017ab711e0749a9e0cd378cc695d047fe03ced487e936d806f
   languageName: node
   linkType: hard
 
-"ra-i18n-polyglot@npm:^5.13.6":
-  version: 5.13.6
-  resolution: "ra-i18n-polyglot@npm:5.13.6"
+"ra-i18n-polyglot@npm:^5.14.2":
+  version: 5.14.2
+  resolution: "ra-i18n-polyglot@npm:5.14.2"
   dependencies:
     node-polyglot: "npm:^2.2.2"
-    ra-core: "npm:^5.13.6"
-  checksum: 10c0/2ccf6a59fd17c3703665a19943543fb3aa01476f1a4b250e61c8e064c9c2e2b8c05a1e43e5a67de369c2bdda70be52a619713ab1a25a4dd63617c511a900709a
+    ra-core: "npm:^5.14.2"
+  checksum: 10c0/d368ccd7916c92af1c0fcf1a08cb20b74caa5fd77f7039954f0c02acd9750de37bc1712450a9ac25a4bd414bfb61d7e9f55682f214848d9ed7cf42616ec299cb
   languageName: node
   linkType: hard
 
-"ra-language-english@npm:^5.13.6":
-  version: 5.13.6
-  resolution: "ra-language-english@npm:5.13.6"
+"ra-language-english@npm:^5.14.2":
+  version: 5.14.2
+  resolution: "ra-language-english@npm:5.14.2"
   dependencies:
-    ra-core: "npm:^5.13.6"
-  checksum: 10c0/4cac4b74e27186f62fb7e967d826a6ffeb8ddd9288c95bdd2ef60083f72b7176907cc4b7558efc0d5c0e771b5094a92873ca1f7c65d5d4afe67c47eae65c403d
+    ra-core: "npm:^5.14.2"
+  checksum: 10c0/cd7aacbf48e91ce2c1305784d62f65f1baf0c590e447176febf971e0b8937f56c95d1c8769e2711a05cd3b8248f9a5cc2371a441b96f1d21875cceb65891f4f8
   languageName: node
   linkType: hard
 
-"ra-ui-materialui@npm:^5.13.6":
-  version: 5.13.6
-  resolution: "ra-ui-materialui@npm:5.13.6"
+"ra-ui-materialui@npm:^5.14.2":
+  version: 5.14.2
+  resolution: "ra-ui-materialui@npm:5.14.2"
   dependencies:
     autosuggest-highlight: "npm:^3.1.1"
     clsx: "npm:^2.1.1"
@@ -10403,7 +10403,7 @@ __metadata:
     react-is: ^18.0.0 || ^19.0.0
     react-router: ^6.28.1 || ^7.1.1
     react-router-dom: ^6.28.1 || ^7.1.1
-  checksum: 10c0/61d80964108d44a66d7a84137bea0072782b664dd4a45058d0bd108d9f53de801fe46ec4a00101639090096058f3a57e86b6618a2a3a3b100ba3408a6e75b984
+  checksum: 10c0/3fcac321f42b45853d913992dfc0d1420f4b1c756656a99186bc5fd93191ca85d9f9bb0517f2a7ee6a1a109829027756961c2be8fd888b5c4166f82ea0277a9d
   languageName: node
   linkType: hard
 
@@ -10441,25 +10441,25 @@ __metadata:
   linkType: hard
 
 "react-admin@npm:^5.13.6":
-  version: 5.13.6
-  resolution: "react-admin@npm:5.13.6"
+  version: 5.14.2
+  resolution: "react-admin@npm:5.14.2"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
     "@mui/icons-material": "npm:^5.16.12 || ^6.0.0 || ^7.0.0"
     "@mui/material": "npm:^5.16.12 || ^6.0.0 || ^7.0.0"
     "@tanstack/react-query": "npm:^5.83.0"
-    ra-core: "npm:^5.13.6"
-    ra-i18n-polyglot: "npm:^5.13.6"
-    ra-language-english: "npm:^5.13.6"
-    ra-ui-materialui: "npm:^5.13.6"
+    ra-core: "npm:^5.14.2"
+    ra-i18n-polyglot: "npm:^5.14.2"
+    ra-language-english: "npm:^5.14.2"
+    ra-ui-materialui: "npm:^5.14.2"
     react-hook-form: "npm:^7.65.0"
     react-router: "npm:^6.28.1 || ^7.1.1"
     react-router-dom: "npm:^6.28.1 || ^7.1.1"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
-  checksum: 10c0/917e94ec73cc153f7f2cef6134cc701e2f3e46b738a22388076bdf3a716a76a942f183225282795563226cb35d472163d94a111dbc6e8fe56a7c108c8d1ab203
+  checksum: 10c0/923e6166c13d8656ea5083333d51696a18c9341f38f628adcbe9363730ffb4ea7f437ff3c80eb742b55c00abd89917c5366247e7afb4f97c62f20b3ea733b83c
   languageName: node
   linkType: hard
 
