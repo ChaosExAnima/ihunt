@@ -17,16 +17,16 @@ COPY yarn.lock package.json .yarnrc.yml ./
 COPY .yarn ./.yarn
 RUN yarn install --immutable
 
-ARG VITE_SERVER_HOSTS
-
-RUN yarn build
+RUN yarn run build:prisma && yarn run build:scripts && yarn run build:server
 
 FROM base AS runner
 WORKDIR /app
 
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/server.js ./server/
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/server.js .
+COPY --from=builder --chown=nodejs:nodejs /app/scripts/dist ./scripts/
+COPY yarn.lock package.json .yarnrc.yml .
+
+RUN yarn workspaces focus --production
 
 USER nodejs
 
@@ -34,4 +34,4 @@ EXPOSE 3333
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["node", "server/server.js"]
+CMD ["node", "server.js"]
