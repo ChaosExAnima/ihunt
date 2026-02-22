@@ -1,10 +1,19 @@
+name: ihunt-prod
 services:
+  api:
+    build:
+      dockerfile: "./config/Dockerfile"
+    volumes:
+      - uploads:/media
+    env_file: .env
+    environment:
+      VITE_SERVER_HOSTS: ${VITE_SERVER_HOSTS}
+
   images:
     image: ghcr.io/imgproxy/imgproxy:latest
     restart: unless-stopped
     volumes:
-      - ./data/imgproxy:/mnt/data
-      - ${MEDIA_PATH}:/mnt/images:ro
+      - uploads:/mnt/images:ro
     environment:
       PORT: 9000
       IMGPROXY_KEY: "${IMGPROXY_KEY:-imgproxy_key}"
@@ -28,5 +37,7 @@ services:
       IMGPROXY_PATH: /images
       APP_PORT: "${PORT:-4000}"
     ports:
-      - "80:80"
-      - "443:443"
+      - "9999:80"
+
+volumes:
+  uploads:

@@ -25,7 +25,8 @@ FROM base AS runner
 WORKDIR /app
 
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/server/server.js ./server/
+COPY --from=builder --chown=nodejs:nodejs /app/server.js ./server/
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
 USER nodejs
 
