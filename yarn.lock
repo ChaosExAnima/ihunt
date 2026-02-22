@@ -1939,11 +1939,11 @@ __metadata:
   linkType: hard
 
 "@fastify/one-line-logger@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@fastify/one-line-logger@npm:2.0.2"
+  version: 2.1.0
+  resolution: "@fastify/one-line-logger@npm:2.1.0"
   dependencies:
     pino-pretty: "npm:^13.0.0"
-  checksum: 10c0/03b3a5f2039f8aea2e23497b55941f0ef3660a1bd9a0e42e65ad238f6c866a1e047704c9a19f67a5acce80f744ce4a2c8beee03ef90bdc3d049a8157330745cd
+  checksum: 10c0/20169f493e3d51dc3ffc87dd9d1090c609c2f8fcc7770f630fd8b76470e1e45b8db89d4884b4d42c49ce42f412061dd1b3301ce8149b84fcf4a26ab4609e4e9b
   languageName: node
   linkType: hard
 
