@@ -1,6 +1,6 @@
 import { HUNT_MAX_HUNTERS } from '@/lib/constants';
+import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 import { Card } from '../ui/card';
 import { HuntHuntersDisplay } from './hunters';

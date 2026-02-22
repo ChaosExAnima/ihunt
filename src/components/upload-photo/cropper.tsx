@@ -12,7 +12,7 @@ import ReactCrop, {
 	PixelCrop,
 } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
 
 interface UploadCropperProps extends PropsWithChildren {
 	aspect?: number;

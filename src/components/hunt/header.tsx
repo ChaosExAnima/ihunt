@@ -4,8 +4,9 @@ import { useMemo } from 'react';
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
 import { Locale } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
+import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
-import { arrayOfLength, cn } from '@/lib/utils';
+import { arrayOfLength } from '@/lib/utils';
 
 import { Header } from '../header';
 import { PhotoDisplay } from '../photo';
