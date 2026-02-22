@@ -10,6 +10,7 @@
 		"build:server": "esbuild server/server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outfile=server.js",
 		"start": "vite",
 		"lint": "oxlint --type-aware",
+		"typecheck": "tsc --noEmit",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",
@@ -107,7 +108,8 @@
 			"yarn run lint",
 			"yarn run fmt"
 		],
-		"*.{json,md,mdx,css,scss,html,yml,yaml}": "yarn run fmt"
+		"*.{json,md,mdx,css,scss,html,yml,yaml}": "yarn run fmt",
+		"*.{ts,tsx}": "yarn run typecheck"
 	},
 	"engines": {
 		"node": ">=24.0.0"
