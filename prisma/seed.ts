@@ -47,13 +47,6 @@ async function main() {
 			],
 		});
 
-		await db.user.createMany({
-			data: [
-				{ id: 1, name: 'Player1', password: '' },
-				{ id: 2, name: 'Player2', password: '' },
-				{ id: 3, name: 'Player3', password: '' },
-			],
-		});
 		const hunters = [
 			{
 				handle: 'w1nch3ster',
@@ -74,6 +67,28 @@ async function main() {
 				userId: 3,
 			},
 		];
+
+		await db.user.createMany({
+			data: await Promise.all(
+				[
+					{ id: 1, name: 'Player1' },
+					{ id: 2, name: 'Player2' },
+					{ id: 3, name: 'Player3' },
+				].map(async (row) => {
+					const hunter = hunters.find(
+						({ userId }) => userId === row.id,
+					);
+					if (!hunter) {
+						throw new Error(`No hunter found: ${row.id}`);
+					}
+					const password = stringToPassword(hunter.handle);
+					return {
+						...row,
+						password: await passwordToHash(password),
+					};
+				}),
+			),
+		});
 		await db.hunter.createMany({
 			data: hunters,
 		});
