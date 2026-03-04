@@ -59,6 +59,10 @@ export class WorkerServer {
 	}
 
 	async update() {
+		if (!serverHosts) {
+			return;
+		}
+
 		for (const host of serverHosts) {
 			const isAvailable = await this.checkServer(host);
 			if (isAvailable) {

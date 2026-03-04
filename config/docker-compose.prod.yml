@@ -3,17 +3,17 @@ services:
   api:
     build:
       dockerfile: "./config/Dockerfile"
+    image: ghcr.io/chaosexanima/ihunt:latest
     restart: unless-stopped
     volumes:
       - ./config/data/uploads:/media
       - ./config/data/db:/app/db
     env_file: .env.production
     environment:
-      SERVER_HOSTS: https://ihunt.local
       NODE_ENV: production
       DB_PATH: /app/db/prod.db
       UPLOAD_PATH: /media
-      MEDIA_HOST: ihunt.local/images
+      MEDIA_HOST: http://ihunt.local/images
 
   images:
     image: ghcr.io/imgproxy/imgproxy:latest

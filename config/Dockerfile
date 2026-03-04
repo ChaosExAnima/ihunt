@@ -17,13 +17,14 @@ COPY yarn.lock package.json .yarnrc.yml ./
 COPY .yarn ./.yarn
 RUN yarn install --immutable
 
-RUN yarn run build:prisma && yarn run build:scripts && yarn run build:server
+RUN yarn run build && yarn run build:scripts
 
 FROM base AS runner
 WORKDIR /app
 
 COPY --from=builder --chown=nodejs:nodejs /app/server.js .
 COPY --from=builder --chown=nodejs:nodejs /app/scripts/dist ./scripts/
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY yarn.lock package.json .yarnrc.yml .
 
 RUN yarn workspaces focus --production

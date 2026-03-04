@@ -111,7 +111,7 @@
 			"yarn run lint",
 			"yarn run fmt"
 		],
-		"*.{json,md,mdx,css,scss,html,yml,yaml}": "yarn run fmt"
+		"*.{json,css,scss,html}": "yarn run fmt"
 	},
 	"engines": {
 		"node": ">=24.0.0"
