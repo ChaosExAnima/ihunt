@@ -41,23 +41,6 @@ async function startServer() {
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 	});
 
-	server.get('/trpc/panel', async (_, res) => {
-		if (!isDev()) {
-			return res.status(404).callNotFound();
-		}
-
-		const { renderTrpcPanel } = await import('trpc-ui');
-		return res.header('content-type', 'text/html').send(
-			renderTrpcPanel(appRouter, {
-				meta: {
-					title: 'iHunt API Testing',
-				},
-				transformer: 'superjson',
-				url: `/trpc`,
-			}),
-		);
-	});
-
 	// Main loop
 	const timerId = setInterval(() => {
 		void onHuntInterval();
@@ -81,6 +64,19 @@ async function startDevMode() {
 
 	const fastifyStatic = await import('@fastify/static');
 	const fastifyVite = await import('@fastify/vite');
+	const { renderTrpcPanel } = await import('trpc-ui');
+
+	server.get('/trpc/panel', async (_, res) =>
+		res.header('content-type', 'text/html').send(
+			renderTrpcPanel(appRouter, {
+				meta: {
+					title: 'iHunt API Testing',
+				},
+				transformer: 'superjson',
+				url: '/trpc',
+			}),
+		),
+	);
 
 	// Register Vite
 	const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
