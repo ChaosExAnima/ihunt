@@ -6,7 +6,7 @@ const { postgresDatabase, postgresHost, postgresPassword, postgresUser } =
 	config;
 export default defineConfig({
 	datasource: {
-		url: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}:5432/${postgresDatabase}`,
+		url: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}/${postgresDatabase}`,
 	},
 	migrations: {
 		path: 'prisma/migrations',

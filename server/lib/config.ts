@@ -18,7 +18,7 @@ const configSchema = z.object({
 	postgresDatabase: z.string().default('ihunt'),
 	postgresHost: z.string(),
 	postgresPassword: z.string().default('password'),
-	postgresUser: z.string().default('ihunt'),
+	postgresUser: z.string().default('postgres'),
 	serverHosts: z
 		.string()
 		.min(10)

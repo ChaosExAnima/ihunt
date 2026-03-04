@@ -7,11 +7,10 @@
 		"dev": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules --exec tsx server/server.ts",
 		"build": "vite build && tsc --noEmit",
 		"start": "vite",
-		"lint": "oxlint --type-aware && tsc --noEmit",
+		"lint": "oxlint --type-aware",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"studio": "prisma studio",
-		"postinstall": "prisma generate",
 		"prepare": "husky"
 	},
 	"dependencies": {
@@ -23,7 +22,7 @@
 		"@hookform/resolvers": "^5.2.1",
 		"@imgproxy/imgproxy-js-core": "^1.7.0",
 		"@imgproxy/imgproxy-node": "^1.1.0",
-		"@prisma/adapter-ppg": "^7.4.1",
+		"@prisma/adapter-pg": "^7.4.2",
 		"@prisma/client": "^7.0.0",
 		"@radix-ui/react-dialog": "^1.1.14",
 		"@radix-ui/react-label": "^2.1.7",

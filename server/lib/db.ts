@@ -1,4 +1,4 @@
-import { PrismaPostgresAdapter } from '@prisma/adapter-ppg';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 import { isDev } from '@/lib/utils';
 
@@ -15,8 +15,8 @@ if (isDev()) {
 
 const { postgresDatabase, postgresHost, postgresPassword, postgresUser } =
 	config;
-const adapter = new PrismaPostgresAdapter({
-	connectionString: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}:5432/${postgresDatabase}`,
+const adapter = new PrismaPg({
+	connectionString: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}/${postgresDatabase}`,
 });
 
 export const db = new PrismaClient({
