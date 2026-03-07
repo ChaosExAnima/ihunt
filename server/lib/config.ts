@@ -7,12 +7,13 @@ const configSchema = z.object({
 	authPepper: z.string(),
 	authSession: z.string(),
 	cookieDomain: z.string().optional(),
+	dbPath: z.string().optional(),
+	huntsDisabled: z.coerce.boolean().default(false),
 	logging: z
 		.string()
 		.transform((l) => l.split(','))
 		.default([]),
-	mediaHost: z.string().min(2),
-	mediaSecure: z.boolean().default(true),
+	mediaHost: z.url(),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
 	serverHosts: z
@@ -20,6 +21,7 @@ const configSchema = z.object({
 		.min(10)
 		.transform((s) => s.split(',')),
 	uploadPath: z.string().min(2),
+	clientConfigDir: z.string().optional(),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z

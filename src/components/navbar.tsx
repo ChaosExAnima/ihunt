@@ -4,7 +4,7 @@ import { Link, LinkProps } from '@tanstack/react-router';
 import { Crosshair } from 'lucide-react';
 
 import { HunterSchema } from '@/lib/schemas';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
 
 import { Avatar } from './avatar';
 

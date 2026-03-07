@@ -8,11 +8,13 @@ import { MINUTE, SECOND } from '@/lib/formats';
 declare const self: ServiceWorkerGlobalScope;
 
 // List of servers, from local to public.
-const serverHosts = (import.meta.env.VITE_SERVER_HOSTS ?? '').split(',');
+const serverHosts = (import.meta.env.VITE_SERVER_HOSTS ?? '')
+	.split(',')
+	.filter(Boolean);
 
 export class WorkerServer {
 	private abortController = new AbortController();
-	private currentServer = serverHosts.at(-1);
+	private currentServer?: string;
 	private delay = 5 * SECOND;
 	private timerId = -1;
 
@@ -59,6 +61,10 @@ export class WorkerServer {
 	}
 
 	async update() {
+		if (serverHosts.length <= 1) {
+			return;
+		}
+
 		for (const host of serverHosts) {
 			const isAvailable = await this.checkServer(host);
 			if (isAvailable) {

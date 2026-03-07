@@ -1,4 +1,3 @@
-import viteFastify from '@fastify/vite/plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
@@ -7,22 +6,13 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, PluginOption } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// We need to do this so the VitePWA plugin works,
-// because Prisma overwrites the __dirname constant.
-// Will be fixed once Fastify and Vite are split.
-Object.assign(globalThis, {
-	__dirname: undefined,
-});
-
 export default defineConfig({
 	build: {
 		outDir: resolve(import.meta.dirname, 'dist'),
+		emptyOutDir: true,
 	},
+	publicDir: resolve(import.meta.dirname, 'public'),
 	plugins: [
-		viteFastify({
-			spa: true,
-			useRelativePaths: true,
-		}),
 		tanstackRouter({
 			autoCodeSplitting: true,
 			generatedRouteTree: 'routeTree.gen.ts',
@@ -42,12 +32,12 @@ export default defineConfig({
 				icons: [
 					{
 						sizes: '192x192',
-						src: '/public/android-chrome-192x192.png',
+						src: '/android-chrome-192x192.png',
 						type: 'image/png',
 					},
 					{
 						sizes: '512x512',
-						src: '/public/android-chrome-512x512.png',
+						src: '/android-chrome-512x512.png',
 						type: 'image/png',
 					},
 				],
@@ -56,12 +46,12 @@ export default defineConfig({
 				screenshots: [
 					{
 						sizes: '712x1284',
-						src: '/public/screenshot.png',
+						src: '/screenshot.png',
 					},
 					{
 						form_factor: 'wide',
 						sizes: '712x1284',
-						src: '/public/screenshot.png',
+						src: '/screenshot.png',
 					},
 				],
 				short_name: 'iHunt',
@@ -74,7 +64,6 @@ export default defineConfig({
 		}),
 		process.env.ANALYZE_BUNDLE === '1' && (visualizer() as PluginOption),
 	],
-	publicDir: resolve(import.meta.dirname, 'public'),
 	resolve: {
 		alias: [
 			{ find: '@', replacement: resolve(import.meta.dirname, './src') },
@@ -88,5 +77,9 @@ export default defineConfig({
 	server: {
 		allowedHosts: true, // Unsafe, but this only runs in dev anyway.
 		strictPort: true,
+		proxy: {
+			'/trpc': 'http://localhost:4000',
+			'/images': 'http://localhost:9000',
+		},
 	},
 });

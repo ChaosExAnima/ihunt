@@ -5,7 +5,11 @@ import { HuntStatus } from '@/lib/constants';
 import { idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../lib/db';
-import { huntDisplayInclude } from '../lib/hunt';
+import {
+	assertHuntsEnabled,
+	huntDisplayInclude,
+	isHuntsDisabled,
+} from '../lib/hunt';
 import { huntInLockdown } from '../lib/hunt';
 import {
 	fetchDailyHuntCount,
@@ -16,7 +20,7 @@ import {
 import { notifyHuntsReload } from '../lib/notify';
 import { uploadPhoto } from '../lib/photo';
 import { InviteStatus, outputHuntSchema } from '../lib/schema';
-import { adminProcedure, router, userProcedure } from '../lib/trpc';
+import { router, userProcedure } from '../lib/trpc';
 
 export const huntRouter = router({
 	getActive: userProcedure.output(outputHuntSchema.array()).query(
@@ -24,8 +28,11 @@ export const huntRouter = router({
 			ctx: {
 				hunter: { id },
 			},
-		}) =>
-			db.hunt.findMany({
+		}) => {
+			if (isHuntsDisabled()) {
+				return [];
+			}
+			return db.hunt.findMany({
 				include: huntDisplayInclude,
 				where: {
 					hunters: {
@@ -35,12 +42,17 @@ export const huntRouter = router({
 					},
 					status: HuntStatus.Active,
 				},
-			}),
+			});
+		},
 	),
 
 	getAvailable: userProcedure
 		.output(outputHuntSchema.array())
 		.query(async ({ ctx: { hunter: currentHunter } }) => {
+			if (isHuntsDisabled()) {
+				return [];
+			}
+
 			const result = await db.hunt.findMany({
 				include: {
 					...huntDisplayInclude,
@@ -84,9 +96,12 @@ export const huntRouter = router({
 			}),
 		),
 
-	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) =>
-		fetchDailyHuntCount(hunter.id),
-	),
+	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) => {
+		if (isHuntsDisabled()) {
+			return 0;
+		}
+		return fetchDailyHuntCount(hunter.id);
+	}),
 
 	getOne: userProcedure
 		.input(
@@ -102,8 +117,12 @@ export const huntRouter = router({
 			}),
 		),
 
-	getPublic: userProcedure.output(outputHuntSchema.array()).query(() =>
-		db.hunt.findMany({
+	getPublic: userProcedure.output(outputHuntSchema.array()).query(() => {
+		if (isHuntsDisabled()) {
+			return [];
+		}
+
+		return db.hunt.findMany({
 			include: huntDisplayInclude,
 			orderBy: [
 				{
@@ -116,8 +135,8 @@ export const huntRouter = router({
 			where: {
 				status: HuntStatus.Available,
 			},
-		}),
-	),
+		});
+	}),
 
 	join: userProcedure.input(z.object({ huntId: idSchemaCoerce })).mutation(
 		async ({
@@ -127,6 +146,8 @@ export const huntRouter = router({
 			},
 			input,
 		}) => {
+			assertHuntsEnabled();
+
 			const { huntId } = input;
 			const { hunt, invited, invitedCount, joined, joinedCount } =
 				await fetchUnclaimedSpots(huntId);
@@ -200,22 +221,6 @@ export const huntRouter = router({
 		},
 	),
 
-	remove: adminProcedure
-		.input(z.object({ hunterId: idSchemaCoerce, huntId: idSchemaCoerce }))
-		.mutation(async ({ input }) => {
-			await db.hunt.update({
-				data: {
-					hunters: {
-						disconnect: {
-							id: input.hunterId,
-						},
-					},
-				},
-				where: { id: input.huntId },
-			});
-			return { success: true };
-		}),
-
 	uploadPhoto: userProcedure
 		.input(
 			z.instanceof(FormData).transform((fd) =>
@@ -229,6 +234,8 @@ export const huntRouter = router({
 			),
 		)
 		.mutation(async ({ ctx: { hunter }, input }) => {
+			assertHuntsEnabled();
+
 			const { huntId, name, photo } = input;
 			const bytes = await photo.bytes();
 			const result = await uploadPhoto({

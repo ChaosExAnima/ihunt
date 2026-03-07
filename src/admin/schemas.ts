@@ -34,7 +34,7 @@ export const adminHunterSchema = hunterSchema
 		avatar: true,
 	})
 	.extend({
-		alive: z.boolean(),
+		alive: z.boolean().default(true),
 		avatarId: idSchemaCoerce.nullish(),
 		groupId: idSchemaCoerce.nullish(),
 		userId: idSchemaCoerce.nullish(),
@@ -59,7 +59,6 @@ export const adminPhotoSchema = photoSchema.extend(
 export type AdminPhotoSchema = z.infer<typeof adminPhotoSchema>;
 
 export const adminUserSchema = z.object({
-	hideMoney: z.boolean(),
 	hunterIds: idArray,
 	id: idSchemaCoerce,
 	name: z.string().nullable(),
@@ -70,6 +69,7 @@ export type AdminUserSchema = z.infer<typeof adminUserSchema>;
 export const adminCreateHuntInput = adminHuntSchema.omit({
 	comment: true,
 	completedAt: true,
+	createdAt: true,
 	hunterIds: true,
 	id: true,
 	photoIds: true,
@@ -163,6 +163,7 @@ function schemaToFilter<TShape extends z.ZodRawShape>(
 	);
 	return {
 		filter: schema
+			// @ts-expect-error Filtering type doesn't work as expected
 			.omit({ id: true, ...filter })
 			.extend({ q: z.string() })
 			.partial()

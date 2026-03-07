@@ -125,8 +125,8 @@ export function notifyHuntsReload(event: Partial<NotifyEventSchema> = {}) {
 export const ee = new IterableEventEmitter<NotifyEvents>();
 
 // TODO: Move from the media host to public static host.
-const icon = `${config.mediaHost}/public/ihunt-logo.png`;
-const badge = `${config.mediaHost}/public/ihunt-badge.svg`;
+const icon = `${config.mediaHost}/ihunt-logo.png`;
+const badge = `${config.mediaHost}/ihunt-badge.svg`;
 
 export async function notifyUser({ event, force, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.

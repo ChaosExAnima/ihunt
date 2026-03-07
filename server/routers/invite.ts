@@ -8,7 +8,7 @@ import { extractIds } from '@/lib/utils';
 
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
 import { db, Prisma } from '../lib/db';
-import { huntInLockdown } from '../lib/hunt';
+import { huntInLockdown, isHuntsDisabled } from '../lib/hunt';
 import {
 	expireInvites,
 	fetchInviteesForHunt,
@@ -28,7 +28,7 @@ export const inviteRouter = router({
 		.output(idArray)
 		.query(async ({ ctx: { hunter }, input: { huntId } }) => {
 			// No group means nobody to invite.
-			if (!hunter.groupId) {
+			if (!hunter.groupId || isHuntsDisabled()) {
 				return [];
 			}
 

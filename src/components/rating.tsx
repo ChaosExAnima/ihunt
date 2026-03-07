@@ -1,7 +1,8 @@
 import { LucideProps, Star, StarHalf } from 'lucide-react';
 import { memo } from 'react';
 
-import { arrayOfLength, cn } from '@/lib/utils';
+import { cn } from '@/lib/styles';
+import { arrayOfLength } from '@/lib/utils';
 
 type RatingProps = Omit<LucideProps, 'fill'> & {
 	fill?: boolean;

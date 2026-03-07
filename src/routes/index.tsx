@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
+import { isTRPCClientError } from '@trpc/client';
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -43,14 +44,20 @@ export const Route = createFileRoute('/')({
 		if (!session) {
 			return;
 		}
-		const player = await queryClient.fetchQuery(
-			trpc.auth.me.queryOptions(),
-		);
+		try {
+			const player = await queryClient.fetchQuery(
+				trpc.auth.me.queryOptions(),
+			);
 
-		if (player) {
-			throw redirect({
-				to: search.redirect ?? '/hunts',
-			});
+			if (player) {
+				throw redirect({
+					to: search.redirect ?? '/hunts',
+				});
+			}
+		} catch (err) {
+			if (isTRPCClientError(err) && err.message === 'UNAUTHORIZED') {
+				await cookieStore.delete(SESSION_COOKIE_NAME);
+			}
 		}
 	},
 	component: Index,
@@ -122,7 +129,7 @@ function Index() {
 						)}
 					/>
 					<Button
-						disabled={isPending || !form.formState.isValid}
+						disabled={isPending}
 						size="lg"
 						type="submit"
 						variant="success"

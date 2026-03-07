@@ -2,8 +2,8 @@ import { Crosshair } from 'lucide-react';
 import { useState } from 'react';
 
 import { HuntSchema, PhotoHuntSchema } from '@/lib/schemas';
+import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 import { HuntBase } from './base';
 import { HuntPics } from './pics';

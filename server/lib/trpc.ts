@@ -100,7 +100,7 @@ export const loggedInProcedure = baseProcedure.use(async ({ ctx, next }) => {
 
 export const debugProcedure = baseProcedure.use(async ({ ctx, next }) => {
 	if (!isDev()) {
-		throw new TRPCError({ code: 'FORBIDDEN' });
+		throw new TRPCError({ code: 'NOT_FOUND' });
 	}
 	return next({ ctx });
 });

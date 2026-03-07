@@ -1,8 +1,7 @@
 import { parseArgs } from 'node:util';
 
 import { passwordToHash, stringToPassword } from '@/server/lib/auth';
-
-import { db } from '../server';
+import { db } from '@/server/lib/db';
 
 async function main() {
 	const { positionals, values } = parseArgs({

@@ -17,6 +17,7 @@ import { HunterCreate } from './hunter/create';
 import { HunterEdit } from './hunter/edit';
 import { HunterList } from './hunter/list';
 import { PhotoList } from './photo/list';
+import { UserCreate } from './user/create';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
 
@@ -61,6 +62,7 @@ export function App() {
 				recordRepresentation="name"
 			/>
 			<Resource
+				create={UserCreate}
 				edit={UserEdit}
 				icon={UserRound}
 				list={UserList}

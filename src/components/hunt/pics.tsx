@@ -6,8 +6,8 @@ import { useEffect, useMemo } from 'react';
 import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
 import { HunterSchema, PhotoHuntSchema } from '@/lib/schemas';
+import { cn } from '@/lib/styles';
 import { Entity } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 import { Avatar } from '../avatar';
 import { PhotoDisplay } from '../photo';
