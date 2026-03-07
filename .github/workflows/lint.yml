@@ -24,5 +24,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Generate Prisma types
+        run: yarn build:prisma
+
       - name: Lint the code
         run: yarn run lint:all
