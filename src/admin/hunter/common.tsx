@@ -35,7 +35,7 @@ export function HunterCommonDetails() {
 			<BooleanInput
 				className="col-span-2"
 				source="alive"
-				defaultValue="true"
+				defaultValue={true}
 			/>
 		</div>
 	);
