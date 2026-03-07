@@ -42,6 +42,7 @@ export function UploadPhoto({
 		setDisabled(false);
 		setImgSrc('');
 		setErrorMsg('');
+		setShow(false);
 	}, []);
 
 	const handleFileChange = useCallback(
