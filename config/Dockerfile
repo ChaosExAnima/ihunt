@@ -9,10 +9,8 @@ WORKDIR /app
 
 FROM base AS builder
 
-COPY .yarnrc.yml global.d.ts package.json yarn.lock prisma.config.ts tsconfig.json vite.config.ts .
+COPY .yarnrc.yml global.d.ts package.json yarn.lock prisma.config.ts tsconfig.json .
 COPY prisma ./prisma
-COPY public ./public
-COPY scripts ./scripts
 COPY server ./server
 COPY src ./src
 
@@ -22,7 +20,6 @@ RUN yarn run build
 FROM base AS runner
 
 COPY --from=builder /app/server.js .
-COPY --from=builder /app/dist ./dist
 COPY yarn.lock package.json .yarnrc.yml .
 
 RUN yarn workspaces focus --production
