@@ -19,14 +19,24 @@ export function HunterCommonDetails() {
 			<TextInput source="pronouns" />
 			<SelectInput choices={hunterTypeChoices} source="type" />
 			<ReferenceInput reference="group" source="groupId" />
-			<NumberInput max={5} min={0} source="rating" step={0.5} />
+			<NumberInput
+				max={5}
+				min={0}
+				source="rating"
+				step={0.5}
+				defaultValue={2.5}
+			/>
 			<NumberInput source="money" />
 			<ReferenceInput reference="user" source="userId">
 				<AutocompleteInput label="Player" />
 			</ReferenceInput>
 			<AdminAvatarInput />
 			<TextInput minRows={4} multiline source="bio" />
-			<BooleanInput className="col-span-2" source="alive" />
+			<BooleanInput
+				className="col-span-2"
+				source="alive"
+				defaultValue="true"
+			/>
 		</div>
 	);
 }

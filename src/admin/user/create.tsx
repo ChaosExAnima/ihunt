@@ -7,6 +7,7 @@ import {
 	TextInput,
 } from 'react-admin';
 
+import { CreateToolbar } from '../components/create-toolbar';
 import { SimpleForm } from '../components/simple-form';
 import { AdminHunterSchema, adminUserSchema } from '../schemas';
 
@@ -15,6 +16,7 @@ export function UserCreate() {
 		<Create mutationMode="pessimistic">
 			<SimpleForm
 				resolver={zodResolver(adminUserSchema.omit({ id: true }))}
+				toolbar={<CreateToolbar />}
 			>
 				<TextInput isRequired source="name" />
 				<NumberInput min={1} defaultValue={1} source="run" />

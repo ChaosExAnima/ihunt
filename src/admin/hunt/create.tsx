@@ -9,6 +9,7 @@ import {
 
 import { HUNT_MAX_DANGER, HUNT_MAX_HUNTERS, HuntStatus } from '@/lib/constants';
 
+import { CreateToolbar } from '../components/create-toolbar';
 import { SimpleForm } from '../components/simple-form';
 import { adminCreateHuntInput } from '../schemas';
 import { huntStatusChoices } from './common';
@@ -16,7 +17,10 @@ import { huntStatusChoices } from './common';
 export function HuntCreate() {
 	return (
 		<Create>
-			<SimpleForm resolver={zodResolver(adminCreateHuntInput)}>
+			<SimpleForm
+				resolver={zodResolver(adminCreateHuntInput)}
+				toolbar={<CreateToolbar />}
+			>
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
 					<SelectInput

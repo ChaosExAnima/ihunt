@@ -34,7 +34,7 @@ export const adminHunterSchema = hunterSchema
 		avatar: true,
 	})
 	.extend({
-		alive: z.boolean(),
+		alive: z.boolean().default(true),
 		avatarId: idSchemaCoerce.nullish(),
 		groupId: idSchemaCoerce.nullish(),
 		userId: idSchemaCoerce.nullish(),
