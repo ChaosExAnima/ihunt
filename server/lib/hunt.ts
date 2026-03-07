@@ -56,12 +56,16 @@ export function huntInLockdown(hunt: Hunt) {
 }
 
 export function isHuntsDisabled() {
-	return !config.huntsDisabled;
+	return config.huntsDisabled;
 }
 
 const huntsNotified = new Set<number>();
 
 export async function onHuntInterval() {
+	if (isHuntsDisabled()) {
+		return;
+	}
+
 	// Get upcoming hunts within scheduled time.
 	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
 	const upcomingHunts = await db.hunt.findMany({
