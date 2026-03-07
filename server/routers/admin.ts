@@ -15,6 +15,8 @@ import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
+import { passwordToHash, stringToPassword } from '../lib/auth';
+
 export const adminRouter = router({
 	create: adminProcedure
 		.input(adminCreateInput)
@@ -42,11 +44,22 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
+					const hunters = await db.hunter.findMany({
+						where: {
+							id: {
+								in: data.hunterIds,
+							},
+							alive: true,
+						},
+					});
+					const handle = stringToPassword(
+						hunters.at(0)?.handle ?? 'password',
+					);
 					return await db.user.create({
 						data: {
 							name: data.name,
 							run: data.run,
-							password: '',
+							password: await passwordToHash(handle),
 							hunters: {
 								connect: idsToObjects(data.hunterIds),
 							},
