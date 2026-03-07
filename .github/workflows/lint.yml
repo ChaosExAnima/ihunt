@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Generate Prisma types
+        run: yarn prisma generate
+
       - name: Check formatting
         run: yarn run fmt:check
 

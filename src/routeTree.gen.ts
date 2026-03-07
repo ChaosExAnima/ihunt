@@ -58,8 +58,8 @@ export interface FileRoutesByFullPath {
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/settings/notifications': typeof AuthSettingsNotificationsRoute
-  '/hunts': typeof AuthHuntsIndexRoute
-  '/settings': typeof AuthSettingsIndexRoute
+  '/hunts/': typeof AuthHuntsIndexRoute
+  '/settings/': typeof AuthSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,8 +86,8 @@ export interface FileRouteTypes {
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
     | '/settings/notifications'
-    | '/hunts'
-    | '/settings'
+    | '/hunts/'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,7 +117,7 @@ declare module '@tanstack/react-router' {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -131,14 +131,14 @@ declare module '@tanstack/react-router' {
     '/_auth/settings/': {
       id: '/_auth/settings/'
       path: '/settings'
-      fullPath: '/settings'
+      fullPath: '/settings/'
       preLoaderRoute: typeof AuthSettingsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/hunts/': {
       id: '/_auth/hunts/'
       path: '/hunts'
-      fullPath: '/hunts'
+      fullPath: '/hunts/'
       preLoaderRoute: typeof AuthHuntsIndexRouteImport
       parentRoute: typeof AuthRoute
     }

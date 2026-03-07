@@ -1,4 +1,5 @@
 import { HuntStatus } from '@/lib/constants';
+import { passwordToHash, stringToPassword } from '@/server/lib/auth';
 import { db } from '@/server/lib/db';
 
 async function main() {
@@ -46,34 +47,51 @@ async function main() {
 			],
 		});
 
+		const hunters = [
+			{
+				handle: 'w1nch3ster',
+				id: 1,
+				name: 'Dean',
+				userId: 1,
+			},
+			{
+				handle: 'scoobysnac',
+				id: 2,
+				name: 'Velma',
+				userId: 2,
+			},
+			{
+				handle: 'chosen1',
+				id: 3,
+				name: 'Buffy',
+				userId: 3,
+			},
+		];
+
 		await db.user.createMany({
-			data: [
-				{ id: 1, name: 'Player1', password: 'w1nche' },
-				{ id: 2, name: 'Player2', password: 'scooby' },
-				{ id: 3, name: 'Player3', password: 'chosen' },
-			],
+			data: await Promise.all(
+				[
+					{ id: 1, name: 'Player1' },
+					{ id: 2, name: 'Player2' },
+					{ id: 3, name: 'Player3' },
+				].map(async (row) => {
+					const hunter = hunters.find(
+						({ userId }) => userId === row.id,
+					);
+					if (!hunter) {
+						throw new Error(`No hunter found: ${row.id}`);
+					}
+					const password = stringToPassword(hunter.handle);
+					return {
+						...row,
+						password: await passwordToHash(password),
+					};
+				}),
+			),
 		});
+
 		await db.hunter.createMany({
-			data: [
-				{
-					handle: 'w1nch3ster',
-					id: 1,
-					name: 'Dean',
-					userId: 1,
-				},
-				{
-					handle: 'scoobysnac',
-					id: 2,
-					name: 'Velma',
-					userId: 2,
-				},
-				{
-					handle: 'chosen1',
-					id: 3,
-					name: 'Buffy',
-					userId: 3,
-				},
-			],
+			data: hunters,
 		});
 
 		await db.photo.createMany({
