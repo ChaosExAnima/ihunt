@@ -18,6 +18,7 @@ export default defineConfig({
 	build: {
 		outDir: resolve(import.meta.dirname, 'dist'),
 	},
+	publicDir: resolve(import.meta.dirname, 'public'),
 	plugins: [
 		viteFastify({
 			spa: true,

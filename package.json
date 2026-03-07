@@ -21,6 +21,7 @@
 		"docker:prod": "docker compose -f config/docker-compose.prod.yml --project-directory=."
 	},
 	"dependencies": {
+		"@fastify/vite": "^8.4.1",
 		"@imgproxy/imgproxy-js-core": "^1.7.0",
 		"@imgproxy/imgproxy-node": "^1.1.0",
 		"@prisma/adapter-better-sqlite3": "^7.4.2",
@@ -38,7 +39,6 @@
 	},
 	"devDependencies": {
 		"@fastify/static": "^9.0.0",
-		"@fastify/vite": "^8.4.1",
 		"@fontsource-variable/geist-mono": "^5.2.7",
 		"@fontsource/kanit": "^5.2.8",
 		"@hookform/resolvers": "^5.2.2",

@@ -7,6 +7,7 @@ data
 dist
 node_modules
 prisma/generated
+prisma/migrations
 prisma/*.db
 .dockerignore
 .editorconfig
@@ -16,7 +17,6 @@ prisma/*.db
 .prettierignore
 components.json
 docker-compose.yml
-eslint.config.ts
 *.code-workspace
 mise.toml
 README.md

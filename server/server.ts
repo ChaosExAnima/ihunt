@@ -1,3 +1,4 @@
+import { fastifyVite } from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
 	FastifyTRPCPluginOptions,
@@ -13,6 +14,8 @@ import { onHuntInterval } from './lib/hunt';
 import { onInviteInterval } from './lib/invite';
 import { server } from './lib/server';
 import { appRouter, type AppRouter } from './router';
+
+const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
 
 async function startServer() {
 	const origins = config.serverHosts.map((host) => new URL(host).hostname);
@@ -41,6 +44,18 @@ async function startServer() {
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 	});
 
+	// Render
+	await server.register(fastifyVite, {
+		dev: isDev(),
+		distDir: resolve(root, 'dist'),
+		root,
+		spa: true,
+	});
+
+	server.get('*', (_req, reply) => {
+		reply.html();
+	});
+
 	// Main loop
 	const timerId = setInterval(() => {
 		void onHuntInterval();
@@ -48,6 +63,7 @@ async function startServer() {
 	}, MINUTE);
 
 	try {
+		await server.vite.ready();
 		await startDevMode();
 		await server.listen({ host: '0.0.0.0', port: config.port });
 	} catch (err) {
@@ -62,8 +78,6 @@ async function startDevMode() {
 		return;
 	}
 
-	const fastifyStatic = await import('@fastify/static');
-	const fastifyVite = await import('@fastify/vite');
 	const { renderTrpcPanel } = await import('trpc-ui');
 
 	server.get('/trpc/panel', async (_, res) =>
@@ -77,28 +91,6 @@ async function startDevMode() {
 			}),
 		),
 	);
-
-	// Register Vite
-	const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
-	await server.register(fastifyVite, {
-		dev: isDev(),
-		distDir: resolve(root, 'dist'),
-		root,
-		spa: true,
-	});
-
-	// Static assets
-	server.register(fastifyStatic, {
-		prefix: '/public/',
-		root: resolve(root, 'public'),
-	});
-
-	// Render
-	server.get('*', (_req, reply) => {
-		reply.html();
-	});
-
-	await server.vite.ready();
 }
 
 if (process.argv[1] === import.meta.filename) {

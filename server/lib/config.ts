@@ -13,8 +13,7 @@ const configSchema = z.object({
 		.string()
 		.transform((l) => l.split(','))
 		.default([]),
-	mediaHost: z.string().min(2),
-	mediaSecure: z.boolean().default(true),
+	mediaHost: z.url(),
 	nodeEnv: z.enum(['development', 'production', 'test']),
 	port: z.coerce.number().int().min(1).prefault(4000),
 	serverHosts: z

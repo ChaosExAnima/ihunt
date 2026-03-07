@@ -58,7 +58,7 @@ export function outputPhoto({
 
 export function photoUrl({ path, ...options }: PhotoUrlArgs) {
 	const url = generateImageUrl({
-		endpoint: `http${config.mediaSecure ? 's' : ''}://${config.mediaHost}`,
+		endpoint: config.mediaHost,
 		options,
 		url: `local:///${path}`,
 	});

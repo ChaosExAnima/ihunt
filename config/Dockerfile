@@ -2,36 +2,33 @@ FROM node:24-slim AS base
 
 ENV NODE_ENV=production YARN_VERSION=4.12.0
 
-RUN apt update && apt install dumb-init
-
+RUN apt update && apt install --yes dumb-init openssl
 RUN corepack enable && corepack prepare yarn@${YARN_VERSION}
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
+WORKDIR /app
 
 FROM base AS builder
-WORKDIR /app
 
-COPY . .
-COPY yarn.lock package.json .yarnrc.yml ./
-COPY .yarn ./.yarn
+COPY .yarnrc.yml global.d.ts package.json yarn.lock prisma.config.ts tsconfig.json vite.config.ts .
+COPY prisma ./prisma
+COPY public ./public
+COPY scripts ./scripts
+COPY server ./server
+COPY src ./src
+
 RUN yarn install --immutable
-
-RUN yarn run build && yarn run build:scripts
+RUN yarn run build
 
 FROM base AS runner
-WORKDIR /app
 
-COPY --from=builder --chown=nodejs:nodejs /app/server.js .
-COPY --from=builder --chown=nodejs:nodejs /app/scripts/dist ./scripts/
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder /app/server.js .
+COPY --from=builder /app/dist ./dist
+COPY public /app/public
 COPY yarn.lock package.json .yarnrc.yml .
 
 RUN yarn workspaces focus --production
 
-USER nodejs
-
-EXPOSE 3333
+EXPOSE 4000
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
