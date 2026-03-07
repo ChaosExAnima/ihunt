@@ -31,6 +31,16 @@ export const settingsRouter = router({
 			return { success: true };
 		}),
 
+	removeAvatar: userProcedure.mutation(async ({ ctx: { hunter } }) => {
+		await db.hunter.update({
+			where: { id: hunter.id },
+			data: {
+				avatarId: null,
+			},
+		});
+		return { success: true };
+	}),
+
 	updateFields: userProcedure
 		.input(
 			z.object({
