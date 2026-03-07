@@ -7,7 +7,7 @@
 		"dev": "concurrently npm:dev:client npm:dev:server",
 		"dev:client": "NODE_ENV=development vite dev",
 		"dev:server": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules -w .env --exec tsx server/server.ts",
-		"build": "yarn build:prisma && yarn build:client && yarn build:server",
+		"build": "yarn build:prisma && yarn build:server",
 		"build:client": "vite build",
 		"build:prisma": "prisma generate",
 		"build:server": "esbuild server/server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outfile=server.js",
