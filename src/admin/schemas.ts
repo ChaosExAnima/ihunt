@@ -163,6 +163,7 @@ function schemaToFilter<TShape extends z.ZodRawShape>(
 	);
 	return {
 		filter: schema
+			// @ts-expect-error Filtering type doesn't work as expected
 			.omit({ id: true, ...filter })
 			.extend({ q: z.string() })
 			.partial()
