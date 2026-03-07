@@ -24,7 +24,7 @@ export function HuntCreate() {
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
 					<SelectInput
-						choices={huntStatusChoices([])}
+						choices={huntStatusChoices()}
 						defaultValue={HuntStatus.Pending}
 						required
 						source="status"

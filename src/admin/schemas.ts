@@ -69,6 +69,7 @@ export type AdminUserSchema = z.infer<typeof adminUserSchema>;
 export const adminCreateHuntInput = adminHuntSchema.omit({
 	comment: true,
 	completedAt: true,
+	createdAt: true,
 	hunterIds: true,
 	id: true,
 	photoIds: true,
