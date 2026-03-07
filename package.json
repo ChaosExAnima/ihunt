@@ -14,7 +14,7 @@
 		"build:scripts": "esbuild scripts/*.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outdir=scripts/dist",
 		"start": "vite",
 		"lint": "oxlint --type-aware",
-		"lint:all": "yarn lint && yarn typecheck && yarn fmt:check",
+		"lint:all": "concurrently npm:lint npm:typecheck npm:fmt:check",
 		"typecheck": "tsc --noEmit",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
