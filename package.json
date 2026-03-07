@@ -4,7 +4,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules --exec tsx server/server.ts",
+		"dev": "concurrently npm:dev:client npm:dev:server",
+		"dev:client": "NODE_ENV=development vite dev",
+		"dev:server": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules -w .env --exec tsx server/server.ts",
 		"build": "yarn build:prisma && yarn build:client && yarn build:server",
 		"build:client": "vite build",
 		"build:prisma": "prisma generate",
@@ -21,7 +23,6 @@
 		"docker:prod": "docker compose -f config/docker-compose.prod.yml --project-directory=."
 	},
 	"dependencies": {
-		"@fastify/vite": "^8.4.1",
 		"@imgproxy/imgproxy-js-core": "^1.7.0",
 		"@imgproxy/imgproxy-node": "^1.1.0",
 		"@prisma/adapter-better-sqlite3": "^7.4.2",
@@ -38,7 +39,6 @@
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@fastify/static": "^9.0.0",
 		"@fontsource-variable/geist-mono": "^5.2.7",
 		"@fontsource/kanit": "^5.2.8",
 		"@hookform/resolvers": "^5.2.2",
@@ -68,6 +68,7 @@
 		"@vitejs/plugin-react": "^5.1.4",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"concurrently": "^9.2.1",
 		"embla-carousel-react": "^8.6.0",
 		"esbuild": "^0.27.3",
 		"eslint": "^9.39.3",

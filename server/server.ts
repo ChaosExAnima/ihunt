@@ -1,11 +1,7 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
-
-import { fastifyVite } from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
 	type FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify';
-import { resolve } from 'node:path';
 
 import { MINUTE } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
@@ -16,8 +12,6 @@ import { onHuntInterval } from './lib/hunt';
 import { onInviteInterval } from './lib/invite';
 import { server } from './lib/server';
 import { appRouter, type AppRouter } from './router';
-
-const root = resolve(import.meta.dirname, config.clientConfigDir ?? '..');
 
 async function startServer() {
 	const origins = config.serverHosts.map((host) => new URL(host).hostname);
@@ -46,23 +40,6 @@ async function startServer() {
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 	});
 
-	// Render the routes
-	await server.register(fastifyVite, {
-		dev: isDev(),
-		distDir: resolve(root, 'dist'),
-		root,
-		spa: true,
-	});
-
-	function renderHtml(_req: FastifyRequest, reply: FastifyReply) {
-		reply.html();
-	}
-
-	server.get('/', renderHtml);
-	server.get('/hunters*', renderHtml);
-	server.get('/hunts*', renderHtml);
-	server.get('/settings*', renderHtml);
-
 	// Main loop
 	const timerId = setInterval(() => {
 		void onHuntInterval();
@@ -70,7 +47,6 @@ async function startServer() {
 	}, MINUTE);
 
 	try {
-		await server.vite.ready();
 		await startDevMode();
 		await server.listen({ host: '0.0.0.0', port: config.port });
 	} catch (err) {
