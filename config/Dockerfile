@@ -23,7 +23,6 @@ FROM base AS runner
 
 COPY --from=builder /app/server.js .
 COPY --from=builder /app/dist ./dist
-COPY public /app/public
 COPY yarn.lock package.json .yarnrc.yml .
 
 RUN yarn workspaces focus --production
