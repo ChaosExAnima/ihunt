@@ -1,7 +1,9 @@
+import type { FastifyReply, FastifyRequest } from 'fastify';
+
 import { fastifyVite } from '@fastify/vite';
 import {
 	fastifyTRPCPlugin,
-	FastifyTRPCPluginOptions,
+	type FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify';
 import { resolve } from 'node:path';
 
@@ -44,7 +46,7 @@ async function startServer() {
 		} satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 	});
 
-	// Render
+	// Render the routes
 	await server.register(fastifyVite, {
 		dev: isDev(),
 		distDir: resolve(root, 'dist'),
@@ -52,9 +54,14 @@ async function startServer() {
 		spa: true,
 	});
 
-	server.get('*', (_req, reply) => {
+	function renderHtml(_req: FastifyRequest, reply: FastifyReply) {
 		reply.html();
-	});
+	}
+
+	server.get('/', renderHtml);
+	server.get('/hunters*', renderHtml);
+	server.get('/hunts*', renderHtml);
+	server.get('/settings*', renderHtml);
 
 	// Main loop
 	const timerId = setInterval(() => {
