@@ -59,7 +59,6 @@ export const adminPhotoSchema = photoSchema.extend(
 export type AdminPhotoSchema = z.infer<typeof adminPhotoSchema>;
 
 export const adminUserSchema = z.object({
-	hideMoney: z.boolean(),
 	hunterIds: idArray,
 	id: idSchemaCoerce,
 	name: z.string().nullable(),

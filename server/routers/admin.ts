@@ -43,7 +43,14 @@ export const adminRouter = router({
 					return await db.hunter.create({ data });
 				case 'user': {
 					return await db.user.create({
-						data: { ...data, password: '' },
+						data: {
+							name: data.name,
+							run: data.run,
+							password: '',
+							hunters: {
+								connect: idsToObjects(data.hunterIds),
+							},
+						},
 					});
 				}
 			}
