@@ -49,7 +49,11 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 
 	return (
 		<HuntBase {...props}>
-			<HuntInvite noHunts={remainingHunts === 0} reserved={reserved} />
+			<HuntInvite
+				noHunts={remainingHunts === 0}
+				reserved={reserved}
+				key={reserved?.status}
+			/>
 
 			<div className="flex justify-center gap-2">
 				{!hasAccepted && canJoinHunt && (
