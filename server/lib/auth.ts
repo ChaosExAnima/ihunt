@@ -26,12 +26,21 @@ export async function createAuthContext({
 }: CreateFastifyContextOptions) {
 	const session = await getSession({ req, res });
 
+	const context = {
+		req,
+		res,
+		session,
+		admin: false,
+		hunter: null,
+		user: null,
+	};
+
 	if (session.isAdmin) {
-		return { admin: true, req, res, session };
+		context.admin = true;
 	}
 
 	if (!session.userId) {
-		return { req, res, session };
+		return context;
 	}
 	try {
 		const { hunter, ...user } = await db.user.findUniqueOrThrow({
@@ -40,9 +49,6 @@ export async function createAuthContext({
 					include: {
 						avatar: true,
 					},
-					where: {
-						alive: true,
-					},
 				},
 			},
 			where: {
@@ -50,10 +56,8 @@ export async function createAuthContext({
 			},
 		});
 		return {
+			...context,
 			hunter,
-			req,
-			res,
-			session,
 			user: {
 				...omit(user, 'password', 'settings'),
 				settings: userSettingsDatabaseSchema.parse(user.settings),
@@ -63,7 +67,7 @@ export async function createAuthContext({
 		req.log.warn(err, `Error logging in user ${session.userId}`);
 		session.destroy();
 	}
-	return { req, res, session };
+	return context;
 }
 
 export function getSession({
