@@ -6,6 +6,7 @@ import {
 import { MINUTE } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 
+import { client } from './db';
 import { createAuthContext } from './lib/auth';
 import { config } from './lib/config';
 import { onHuntInterval } from './lib/hunt';
@@ -27,6 +28,9 @@ async function startServer() {
 
 		done();
 	});
+
+	// Connect to the database
+	await client.connect();
 
 	// Register TRPC
 	await server.register(fastifyTRPCPlugin, {

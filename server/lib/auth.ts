@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
@@ -5,8 +6,8 @@ import { getIronSession } from 'iron-session';
 import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
 import { omit } from '@/lib/utils';
 
+import { db } from '../db';
 import { config } from './config';
-import { db } from './db';
 import { userSettingsDatabaseSchema } from './schema';
 
 const { authPepper, authSession } = config;
@@ -30,32 +31,37 @@ export async function createAuthContext({
 		return { admin: true, req, res, session };
 	}
 
-	if (!session.userId) {
+	const { userId } = session;
+	if (!userId) {
 		return { req, res, session };
 	}
 	try {
-		const { hunter, ...user } = await db.user.findUniqueOrThrow({
-			include: {
+		const user = await db.query.users.findFirst({
+			where: (users, { eq }) => eq(users.id, userId),
+			with: {
 				hunter: {
-					include: {
+					with: {
 						avatar: true,
-					},
-					where: {
-						alive: true,
 					},
 				},
 			},
-			where: {
-				id: session.userId,
+			columns: {
+				password: false,
 			},
 		});
+		if (!user) {
+			throw new TRPCError({
+				code: 'NOT_FOUND',
+				message: 'User not found',
+			});
+		}
 		return {
-			hunter,
+			hunter: user.hunter,
 			req,
 			res,
 			session,
 			user: {
-				...omit(user, 'password', 'settings'),
+				...omit(user, 'settings', 'hunter'),
 				settings: userSettingsDatabaseSchema.parse(user.settings),
 			},
 		};

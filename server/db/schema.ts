@@ -22,10 +22,10 @@ export const users = pgTable(
 		name: text(),
 		run: integer().default(1).notNull(),
 		settings: jsonb(),
-		createdAt: timestamp({ precision: 3, mode: 'string' })
+		createdAt: timestamp({ precision: 3, mode: 'date' })
 			.default(sql`CURRENT_TIMESTAMP`)
 			.notNull(),
-		updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+		updatedAt: timestamp({ precision: 3, mode: 'date' }).notNull(),
 		hunterId: integer(),
 	},
 	(table) => [
@@ -59,10 +59,10 @@ export const huntInvites = pgTable(
 		fromHunterId: integer().notNull(),
 		toHunterId: integer().notNull(),
 		huntId: integer().notNull(),
-		createdAt: timestamp({ precision: 3, mode: 'string' })
+		createdAt: timestamp({ precision: 3, mode: 'date' })
 			.default(sql`CURRENT_TIMESTAMP`)
 			.notNull(),
-		expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+		expiresAt: timestamp({ precision: 3, mode: 'date' }).notNull(),
 		status: text().default('pending').notNull(),
 	},
 	(table) => [
@@ -109,11 +109,11 @@ export const hunts = pgTable(
 	'Hunt',
 	{
 		id: serial().primaryKey().notNull(),
-		createdAt: timestamp({ precision: 3, mode: 'string' })
+		createdAt: timestamp({ precision: 3, mode: 'date' })
 			.default(sql`CURRENT_TIMESTAMP`)
 			.notNull(),
-		scheduledAt: timestamp({ precision: 3, mode: 'string' }),
-		completedAt: timestamp({ precision: 3, mode: 'string' }),
+		scheduledAt: timestamp({ precision: 3, mode: 'date' }),
+		completedAt: timestamp({ precision: 3, mode: 'date' }),
 		name: text().notNull(),
 		description: text().notNull(),
 		place: text(),
@@ -145,7 +145,7 @@ export const userVapids = pgTable(
 		id: text().primaryKey().notNull(),
 		userId: integer().notNull(),
 		payload: text().notNull(),
-		expirationTime: timestamp({ precision: 3, mode: 'string' }),
+		expirationTime: timestamp({ precision: 3, mode: 'date' }),
 	},
 	(table) => [
 		index('UserVapid_userId_expirationTime_idx').using(
@@ -242,27 +242,27 @@ export const hunters = pgTable(
 export const huntToHunter = pgTable(
 	'_HuntToHunter',
 	{
-		a: integer('A').notNull(),
-		b: integer('B').notNull(),
+		huntId: integer('A').notNull(),
+		hunterId: integer('B').notNull(),
 	},
 	(table) => [
-		index().using('btree', table.b.asc().nullsLast().op('int4_ops')),
+		index().using('btree', table.hunterId.asc().nullsLast().op('int4_ops')),
 		foreignKey({
-			columns: [table.a],
+			columns: [table.huntId],
 			foreignColumns: [hunts.id],
 			name: '_HuntToHunter_A_fkey',
 		})
 			.onUpdate('cascade')
 			.onDelete('cascade'),
 		foreignKey({
-			columns: [table.b],
+			columns: [table.hunterId],
 			foreignColumns: [hunters.id],
 			name: '_HuntToHunter_B_fkey',
 		})
 			.onUpdate('cascade')
 			.onDelete('cascade'),
 		primaryKey({
-			columns: [table.b, table.a],
+			columns: [table.hunterId, table.huntId],
 			name: '_HuntToHunter_AB_pkey',
 		}),
 	],

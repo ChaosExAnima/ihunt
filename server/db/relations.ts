@@ -93,11 +93,11 @@ export const hunterGroupRelations = relations(hunterGroups, ({ many }) => ({
 
 export const huntToHunterRelations = relations(huntToHunter, ({ one }) => ({
 	hunt: one(hunts, {
-		fields: [huntToHunter.a],
+		fields: [huntToHunter.huntId],
 		references: [hunts.id],
 	}),
 	hunter: one(hunters, {
-		fields: [huntToHunter.b],
+		fields: [huntToHunter.hunterId],
 		references: [hunters.id],
 	}),
 }));
