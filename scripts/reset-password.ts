@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 
-import { passwordToHash, stringToPassword } from '@/server/lib/auth';
+import { handleToHash } from '@/server/lib/auth';
 import { db } from '@/server/lib/db';
 
 async function main() {
@@ -40,8 +40,7 @@ async function main() {
 		if (!hunter) {
 			continue;
 		}
-		const newPassword = stringToPassword(hunter.handle);
-		const hashedPassword = await passwordToHash(newPassword);
+		const hashedPassword = await handleToHash(hunter.handle);
 		if (user.password !== hashedPassword) {
 			await db.user.update({
 				data: { password: hashedPassword },

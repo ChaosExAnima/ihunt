@@ -92,3 +92,11 @@ export function stringToPassword(input: string) {
 		.replaceAll(/[^a-z0-9]+/g, '')
 		.slice(0, PASSWORD_CHAR_COUNT);
 }
+
+export function handleToHash(handle: string) {
+	const input = stringToPassword(handle);
+	if (input.length !== PASSWORD_CHAR_COUNT) {
+		throw Error('Invalid password length');
+	}
+	return passwordToHash(input);
+}

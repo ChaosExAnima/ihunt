@@ -15,7 +15,7 @@ import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
-import { passwordToHash, stringToPassword } from '../lib/auth';
+import { handleToHash } from '../lib/auth';
 
 export const adminRouter = router({
 	create: adminProcedure
@@ -44,16 +44,15 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
-					const hunters = await db.hunter.findFirst({
+					const hunter = await db.hunter.findUnique({
 						where: { id: data.hunterId },
 					});
-					const handle = stringToPassword(
-						hunters?.handle ?? 'password',
-					);
 					return await db.user.create({
 						data: {
 							...data,
-							password: await passwordToHash(handle),
+							password: await handleToHash(
+								hunter?.handle ?? 'password',
+							),
 						},
 					});
 				}
@@ -567,5 +566,23 @@ export const adminRouter = router({
 					});
 				}
 			}
+		}),
+
+	resetPassword: adminProcedure
+		.input(z.object({ userId: idSchemaCoerce }))
+		.mutation(async ({ input: { userId } }) => {
+			const hunter = await db.hunter.findUnique({
+				where: {
+					userId,
+				},
+			});
+			await db.user.update({
+				where: {
+					id: userId,
+				},
+				data: {
+					password: await handleToHash(hunter?.handle ?? 'password'),
+				},
+			});
 		}),
 });

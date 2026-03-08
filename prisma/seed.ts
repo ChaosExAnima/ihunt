@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import { HunterTypes, HuntStatus } from '@/lib/constants';
-import { passwordToHash, stringToPassword } from '@/server/lib/auth';
+import { handleToHash } from '@/server/lib/auth';
 import { db, Prisma } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';
 
@@ -105,15 +105,15 @@ async function main() {
 
 		await db.user.createMany({
 			data: await Promise.all(
-				hunters.map(async ({ id, userId, handle }) => {
-					const password = stringToPassword(handle);
-					return {
-						id: userId,
-						name: `Test ${userId}`,
-						password: await passwordToHash(password),
-						run: 1,
-					} satisfies Prisma.UserCreateManyInput;
-				}),
+				hunters.map(
+					async ({ userId, handle }) =>
+						({
+							id: userId,
+							name: `Test ${userId}`,
+							password: await handleToHash(handle),
+							run: 1,
+						}) satisfies Prisma.UserCreateManyInput,
+				),
 			),
 		});
 
