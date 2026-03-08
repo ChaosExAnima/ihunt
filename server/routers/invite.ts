@@ -88,6 +88,28 @@ export const inviteRouter = router({
 				huntId,
 				response: 'decline',
 			});
+
+			// Expire all invites if this was the last rejection.
+			const pendingInvitesCount = await db.huntHunter.count({
+				where: {
+					huntId,
+					status: InviteStatus.Pending,
+				},
+			});
+			if (!pendingInvitesCount) {
+				await db.huntHunter.updateMany({
+					where: {
+						huntId,
+						status: InviteStatus.Rejected,
+					},
+					data: {
+						expiresAt: null,
+						status: InviteStatus.Expired,
+						// Leave fromHunterId so we know there's been an invite in the past.
+					},
+				});
+			}
+
 			return {
 				success,
 			};
