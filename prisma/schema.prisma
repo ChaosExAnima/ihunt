@@ -103,7 +103,6 @@ model User {
     createdAt  DateTime    @default(now())
     updatedAt  DateTime    @updatedAt
     hunter     Hunter?
-    hunterId   Int?
     userVapids UserVapid[]
 }
 
