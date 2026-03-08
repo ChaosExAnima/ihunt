@@ -127,9 +127,6 @@ export async function fetchInviteesForHunt({
 			hunterId: {
 				in: extractIds(hunters),
 			},
-			fromHunterId: {
-				not: null,
-			},
 		},
 	});
 
@@ -143,7 +140,10 @@ export async function fetchInviteesForHunt({
 		const oldInvite = oldInvites.find(
 			({ hunterId }) => hunterId === hunter.id,
 		);
-		if (oldInvite) {
+		if (
+			oldInvite?.fromHunterId ||
+			oldInvite?.status === InviteStatus.Accepted
+		) {
 			continue;
 		}
 
