@@ -194,19 +194,25 @@ export const inviteRouter = router({
 		.input(
 			z.object({
 				huntIds: idSchemaCoerce.array(),
+				force: z.boolean().optional(),
 			}),
 		)
-		.mutation(async ({ input: { huntIds } }) => {
+		.mutation(async ({ input: { huntIds, force } }) => {
 			await db.huntHunter.updateMany({
 				where: {
 					huntId: {
 						in: huntIds,
 					},
+					status: !force
+						? {
+								not: InviteStatus.Accepted,
+							}
+						: undefined,
 				},
 				data: {
 					expiresAt: null,
 					fromHunterId: null,
-					status: InviteStatus.Pending,
+					status: InviteStatus.Expired,
 				},
 			});
 		}),
