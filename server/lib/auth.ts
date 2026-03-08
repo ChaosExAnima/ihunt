@@ -54,12 +54,15 @@ export async function createAuthContext({
 			where: {
 				id: session.userId,
 			},
+			omit: {
+				password: true,
+			},
 		});
 		return {
 			...context,
 			hunter,
 			user: {
-				...omit(user, 'password', 'settings'),
+				...omit(user, 'settings'),
 				settings: userSettingsDatabaseSchema.parse(user.settings),
 			},
 		};
