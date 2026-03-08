@@ -208,14 +208,7 @@ export const adminRouter = router({
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
-								huntHunters: {
-									select: {
-										hunterId: true,
-									},
-									where: {
-										status: InviteStatus.Accepted,
-									},
-								},
+								huntHunters: true,
 								photos: {
 									select: { id: true },
 								},
@@ -235,10 +228,19 @@ export const adminRouter = router({
 								({ huntHunters, photos, ...hunt }) => ({
 									...hunt,
 									hunterIds: extractKey(
-										huntHunters,
+										huntHunters.filter(
+											({ status }) =>
+												status ===
+												InviteStatus.Accepted,
+										),
 										'hunterId',
 									),
 									photoIds: extractIds(photos),
+									reserved: huntHunters.some(
+										({ status, expiresAt }) =>
+											status === InviteStatus.Pending &&
+											!!expiresAt,
+									),
 								}),
 							),
 							total: await db.hunt.count({

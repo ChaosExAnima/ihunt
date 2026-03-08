@@ -26,6 +26,7 @@ export const adminHuntSchema = huntSchema
 	.extend({
 		hunterIds: idArray,
 		photoIds: idArray,
+		reserved: z.boolean().optional(),
 	});
 export type AdminHuntSchema = z.infer<typeof adminHuntSchema>;
 
