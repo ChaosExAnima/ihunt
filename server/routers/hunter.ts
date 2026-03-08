@@ -94,21 +94,28 @@ export const hunterRouter = router({
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const hunter = await db.hunter.findUniqueOrThrow({
-				include: {
-					avatar: true,
-					hunts: {
-						where: {
-							status: HuntStatus.Complete,
+			const { huntHunters, ...hunter } =
+				await db.hunter.findUniqueOrThrow({
+					include: {
+						avatar: true,
+						huntHunters: {
+							where: {
+								hunt: {
+									status: HuntStatus.Complete,
+								},
+							},
+							include: {
+								hunt: true,
+							},
 						},
 					},
-				},
-				where: { id },
-			});
+					where: { id },
+				});
 
 			return {
 				...hunter,
 				type: hunterTypeSchema.parse(hunter.type),
+				hunts: huntHunters.map(({ hunt }) => hunt),
 			};
 		}),
 });

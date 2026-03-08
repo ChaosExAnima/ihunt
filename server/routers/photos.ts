@@ -105,9 +105,9 @@ export const photosRouter = router({
 			if (huntId && hunterId && !admin) {
 				const hunt = await db.hunt.findUniqueOrThrow({
 					include: {
-						hunters: {
+						huntHunters: {
 							select: {
-								id: true,
+								hunterId: true,
 							},
 						},
 					},
@@ -119,7 +119,11 @@ export const photosRouter = router({
 						message: 'Hunt must be active to upload photos',
 					});
 				}
-				if (!hunt.hunters.find(({ id }) => id === hunterId)) {
+				if (
+					!hunt.huntHunters.find(
+						(huntHunter) => huntHunter.hunterId === hunterId,
+					)
+				) {
 					throw new TRPCError({
 						code: 'UNAUTHORIZED',
 						message: 'You must be involved with this hunt',

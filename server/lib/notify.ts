@@ -15,12 +15,6 @@ import {
 
 type EventMap<T> = Record<keyof T, unknown[]>;
 
-interface NotifyArgs {
-	event: NotifyEventSchema;
-	force?: boolean;
-	userId: number;
-}
-
 interface NotifyEvents {
 	notify: [userId: null | number, NotifyEventSchema];
 }
@@ -127,6 +121,12 @@ export const ee = new IterableEventEmitter<NotifyEvents>();
 // TODO: Move from the media host to public static host.
 const icon = `${config.mediaHost}/ihunt-logo.png`;
 const badge = `${config.mediaHost}/ihunt-badge.svg`;
+
+interface NotifyArgs {
+	event: NotifyEventSchema;
+	force?: boolean;
+	userId: number;
+}
 
 export async function notifyUser({ event, force, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.

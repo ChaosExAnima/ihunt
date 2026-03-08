@@ -17,9 +17,13 @@ import { InviteStatus } from './schema';
 import { logger } from './server';
 
 export const huntDisplayInclude = {
-	hunters: {
+	huntHunters: {
 		include: {
-			avatar: true,
+			hunter: {
+				include: {
+					avatar: true,
+				},
+			},
 		},
 	},
 	photos: true,
@@ -70,8 +74,14 @@ export async function onHuntInterval() {
 	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
 	const upcomingHunts = await db.hunt.findMany({
 		include: {
-			hunters: {
-				select: { userId: true },
+			huntHunters: {
+				include: {
+					hunter: {
+						select: {
+							userId: true,
+						},
+					},
+				},
 			},
 		},
 		where: {
@@ -92,7 +102,8 @@ export async function onHuntInterval() {
 		if (huntsNotified.has(hunt.id)) {
 			continue;
 		}
-		for (const hunter of hunt.hunters) {
+
+		for (const { hunter } of hunt.huntHunters) {
 			if (hunter.userId) {
 				notifyPromises.push(
 					notifyUser({
@@ -113,7 +124,7 @@ export async function onHuntInterval() {
 	}
 
 	// Expire all invites.
-	const inviteResults = await db.huntInvite.updateMany({
+	const inviteResults = await db.huntHunter.updateMany({
 		data: { status: InviteStatus.Expired },
 		where: {
 			huntId: {
@@ -143,7 +154,6 @@ export async function updateHunt({
 	// Early checks to ensure we're good.
 	const { payment, rating: huntRating } = hunt;
 	if (
-		hunt.paidHunters ||
 		hunt.status !== HuntStatus.Complete ||
 		payment <= 0 ||
 		!huntRating ||
@@ -159,6 +169,17 @@ export async function updateHunt({
 
 	// Update and notify the hunters.
 	for (const hunter of aliveHunters) {
+		await db.huntHunter.update({
+			where: {
+				huntId_hunterId: {
+					hunterId: hunter.id,
+					huntId: hunt.id,
+				},
+			},
+			data: {
+				paid: perHunterPayment,
+			},
+		});
 		const newRating = calculateNewRating({
 			hunterRating: hunter.rating,
 			huntRating: huntRating,
@@ -181,14 +202,6 @@ export async function updateHunt({
 			});
 		}
 	}
-
-	// Mark as paid so we don't do it again.
-	await db.hunt.update({
-		data: {
-			paidHunters: true,
-		},
-		where: { id: hunt.id },
-	});
 
 	return {
 		paymentPerHunter: perHunterPayment,

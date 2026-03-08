@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
 import { HuntStatus } from '@/lib/constants';
-import { idSchemaCoerce } from '@/lib/schemas';
+import { huntReservedSchema, idSchemaCoerce } from '@/lib/schemas';
 
 import { db } from '../lib/db';
 import {
@@ -11,12 +11,7 @@ import {
 	isHuntsDisabled,
 } from '../lib/hunt';
 import { huntInLockdown } from '../lib/hunt';
-import {
-	fetchDailyHuntCount,
-	fetchUnclaimedSpots,
-	reservationsFromHunts,
-	respondToInvites,
-} from '../lib/invite';
+import { fetchDailyHuntCount, respondToInvite } from '../lib/invite';
 import { notifyHuntsReload } from '../lib/notify';
 import { uploadPhoto } from '../lib/photo';
 import { InviteStatus, outputHuntSchema } from '../lib/schema';
@@ -24,7 +19,7 @@ import { router, userProcedure } from '../lib/trpc';
 
 export const huntRouter = router({
 	getActive: userProcedure.output(outputHuntSchema.array()).query(
-		({
+		async ({
 			ctx: {
 				hunter: { id },
 			},
@@ -32,17 +27,23 @@ export const huntRouter = router({
 			if (isHuntsDisabled()) {
 				return [];
 			}
-			return db.hunt.findMany({
+			const hunts = await db.hunt.findMany({
 				include: huntDisplayInclude,
 				where: {
-					hunters: {
+					huntHunters: {
 						some: {
-							id,
+							hunterId: id,
+							status: InviteStatus.Accepted,
 						},
 					},
 					status: HuntStatus.Active,
 				},
 			});
+
+			return hunts.map(({ huntHunters, ...hunt }) => ({
+				...hunt,
+				hunters: huntHunters.map(({ hunter }) => hunter),
+			}));
 		},
 	),
 
@@ -53,11 +54,8 @@ export const huntRouter = router({
 				return [];
 			}
 
-			const result = await db.hunt.findMany({
-				include: {
-					...huntDisplayInclude,
-					invites: true,
-				},
+			const hunts = await db.hunt.findMany({
+				include: huntDisplayInclude,
 				orderBy: {
 					createdAt: 'desc',
 				},
@@ -66,35 +64,43 @@ export const huntRouter = router({
 				},
 			});
 
-			const invitedHuntMap = await reservationsFromHunts(
-				result,
-				currentHunter.id,
-			);
-
-			return result.map(({ invites: _, ...hunt }) => ({
-				...hunt,
-				reserved: invitedHuntMap.get(hunt.id) ?? null,
-			}));
+			return hunts.map(({ huntHunters, ...hunt }) => {
+				const invite = huntHunters.find(
+					({ hunterId }) => currentHunter.id === hunterId,
+				);
+				return {
+					...hunt,
+					hunters: huntHunters.map(({ hunter }) => hunter),
+					reserved: huntReservedSchema.optional().parse(invite),
+				};
+			});
 		}),
 
 	getCompleted: userProcedure
 		.output(outputHuntSchema.array())
-		.query(({ ctx: { hunter } }) =>
-			db.hunt.findMany({
+		.query(async ({ ctx: { hunter } }) => {
+			const hunts = await db.hunt.findMany({
 				include: huntDisplayInclude,
 				orderBy: {
 					completedAt: 'desc',
 				},
 				where: {
-					hunters: {
+					huntHunters: {
 						some: {
-							id: hunter.id,
+							hunter: {
+								id: hunter.id,
+							},
 						},
 					},
 					status: HuntStatus.Complete,
 				},
-			}),
-		),
+			});
+
+			return hunts.map(({ huntHunters, ...hunt }) => ({
+				...hunt,
+				hunters: huntHunters.map(({ hunter }) => hunter),
+			}));
+		}),
 
 	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) => {
 		if (isHuntsDisabled()) {
@@ -110,33 +116,45 @@ export const huntRouter = router({
 			}),
 		)
 		.output(outputHuntSchema.nullable())
-		.query(({ input: { huntId: id } }) =>
-			db.hunt.findUnique({
+		.query(async ({ input: { huntId: id } }) => {
+			const { huntHunters, ...hunt } = await db.hunt.findUniqueOrThrow({
 				include: huntDisplayInclude,
 				where: { id },
-			}),
-		),
+			});
 
-	getPublic: userProcedure.output(outputHuntSchema.array()).query(() => {
-		if (isHuntsDisabled()) {
-			return [];
-		}
+			return {
+				...hunt,
+				hunters: huntHunters.map(({ hunter }) => hunter),
+			};
+		}),
 
-		return db.hunt.findMany({
-			include: huntDisplayInclude,
-			orderBy: [
-				{
-					status: 'asc',
+	getPublic: userProcedure
+		.output(outputHuntSchema.array())
+		.query(async () => {
+			if (isHuntsDisabled()) {
+				return [];
+			}
+
+			const hunts = await db.hunt.findMany({
+				include: huntDisplayInclude,
+				orderBy: [
+					{
+						status: 'asc',
+					},
+					{
+						createdAt: 'desc',
+					},
+				],
+				where: {
+					status: HuntStatus.Available,
 				},
-				{
-					createdAt: 'desc',
-				},
-			],
-			where: {
-				status: HuntStatus.Available,
-			},
-		});
-	}),
+			});
+
+			return hunts.map(({ huntHunters, ...hunt }) => ({
+				...hunt,
+				hunters: huntHunters.map(({ hunter }) => hunter),
+			}));
+		}),
 
 	join: userProcedure.input(z.object({ huntId: idSchemaCoerce })).mutation(
 		async ({
@@ -144,39 +162,31 @@ export const huntRouter = router({
 				hunter: currentHunter,
 				req: { log },
 			},
-			input,
+			input: { huntId },
 		}) => {
 			assertHuntsEnabled();
 
-			const { huntId } = input;
-			const { hunt, invited, invitedCount, joined, joinedCount } =
-				await fetchUnclaimedSpots(huntId);
+			const hunterId = currentHunter.id;
+			const hunt = await db.hunt.findUniqueOrThrow({
+				where: {
+					id: huntId,
+				},
+				include: {
+					huntHunters: true,
+				},
+			});
+			const invite = hunt.huntHunters.find(
+				(huntHunter) => hunterId === huntHunter.hunterId,
+			);
 
 			// If we already joined, leave the hunt.
-			if (joined.has(currentHunter.id)) {
+			if (invite?.status === InviteStatus.Accepted) {
 				if (huntInLockdown(hunt)) {
 					throw new TRPCError({
 						code: 'FORBIDDEN',
 						message: 'Cannot leave before hunt',
 					});
 				}
-				await db.hunt.update({
-					data: {
-						hunters: {
-							disconnect: {
-								id: currentHunter.id,
-							},
-						},
-					},
-					where: { id: huntId },
-				});
-				await db.huntInvite.updateMany({
-					data: { status: InviteStatus.Expired },
-					where: {
-						fromHunterId: currentHunter.id,
-						huntId,
-					},
-				});
 				log.info(
 					`${currentHunter.name} canceled hunt with ID ${huntId}`,
 				);
@@ -184,10 +194,21 @@ export const huntRouter = router({
 				return { accepted: false, huntId };
 			}
 
+			// Calculate the remaining spots, including invites.
+			let joinedCount = 0;
+			let invitedCount = 0;
+			for (const invite of hunt.huntHunters) {
+				if (invite.status === InviteStatus.Accepted) {
+					joinedCount++;
+				} else if (invite.status === InviteStatus.Pending) {
+					invitedCount++;
+				}
+			}
+
 			if (
 				joinedCount >= hunt.maxHunters ||
 				(joinedCount + invitedCount >= hunt.maxHunters &&
-					!invited.has(currentHunter.id))
+					invite?.status !== InviteStatus.Pending)
 			) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
@@ -196,21 +217,27 @@ export const huntRouter = router({
 			}
 
 			// Join the hunt.
-			await db.hunt.update({
-				data: {
-					hunters: {
-						connect: {
-							id: currentHunter.id,
-						},
+			await db.huntHunter.upsert({
+				where: {
+					huntId_hunterId: {
+						hunterId: currentHunter.id,
+						huntId,
 					},
 				},
-				where: { id: huntId },
+				update: {
+					status: InviteStatus.Accepted,
+				},
+				create: {
+					hunterId: currentHunter.id,
+					huntId,
+					status: InviteStatus.Accepted,
+				},
 			});
 			log.info(`${currentHunter.name} accepted hunt with ID ${huntId}`);
 
 			notifyHuntsReload();
 
-			await respondToInvites({
+			await respondToInvite({
 				currentHunter,
 				hunt,
 				huntId,

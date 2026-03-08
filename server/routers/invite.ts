@@ -4,15 +4,14 @@ import * as z from 'zod';
 import { HUNT_INVITE_MINUTES, HuntStatus } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
-import { extractIds } from '@/lib/utils';
 
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
-import { db, Prisma } from '../lib/db';
+import { db } from '../lib/db';
 import { huntInLockdown, isHuntsDisabled } from '../lib/hunt';
 import {
 	expireInvites,
 	fetchInviteesForHunt,
-	respondToInvites,
+	respondToInvite,
 } from '../lib/invite';
 import { inviteSendEvent, notifyUser } from '../lib/notify';
 import { InviteStatus } from '../lib/schema';
@@ -35,14 +34,12 @@ export const inviteRouter = router({
 			// Load the hunt and check if we're already full.
 			const hunt = await db.hunt.findUniqueOrThrow({
 				include: {
-					hunters: {
-						select: { id: true },
-					},
+					huntHunters: true,
 				},
 				where: { id: huntId },
 			});
 
-			if (hunt.hunters.length >= hunt.maxHunters) {
+			if (hunt.huntHunters.length >= hunt.maxHunters) {
 				return [];
 			}
 
@@ -52,7 +49,6 @@ export const inviteRouter = router({
 
 			// Get the invitees
 			const invitees = await fetchInviteesForHunt({
-				exceptHunterIds: extractIds(hunt.hunters),
 				fromHunterId: hunter.id,
 				groupId: hunter.groupId,
 				huntId,
@@ -62,10 +58,10 @@ export const inviteRouter = router({
 		}),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
-		const invites = await db.huntInvite.findMany({
+		const invites = await db.huntHunter.findMany({
 			where: {
 				status: InviteStatus.Pending,
-				toHunterId: hunter.id,
+				hunterId: hunter.id,
 			},
 		});
 
@@ -79,13 +75,13 @@ export const inviteRouter = router({
 			}),
 		)
 		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
-			const count = await respondToInvites({
+			const success = await respondToInvite({
 				currentHunter: hunter,
 				huntId,
 				response: 'decline',
 			});
 			return {
-				success: count > 0,
+				success,
 			};
 		}),
 
@@ -95,93 +91,94 @@ export const inviteRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
-			if (!hunter.groupId) {
-				throw new TRPCError({
-					code: 'FORBIDDEN',
-					message: 'You are not in a group',
-				});
-			}
-
-			// Prevent creating invites when hunt is locked down or unavailable.
-			const hunt = await db.hunt.findUniqueOrThrow({
-				include: {
-					hunters: {
-						select: { id: true },
-					},
-				},
-				where: {
-					id: huntId,
-				},
-			});
-			if (hunt.status !== HuntStatus.Available || huntInLockdown(hunt)) {
-				throw new TRPCError({
-					code: 'FORBIDDEN',
-					message: 'Hunt cannot have invites',
-				});
-			}
-
-			// Get the invitees
-			const invites: Prisma.HuntInviteGetPayload<{
-				include: { toHunter: true };
-			}>[] = [];
-			const invitees = await fetchInviteesForHunt({
-				exceptHunterIds: extractIds(hunt.hunters),
-				fromHunterId: hunter.id,
-				groupId: hunter.groupId,
-				huntId,
-			});
-
-			// Try to create the invites
-			const expiresAt = new Date(
-				Date.now() + MINUTE * HUNT_INVITE_MINUTES,
-			);
-			for (const inviteeId of invitees) {
-				try {
-					const invite = await db.huntInvite.create({
-						data: {
-							expiresAt,
-							fromHunterId: hunter.id,
-							huntId,
-							toHunterId: inviteeId,
-						},
-						include: {
-							toHunter: true,
-						},
+		.mutation(
+			async ({ ctx: { hunter: currentHunter }, input: { huntId } }) => {
+				if (!currentHunter.groupId) {
+					throw new TRPCError({
+						code: 'FORBIDDEN',
+						message: 'You are not in a group',
 					});
-					invites.push(invite);
-				} catch (err) {
-					if (
-						err instanceof PrismaClientKnownRequestError &&
-						err.code === 'P2002'
-					) {
-						continue;
-					}
-					throw err;
 				}
-			}
 
-			if (invites.length === 0) {
-				throw new TRPCError({
-					code: 'NOT_FOUND',
-					message: 'Nobody left to invite today',
+				// Prevent creating invites when hunt is locked down or unavailable.
+				const hunt = await db.hunt.findUniqueOrThrow({
+					where: {
+						id: huntId,
+					},
 				});
-			}
-
-			const event = inviteSendEvent({
-				fromHunter: hunter,
-				hunt: await db.hunt.findUniqueOrThrow({
-					where: { id: huntId },
-				}),
-			});
-			for (const invite of invites) {
-				if (invite.toHunter.userId) {
-					await notifyUser({ event, userId: invite.toHunter.userId });
+				if (
+					hunt.status !== HuntStatus.Available ||
+					huntInLockdown(hunt)
+				) {
+					throw new TRPCError({
+						code: 'FORBIDDEN',
+						message: 'Hunt cannot have invites',
+					});
 				}
-			}
 
-			return {
-				count: invites.length,
-			};
-		}),
+				const invitees = await fetchInviteesForHunt({
+					fromHunterId: currentHunter.id,
+					groupId: currentHunter.groupId,
+					huntId,
+				});
+
+				if (invitees.length === 0) {
+					throw new TRPCError({
+						code: 'NOT_FOUND',
+						message: 'Nobody left to invite today',
+					});
+				}
+
+				const expiresAt = new Date(
+					Date.now() + MINUTE * HUNT_INVITE_MINUTES,
+				);
+				const event = inviteSendEvent({
+					fromHunter: currentHunter,
+					hunt,
+				});
+
+				for (const { id: hunterId, userId } of invitees) {
+					try {
+						await db.huntHunter.upsert({
+							where: {
+								huntId_hunterId: {
+									hunterId,
+									huntId,
+								},
+							},
+							create: {
+								expiresAt,
+								fromHunterId: currentHunter.id,
+								huntId,
+								hunterId,
+								status: InviteStatus.Pending,
+							},
+							update: {
+								expiresAt,
+								fromHunterId: currentHunter.id,
+								status: InviteStatus.Pending,
+							},
+						});
+						if (userId) {
+							await notifyUser({
+								event,
+								userId,
+							});
+						}
+					} catch (err) {
+						if (
+							err instanceof PrismaClientKnownRequestError &&
+							err.code === 'P2002'
+						) {
+							continue;
+						}
+						throw err;
+					}
+				}
+
+				return {
+					count: invitees.length,
+				};
+			},
+		),
 });

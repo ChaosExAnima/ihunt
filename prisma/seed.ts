@@ -159,18 +159,17 @@ async function main() {
 				},
 			],
 		});
-		await db.hunt.update({
-			data: {
-				hunters: {
-					set: hunters
-						.filter(({ groupId }) => groupId === 4)
-						.map(({ id }) => ({ id })),
+		for (const hunter of hunters) {
+			if (hunter.groupId !== 4) {
+				continue;
+			}
+			await db.huntHunter.create({
+				data: {
+					hunterId: hunter.id,
+					huntId: 4,
 				},
-			},
-			where: {
-				id: 4,
-			},
-		});
+			});
+		}
 
 		const photos = [
 			{
