@@ -42,8 +42,7 @@ model Hunter {
     avatar      Photo?       @relation("Avatar", fields: [avatarId], references: [id])
     avatarId    Int?         @unique
     money       Int          @default(0)
-    user        User?        @relation(fields: [userId], references: [id])
-    userId      Int?         @unique
+    user        User?
     groupId     Int?
     group       HunterGroup? @relation(fields: [groupId], references: [id])
     bio         String?
@@ -102,8 +101,8 @@ model User {
     settings   Json?
     createdAt  DateTime    @default(now())
     updatedAt  DateTime    @updatedAt
-    hunter     Hunter?
-    hunterId   Int?
+    hunter     Hunter?     @relation(fields: [hunterId], references: [id])
+    hunterId   Int?        @unique
     userVapids UserVapid[]
 }
 
