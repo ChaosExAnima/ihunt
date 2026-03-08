@@ -19,12 +19,7 @@ export const InviteStatus = {
 	Pending: 'pending',
 	Rejected: 'rejected',
 } as const;
-export const inviteStatusSchema = z.enum([
-	'pending',
-	'expired',
-	'accepted',
-	'rejected',
-]);
+export const inviteStatusSchema = z.enum(Object.values(InviteStatus));
 export type InviteStatusSchema = z.infer<typeof inviteStatusSchema>;
 
 export const subscriptionSchema = z.object({
