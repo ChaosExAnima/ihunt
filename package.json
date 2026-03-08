@@ -89,7 +89,7 @@
 		"react-dom": "^19.2.4",
 		"react-hook-form": "^7.71.2",
 		"react-image-crop": "^11.0.10",
-		"rollup-plugin-visualizer": "^6.0.11",
+		"rollup-plugin-visualizer": "^7.0.0",
 		"tailwind-merge": "^3.5.0",
 		"tailwindcss": "^4.2.1",
 		"trpc-ui": "npm:trpc-ui-zod4@^1.0.0",
