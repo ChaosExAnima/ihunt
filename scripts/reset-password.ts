@@ -30,17 +30,13 @@ async function main() {
 			};
 	const users = await db.user.findMany({
 		include: {
-			hunters: {
-				where: {
-					alive: true,
-				},
-			},
+			hunter: true,
 		},
 		where,
 	});
 
 	for (const user of users) {
-		const hunter = user.hunters.at(0);
+		const hunter = user.hunter;
 		if (!hunter) {
 			continue;
 		}

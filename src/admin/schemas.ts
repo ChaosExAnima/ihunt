@@ -59,7 +59,7 @@ export const adminPhotoSchema = photoSchema.extend(
 export type AdminPhotoSchema = z.infer<typeof adminPhotoSchema>;
 
 export const adminUserSchema = z.object({
-	hunterIds: idArray,
+	hunterId: idSchemaCoerce,
 	id: idSchemaCoerce,
 	name: z.string().nullable(),
 	run: posIntSchema.prefault(1),

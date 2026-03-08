@@ -44,25 +44,16 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
-					const hunters = await db.hunter.findMany({
-						where: {
-							id: {
-								in: data.hunterIds,
-							},
-							alive: true,
-						},
+					const hunters = await db.hunter.findFirst({
+						where: { id: data.hunterId },
 					});
 					const handle = stringToPassword(
-						hunters.at(0)?.handle ?? 'password',
+						hunters?.handle ?? 'password',
 					);
 					return await db.user.create({
 						data: {
-							name: data.name,
-							run: data.run,
+							...data,
 							password: await passwordToHash(handle),
-							hunters: {
-								connect: idsToObjects(data.hunterIds),
-							},
 						},
 					});
 				}
@@ -310,14 +301,6 @@ export const adminRouter = router({
 					case 'user': {
 						const users = await db.user.findMany({
 							...query,
-							include: {
-								hunters: {
-									orderBy: {
-										alive: 'desc',
-									},
-									select: { id: true },
-								},
-							},
 							omit: { password: true },
 							where: {
 								...where,
@@ -329,10 +312,7 @@ export const adminRouter = router({
 							},
 						});
 						return {
-							data: users.map(({ hunters, ...user }) => ({
-								...user,
-								hunterIds: extractIds(hunters),
-							})),
+							data: users,
 							total: await db.user.count({ where }),
 						};
 					}
@@ -389,20 +369,10 @@ export const adminRouter = router({
 				case 'photo':
 					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					const { hunters, ...user } =
-						await db.user.findUniqueOrThrow({
-							...query,
-							include: {
-								hunters: {
-									orderBy: {
-										alive: 'asc',
-									},
-									select: { id: true },
-								},
-							},
-							omit: { password: true },
-						});
-					return { hunterIds: extractIds(hunters), ...user };
+					return db.user.findUniqueOrThrow({
+						...query,
+						omit: { password: true },
+					});
 				}
 			}
 		}),
@@ -592,12 +562,7 @@ export const adminRouter = router({
 					});
 				case 'user': {
 					return db.user.update({
-						data: {
-							...omit(data, 'hunterIds'),
-							hunters: {
-								set: idsToObjects(data.hunterIds),
-							},
-						},
+						data,
 						where: { id },
 					});
 				}
