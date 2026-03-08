@@ -1,188 +1,204 @@
-import { HuntStatus } from '@/lib/constants';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+import { HunterTypes, HuntStatus } from '@/lib/constants';
 import { passwordToHash, stringToPassword } from '@/server/lib/auth';
-import { db } from '@/server/lib/db';
+import { db, Prisma } from '@/server/lib/db';
+import { uploadPhoto } from '@/server/lib/photo';
 
 async function main() {
 	try {
-		await db.hunt.createMany({
+		await db.hunterGroup.createMany({
 			data: [
 				{
-					danger: 2,
-					description:
-						'saw something wandering around in the woods. hearing howls.',
 					id: 1,
-					maxHunters: 2,
-					name: 'Werewolf',
-					payment: 1_000,
-					status: HuntStatus.Available,
+					name: 'NPCs Anonymous',
 				},
 				{
-					danger: 3,
-					description: 'a body was found without blood',
 					id: 2,
-					maxHunters: 4,
-					name: 'Vampire',
-					payment: 2000,
-					status: HuntStatus.Available,
+					name: 'Team Techie',
 				},
 				{
-					danger: 1,
-					description:
-						'something like a dozen zombies in the old graveyard. €500 a head.',
 					id: 3,
-					maxHunters: 4,
-					name: 'Zombie',
-					payment: 6_000,
-					status: HuntStatus.Pending,
+					name: 'Dropouts',
 				},
 				{
-					danger: 3,
-					description: 'very old dangerous vampire!',
 					id: 4,
-					maxHunters: 1,
-					name: 'Ashed Vampire',
-					payment: 10_000,
-					status: HuntStatus.Complete,
+					name: 'Fang Fans',
 				},
 			],
 		});
 
-		const hunters = [
-			{
-				handle: 'w1nch3ster',
-				id: 1,
-				name: 'Dean',
-				userId: 1,
-			},
-			{
-				handle: 'scoobysnac',
-				id: 2,
-				name: 'Velma',
-				userId: 2,
-			},
-			{
-				handle: 'chosen1',
-				id: 3,
-				name: 'Buffy',
-				userId: 3,
-			},
-		];
+		const hunters = (
+			[
+				{
+					name: 'Steve',
+					handle: 'g00db0i',
+					type: HunterTypes.Phooey,
+					groupId: 1,
+				},
+				{
+					name: 'Edgar',
+					handle: 'hailseitan',
+					type: HunterTypes.Evileena,
+					groupId: 4,
+				},
+				{
+					name: 'Bonnie',
+					handle: 'oldwest',
+					type: HunterTypes.Knight,
+					groupId: 3,
+				},
+				{
+					name: 'Giles',
+					handle: 'libraryguy',
+					type: HunterTypes.Evileena,
+					groupId: 2,
+				},
+				{
+					name: 'Buffy',
+					handle: 'theslayer',
+					type: HunterTypes.Knight,
+					groupId: 1,
+				},
+				{
+					name: 'Sam',
+					handle: 'nerdgirl',
+					type: HunterTypes.SixtySixer,
+					groupId: 2,
+				},
+				{
+					name: 'Jess',
+					handle: 'GoodTimeBadTime',
+					type: HunterTypes.SixtySixer,
+					groupId: 2,
+				},
+				{
+					name: 'Frankie',
+					handle: 'wolfgirrl',
+					type: HunterTypes.Knight,
+					groupId: 3,
+				},
+				{
+					name: 'Roger',
+					handle: '6669420',
+					type: HunterTypes.SixtySixer,
+					groupId: 3,
+				},
+				{
+					name: 'Rey',
+					handle: 'love2slay',
+					type: HunterTypes.Phooey,
+					groupId: 4,
+				},
+			] satisfies Prisma.HunterCreateManyInput[]
+		).map(
+			(row, index) =>
+				({
+					...row,
+					id: index + 1,
+					userId: index + 1,
+					rating: 3,
+					alive: true,
+				}) satisfies Prisma.HunterCreateManyInput,
+		);
 
 		await db.user.createMany({
 			data: await Promise.all(
-				[
-					{ id: 1, name: 'Player1' },
-					{ id: 2, name: 'Player2' },
-					{ id: 3, name: 'Player3' },
-				].map(async (row) => {
-					const hunter = hunters.find(
-						({ userId }) => userId === row.id,
-					);
-					if (!hunter) {
-						throw new Error(`No hunter found: ${row.id}`);
-					}
-					const password = stringToPassword(hunter.handle);
+				hunters.map(async ({ id, userId, handle }) => {
+					const password = stringToPassword(handle);
 					return {
-						...row,
+						id: userId,
+						name: `Test ${userId}`,
 						password: await passwordToHash(password),
-					};
+						run: 1,
+					} satisfies Prisma.UserCreateManyInput;
 				}),
 			),
 		});
+
 		await db.hunter.createMany({
 			data: hunters,
 		});
 
-		for (const hunter of hunters) {
-			const password = stringToPassword(hunter.handle);
-			const hashedPassword = await passwordToHash(password);
-			await db.user.update({
-				data: { password: hashedPassword },
-				where: { id: hunter.userId },
-			});
-		}
-
-		await db.photo.createMany({
+		await db.hunt.createMany({
 			data: [
 				{
-					height: 1024,
-					huntId: 1,
 					id: 1,
-					path: 'werewolf.webp',
-					width: 1024,
+					name: 'Werewolf',
+					status: HuntStatus.Available,
+					description:
+						'saw something wandering around in the woods. hearing howls.',
+					danger: 2,
+					payment: 1000,
 				},
 				{
-					height: 1024,
-					huntId: 2,
 					id: 2,
-					path: 'vampire.webp',
-					width: 1024,
+					name: 'Vampire',
+					status: HuntStatus.Available,
+					description: 'a body was found without blood',
+					danger: 3,
+					payment: 2000,
 				},
 				{
-					height: 1114,
-					huntId: 3,
 					id: 3,
-					path: 'zombie.png',
-					width: 1230,
+					name: 'Zombie',
+					status: HuntStatus.Pending,
+					description:
+						'something like a dozen zombies in the old graveyard. €500 a head.',
+					danger: 1,
+					payment: 6000,
 				},
 				{
-					height: 826,
-					hunterId: 2,
 					id: 4,
-					path: 'velma.png',
-					width: 844,
-				},
-				{
-					height: 1024,
-					hunterId: 1,
-					id: 5,
-					path: 'dean.png',
-					width: 1048,
-				},
-				{
-					height: 1086,
-					hunterId: 3,
-					id: 6,
-					path: 'buffy.jpg',
-					width: 1036,
-				},
-				{
-					height: 1024,
-					huntId: 4,
-					id: 7,
-					path: 'ash-vampire.webp',
-					width: 1024,
+					name: 'Ancient Vampire',
+					status: HuntStatus.Complete,
+					description: 'very old dangerous vampire!',
+					danger: 3,
+					payment: 10_000,
 				},
 			],
 		});
-		await Promise.all([
-			db.hunter.update({
-				data: { avatarId: 5 },
-				where: { id: 1 },
-			}),
-			db.hunter.update({
-				data: { avatarId: 4 },
-				where: { id: 2 },
-			}),
-			db.hunter.update({
-				data: { avatarId: 6 },
-				where: { id: 3 },
-			}),
-		]);
 		await db.hunt.update({
 			data: {
 				hunters: {
-					set: [
-						{
-							id: 3,
-						},
-					],
+					set: hunters
+						.filter(({ groupId }) => groupId === 4)
+						.map(({ id }) => ({ id })),
 				},
 			},
 			where: {
 				id: 4,
 			},
 		});
+
+		const photos = [
+			{
+				filename: 'werewolf.jpg',
+				huntId: 1,
+			},
+			{
+				filename: 'vampire.jpg',
+				huntId: 2,
+			},
+			{
+				filename: 'zombies.jpg',
+				huntId: 3,
+			},
+			{
+				filename: 'ancient_vampire.jpg',
+				huntId: 4,
+			},
+		];
+		for (const photo of photos) {
+			const buffer = await readFile(
+				resolve(import.meta.dirname, 'fixtures', photo.filename),
+			);
+			await uploadPhoto({
+				buffer,
+				huntId: photo.huntId,
+			});
+		}
 	} catch (err) {
 		console.log('Error seeding database:', err);
 	} finally {
