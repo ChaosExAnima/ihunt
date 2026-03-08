@@ -16,6 +16,7 @@ import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
 import { handleToHash } from '../lib/auth';
+import { InviteStatus } from '../lib/schema';
 
 export const adminRouter = router({
 	create: adminProcedure
@@ -211,6 +212,9 @@ export const adminRouter = router({
 									select: {
 										hunterId: true,
 									},
+									where: {
+										status: InviteStatus.Accepted,
+									},
 								},
 								photos: {
 									select: { id: true },
@@ -358,6 +362,7 @@ export const adminRouter = router({
 							include: {
 								huntHunters: {
 									select: { hunterId: true },
+									where: { status: InviteStatus.Accepted },
 								},
 								photos: { select: { id: true } },
 							},
