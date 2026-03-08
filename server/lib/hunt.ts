@@ -50,12 +50,12 @@ export function calculateNewRating({
 }
 
 export function huntInLockdown(hunt: Hunt) {
+	const lockdownTime = Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE;
 	return (
 		(hunt.status === HuntStatus.Available ||
 			hunt.status === HuntStatus.Active) &&
 		hunt.scheduledAt &&
-		hunt.scheduledAt.getTime() >=
-			Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE
+		hunt.scheduledAt.getTime() <= lockdownTime
 	);
 }
 

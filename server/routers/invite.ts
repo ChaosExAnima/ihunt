@@ -4,6 +4,7 @@ import * as z from 'zod';
 import { HUNT_INVITE_MINUTES, HuntStatus } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
+import { extractIds } from '@/lib/utils';
 
 import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
 import { db } from '../lib/db';
@@ -39,7 +40,14 @@ export const inviteRouter = router({
 				where: { id: huntId },
 			});
 
-			if (hunt.huntHunters.length >= hunt.maxHunters) {
+			if (
+				hunt.huntHunters.length >= hunt.maxHunters ||
+				!hunt.huntHunters.some(
+					({ hunterId, status }) =>
+						hunterId === hunter.id &&
+						status === InviteStatus.Accepted,
+				)
+			) {
 				return [];
 			}
 
@@ -54,7 +62,7 @@ export const inviteRouter = router({
 				huntId,
 			});
 
-			return invitees;
+			return extractIds(invitees);
 		}),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {

@@ -18,7 +18,6 @@ import { HuntDisplayProps } from '.';
 import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';
 import { Button } from '../ui/button';
 import { HuntBase } from './base';
-import { HuntInviteModal } from './invite-dialog';
 
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
@@ -30,10 +29,9 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		() => (hunters ?? []).some((hunter) => hunter.id === currentHunterId),
 		[hunters, currentHunterId],
 	);
-	const [showInviteModal, setShowInviteModal] = useState(false);
+
 	const handleAccept = useCallback(() => {
 		onAcceptHunt?.(huntId);
-		setShowInviteModal(true);
 	}, [huntId, onAcceptHunt]);
 
 	const { data: huntsToday = 0 } = useQuery(
@@ -85,21 +83,20 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 					</strong>
 				</p>
 			)}
-
-			{showInviteModal && <HuntInviteModal huntId={huntId} />}
 		</HuntBase>
 	);
 }
 
 function checkHuntTime(ts?: number) {
-	return !!ts && ts > Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE;
+	const lockdownTS = Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE;
+	return !!ts && ts <= lockdownTS;
 }
 
 function HuntInvite({
 	noHunts,
 	reserved,
 }: Pick<HuntSchema, 'reserved'> & { noHunts: boolean }) {
-	const expiresTs = reserved?.expires.getTime();
+	const expiresTs = reserved?.expires?.getTime();
 	const [minutesLeft, setMinutesLeft] = useState(() =>
 		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
 	);
@@ -233,6 +230,7 @@ function HuntJoinButton({
 				{...dialogProps}
 				isDangerous
 				title="Confirm maximum danger"
+				noDescription
 			>
 				<p>
 					This hunt is marked at the{' '}

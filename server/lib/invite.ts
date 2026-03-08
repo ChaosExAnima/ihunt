@@ -1,5 +1,6 @@
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
+import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
 import { extractIds } from '@/lib/utils';
 
 import { db, Hunt, Hunter, HuntHunter } from './db';
@@ -40,6 +41,7 @@ export async function fetchDailyHuntCount(hunterId: number) {
 			huntHunters: {
 				some: {
 					hunterId,
+					status: InviteStatus.Accepted,
 				},
 			},
 			scheduledAt: {
@@ -55,6 +57,42 @@ export async function fetchDailyHuntCount(hunterId: number) {
 		},
 	});
 	return huntCount;
+}
+
+export function invitesToReserved({
+	invites,
+	hunterId,
+}: {
+	invites: HuntHunter[];
+	hunterId: number;
+}) {
+	const huntReservedMap = new Map<number, HuntReservedSchema>();
+	for (const invite of invites) {
+		if (
+			!invite.expiresAt ||
+			invite.status === InviteStatus.Expired ||
+			invite.status === InviteStatus.Accepted
+		) {
+			continue;
+		}
+		const mapData = huntReservedMap.get(invite.huntId);
+		let status: HuntReservedStatusSchema = mapData?.status ?? 'reserved';
+
+		if (invite.fromHunterId === hunterId) {
+			status = 'sent';
+		} else if (invite.hunterId === hunterId && status !== 'sent') {
+			status =
+				invite.status === InviteStatus.Rejected
+					? 'declined'
+					: 'invited';
+		}
+
+		huntReservedMap.set(invite.huntId, {
+			expires: invite.expiresAt,
+			status,
+		});
+	}
+	return huntReservedMap;
 }
 
 export async function fetchInviteesForHunt({
@@ -79,10 +117,6 @@ export async function fetchInviteesForHunt({
 
 	// Find existing invites that are rejected or expired.
 	const oldInvites = await db.huntHunter.findMany({
-		select: {
-			hunterId: true,
-			status: true,
-		},
 		where: {
 			huntId,
 			hunterId: {
@@ -98,11 +132,13 @@ export async function fetchInviteesForHunt({
 			continue;
 		}
 
-		// Don't invite people who rejected it already.
 		const oldInvite = oldInvites.find(
 			({ hunterId }) => hunterId === hunter.id,
 		);
-		if (oldInvite?.status === InviteStatus.Rejected) {
+		if (
+			// Don't invite people who were invited already
+			oldInvite?.fromHunterId !== null
+		) {
 			continue;
 		}
 
@@ -177,7 +213,7 @@ export async function respondToInvite({
 
 	return notifyUser({
 		event: inviteResponseEvent({
-			fromHunter: inviter,
+			fromHunter: currentHunter,
 			hunt,
 			response,
 		}),
