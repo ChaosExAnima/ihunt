@@ -255,6 +255,9 @@ export const adminRouter = router({
 									select: {
 										huntId: true,
 									},
+									where: {
+										status: InviteStatus.Accepted,
+									},
 								},
 							},
 							where: {
