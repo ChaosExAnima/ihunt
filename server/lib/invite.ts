@@ -25,7 +25,7 @@ export async function expireInvites(invites: HuntHunter[]) {
 		},
 		where: {
 			expiresAt: {
-				gte: now,
+				lt: now,
 			},
 			status: InviteStatus.Pending,
 		},
@@ -155,7 +155,7 @@ export async function onInviteInterval() {
 		},
 		where: {
 			expiresAt: {
-				gte: new Date(),
+				lt: new Date(),
 			},
 			status: InviteStatus.Pending,
 		},
