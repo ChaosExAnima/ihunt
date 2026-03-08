@@ -13,10 +13,8 @@ if (isDev()) {
 	levels.push('query');
 }
 
-const { postgresDatabase, postgresHost, postgresPassword, postgresUser } =
-	config;
 const adapter = new PrismaPg({
-	connectionString: `postgresql://${postgresUser}:${postgresPassword}@${postgresHost}/${postgresDatabase}`,
+	connectionString: config.databaseUrl,
 });
 
 export const db = new PrismaClient({
