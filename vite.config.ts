@@ -75,6 +75,7 @@ export default defineConfig({
 	},
 	root: 'src',
 	server: {
+		host: '0.0.0.0',
 		allowedHosts: true, // Unsafe, but this only runs in dev anyway.
 		strictPort: true,
 		proxy: {
