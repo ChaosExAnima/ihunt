@@ -14,8 +14,11 @@ const configSchema = z.object({
 		.transform((l) => l.split(','))
 		.default([]),
 	mediaHost: z.url(),
-	nodeEnv: z.enum(['development', 'production', 'test']),
+	nodeEnv: z
+		.enum(['development', 'production', 'test'])
+		.default('development'),
 	port: z.coerce.number().int().min(1).prefault(4000),
+	databaseUrl: z.url({ protocol: /^postgres$/ }),
 	serverHosts: z
 		.string()
 		.min(10)
