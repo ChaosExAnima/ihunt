@@ -85,6 +85,11 @@ export function invitesToReserved({
 				invite.status === InviteStatus.Rejected
 					? 'declined'
 					: 'invited';
+		} else if (
+			invite.status !== InviteStatus.Pending &&
+			status === 'reserved'
+		) {
+			continue;
 		}
 
 		huntReservedMap.set(invite.huntId, {
