@@ -1,0 +1,868 @@
+{
+	"id": "00000000-0000-0000-0000-000000000000",
+	"prevId": "",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.User": {
+			"name": "User",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"password": {
+					"name": "password",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"run": {
+					"name": "run",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 1
+				},
+				"settings": {
+					"name": "settings",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"updatedAt": {
+					"name": "updatedAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"hunterId": {
+					"name": "hunterId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"User_hunterId_key": {
+					"name": "User_hunterId_key",
+					"columns": [
+						{
+							"expression": "hunterId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"User_password_key": {
+					"name": "User_password_key",
+					"columns": [
+						{
+							"expression": "password",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"User_hunterId_fkey": {
+					"name": "User_hunterId_fkey",
+					"tableFrom": "User",
+					"tableTo": "Hunter",
+					"schemaTo": "public",
+					"columnsFrom": ["hunterId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.HunterGroup": {
+			"name": "HunterGroup",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.HuntInvite": {
+			"name": "HuntInvite",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"fromHunterId": {
+					"name": "fromHunterId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"toHunterId": {
+					"name": "toHunterId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"huntId": {
+					"name": "huntId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"expiresAt": {
+					"name": "expiresAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"status": {
+					"name": "status",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'pending'"
+				}
+			},
+			"indexes": {
+				"HuntInvite_expiresAt_idx": {
+					"name": "HuntInvite_expiresAt_idx",
+					"columns": [
+						{
+							"expression": "expiresAt",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "timestamp_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"HuntInvite_fromHunterId_huntId_toHunterId_key": {
+					"name": "HuntInvite_fromHunterId_huntId_toHunterId_key",
+					"columns": [
+						{
+							"expression": "fromHunterId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						},
+						{
+							"expression": "huntId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						},
+						{
+							"expression": "toHunterId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"toHunterStatus": {
+					"name": "toHunterStatus",
+					"columns": [
+						{
+							"expression": "toHunterId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						},
+						{
+							"expression": "status",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"HuntInvite_fromHunterId_fkey": {
+					"name": "HuntInvite_fromHunterId_fkey",
+					"tableFrom": "HuntInvite",
+					"tableTo": "Hunter",
+					"schemaTo": "public",
+					"columnsFrom": ["fromHunterId"],
+					"columnsTo": ["id"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				},
+				"HuntInvite_toHunterId_fkey": {
+					"name": "HuntInvite_toHunterId_fkey",
+					"tableFrom": "HuntInvite",
+					"tableTo": "Hunter",
+					"schemaTo": "public",
+					"columnsFrom": ["toHunterId"],
+					"columnsTo": ["id"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				},
+				"HuntInvite_huntId_fkey": {
+					"name": "HuntInvite_huntId_fkey",
+					"tableFrom": "HuntInvite",
+					"tableTo": "Hunt",
+					"schemaTo": "public",
+					"columnsFrom": ["huntId"],
+					"columnsTo": ["id"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Hunt": {
+			"name": "Hunt",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"createdAt": {
+					"name": "createdAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "CURRENT_TIMESTAMP"
+				},
+				"scheduledAt": {
+					"name": "scheduledAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"completedAt": {
+					"name": "completedAt",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"place": {
+					"name": "place",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"warnings": {
+					"name": "warnings",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"status": {
+					"name": "status",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'pending'"
+				},
+				"danger": {
+					"name": "danger",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 1
+				},
+				"maxHunters": {
+					"name": "maxHunters",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 5
+				},
+				"minRating": {
+					"name": "minRating",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"rating": {
+					"name": "rating",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"comment": {
+					"name": "comment",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"payment": {
+					"name": "payment",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"paidHunters": {
+					"name": "paidHunters",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				}
+			},
+			"indexes": {
+				"Hunt_scheduledAt_idx": {
+					"name": "Hunt_scheduledAt_idx",
+					"columns": [
+						{
+							"expression": "scheduledAt",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "timestamp_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"Hunt_status_idx": {
+					"name": "Hunt_status_idx",
+					"columns": [
+						{
+							"expression": "status",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.UserVapid": {
+			"name": "UserVapid",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"userId": {
+					"name": "userId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"payload": {
+					"name": "payload",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"expirationTime": {
+					"name": "expirationTime",
+					"type": "timestamp(3)",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"UserVapid_userId_expirationTime_idx": {
+					"name": "UserVapid_userId_expirationTime_idx",
+					"columns": [
+						{
+							"expression": "userId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						},
+						{
+							"expression": "expirationTime",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"UserVapid_userId_fkey": {
+					"name": "UserVapid_userId_fkey",
+					"tableFrom": "UserVapid",
+					"tableTo": "User",
+					"schemaTo": "public",
+					"columnsFrom": ["userId"],
+					"columnsTo": ["id"],
+					"onDelete": "restrict",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Photo": {
+			"name": "Photo",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"path": {
+					"name": "path",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"width": {
+					"name": "width",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"height": {
+					"name": "height",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"blurry": {
+					"name": "blurry",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"hunterId": {
+					"name": "hunterId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"huntId": {
+					"name": "huntId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"Photo_huntId_hunterId_idx": {
+					"name": "Photo_huntId_hunterId_idx",
+					"columns": [
+						{
+							"expression": "huntId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						},
+						{
+							"expression": "hunterId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"Photo_path_key": {
+					"name": "Photo_path_key",
+					"columns": [
+						{
+							"expression": "path",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Photo_hunterId_fkey": {
+					"name": "Photo_hunterId_fkey",
+					"tableFrom": "Photo",
+					"tableTo": "Hunter",
+					"schemaTo": "public",
+					"columnsFrom": ["hunterId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "cascade"
+				},
+				"Photo_huntId_fkey": {
+					"name": "Photo_huntId_fkey",
+					"tableFrom": "Photo",
+					"tableTo": "Hunt",
+					"schemaTo": "public",
+					"columnsFrom": ["huntId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.Hunter": {
+			"name": "Hunter",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"handle": {
+					"name": "handle",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"alive": {
+					"name": "alive",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"avatarId": {
+					"name": "avatarId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"money": {
+					"name": "money",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"groupId": {
+					"name": "groupId",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"bio": {
+					"name": "bio",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"pronouns": {
+					"name": "pronouns",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"type": {
+					"name": "type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"rating": {
+					"name": "rating",
+					"type": "double precision",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 1
+				}
+			},
+			"indexes": {
+				"Hunter_alive_idx": {
+					"name": "Hunter_alive_idx",
+					"columns": [
+						{
+							"expression": "alive",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "bool_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"Hunter_avatarId_key": {
+					"name": "Hunter_avatarId_key",
+					"columns": [
+						{
+							"expression": "avatarId",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"Hunter_handle_key": {
+					"name": "Hunter_handle_key",
+					"columns": [
+						{
+							"expression": "handle",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"Hunter_avatarId_fkey": {
+					"name": "Hunter_avatarId_fkey",
+					"tableFrom": "Hunter",
+					"tableTo": "Photo",
+					"schemaTo": "public",
+					"columnsFrom": ["avatarId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "cascade"
+				},
+				"Hunter_groupId_fkey": {
+					"name": "Hunter_groupId_fkey",
+					"tableFrom": "Hunter",
+					"tableTo": "HunterGroup",
+					"schemaTo": "public",
+					"columnsFrom": ["groupId"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public._HuntToHunter": {
+			"name": "_HuntToHunter",
+			"schema": "",
+			"columns": {
+				"A": {
+					"name": "A",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"B": {
+					"name": "B",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {
+				"_HuntToHunter_B_index": {
+					"name": "_HuntToHunter_B_index",
+					"columns": [
+						{
+							"expression": "B",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "int4_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"_HuntToHunter_A_fkey": {
+					"name": "_HuntToHunter_A_fkey",
+					"tableFrom": "_HuntToHunter",
+					"tableTo": "Hunt",
+					"schemaTo": "public",
+					"columnsFrom": ["A"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				},
+				"_HuntToHunter_B_fkey": {
+					"name": "_HuntToHunter_B_fkey",
+					"tableFrom": "_HuntToHunter",
+					"tableTo": "Hunter",
+					"schemaTo": "public",
+					"columnsFrom": ["B"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {
+				"_HuntToHunter_AB_pkey": {
+					"name": "_HuntToHunter_AB_pkey",
+					"columns": ["B", "A"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"tables": {}
+	}
+}
