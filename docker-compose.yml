@@ -13,3 +13,13 @@ services:
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
     ports:
       - "${IMGPROXY_PORT:-9000}:9000"
+
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ihunt
+    ports:
+      - 5555:5432
