@@ -122,6 +122,9 @@ export async function fetchInviteesForHunt({
 			hunterId: {
 				in: extractIds(hunters),
 			},
+			fromHunterId: {
+				not: null,
+			},
 		},
 	});
 
@@ -135,10 +138,7 @@ export async function fetchInviteesForHunt({
 		const oldInvite = oldInvites.find(
 			({ hunterId }) => hunterId === hunter.id,
 		);
-		if (
-			// Don't invite people who were invited already
-			oldInvite?.fromHunterId !== null
-		) {
+		if (oldInvite) {
 			continue;
 		}
 
