@@ -80,7 +80,7 @@ export function ControllableDialog({
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<DialogDescription className={cn(noDescription && 'hidden')}>
-					{description ?? children}
+					{description ?? (noDescription ? title : children)}
 				</DialogDescription>
 				{noDescription && children}
 				<DialogFooter className="flex-row justify-end">
