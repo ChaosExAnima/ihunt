@@ -158,7 +158,11 @@ export const dataProvider = {
 		return { data: result.ids };
 	},
 
-	async uploadPhoto(params: AdminUploadPhotoArgs) {
+	async uploadPhoto(params: {
+		blob: Blob;
+		hunterId?: number;
+		huntId?: number;
+	}) {
 		const { blob } = params;
 		const formData = new FormData();
 		formData.append('photo', blob);
@@ -171,14 +175,14 @@ export const dataProvider = {
 
 		return trpc.photos.upload.mutate(formData);
 	},
+
+	async resetInvites(params: { huntIds: number[] }) {
+		return trpc.invite.resetInvites.mutate({
+			huntIds: params.huntIds,
+		});
+	},
 } satisfies DataProvider<Resources>;
 
 export type AdminDataProvider = DataProvider & typeof dataProvider;
 
 export const useTypedDataProvider = () => useDataProvider<AdminDataProvider>();
-
-export type AdminUploadPhotoArgs = {
-	blob: Blob;
-	hunterId?: number;
-	huntId?: number;
-};

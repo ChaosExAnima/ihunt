@@ -16,7 +16,7 @@ import {
 } from '../lib/invite';
 import { inviteSendEvent, notifyUser } from '../lib/notify';
 import { InviteStatus } from '../lib/schema';
-import { router, userProcedure } from '../lib/trpc';
+import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
 export const inviteRouter = router({
 	availableInvitees: userProcedure
@@ -189,4 +189,25 @@ export const inviteRouter = router({
 				};
 			},
 		),
+
+	resetInvites: adminProcedure
+		.input(
+			z.object({
+				huntIds: idSchemaCoerce.array(),
+			}),
+		)
+		.mutation(async ({ input: { huntIds } }) => {
+			await db.huntHunter.updateMany({
+				where: {
+					huntId: {
+						in: huntIds,
+					},
+				},
+				data: {
+					expiresAt: null,
+					fromHunterId: null,
+					status: InviteStatus.Pending,
+				},
+			});
+		}),
 });

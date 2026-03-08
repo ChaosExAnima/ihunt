@@ -1,8 +1,15 @@
-import { Edit, EyeClosedIcon, EyeIcon, Play } from 'lucide-react';
-import { useMemo } from 'react';
+import {
+	EditIcon,
+	EyeClosedIcon,
+	EyeIcon,
+	PlayIcon,
+	TimerResetIcon,
+} from 'lucide-react';
+import { useCallback, useMemo } from 'react';
 import {
 	BulkDeleteWithConfirmButton,
 	BulkUpdateWithConfirmButton,
+	Button,
 	Datagrid,
 	DateField,
 	FunctionField,
@@ -22,6 +29,7 @@ import {
 import { HUNT_MAX_DANGER, HuntStatus, Locale } from '@/lib/constants';
 
 import { AdminHuntHunters } from '../components/hunter-list';
+import { useTypedDataProvider } from '../data';
 import { AdminHuntSchema } from '../schemas';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import { HuntCompleteDialog } from './complete-dialog';
@@ -86,22 +94,24 @@ function HuntActions() {
 	const hunt = useRecordContext<AdminHuntSchema>();
 	const [update, { isPending }] = useUpdate<AdminHuntSchema>();
 
+	const handleStart = useCallback(() => {
+		if (hunt) {
+			void update('hunt', {
+				data: { status: HuntStatus.Active },
+				id: hunt.id,
+				previousData: hunt,
+			});
+		}
+	}, [update, hunt]);
+
 	if (!hunt) {
 		return null;
 	}
-
-	const handleStart = () => {
-		void update('hunt', {
-			data: { status: HuntStatus.Active },
-			id: hunt.id,
-			previousData: hunt,
-		});
-	};
 	return (
 		<div>
 			<Link to={`/hunt/${hunt.id}`}>
 				<IconButtonWithTooltip label="Edit">
-					<Edit />
+					<EditIcon />
 				</IconButtonWithTooltip>
 			</Link>
 			{hunt.status === HuntStatus.Available && (
@@ -110,7 +120,7 @@ function HuntActions() {
 					label="Start"
 					onClick={handleStart}
 				>
-					<Play />
+					<PlayIcon />
 				</IconButtonWithTooltip>
 			)}
 			{hunt.status === HuntStatus.Active && <HuntCompleteDialog />}
@@ -138,6 +148,13 @@ function HuntBulkActions() {
 		return null;
 	}, [data, selectedIds]);
 
+	const { resetInvites } = useTypedDataProvider();
+	const handleResetInvites = useCallback(() => {
+		if (data?.length) {
+			void resetInvites({ huntIds: data.map(({ id }) => id) });
+		}
+	}, [data, resetInvites]);
+
 	return (
 		<>
 			{showType && (
@@ -153,6 +170,12 @@ function HuntBulkActions() {
 				/>
 			)}
 			<BulkDeleteWithConfirmButton />
+
+			<Button
+				label="Reset invites"
+				startIcon={<TimerResetIcon />}
+				onClick={handleResetInvites}
+			/>
 		</>
 	);
 }
