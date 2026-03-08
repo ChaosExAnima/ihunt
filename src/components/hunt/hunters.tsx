@@ -4,16 +4,19 @@ import { arrayOfLength } from '@/lib/utils';
 import { Avatar, AvatarEmpty, AvatarLocked } from '../avatar';
 
 interface HuntHuntersDisplayProps {
-	isReserved?: boolean;
+	reservations?: number;
 }
 
 export function HuntHuntersDisplay({
 	hunters = [],
-	isReserved = false,
+	reservations = 0,
 	maxHunters = 0,
 }: HuntHuntersDisplayProps &
 	Partial<Pick<HuntSchema, 'hunters' | 'maxHunters'>>) {
-	const emptySpots = arrayOfLength(maxHunters - hunters.length);
+	const reservedSpots = arrayOfLength(reservations);
+	const emptySpots = arrayOfLength(
+		maxHunters - (hunters.length + reservations),
+	);
 	return (
 		<div className="flex items-center gap-2 text-sm">
 			<p>Hunters:</p>
@@ -23,13 +26,14 @@ export function HuntHuntersDisplay({
 						<Avatar hunter={hunter} link />
 					</li>
 				))}
+				{reservedSpots.map((index) => (
+					<li key={index}>
+						<AvatarLocked className="pl-1" />
+					</li>
+				))}
 				{emptySpots.map((index) => (
 					<li key={index}>
-						{isReserved ? (
-							<AvatarLocked className="pl-1" />
-						) : (
-							<AvatarEmpty />
-						)}
+						<AvatarEmpty />
 					</li>
 				))}
 			</ul>

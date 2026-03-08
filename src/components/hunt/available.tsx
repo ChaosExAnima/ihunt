@@ -41,8 +41,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const remainingHunts = HUNT_MAX_PER_DAY - huntsToday;
 	const canJoinHunt =
 		remainingHunts > 0 &&
-		maxHunters - hunters.length > 0 &&
-		reserved?.status !== 'reserved' &&
+		maxHunters - hunters.length - (reserved?.count ?? 0) > 0 &&
 		reserved?.status !== 'declined';
 
 	const isLockedDown = useLockedDown(hunt.scheduledAt);

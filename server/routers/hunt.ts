@@ -78,17 +78,13 @@ export const huntRouter = router({
 				hunterId: currentHunter.id,
 			});
 
-			return hunts.map(({ huntHunters, ...hunt }) => {
-				return {
-					...hunt,
-					hunters: huntHunters
-						.filter(
-							({ status }) => status === InviteStatus.Accepted,
-						)
-						.map(({ hunter }) => hunter),
-					reserved: reservedMap.get(hunt.id),
-				};
-			});
+			return hunts.map(({ huntHunters, ...hunt }) => ({
+				...hunt,
+				hunters: huntHunters
+					.filter(({ status }) => status === InviteStatus.Accepted)
+					.map(({ hunter }) => hunter),
+				reserved: reservedMap.get(hunt.id),
+			}));
 		}),
 
 	getCompleted: userProcedure

@@ -95,6 +95,7 @@ export function invitesToReserved({
 		huntReservedMap.set(invite.huntId, {
 			expires: invite.expiresAt,
 			status,
+			count: (mapData?.count ?? 0) + 1,
 		});
 	}
 	return huntReservedMap;
