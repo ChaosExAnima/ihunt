@@ -34,9 +34,9 @@ export async function createAuthContext({
 		return { req, res, session };
 	}
 	try {
-		const { hunters, ...user } = await db.user.findUniqueOrThrow({
+		const { hunter, ...user } = await db.user.findUniqueOrThrow({
 			include: {
-				hunters: {
+				hunter: {
 					include: {
 						avatar: true,
 					},
@@ -50,7 +50,7 @@ export async function createAuthContext({
 			},
 		});
 		return {
-			hunter: hunters.at(0),
+			hunter,
 			req,
 			res,
 			session,
