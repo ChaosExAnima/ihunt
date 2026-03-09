@@ -13,10 +13,13 @@ export function HuntHuntersDisplay({
 	maxHunters = 0,
 }: HuntHuntersDisplayProps &
 	Partial<Pick<HuntSchema, 'hunters' | 'maxHunters'>>) {
-	const reservedSpots = arrayOfLength(reservations);
+	const reservedSpots = arrayOfLength(
+		Math.min(reservations, maxHunters - hunters.length),
+	);
 	const emptySpots = arrayOfLength(
 		maxHunters - (hunters.length + reservations),
 	);
+
 	return (
 		<div className="flex items-center gap-2 text-sm">
 			<p>Hunters:</p>

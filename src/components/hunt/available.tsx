@@ -39,10 +39,9 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	);
 
 	const remainingHunts = HUNT_MAX_PER_DAY - huntsToday;
+	const openSpots = maxHunters - (hunters.length + (reserved?.count ?? 0));
 	const canJoinHunt =
-		remainingHunts > 0 &&
-		maxHunters - hunters.length - (reserved?.count ?? 0) > 0 &&
-		reserved?.status !== 'declined';
+		remainingHunts > 0 && openSpots > 0 && reserved?.status !== 'declined';
 
 	const isLockedDown = useLockedDown(hunt.scheduledAt);
 
@@ -50,6 +49,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		<HuntBase {...props}>
 			<HuntInvite
 				noHunts={remainingHunts === 0}
+				hasSpace={openSpots > 0}
+				hasJoined={hasAccepted}
 				reserved={reserved}
 				key={reserved?.status}
 			/>
@@ -97,8 +98,14 @@ function checkHuntTime(ts?: number) {
 
 function HuntInvite({
 	noHunts,
+	hasSpace,
+	hasJoined,
 	reserved,
-}: Pick<HuntSchema, 'reserved'> & { noHunts: boolean }) {
+}: Pick<HuntSchema, 'reserved'> & {
+	noHunts: boolean;
+	hasSpace: boolean;
+	hasJoined: boolean;
+}) {
 	const expiresTs = reserved?.expires?.getTime();
 	const [minutesLeft, setMinutesLeft] = useState(() =>
 		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
@@ -111,7 +118,12 @@ function HuntInvite({
 	}, [expiresTs]);
 	useInterval({ cb: handleInterval, interval: 10 * SECOND });
 
-	if (!reserved || minutesLeft <= 0) {
+	if (
+		!reserved ||
+		minutesLeft <= 0 ||
+		(hasSpace && reserved.status === 'reserved') ||
+		(hasJoined && reserved.status !== 'sent')
+	) {
 		return null;
 	}
 

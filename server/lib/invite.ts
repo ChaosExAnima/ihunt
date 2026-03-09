@@ -110,6 +110,30 @@ export async function fetchInviteesForHunt({
 	groupId: number;
 	huntId: number;
 }) {
+	const hunt = await db.hunt.findUniqueOrThrow({
+		where: {
+			id: huntId,
+		},
+	});
+	const invites = await db.huntHunter.findMany({
+		where: {
+			huntId,
+			hunterId: {
+				not: fromHunterId,
+			},
+		},
+	});
+
+	// Check if there is space left.
+	const activeInvites = invites.filter(
+		({ status }) =>
+			status === InviteStatus.Accepted || status === InviteStatus.Pending,
+	);
+
+	if (hunt.maxHunters - activeInvites.length <= 0) {
+		return [];
+	}
+
 	// Get the hunters in the group.
 	const hunters = await db.hunter.findMany({
 		where: {
@@ -121,16 +145,6 @@ export async function fetchInviteesForHunt({
 		},
 	});
 
-	// Find existing invites that are rejected or expired.
-	const oldInvites = await db.huntHunter.findMany({
-		where: {
-			huntId,
-			hunterId: {
-				in: extractIds(hunters),
-			},
-		},
-	});
-
 	const invitees: Hunter[] = [];
 	for (const hunter of hunters) {
 		// Don't invite the inviting hunter.
@@ -138,12 +152,12 @@ export async function fetchInviteesForHunt({
 			continue;
 		}
 
-		const oldInvite = oldInvites.find(
+		const oldInvite = invites.find(
 			({ hunterId }) => hunterId === hunter.id,
 		);
 		if (
-			oldInvite?.fromHunterId ||
-			oldInvite?.status === InviteStatus.Accepted
+			oldInvite?.fromHunterId || // Already been invited
+			oldInvite?.status === InviteStatus.Accepted // Already part of the hunt
 		) {
 			continue;
 		}
