@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
@@ -11,37 +11,34 @@ import { ConfirmDialog } from '../confirm-dialog';
 
 interface HuntInviteModalProps {
 	huntId: number;
+	inviteeIds: number[];
 	onClose?: () => void;
 }
 
-export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
-	const { data: availableIds, isLoading } = useQuery(
-		trpc.invite.availableInvitees.queryOptions({ huntId }),
-	);
+export function HuntInviteModal({
+	huntId,
+	inviteeIds,
+	onClose,
+}: HuntInviteModalProps) {
 	const { data: group } = useQuery(trpc.hunter.getGroup.queryOptions());
-	useEffect(() => {
-		if (availableIds?.length === 0) {
-			onClose?.();
-		}
-	}, [availableIds?.length, onClose]);
 
 	const { availableHunters, unavailableHunters } = useMemo(() => {
 		const groupHunters = group?.hunters ?? [];
-		if (!groupHunters.length || !availableIds) {
+		if (!groupHunters.length || !inviteeIds) {
 			return {};
 		}
 
 		const availableHunters: HunterSchema[] = [];
 		const unavailableHunters: HunterSchema[] = [];
 		for (const hunter of groupHunters) {
-			if (availableIds.includes(hunter.id)) {
+			if (inviteeIds.includes(hunter.id)) {
 				availableHunters.push(hunter);
 			} else {
 				unavailableHunters.push(hunter);
 			}
 		}
 		return { availableHunters, unavailableHunters };
-	}, [availableIds, group?.hunters]);
+	}, [inviteeIds, group?.hunters]);
 
 	const invalidate = useInvalidate();
 	const { mutate } = useMutation(
@@ -56,10 +53,7 @@ export function HuntInviteModal({ huntId, onClose }: HuntInviteModalProps) {
 		onClose?.();
 	}, [huntId, mutate, onClose]);
 
-	if (
-		isLoading ||
-		(!availableHunters?.length && !unavailableHunters?.length)
-	) {
+	if (!availableHunters?.length && !unavailableHunters?.length) {
 		return null;
 	}
 

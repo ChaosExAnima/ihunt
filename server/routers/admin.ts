@@ -9,13 +9,14 @@ import {
 } from '@/admin/schemas';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
-import { extractIds, idsToObjects, omit } from '@/lib/utils';
+import { extractIds, extractKey, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
 import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
-import { passwordToHash, stringToPassword } from '../lib/auth';
+import { handleToHash } from '../lib/auth';
+import { InviteStatus } from '../lib/schema';
 
 export const adminRouter = router({
 	create: adminProcedure
@@ -44,25 +45,15 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
-					const hunters = await db.hunter.findMany({
-						where: {
-							id: {
-								in: data.hunterIds,
-							},
-							alive: true,
-						},
+					const hunter = await db.hunter.findUnique({
+						where: { id: data.hunterId },
 					});
-					const handle = stringToPassword(
-						hunters.at(0)?.handle ?? 'password',
-					);
 					return await db.user.create({
 						data: {
-							name: data.name,
-							run: data.run,
-							password: await passwordToHash(handle),
-							hunters: {
-								connect: idsToObjects(data.hunterIds),
-							},
+							...data,
+							password: await handleToHash(
+								hunter?.handle ?? 'password',
+							),
 						},
 					});
 				}
@@ -217,9 +208,7 @@ export const adminRouter = router({
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
-								hunters: {
-									select: { id: true },
-								},
+								huntHunters: true,
 								photos: {
 									select: { id: true },
 								},
@@ -235,11 +224,25 @@ export const adminRouter = router({
 							},
 						});
 						return {
-							data: hunts.map(({ hunters, photos, ...hunt }) => ({
-								...hunt,
-								hunterIds: extractIds(hunters),
-								photoIds: extractIds(photos),
-							})),
+							data: hunts.map(
+								({ huntHunters, photos, ...hunt }) => ({
+									...hunt,
+									hunterIds: extractKey(
+										huntHunters.filter(
+											({ status }) =>
+												status ===
+												InviteStatus.Accepted,
+										),
+										'hunterId',
+									),
+									photoIds: extractIds(photos),
+									reserved: huntHunters.some(
+										({ status, expiresAt }) =>
+											status === InviteStatus.Pending &&
+											!!expiresAt,
+									),
+								}),
+							),
 							total: await db.hunt.count({
 								where: { ...filter, ...where },
 							}),
@@ -250,9 +253,12 @@ export const adminRouter = router({
 						const hunters = await db.hunter.findMany({
 							...query,
 							include: {
-								hunts: {
+								huntHunters: {
 									select: {
-										id: true,
+										huntId: true,
+									},
+									where: {
+										status: InviteStatus.Accepted,
 									},
 								},
 							},
@@ -272,9 +278,9 @@ export const adminRouter = router({
 							},
 						});
 						return {
-							data: hunters.map(({ hunts, ...hunter }) => ({
+							data: hunters.map(({ huntHunters, ...hunter }) => ({
 								...hunter,
-								huntIds: extractIds(hunts),
+								huntIds: extractKey(huntHunters, 'huntId'),
 							})),
 							total: await db.hunter.count({
 								where: { ...filter, ...where },
@@ -310,14 +316,6 @@ export const adminRouter = router({
 					case 'user': {
 						const users = await db.user.findMany({
 							...query,
-							include: {
-								hunters: {
-									orderBy: {
-										alive: 'desc',
-									},
-									select: { id: true },
-								},
-							},
 							omit: { password: true },
 							where: {
 								...where,
@@ -329,10 +327,7 @@ export const adminRouter = router({
 							},
 						});
 						return {
-							data: users.map(({ hunters, ...user }) => ({
-								...user,
-								hunterIds: extractIds(hunters),
-							})),
+							data: users,
 							total: await db.user.count({ where }),
 						};
 					}
@@ -366,19 +361,20 @@ export const adminRouter = router({
 					};
 				}
 				case 'hunt': {
-					const { hunters, photos, ...hunt } =
+					const { huntHunters, photos, ...hunt } =
 						await db.hunt.findUniqueOrThrow({
 							...query,
 							include: {
-								hunters: {
-									select: { id: true },
+								huntHunters: {
+									select: { hunterId: true },
+									where: { status: InviteStatus.Accepted },
 								},
 								photos: { select: { id: true } },
 							},
 						});
 					return {
 						...hunt,
-						hunterIds: extractIds(hunters),
+						hunterIds: extractKey(huntHunters, 'hunterId'),
 						photoIds: extractIds(photos),
 					};
 				}
@@ -389,20 +385,10 @@ export const adminRouter = router({
 				case 'photo':
 					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					const { hunters, ...user } =
-						await db.user.findUniqueOrThrow({
-							...query,
-							include: {
-								hunters: {
-									orderBy: {
-										alive: 'asc',
-									},
-									select: { id: true },
-								},
-							},
-							omit: { password: true },
-						});
-					return { hunterIds: extractIds(hunters), ...user };
+					return db.user.findUniqueOrThrow({
+						...query,
+						omit: { password: true },
+					});
 				}
 			}
 		}),
@@ -487,14 +473,20 @@ export const adminRouter = router({
 					});
 					const hunts = await db.hunt.findMany({
 						include: {
-							hunters: true,
+							huntHunters: {
+								include: {
+									hunter: true,
+								},
+							},
 						},
 						where,
 					});
 					for (const hunt of hunts) {
 						await updateHunt({
 							hunt,
-							hunters: hunt.hunters,
+							hunters: hunt.huntHunters.flatMap(
+								({ hunter }) => hunter,
+							),
 						});
 					}
 
@@ -555,28 +547,44 @@ export const adminRouter = router({
 							message: 'Cannot assign more hunters than maximum',
 						});
 					}
-					const { hunters, ...result } = await db.hunt.update({
+					const { huntHunters, ...hunt } = await db.hunt.update({
 						data: {
 							...omit(data, 'hunterIds', 'photoIds'),
-							hunters: {
-								set: idsToObjects(data.hunterIds),
-							},
 							photos: {
 								set: idsToObjects(data.photoIds),
 							},
-						},
-						include: {
-							hunters: true,
+							huntHunters: {
+								connectOrCreate: (data.hunterIds ?? []).map(
+									(hunterId) => ({
+										create: {
+											hunterId,
+										},
+										where: {
+											huntId_hunterId: {
+												hunterId,
+												huntId: id,
+											},
+										},
+									}),
+								),
+							},
 						},
 						where: { id },
+						include: {
+							huntHunters: {
+								include: {
+									hunter: true,
+								},
+							},
+						},
 					});
 					const updates = await updateHunt({
-						hunt: result,
-						hunters,
+						hunt,
+						hunters: huntHunters.map(({ hunter }) => hunter),
 					});
 					return {
-						...result,
-						hunterIds: extractIds(hunters),
+						...hunt,
+						hunterIds: extractKey(huntHunters, 'hunterId'),
 						updates,
 					};
 				}
@@ -592,15 +600,28 @@ export const adminRouter = router({
 					});
 				case 'user': {
 					return db.user.update({
-						data: {
-							...omit(data, 'hunterIds'),
-							hunters: {
-								set: idsToObjects(data.hunterIds),
-							},
-						},
+						data,
 						where: { id },
 					});
 				}
 			}
+		}),
+
+	resetPassword: adminProcedure
+		.input(z.object({ userId: idSchemaCoerce }))
+		.mutation(async ({ input: { userId } }) => {
+			const hunter = await db.hunter.findUnique({
+				where: {
+					userId,
+				},
+			});
+			await db.user.update({
+				where: {
+					id: userId,
+				},
+				data: {
+					password: await handleToHash(hunter?.handle ?? 'password'),
+				},
+			});
 		}),
 });

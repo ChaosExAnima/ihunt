@@ -15,6 +15,8 @@ import type { AppRouter } from '@/server/index';
 
 import { toast } from '@/hooks/use-toast';
 
+import { isDev } from './utils';
+
 export const queryClient = new QueryClient({
 	defaultOptions: {
 		mutations: {
@@ -34,7 +36,7 @@ const trpcClient = createTRPCClient<AppRouter>({
 		splitLink({
 			condition: (op) => op.type === 'subscription',
 			false: splitLink({
-				condition: (op) => isNonJsonSerializable(op.input),
+				condition: (op) => isNonJsonSerializable(op.input) || isDev(),
 				false: httpBatchLink({
 					transformer: superjson,
 					url,

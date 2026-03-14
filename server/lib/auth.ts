@@ -26,36 +26,43 @@ export async function createAuthContext({
 }: CreateFastifyContextOptions) {
 	const session = await getSession({ req, res });
 
+	const context = {
+		req,
+		res,
+		session,
+		admin: false,
+		hunter: null,
+		user: null,
+	};
+
 	if (session.isAdmin) {
-		return { admin: true, req, res, session };
+		context.admin = true;
 	}
 
 	if (!session.userId) {
-		return { req, res, session };
+		return context;
 	}
 	try {
-		const { hunters, ...user } = await db.user.findUniqueOrThrow({
+		const { hunter, ...user } = await db.user.findUniqueOrThrow({
 			include: {
-				hunters: {
+				hunter: {
 					include: {
 						avatar: true,
-					},
-					where: {
-						alive: true,
 					},
 				},
 			},
 			where: {
 				id: session.userId,
 			},
+			omit: {
+				password: true,
+			},
 		});
 		return {
-			hunter: hunters.at(0),
-			req,
-			res,
-			session,
+			...context,
+			hunter,
 			user: {
-				...omit(user, 'password', 'settings'),
+				...omit(user, 'settings'),
 				settings: userSettingsDatabaseSchema.parse(user.settings),
 			},
 		};
@@ -63,7 +70,7 @@ export async function createAuthContext({
 		req.log.warn(err, `Error logging in user ${session.userId}`);
 		session.destroy();
 	}
-	return { req, res, session };
+	return context;
 }
 
 export function getSession({
@@ -91,4 +98,12 @@ export function stringToPassword(input: string) {
 		.toLowerCase()
 		.replaceAll(/[^a-z0-9]+/g, '')
 		.slice(0, PASSWORD_CHAR_COUNT);
+}
+
+export function handleToHash(handle: string) {
+	const input = stringToPassword(handle);
+	if (input.length !== PASSWORD_CHAR_COUNT) {
+		throw Error('Invalid password length');
+	}
+	return passwordToHash(input);
 }

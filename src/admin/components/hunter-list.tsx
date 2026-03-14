@@ -7,7 +7,7 @@ import {
 	useRecordContext,
 } from 'react-admin';
 
-import { AvatarEmpty } from '@/components/avatar';
+import { AvatarEmpty, AvatarLocked } from '@/components/avatar';
 import {
 	Tooltip,
 	TooltipContent,
@@ -101,7 +101,7 @@ export function AdminHuntHunters() {
 			))}
 			{slots.map((_, index) => (
 				<li key={index}>
-					<AvatarEmpty />
+					{record.reserved ? <AvatarLocked /> : <AvatarEmpty />}
 				</li>
 			))}
 		</ul>

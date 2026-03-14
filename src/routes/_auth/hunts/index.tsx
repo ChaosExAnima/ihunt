@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Header } from '@/components/header';
 import { HuntDisplay } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed-list';
+import { HuntInviteModal } from '@/components/hunt/invite-dialog';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
 	Carousel,
@@ -36,23 +37,38 @@ function RouteComponent() {
 	});
 
 	const invalidate = useInvalidate();
-	const { mutate } = useMutation(
+	const { mutateAsync } = useMutation(
 		trpc.hunt.join.mutationOptions({
 			onSuccess() {
 				invalidate([
 					trpc.hunt.getAvailable.queryKey(),
+					trpc.hunt.getHuntsToday.queryKey(),
 					trpc.invite.pathKey(),
 				]);
 			},
 		}),
 	);
 
+	const [acceptedHunt, setAcceptedHunt] = useState<{
+		huntId: number;
+		inviteeIds: number[];
+	} | null>(null);
 	const handleAcceptHunt = useCallback(
 		(huntId: number) => {
-			mutate({ huntId });
+			void mutateAsync({ huntId }).then(({ invitees = [] }) => {
+				if (invitees.length) {
+					setAcceptedHunt({
+						huntId,
+						inviteeIds: invitees,
+					});
+				}
+			});
 		},
-		[mutate],
+		[mutateAsync],
 	);
+	const handleCloseInviteModal = useCallback(() => {
+		setAcceptedHunt(null);
+	}, []);
 
 	const { data: acceptedToday = 0 } = useQuery(
 		trpc.hunt.getHuntsToday.queryOptions(),
@@ -109,6 +125,13 @@ function RouteComponent() {
 					</CarouselItem>
 				</CarouselContent>
 			</Carousel>
+			{acceptedHunt && (
+				<HuntInviteModal
+					huntId={acceptedHunt.huntId}
+					inviteeIds={acceptedHunt.inviteeIds}
+					onClose={handleCloseInviteModal}
+				/>
+			)}
 		</>
 	);
 }

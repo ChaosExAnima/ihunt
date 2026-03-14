@@ -7,13 +7,14 @@ services:
       - ${UPLOAD_PATH}:/mnt/images:ro
     environment:
       PORT: 9000
-      IMGPROXY_KEY: "${IMGPROXY_KEY:-imgproxy_key}"
-      IMGPROXY_SALT: "${IMGPROXY_SALT:-imgproxy_salt}"
+      IMGPROXY_KEY: "${IMGPROXY_KEY}"
+      IMGPROXY_SALT: "${IMGPROXY_SALT}"
       IMGPROXY_WORKERS: 20
       IMGPROXY_USE_ETAG: "true"
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: "/mnt/images"
+      IMGPROXY_PATH_PREFIX: /images
     ports:
-      - "${IMGPROXY_PORT:-9000}:9000"
+      - "9000:9000"
 
   postgres:
     image: postgres

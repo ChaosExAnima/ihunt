@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react';
 import {
 	ChangeEvent,
-	FormEventHandler,
+	SubmitEventHandler,
 	useCallback,
 	useMemo,
 	useState,
@@ -37,7 +37,7 @@ export function HuntCompleteDialog() {
 	});
 	const [update, { isLoading }] = useUpdate<AdminHuntSchema>();
 
-	const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
+	const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
 		(event) => {
 			event.preventDefault();
 			void update('hunt', {

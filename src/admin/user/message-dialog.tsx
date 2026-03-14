@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react';
-import { FormEventHandler, useCallback, useState } from 'react';
+import { SubmitEventHandler, useCallback, useState } from 'react';
 import { Button, useListContext, useNotify } from 'react-admin';
 
 import {
@@ -26,7 +26,7 @@ export function MessageDialog() {
 	const notify = useNotify();
 
 	const { message } = useTypedDataProvider();
-	const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
+	const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
 		(event) => {
 			event.preventDefault();
 			const data = new FormData(event.currentTarget);

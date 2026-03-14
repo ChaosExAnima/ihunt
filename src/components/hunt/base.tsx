@@ -31,7 +31,6 @@ export function HuntBase({
 		setShowCW((prev) => !prev);
 	}, []);
 
-	const { status } = hunt.reserved ?? {};
 	return (
 		<Card className={cn(className, 'flex flex-col gap-2 p-4')}>
 			{!hideHeader && <HuntHeader {...hunt} />}
@@ -39,7 +38,7 @@ export function HuntBase({
 
 			<HuntHuntersDisplay
 				hunters={hunt.hunters}
-				isReserved={status === 'reserved' || status === 'declined'}
+				reservations={hunt.reserved?.count}
 				maxHunters={
 					hunt.status !== HuntStatus.Available ? 0 : hunt.maxHunters
 				}

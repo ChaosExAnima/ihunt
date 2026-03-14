@@ -9,14 +9,8 @@ import {
 	idSchemaCoerce,
 } from '@/lib/schemas';
 import { db } from '@/server/lib/db';
-import { uploadPhoto } from '@/server/lib/photo';
 import { outputHuntSchema } from '@/server/lib/schema';
-import {
-	adminProcedure,
-	debugProcedure,
-	router,
-	userProcedure,
-} from '@/server/lib/trpc';
+import { debugProcedure, router, userProcedure } from '@/server/lib/trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure
@@ -100,41 +94,28 @@ export const hunterRouter = router({
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const hunter = await db.hunter.findUniqueOrThrow({
-				include: {
-					avatar: true,
-					hunts: {
-						where: {
-							status: HuntStatus.Complete,
+			const { huntHunters, ...hunter } =
+				await db.hunter.findUniqueOrThrow({
+					include: {
+						avatar: true,
+						huntHunters: {
+							where: {
+								hunt: {
+									status: HuntStatus.Complete,
+								},
+							},
+							include: {
+								hunt: true,
+							},
 						},
 					},
-				},
-				where: { id },
-			});
+					where: { id },
+				});
 
 			return {
 				...hunter,
 				type: hunterTypeSchema.parse(hunter.type),
+				hunts: huntHunters.map(({ hunt }) => hunt),
 			};
-		}),
-
-	updateAvatar: adminProcedure
-		.input(
-			z.instanceof(FormData).transform((fd) =>
-				z
-					.object({
-						hunterId: idSchemaCoerce,
-						photo: z.instanceof(File),
-					})
-					.parse(Object.fromEntries(fd.entries())),
-			),
-		)
-		.mutation(async ({ input: { hunterId, photo } }) => {
-			const result = await uploadPhoto({
-				buffer: await photo.bytes(),
-				hunterId,
-				name: photo.name,
-			});
-			return { success: true, ...result };
 		}),
 });
