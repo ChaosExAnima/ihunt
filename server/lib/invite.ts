@@ -1,7 +1,6 @@
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
 import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
-import { extractIds } from '@/lib/utils';
 
 import { db, Hunt, Hunter, HuntHunter } from './db';
 import { inviteResponseEvent, notifyUser } from './notify';
