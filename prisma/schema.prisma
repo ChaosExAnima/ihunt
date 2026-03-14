@@ -70,7 +70,7 @@ model HuntHunter {
     paid         Int?
     fromHunterId Int?
 
-    @@unique([huntId, hunterId])
+    @@id([huntId, hunterId])
     @@index([expiresAt])
 }
 
