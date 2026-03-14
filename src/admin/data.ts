@@ -63,7 +63,7 @@ export const authProvider = {
 	},
 	// remove local credentials and notify the auth server that the user logged out
 	async logout() {
-		await trpc.auth.logOut.mutate();
+		await trpc.auth.adminLogout.mutate();
 	},
 } satisfies AuthProvider;
 
