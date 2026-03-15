@@ -31,23 +31,24 @@ model Hunt {
 }
 
 model Hunter {
-    id          Int          @id @default(autoincrement())
-    name        String
-    handle      String       @unique
-    alive       Boolean      @default(true)
-    photos      Photo[]      @relation("Photos")
-    avatar      Photo?       @relation("Avatar", fields: [avatarId], references: [id])
-    avatarId    Int?         @unique
-    money       Int          @default(0)
-    user        User?        @relation(fields: [userId], references: [id])
-    userId      Int?         @unique
-    groupId     Int?
-    group       HunterGroup? @relation(fields: [groupId], references: [id])
-    bio         String?
-    pronouns    String?
-    type        String?
-    rating      Float        @default(1)
-    huntHunters HuntHunter[]
+    id            Int            @id @default(autoincrement())
+    name          String
+    handle        String         @unique
+    alive         Boolean        @default(true)
+    photos        Photo[]        @relation("Photos")
+    avatar        Photo?         @relation("Avatar", fields: [avatarId], references: [id])
+    avatarId      Int?           @unique
+    money         Int            @default(0)
+    user          User?          @relation(fields: [userId], references: [id])
+    userId        Int?           @unique
+    groupId       Int?
+    group         HunterGroup?   @relation(fields: [groupId], references: [id])
+    bio           String?
+    pronouns      String?
+    type          String?
+    rating        Float          @default(1)
+    huntHunters   HuntHunter[]
+    notifications Notification[]
 
     @@index([alive])
 }
@@ -87,6 +88,16 @@ model Photo {
     avatar   Hunter? @relation("Avatar")
 
     @@index([huntId, hunterId])
+}
+
+model Notification {
+    id        Int       @id @default(autoincrement())
+    createdAt DateTime  @default(now())
+    hunterId  Int
+    hunter    Hunter    @relation(fields: [hunterId], references: [id])
+    type      String
+    seenAt    DateTime?
+    event     Json
 }
 
 model User {

@@ -13,7 +13,7 @@ export const currencyFormatter = new Intl.NumberFormat(Locale, {
 	style: 'currency',
 });
 
-export function dateFormat(date: Date) {
+export function dateFormat(date: Date, showMinutes = false) {
 	const now = Date.now();
 	const diff = now - date.getTime();
 	if (diff >= OLD) {
@@ -28,6 +28,8 @@ export function dateFormat(date: Date) {
 			return `${Math.floor(diff / HOUR)} hours ago`;
 		}
 		return 'an hour ago';
+	} else if (showMinutes && diff >= MINUTE * 2) {
+		return `${Math.floor(diff / MINUTE)} minutes ago`;
 	}
 	return 'recently';
 }

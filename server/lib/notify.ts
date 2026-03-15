@@ -4,6 +4,7 @@ import webpush, { WebPushError } from 'web-push';
 
 import { DAY, MINUTE } from '@/lib/formats';
 import { NotifyEventSchema } from '@/lib/schemas';
+import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db, Hunt, Hunter } from './db';
@@ -34,6 +35,7 @@ export function huntAvailableEvent(): NotifyEventSchema {
 	return {
 		title: 'New hunts are available',
 		type: 'hunt-update',
+		url: '/hunts',
 	};
 }
 
@@ -52,15 +54,22 @@ export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
 		title: `Hunt ${name} is complete!`,
 		type: 'hunt-complete',
 		url: `/hunts/${id}`,
+		huntId: hunt.id,
 	};
 }
 
-export function huntStartingEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
+export function huntStartingEvent({
+	hunt,
+	noTime,
+}: {
+	hunt: Hunt;
+	noTime?: boolean;
+}): NotifyEventSchema {
 	const { name, scheduledAt } = hunt;
 	const timeDiff = (scheduledAt?.getTime() ?? 0) - Date.now();
 	let body = `${name} is starting shortly. Be ready to hunt!`;
 
-	if (timeDiff > MINUTE) {
+	if (timeDiff > MINUTE && !noTime) {
 		body = `${name} is starting in ${Math.ceil(timeDiff / MINUTE)} minutes. Be ready to hunt!`;
 	}
 
@@ -68,6 +77,8 @@ export function huntStartingEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
 		body,
 		title: `${name} is starting soon`,
 		type: 'hunt-starting',
+		url: `/hunts/${hunt.id}`,
+		huntId: hunt.id,
 	};
 }
 
@@ -80,17 +91,23 @@ export function inviteResponseEvent({
 	hunt: Hunt;
 	response: 'accept' | 'decline';
 }): NotifyEventSchema {
+	const extra = {
+		url: `/hunts/${hunt.id}`,
+		huntId: hunt.id,
+	};
 	if (response === 'accept') {
 		return {
 			body: `${fromHunter.handle} has accepted your invitation to join the hunt ${hunt.name}`,
 			title: `${fromHunter.handle} has joined your hunt`,
 			type: 'invite-accept',
+			...extra,
 		};
 	}
 	return {
 		body: `${fromHunter.handle} has declined your invitation to join the hunt ${hunt.name}`,
 		title: `${fromHunter.handle} has declined your invitation`,
 		type: 'invite-decline',
+		...extra,
 	};
 }
 
@@ -106,6 +123,7 @@ export function inviteSendEvent({
 		title: `${fromHunter.handle} invited you to hunt`,
 		type: 'invite-receive',
 		url: `/hunts/${hunt.id}`,
+		huntId: hunt.id,
 	};
 }
 
@@ -126,6 +144,63 @@ interface NotifyArgs {
 	event: NotifyEventSchema;
 	force?: boolean;
 	userId: number;
+}
+
+export function notifyHunters({
+	hunterIds = [],
+	hunters = [],
+	...rest
+}: Omit<NotifyArgs, 'userId'> &
+	(
+		| { hunterIds: number[]; hunters?: undefined }
+		| { hunterIds?: undefined; hunters: Hunter[] }
+	)) {
+	const promises = [];
+	for (const hunterId of hunterIds) {
+		promises.push(notifyHunter({ hunterId, ...rest }));
+	}
+	for (const hunter of hunters) {
+		promises.push(notifyHunter({ hunter, ...rest }));
+	}
+	return Promise.all(promises);
+}
+
+export async function notifyHunter({
+	hunterId,
+	hunter,
+	event,
+	...rest
+}: Omit<NotifyArgs, 'userId'> &
+	(
+		| {
+				hunterId: number;
+				hunter?: undefined;
+		  }
+		| {
+				hunterId?: undefined;
+				hunter: Hunter;
+		  }
+	)) {
+	const { userId, id } =
+		hunter ??
+		(await db.hunter.findUniqueOrThrow({
+			where: {
+				id: hunterId,
+			},
+		}));
+
+	await db.notification.create({
+		data: {
+			hunterId: id,
+			type: event.type,
+			event: omit(event, 'type'),
+		},
+	});
+
+	if (!userId) {
+		return false;
+	}
+	return notifyUser({ userId, event, ...rest });
 }
 
 export async function notifyUser({ event, force, userId }: NotifyArgs) {

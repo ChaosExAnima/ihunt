@@ -14,7 +14,7 @@ import {
 	fetchInviteesForHunt,
 	respondToInvite,
 } from '../lib/invite';
-import { inviteSendEvent, notifyUser } from '../lib/notify';
+import { inviteSendEvent, notifyHunter } from '../lib/notify';
 import { InviteStatus } from '../lib/schema';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
@@ -167,8 +167,9 @@ export const inviteRouter = router({
 					hunt,
 				});
 
-				for (const { id: hunterId, userId } of invitees) {
+				for (const invitee of invitees) {
 					try {
+						const hunterId = invitee.id;
 						await db.huntHunter.upsert({
 							where: {
 								huntId_hunterId: {
@@ -189,12 +190,10 @@ export const inviteRouter = router({
 								status: InviteStatus.Pending,
 							},
 						});
-						if (userId) {
-							await notifyUser({
-								event,
-								userId,
-							});
-						}
+						await notifyHunter({
+							event,
+							hunter: invitee,
+						});
 					} catch (err) {
 						if (
 							err instanceof PrismaClientKnownRequestError &&

@@ -1,13 +1,105 @@
 import * as z from 'zod';
 
-import { idArray, notifyTypeSchema } from '@/lib/schemas';
+import {
+	idArray,
+	idSchema,
+	notifyEventSchema,
+	notifyTypeSchema,
+} from '@/lib/schemas';
 
+import { db, Prisma } from '../lib/db';
 import { handleError } from '../lib/error';
 import { ee, notifyUser, saveSubscription } from '../lib/notify';
 import { subscriptionSchema } from '../lib/schema';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
 export const notifyRouter = router({
+	list: userProcedure
+		.output(
+			notifyEventSchema
+				.extend({
+					id: idSchema,
+					seen: z.boolean(),
+					created: z.date(),
+					huntId: idSchema.optional(),
+				})
+				.array(),
+		)
+		.query(async ({ ctx: { hunter, hostBase } }) => {
+			const notifications = await db.notification.findMany({
+				where: {
+					hunter,
+				},
+				orderBy: {
+					createdAt: 'desc',
+				},
+			});
+
+			const schema = notifyEventSchema
+				.omit({ type: true, url: true })
+				.extend({ url: z.string().optional() });
+
+			return notifications.map(
+				({ id, createdAt, type, event: rawEvent, seenAt }) => {
+					const event = schema.parse(rawEvent);
+					return {
+						id,
+						seen: seenAt !== null,
+						created: createdAt,
+						type: notifyTypeSchema.parse(type),
+						...event,
+						url: event.url?.startsWith('/')
+							? `${hostBase}${event.url}`
+							: event.url,
+					};
+				},
+			);
+		}),
+
+	unreadCount: userProcedure.query(async ({ ctx: { hunter } }) => {
+		const count = await db.notification.count({
+			where: {
+				hunter,
+				seenAt: null,
+			},
+		});
+		return count;
+	}),
+
+	read: userProcedure
+		.input(
+			z
+				.object({
+					ids: idArray.optional(),
+					before: z.date().optional(),
+				})
+				.default({}),
+		)
+		.mutation(async ({ ctx: { hunter }, input: { ids, before } }) => {
+			const where: Prisma.NotificationWhereInput = {
+				hunter,
+				seenAt: null,
+			};
+			if (ids?.length) {
+				where.id = {
+					in: ids,
+				};
+			} else if (before) {
+				where.createdAt = {
+					lt: before,
+				};
+			}
+
+			const { count } = await db.notification.updateMany({
+				data: {
+					seenAt: new Date(),
+				},
+				where,
+			});
+
+			return count;
+		}),
+
 	message: adminProcedure
 		.input(
 			z.object({

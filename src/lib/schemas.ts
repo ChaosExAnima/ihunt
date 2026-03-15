@@ -112,13 +112,12 @@ export const notifyTypeSchema = z.enum([
 ]);
 export type NotifyTypeSchema = z.infer<typeof notifyTypeSchema>;
 
-export const notifyEventSchema = z
-	.object({
-		body: z.string().optional(),
-		icon: z.url().optional(),
-		title: z.string().optional(),
-		type: notifyTypeSchema,
-		url: z.url().optional(),
-	})
-	.and(z.record(z.string(), z.string().optional()));
+export const notifyEventSchema = z.object({
+	body: z.string().optional(),
+	icon: z.url().optional(),
+	title: z.string().optional(),
+	type: notifyTypeSchema,
+	url: z.url().optional(),
+	huntId: idSchema.optional(),
+});
 export type NotifyEventSchema = z.infer<typeof notifyEventSchema>;

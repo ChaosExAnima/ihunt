@@ -30,10 +30,16 @@ export async function createAuthContext({
 		req,
 		res,
 		session,
+		hostBase: `${req.protocol}://${req.hostname}${req.port ? ':' + req.port : ''}`,
 		admin: false,
 		hunter: null,
 		user: null,
 	};
+
+	const defaultHost = config.serverHosts.at(0);
+	if (defaultHost && !config.serverHosts.includes(context.hostBase)) {
+		context.hostBase = defaultHost;
+	}
 
 	if (session.isAdmin) {
 		context.admin = true;
