@@ -25,6 +25,9 @@ export const huntDisplayInclude = {
 				},
 			},
 		},
+		where: {
+			status: InviteStatus.Accepted,
+		},
 	},
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
