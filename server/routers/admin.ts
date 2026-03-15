@@ -575,6 +575,9 @@ export const adminRouter = router({
 								include: {
 									hunter: true,
 								},
+								where: {
+									status: InviteStatus.Accepted,
+								},
 							},
 						},
 					});

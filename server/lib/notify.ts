@@ -55,12 +55,18 @@ export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
 	};
 }
 
-export function huntStartingEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
+export function huntStartingEvent({
+	hunt,
+	noTime,
+}: {
+	hunt: Hunt;
+	noTime?: boolean;
+}): NotifyEventSchema {
 	const { name, scheduledAt } = hunt;
 	const timeDiff = (scheduledAt?.getTime() ?? 0) - Date.now();
 	let body = `${name} is starting shortly. Be ready to hunt!`;
 
-	if (timeDiff > MINUTE) {
+	if (timeDiff > MINUTE && !noTime) {
 		body = `${name} is starting in ${Math.ceil(timeDiff / MINUTE)} minutes. Be ready to hunt!`;
 	}
 
@@ -126,6 +132,25 @@ interface NotifyArgs {
 	event: NotifyEventSchema;
 	force?: boolean;
 	userId: number;
+}
+
+export function notifyHunters({
+	hunterIds = [],
+	hunters = [],
+	...rest
+}: Omit<NotifyArgs, 'userId'> &
+	(
+		| { hunterIds: number[]; hunters?: undefined }
+		| { hunterIds?: undefined; hunters: Hunter[] }
+	)) {
+	const promises = [];
+	for (const hunterId of hunterIds) {
+		promises.push(notifyHunter({ hunterId, ...rest }));
+	}
+	for (const hunter of hunters) {
+		promises.push(notifyHunter({ hunter, ...rest }));
+	}
+	return Promise.all(promises);
 }
 
 export async function notifyHunter({

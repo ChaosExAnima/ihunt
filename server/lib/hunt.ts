@@ -11,6 +11,7 @@ import {
 	huntCompleteEvent,
 	huntStartingEvent,
 	notifyHunter,
+	notifyHunters,
 	notifyHuntsReload,
 } from './notify';
 import { InviteStatus } from './schema';
@@ -144,7 +145,18 @@ export async function updateHunt({
 }) {
 	// Hunt newly up, notify hunters.
 	if (hunt.status === HuntStatus.Available) {
-		notifyHuntsReload(huntAvailableEvent());
+		await notifyHunters({
+			event: huntAvailableEvent(),
+			hunters,
+		});
+		return null;
+	}
+
+	if (hunt.status === HuntStatus.Active) {
+		await notifyHunters({
+			event: huntStartingEvent({ hunt, noTime: true }),
+			hunters,
+		});
 		return null;
 	}
 
