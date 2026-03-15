@@ -35,14 +35,28 @@ export function Notification(
 		</>
 	);
 
-	if (!notification.url) {
-		return notify;
+	const className = 'flex items-center gap-4';
+
+	if (notification.huntId) {
+		return (
+			<Link
+				to="/hunts/$huntId"
+				params={{ huntId: notification.huntId.toString() }}
+				className={className}
+			>
+				{notify}
+			</Link>
+		);
 	}
-	return (
-		<Link to={notification.url} className="flex items-center gap-4">
-			{notify}
-		</Link>
-	);
+
+	if (notification.url) {
+		return (
+			<Link to={notification.url} className={className}>
+				{notify}
+			</Link>
+		);
+	}
+	return notify;
 }
 
 export function NotificationIcon({

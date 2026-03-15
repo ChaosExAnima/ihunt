@@ -118,5 +118,6 @@ export const notifyEventSchema = z.object({
 	title: z.string().optional(),
 	type: notifyTypeSchema,
 	url: z.url().optional(),
+	huntId: idSchema.optional(),
 });
 export type NotifyEventSchema = z.infer<typeof notifyEventSchema>;

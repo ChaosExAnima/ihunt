@@ -17,7 +17,12 @@ export const notifyRouter = router({
 	list: userProcedure
 		.output(
 			notifyEventSchema
-				.extend({ id: idSchema, seen: z.boolean(), created: z.date() })
+				.extend({
+					id: idSchema,
+					seen: z.boolean(),
+					created: z.date(),
+					huntId: idSchema.optional(),
+				})
 				.array(),
 		)
 		.query(async ({ ctx: { hunter, hostBase } }) => {

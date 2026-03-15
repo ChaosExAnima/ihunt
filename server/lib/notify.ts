@@ -54,6 +54,7 @@ export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
 		title: `Hunt ${name} is complete!`,
 		type: 'hunt-complete',
 		url: `/hunts/${id}`,
+		huntId: hunt.id,
 	};
 }
 
@@ -77,6 +78,7 @@ export function huntStartingEvent({
 		title: `${name} is starting soon`,
 		type: 'hunt-starting',
 		url: `/hunts/${hunt.id}`,
+		huntId: hunt.id,
 	};
 }
 
@@ -89,19 +91,23 @@ export function inviteResponseEvent({
 	hunt: Hunt;
 	response: 'accept' | 'decline';
 }): NotifyEventSchema {
+	const extra = {
+		url: `/hunts/${hunt.id}`,
+		huntId: hunt.id,
+	};
 	if (response === 'accept') {
 		return {
 			body: `${fromHunter.handle} has accepted your invitation to join the hunt ${hunt.name}`,
 			title: `${fromHunter.handle} has joined your hunt`,
 			type: 'invite-accept',
-			url: `/hunts/${hunt.id}`,
+			...extra,
 		};
 	}
 	return {
 		body: `${fromHunter.handle} has declined your invitation to join the hunt ${hunt.name}`,
 		title: `${fromHunter.handle} has declined your invitation`,
 		type: 'invite-decline',
-		url: `/hunts/${hunt.id}`,
+		...extra,
 	};
 }
 
@@ -117,6 +123,7 @@ export function inviteSendEvent({
 		title: `${fromHunter.handle} invited you to hunt`,
 		type: 'invite-receive',
 		url: `/hunts/${hunt.id}`,
+		huntId: hunt.id,
 	};
 }
 
