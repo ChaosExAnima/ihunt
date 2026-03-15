@@ -20,22 +20,34 @@ export const notifyRouter = router({
 				.extend({ id: idSchema, seen: z.boolean(), created: z.date() })
 				.array(),
 		)
-		.query(async ({ ctx: { hunter } }) => {
+		.query(async ({ ctx: { hunter, hostBase } }) => {
 			const notifications = await db.notification.findMany({
 				where: {
 					hunter,
 				},
 				orderBy: {
-					createdAt: 'asc',
+					createdAt: 'desc',
 				},
 			});
 
-			return notifications.map(({ id, createdAt, event, seenAt }) => ({
-				id,
-				seen: seenAt !== null,
-				created: createdAt,
-				...notifyEventSchema.parse(event),
-			}));
+			const schema = notifyEventSchema
+				.omit({ url: true })
+				.extend({ url: z.string().optional() });
+
+			return notifications.map(
+				({ id, createdAt, event: rawEvent, seenAt }) => {
+					const event = schema.parse(rawEvent);
+					return {
+						id,
+						seen: seenAt !== null,
+						created: createdAt,
+						...event,
+						url: event.url?.startsWith('/')
+							? `${hostBase}${event.url}`
+							: event.url,
+					};
+				},
+			);
 		}),
 
 	unreadCount: userProcedure.query(async ({ ctx: { hunter } }) => {
@@ -50,7 +62,12 @@ export const notifyRouter = router({
 
 	read: userProcedure
 		.input(
-			z.object({ ids: idArray.optional(), before: z.date().optional() }),
+			z
+				.object({
+					ids: idArray.optional(),
+					before: z.date().optional(),
+				})
+				.default({}),
 		)
 		.mutation(async ({ ctx: { hunter }, input: { ids, before } }) => {
 			const where: Prisma.NotificationWhereInput = {
