@@ -13,6 +13,9 @@ export const Route = createFileRoute('/_auth')({
 		try {
 			if (onlineManager.isOnline()) {
 				await queryClient.ensureQueryData(trpc.auth.me.queryOptions());
+				await queryClient.ensureQueryData(
+					trpc.notify.unreadCount.queryOptions(),
+				);
 			}
 			return queryClient.prefetchQuery(trpc.auth.me.queryOptions());
 		} catch {
@@ -24,6 +27,9 @@ export const Route = createFileRoute('/_auth')({
 
 function Page() {
 	const { data: player } = useQuery(trpc.auth.me.queryOptions());
+	const { data: unreadCount = 0 } = useQuery(
+		trpc.notify.unreadCount.queryOptions(),
+	);
 
 	useNotifyRequestToast();
 	useNotifySubscribe();
@@ -35,7 +41,11 @@ function Page() {
 	return (
 		<PlayerInfoProvider info={player}>
 			<div className="flex w-full grow flex-col justify-stretch">
-				<Navbar hunter={player.hunter} isHuntActive={false} />
+				<Navbar
+					hunter={player.hunter}
+					isHuntActive={false}
+					unreadCount={unreadCount}
+				/>
 				<main className="flex grow flex-col gap-2 px-4 pb-4">
 					<Outlet />
 				</main>

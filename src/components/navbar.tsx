@@ -1,7 +1,7 @@
 import type { JSX, PropsWithChildren } from 'react';
 
 import { Link, LinkProps } from '@tanstack/react-router';
-import { Crosshair } from 'lucide-react';
+import { BellIcon, Crosshair } from 'lucide-react';
 
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
@@ -11,6 +11,7 @@ import { Avatar } from './avatar';
 export interface NavbarProps {
 	hunter: HunterSchema;
 	isHuntActive: boolean;
+	unreadCount: number;
 }
 
 interface NavbarItemProps {
@@ -35,10 +36,16 @@ export function Navbar({
 					to="/hunts"
 				/>
 				<NavbarItemLink
+					noLabel
+					icon={<BellIcon />}
+					name="Notifications"
+					to="/notifications"
+				/>
+				<NavbarItemLink
+					noLabel
 					className="ml-auto"
 					icon={<Avatar hunter={hunter} />}
 					name="Settings"
-					noLabel
 					to="/settings"
 				/>
 				{children ? <li>{children}</li> : null}

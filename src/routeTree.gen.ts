@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthNotificationsRouteImport } from './routes/_auth/notifications'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
 import { Route as AuthHuntsIndexRouteImport } from './routes/_auth/hunts/index'
 import { Route as AuthSettingsNotificationsRouteImport } from './routes/_auth/settings/notifications'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthNotificationsRoute = AuthNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSettingsIndexRoute = AuthSettingsIndexRouteImport.update({
   id: '/settings/',
@@ -55,6 +61,7 @@ const AuthHuntersHunterIdRoute = AuthHuntersHunterIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/notifications': typeof AuthNotificationsRoute
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/settings/notifications': typeof AuthSettingsNotificationsRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/notifications': typeof AuthNotificationsRoute
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/settings/notifications': typeof AuthSettingsNotificationsRoute
@@ -73,6 +81,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/notifications': typeof AuthNotificationsRoute
   '/_auth/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/_auth/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/_auth/settings/notifications': typeof AuthSettingsNotificationsRoute
@@ -83,6 +92,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/notifications'
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
     | '/settings/notifications'
@@ -91,6 +101,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/notifications'
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
     | '/settings/notifications'
@@ -100,6 +111,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_auth'
+    | '/_auth/notifications'
     | '/_auth/hunters/$hunterId'
     | '/_auth/hunts/$huntId'
     | '/_auth/settings/notifications'
@@ -127,6 +139,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/notifications': {
+      id: '/_auth/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthNotificationsRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/settings/': {
       id: '/_auth/settings/'
@@ -167,6 +186,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteChildren {
+  AuthNotificationsRoute: typeof AuthNotificationsRoute
   AuthHuntersHunterIdRoute: typeof AuthHuntersHunterIdRoute
   AuthHuntsHuntIdRoute: typeof AuthHuntsHuntIdRoute
   AuthSettingsNotificationsRoute: typeof AuthSettingsNotificationsRoute
@@ -175,6 +195,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthNotificationsRoute: AuthNotificationsRoute,
   AuthHuntersHunterIdRoute: AuthHuntersHunterIdRoute,
   AuthHuntsHuntIdRoute: AuthHuntsHuntIdRoute,
   AuthSettingsNotificationsRoute: AuthSettingsNotificationsRoute,
