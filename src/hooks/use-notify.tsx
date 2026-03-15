@@ -1,19 +1,12 @@
 import { skipToken, useMutation } from '@tanstack/react-query';
 import { useSubscription } from '@trpc/tanstack-react-query';
-import {
-	Bell,
-	CrosshairIcon,
-	MailCheckIcon,
-	MailIcon,
-	MailXIcon,
-	StarIcon,
-} from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 
+import { typeToIcon } from '@/components/notification';
 import { Button } from '@/components/ui/button';
 import { ToastAction } from '@/components/ui/toast';
 import { trpc } from '@/lib/api';
-import { NotifyTypeSchema } from '@/lib/schemas';
 
 import { useInvalidate } from './use-invalidate';
 import { toast } from './use-toast';
@@ -121,21 +114,5 @@ async function requestNotifyPermission(
 		await serverCallback(subscription);
 	} catch (err) {
 		console.log('Failed to subscribe the user: ', err);
-	}
-}
-
-function typeToIcon(type: NotifyTypeSchema) {
-	switch (type) {
-		case 'hunt-complete':
-			return StarIcon;
-		case 'hunt-starting':
-		case 'hunt-update':
-			return CrosshairIcon;
-		case 'invite-accept':
-			return MailCheckIcon;
-		case 'invite-decline':
-			return MailXIcon;
-		default:
-			return MailIcon;
 	}
 }

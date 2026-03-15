@@ -17,7 +17,7 @@ export const notifyRouter = router({
 	list: userProcedure
 		.output(
 			notifyEventSchema
-				.extend({ id: idSchema, seen: z.boolean() })
+				.extend({ id: idSchema, seen: z.boolean(), created: z.date() })
 				.array(),
 		)
 		.query(async ({ ctx: { hunter } }) => {
@@ -30,9 +30,10 @@ export const notifyRouter = router({
 				},
 			});
 
-			return notifications.map(({ id, event, seenAt }) => ({
+			return notifications.map(({ id, createdAt, event, seenAt }) => ({
 				id,
 				seen: seenAt !== null,
+				created: createdAt,
 				...notifyEventSchema.parse(event),
 			}));
 		}),
