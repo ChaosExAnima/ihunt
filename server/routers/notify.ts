@@ -31,16 +31,17 @@ export const notifyRouter = router({
 			});
 
 			const schema = notifyEventSchema
-				.omit({ url: true })
+				.omit({ type: true, url: true })
 				.extend({ url: z.string().optional() });
 
 			return notifications.map(
-				({ id, createdAt, event: rawEvent, seenAt }) => {
+				({ id, createdAt, type, event: rawEvent, seenAt }) => {
 					const event = schema.parse(rawEvent);
 					return {
 						id,
 						seen: seenAt !== null,
 						created: createdAt,
+						type: notifyTypeSchema.parse(type),
 						...event,
 						url: event.url?.startsWith('/')
 							? `${hostBase}${event.url}`
