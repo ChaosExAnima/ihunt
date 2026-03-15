@@ -19,8 +19,8 @@ import {
 } from '../lib/invite';
 import {
 	inviteResponseEvent,
+	notifyHunter,
 	notifyHuntsReload,
-	notifyUser,
 } from '../lib/notify';
 import { uploadPhoto } from '../lib/photo';
 import { InviteStatus, outputHuntSchema } from '../lib/schema';
@@ -278,14 +278,14 @@ export const huntRouter = router({
 				const inviter = await db.hunter.findUnique({
 					where: { id: updatedInvite.fromHunterId },
 				});
-				if (inviter?.userId) {
-					await notifyUser({
+				if (inviter) {
+					await notifyHunter({
 						event: inviteResponseEvent({
 							fromHunter: currentHunter,
 							hunt,
 							response: 'accept',
 						}),
-						userId: inviter.userId,
+						hunter: inviter,
 					});
 				}
 			}

@@ -10,8 +10,8 @@ import {
 	huntAvailableEvent,
 	huntCompleteEvent,
 	huntStartingEvent,
+	notifyHunter,
 	notifyHuntsReload,
-	notifyUser,
 } from './notify';
 import { InviteStatus } from './schema';
 import { logger } from './server';
@@ -76,11 +76,7 @@ export async function onHuntInterval() {
 		include: {
 			huntHunters: {
 				include: {
-					hunter: {
-						select: {
-							userId: true,
-						},
-					},
+					hunter: true,
 				},
 			},
 		},
@@ -104,14 +100,12 @@ export async function onHuntInterval() {
 		}
 
 		for (const { hunter } of hunt.huntHunters) {
-			if (hunter.userId) {
-				notifyPromises.push(
-					notifyUser({
-						event: huntStartingEvent({ hunt }),
-						userId: hunter.userId,
-					}),
-				);
-			}
+			notifyPromises.push(
+				notifyHunter({
+					event: huntStartingEvent({ hunt }),
+					hunter,
+				}),
+			);
 		}
 		huntsNotified.add(hunt.id);
 	}
@@ -180,10 +174,12 @@ export async function updateHunt({
 				paid: perHunterPayment,
 			},
 		});
+
 		const newRating = calculateNewRating({
 			hunterRating: hunter.rating,
 			huntRating: huntRating,
 		});
+
 		await db.hunter.update({
 			data: {
 				money: {
@@ -195,12 +191,11 @@ export async function updateHunt({
 			},
 			where: { id: hunter.id },
 		});
-		if (hunter.userId) {
-			await notifyUser({
-				event: huntCompleteEvent({ hunt }),
-				userId: hunter.userId,
-			});
-		}
+
+		await notifyHunter({
+			event: huntCompleteEvent({ hunt }),
+			hunter,
+		});
 	}
 
 	return {

@@ -3,7 +3,7 @@ import { todayStart } from '@/lib/formats';
 import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
 
 import { db, Hunt, Hunter, HuntHunter } from './db';
-import { inviteResponseEvent, notifyUser } from './notify';
+import { inviteResponseEvent, notifyHunter } from './notify';
 import { InviteStatus } from './schema';
 
 export async function expireInvites(invites: HuntHunter[]) {
@@ -230,12 +230,12 @@ export async function respondToInvite({
 		return false;
 	}
 
-	return notifyUser({
+	return notifyHunter({
 		event: inviteResponseEvent({
 			fromHunter: currentHunter,
 			hunt,
 			response,
 		}),
-		userId: inviter.userId,
+		hunter: inviter,
 	});
 }

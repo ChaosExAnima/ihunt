@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToastAction } from '@/components/ui/toast';
 import { trpc } from '@/lib/api';
-import { NotifyEventSchema } from '@/lib/schemas';
+import { NotifyTypeSchema } from '@/lib/schemas';
 
 import { useInvalidate } from './use-invalidate';
 import { toast } from './use-toast';
@@ -78,8 +78,6 @@ export function useNotifySubscribe() {
 	useSubscription(
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {
 			onData(event) {
-				console.log('Notify received:', event);
-
 				invalidate([trpc.hunt.getAvailable.queryKey()]);
 				if (event.title) {
 					toast({
@@ -126,7 +124,7 @@ async function requestNotifyPermission(
 	}
 }
 
-function typeToIcon(type: NotifyEventSchema['type']) {
+function typeToIcon(type: NotifyTypeSchema) {
 	switch (type) {
 		case 'hunt-complete':
 			return StarIcon;

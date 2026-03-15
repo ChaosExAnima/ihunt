@@ -128,6 +128,44 @@ interface NotifyArgs {
 	userId: number;
 }
 
+export async function notifyHunter({
+	hunterId,
+	hunter,
+	event,
+	...rest
+}: Omit<NotifyArgs, 'userId'> &
+	(
+		| {
+				hunterId: number;
+				hunter?: undefined;
+		  }
+		| {
+				hunterId?: undefined;
+				hunter: Hunter;
+		  }
+	)) {
+	const { userId, id } =
+		hunter ??
+		(await db.hunter.findUniqueOrThrow({
+			where: {
+				id: hunterId,
+			},
+		}));
+
+	await db.notification.create({
+		data: {
+			hunterId: id,
+			type: event.type,
+			event,
+		},
+	});
+
+	if (!userId) {
+		return false;
+	}
+	return notifyUser({ userId, event, ...rest });
+}
+
 export async function notifyUser({ event, force, userId }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { icon, ...event });
