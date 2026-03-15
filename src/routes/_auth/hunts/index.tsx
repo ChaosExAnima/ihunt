@@ -1,20 +1,17 @@
-import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useCallback, useState } from 'react';
 
 import { Header } from '@/components/header';
 import { HuntDisplay } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed-list';
-import { HuntInviteModal } from '@/components/hunt/invite-dialog';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
 	Carousel,
 	CarouselContent,
 	CarouselItem,
 } from '@/components/ui/carousel';
-import { useInvalidate } from '@/hooks/use-invalidate';
+import { useAvailableHunt } from '@/hooks/use-available-hunt';
 import { trpc } from '@/lib/api';
-import { HUNT_MAX_PER_DAY } from '@/lib/constants';
 import { SECOND } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth/hunts/')({
@@ -36,43 +33,7 @@ function RouteComponent() {
 		refetchInterval: 30 * SECOND,
 	});
 
-	const invalidate = useInvalidate();
-	const { mutateAsync } = useMutation(
-		trpc.hunt.join.mutationOptions({
-			onSuccess() {
-				invalidate([
-					trpc.hunt.getAvailable.queryKey(),
-					trpc.hunt.getHuntsToday.queryKey(),
-					trpc.invite.pathKey(),
-				]);
-			},
-		}),
-	);
-
-	const [acceptedHunt, setAcceptedHunt] = useState<{
-		huntId: number;
-		inviteeIds: number[];
-	} | null>(null);
-	const handleAcceptHunt = useCallback(
-		(huntId: number) => {
-			void mutateAsync({ huntId }).then(({ invitees = [] }) => {
-				if (invitees.length) {
-					setAcceptedHunt({
-						huntId,
-						inviteeIds: invitees,
-					});
-				}
-			});
-		},
-		[mutateAsync],
-	);
-	const handleCloseInviteModal = useCallback(() => {
-		setAcceptedHunt(null);
-	}, []);
-
-	const { data: acceptedToday = 0 } = useQuery(
-		trpc.hunt.getHuntsToday.queryOptions(),
-	);
+	const { remainingToday, onJoin, inviteModal } = useAvailableHunt();
 
 	return (
 		<>
@@ -98,10 +59,8 @@ function RouteComponent() {
 								<HuntDisplay
 									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
 									hunt={hunt}
-									onAcceptHunt={handleAcceptHunt}
-									remainingHunts={
-										HUNT_MAX_PER_DAY - acceptedToday
-									}
+									onAcceptHunt={onJoin}
+									remainingHunts={remainingToday}
 								/>
 							</CarouselItem>
 						))}
@@ -125,13 +84,7 @@ function RouteComponent() {
 					</CarouselItem>
 				</CarouselContent>
 			</Carousel>
-			{acceptedHunt && (
-				<HuntInviteModal
-					huntId={acceptedHunt.huntId}
-					inviteeIds={acceptedHunt.inviteeIds}
-					onClose={handleCloseInviteModal}
-				/>
-			)}
+			{inviteModal}
 		</>
 	);
 }

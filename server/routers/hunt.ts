@@ -64,7 +64,23 @@ export const huntRouter = router({
 			}
 
 			const hunts = await db.hunt.findMany({
-				include: huntDisplayInclude,
+				include: {
+					huntHunters: {
+						include: {
+							hunter: {
+								include: {
+									avatar: true,
+								},
+							},
+						},
+						where: {
+							status: {
+								not: InviteStatus.Expired,
+							},
+						},
+					},
+					photos: true,
+				},
 				orderBy: {
 					createdAt: 'desc',
 				},
@@ -126,45 +142,41 @@ export const huntRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.output(outputHuntSchema.nullable())
-		.query(async ({ input: { huntId: id } }) => {
+		.output(outputHuntSchema)
+		.query(async ({ input: { huntId: id }, ctx: { hunter } }) => {
 			const { huntHunters, ...hunt } = await db.hunt.findUniqueOrThrow({
-				include: huntDisplayInclude,
+				include: {
+					huntHunters: {
+						include: {
+							hunter: {
+								include: {
+									avatar: true,
+								},
+							},
+						},
+						where: {
+							status: {
+								not: InviteStatus.Expired,
+							},
+						},
+					},
+					photos: true,
+				},
 				where: { id },
+			});
+
+			const map = invitesToReserved({
+				hunterId: hunter.id,
+				invites: huntHunters,
 			});
 
 			return {
 				...hunt,
-				hunters: huntHunters.map(({ hunter }) => hunter),
+				reserved: map.get(hunt.id),
+				hunters: huntHunters
+					.filter(({ status }) => status === InviteStatus.Accepted)
+					.map(({ hunter }) => hunter),
 			};
-		}),
-
-	getPublic: userProcedure
-		.output(outputHuntSchema.array())
-		.query(async () => {
-			if (isHuntsDisabled()) {
-				return [];
-			}
-
-			const hunts = await db.hunt.findMany({
-				include: huntDisplayInclude,
-				orderBy: [
-					{
-						status: 'asc',
-					},
-					{
-						createdAt: 'desc',
-					},
-				],
-				where: {
-					status: HuntStatus.Available,
-				},
-			});
-
-			return hunts.map(({ huntHunters, ...hunt }) => ({
-				...hunt,
-				hunters: huntHunters.map(({ hunter }) => hunter),
-			}));
 		}),
 
 	join: userProcedure.input(z.object({ huntId: idSchemaCoerce })).mutation(
