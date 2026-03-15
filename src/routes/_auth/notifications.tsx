@@ -1,11 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Header } from '@/components/header';
 import { Loading } from '@/components/loading';
 import { Notification } from '@/components/notification';
-import { useInvalidate } from '@/hooks/use-invalidate';
 import { trpc } from '@/lib/api';
 import { cn } from '@/lib/styles';
 
@@ -17,26 +16,29 @@ export const Route = createFileRoute('/_auth/notifications')({
 });
 
 function RouteComponent() {
-	const { isLoading, data: notifications } = useQuery(
-		trpc.notify.list.queryOptions(),
-	);
+	const { isLoading, data } = useQuery(trpc.notify.list.queryOptions());
+	const [notifications, setNotifications] = useState<typeof data>();
 
-	const invalidate = useInvalidate();
+	if (data && !notifications) {
+		setNotifications(data);
+	}
+
+	const client = useQueryClient();
 	const { mutate } = useMutation(
 		trpc.notify.read.mutationOptions({
 			onSuccess() {
-				invalidate(trpc.notify.unreadCount.queryKey());
+				client.setQueryData(trpc.notify.unreadCount.queryKey(), 0);
 			},
 		}),
 	);
 
 	useEffect(() => {
-		return () => {
+		if (!isLoading) {
 			mutate();
-		};
-	}, [mutate]);
+		}
+	}, [mutate, isLoading]);
 
-	if (isLoading) {
+	if (isLoading || !notifications) {
 		return <Loading />;
 	}
 
@@ -44,7 +46,7 @@ function RouteComponent() {
 		<>
 			<Header>Notifications</Header>
 			<ol className="flex flex-col">
-				{notifications?.map((notification) => (
+				{notifications.map((notification) => (
 					<li
 						key={notification.id}
 						className={cn(
