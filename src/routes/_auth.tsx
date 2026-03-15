@@ -6,6 +6,7 @@ import { Navbar } from '@/components/navbar';
 import { PlayerInfoProvider } from '@/components/providers/player';
 import { useNotifyRequestToast, useNotifySubscribe } from '@/hooks/use-notify';
 import { trpc } from '@/lib/api';
+import { SECOND } from '@/lib/formats';
 
 export const Route = createFileRoute('/_auth')({
 	component: Page,
@@ -27,9 +28,10 @@ export const Route = createFileRoute('/_auth')({
 
 function Page() {
 	const { data: player } = useQuery(trpc.auth.me.queryOptions());
-	const { data: unreadCount = 0 } = useQuery(
-		trpc.notify.unreadCount.queryOptions(),
-	);
+	const { data: unreadCount = 0 } = useQuery({
+		...trpc.notify.unreadCount.queryOptions(),
+		refetchInterval: 30 * SECOND,
+	});
 
 	useNotifyRequestToast();
 	useNotifySubscribe();

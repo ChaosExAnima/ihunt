@@ -4,6 +4,7 @@ import webpush, { WebPushError } from 'web-push';
 
 import { DAY, MINUTE } from '@/lib/formats';
 import { NotifyEventSchema } from '@/lib/schemas';
+import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db, Hunt, Hunter } from './db';
@@ -34,6 +35,7 @@ export function huntAvailableEvent(): NotifyEventSchema {
 	return {
 		title: 'New hunts are available',
 		type: 'hunt-update',
+		url: '/hunts',
 	};
 }
 
@@ -74,6 +76,7 @@ export function huntStartingEvent({
 		body,
 		title: `${name} is starting soon`,
 		type: 'hunt-starting',
+		url: `/hunts/${hunt.id}`,
 	};
 }
 
@@ -91,12 +94,14 @@ export function inviteResponseEvent({
 			body: `${fromHunter.handle} has accepted your invitation to join the hunt ${hunt.name}`,
 			title: `${fromHunter.handle} has joined your hunt`,
 			type: 'invite-accept',
+			url: `/hunts/${hunt.id}`,
 		};
 	}
 	return {
 		body: `${fromHunter.handle} has declined your invitation to join the hunt ${hunt.name}`,
 		title: `${fromHunter.handle} has declined your invitation`,
 		type: 'invite-decline',
+		url: `/hunts/${hunt.id}`,
 	};
 }
 
@@ -181,7 +186,7 @@ export async function notifyHunter({
 		data: {
 			hunterId: id,
 			type: event.type,
-			event,
+			event: omit(event, 'type'),
 		},
 	});
 
