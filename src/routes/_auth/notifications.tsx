@@ -45,19 +45,26 @@ function RouteComponent() {
 	return (
 		<>
 			<Header>Notifications</Header>
-			<ol className="flex flex-col">
-				{notifications.map((notification) => (
-					<li
-						key={notification.id}
-						className={cn(
-							'flex items-center gap-4 border-b py-2 last:border-0',
-							notification.seen && 'text-muted',
-						)}
-					>
-						<Notification {...notification} />
-					</li>
-				))}
-			</ol>
+			{notifications.length > 0 && (
+				<ol className="flex flex-col">
+					{notifications.map((notification) => (
+						<li
+							key={notification.id}
+							className={cn(
+								'flex items-center gap-4 border-b py-2 last:border-0',
+								notification.seen && 'text-muted',
+							)}
+						>
+							<Notification {...notification} />
+						</li>
+					))}
+				</ol>
+			)}
+			{notifications.length === 0 && (
+				<p className="text-muted-foreground">
+					You'll get notifications about your hunts here!
+				</p>
+			)}
 		</>
 	);
 }

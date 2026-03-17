@@ -8,6 +8,7 @@ import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
 import {
+	adminProcedure,
 	debugProcedure,
 	publicProcedure,
 	router,
@@ -17,21 +18,6 @@ import {
 import { userSettingsDatabaseSchema } from '../lib/schema';
 
 export const authRouter = router({
-	adminLogin: publicProcedure
-		.input(adminAuthSchema)
-		.mutation(async ({ ctx: { session }, input }) => {
-			const valid = await bcrypt.compare(
-				input.password,
-				config.adminPassword,
-			);
-			if (!valid) {
-				throw new TRPCError({ code: 'UNAUTHORIZED' });
-			}
-			session.isAdmin = true;
-			await session.save();
-			return { success: true };
-		}),
-
 	logIn: publicProcedure
 		.input(authSchema)
 		.mutation(
@@ -53,8 +39,13 @@ export const authRouter = router({
 			},
 		),
 
-	logOut: publicProcedure.mutation(({ ctx: { session } }) => {
-		session.destroy();
+	logOut: publicProcedure.mutation(async ({ ctx: { session } }) => {
+		if (!session.isAdmin) {
+			session.destroy();
+		} else {
+			delete session.userId;
+			await session.save();
+		}
 	}),
 
 	me: userProcedure
@@ -68,6 +59,25 @@ export const authRouter = router({
 			hunter,
 			settings: user.settings,
 		})),
+
+	adminLogin: publicProcedure
+		.input(adminAuthSchema)
+		.mutation(async ({ ctx: { session }, input }) => {
+			const valid = await bcrypt.compare(
+				input.password,
+				config.adminPassword,
+			);
+			if (!valid) {
+				throw new TRPCError({ code: 'UNAUTHORIZED' });
+			}
+			session.isAdmin = true;
+			await session.save();
+			return { success: true };
+		}),
+
+	adminLogout: adminProcedure.mutation(({ ctx: { session } }) => {
+		session.destroy();
+	}),
 
 	switch: debugProcedure
 		.input(z.object({ hunterId: idSchemaCoerce }))
