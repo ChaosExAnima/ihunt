@@ -16,6 +16,5 @@ export const SimpleForm = <Values extends FieldValues>({
 	children,
 	...props
 }: PropsWithChildren<SimpleFormProps<Values>>) => (
-	// @ts-expect-error Resolver doesn't type the resolver prop correctly.
 	<RaSimpleForm {...props}>{children}</RaSimpleForm>
 );
