@@ -8,7 +8,6 @@ import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
 import {
-	adminProcedure,
 	debugProcedure,
 	publicProcedure,
 	router,
@@ -75,7 +74,7 @@ export const authRouter = router({
 			return { success: true };
 		}),
 
-	adminLogout: adminProcedure.mutation(({ ctx: { session } }) => {
+	adminLogout: publicProcedure.mutation(({ ctx: { session } }) => {
 		session.destroy();
 	}),
 

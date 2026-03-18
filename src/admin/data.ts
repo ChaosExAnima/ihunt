@@ -38,18 +38,16 @@ export const authProvider = {
 		try {
 			await trpc.admin.isValid.query();
 		} catch (err) {
-			if (isTRPCClientError(err)) {
-				throw new Error();
+			if (isTRPCClientError(err) && err.message === 'UNAUTHORIZED') {
+				throw new Error('Please log in again');
 			}
 		}
 	},
 	// when the dataProvider returns an error, check if this is an authentication error
 	// eslint-disable-next-line @typescript-eslint/require-await
 	async checkError(error) {
-		if (isTRPCClientError(error)) {
-			if (error.message === 'UNAUTHORIZED') {
-				throw new Error();
-			}
+		if (isTRPCClientError(error) && error.message === 'UNAUTHORIZED') {
+			throw new Error('Please log in again');
 		}
 	},
 
@@ -63,7 +61,11 @@ export const authProvider = {
 	},
 	// remove local credentials and notify the auth server that the user logged out
 	async logout() {
-		await trpc.auth.adminLogout.mutate();
+		try {
+			await trpc.auth.adminLogout.mutate();
+		} catch {
+			// Do nothing
+		}
 	},
 } satisfies AuthProvider;
 
