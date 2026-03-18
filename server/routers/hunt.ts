@@ -165,6 +165,22 @@ export const huntRouter = router({
 				where: { id },
 			});
 
+			const currentHunterInvite = huntHunters.find(
+				({ hunterId }) => hunter.id === hunterId,
+			);
+			if (
+				hunt.status === HuntStatus.Active ||
+				(hunt.status === HuntStatus.Complete &&
+					(!currentHunterInvite ||
+						currentHunterInvite.status !== InviteStatus.Accepted))
+			) {
+				throw new TRPCError({ code: 'NOT_FOUND' });
+			}
+
+			if (hunt.status === HuntStatus.Cancelled) {
+				throw new TRPCError({ code: 'NOT_FOUND' });
+			}
+
 			const map = invitesToReserved({
 				hunterId: hunter.id,
 				invites: huntHunters,

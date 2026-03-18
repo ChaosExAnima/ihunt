@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, notFound } from '@tanstack/react-router';
+import { isTRPCClientError } from '@trpc/client';
 import { ArrowLeft } from 'lucide-react';
 
 import { HuntDisplay } from '@/components/hunt';
@@ -10,10 +11,19 @@ import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth/hunts/$huntId')({
 	component: RouteComponent,
-	loader({ context: { queryClient }, params: { huntId } }) {
-		void queryClient.prefetchQuery(
-			trpc.hunt.getOne.queryOptions({ huntId }),
-		);
+	async loader({ context: { queryClient }, params: { huntId } }) {
+		try {
+			await queryClient.fetchQuery(
+				trpc.hunt.getOne.queryOptions({ huntId }),
+			);
+		} catch (err) {
+			if (isTRPCClientError(err)) {
+				if (err.message === 'NOT_FOUND') {
+					throw notFound();
+				}
+			}
+			throw err;
+		}
 	},
 });
 
