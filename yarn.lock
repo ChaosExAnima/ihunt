@@ -4161,17 +4161,17 @@ __metadata:
   linkType: hard
 
 "@tanstack/eslint-plugin-query@npm:^5.91.4":
-  version: 5.91.4
-  resolution: "@tanstack/eslint-plugin-query@npm:5.91.4"
+  version: 5.91.5
+  resolution: "@tanstack/eslint-plugin-query@npm:5.91.5"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.48.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-    typescript: ^5.0.0
+    typescript: ^5.4.0
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/1627af7dcf5c70fac85db203f2ecc3d32de227729d447bb8d0a7a1cfa3441466060b2e440f22a85c2f9fa23ee5c5cd18dd0d470b673ca6a60d5bc191eb109a06
+  checksum: 10c0/82ef9cf4f22129cf166fdaa9c67f2092e4e0683f7dbceef6921b708a67c99435154f2cede9e45ab5cb2ecab5a5220a894b938c9d9a00a6036673f6a4627ee37a
   languageName: node
   linkType: hard
 
@@ -4193,10 +4193,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.90.20":
-  version: 5.90.20
-  resolution: "@tanstack/query-core@npm:5.90.20"
-  checksum: 10c0/70637dfcecd5ed9d810629aa27f1632af8a4bcd083e75cf29408d058c32f8234704a3231ec280e2c4016ea0485b16124fdf70ab97793b5a7b670f43f7659e9fe
+"@tanstack/query-core@npm:5.91.0":
+  version: 5.91.0
+  resolution: "@tanstack/query-core@npm:5.91.0"
+  checksum: 10c0/57f32122f970644b2b4b44e6e212712eadebdbd092d2fee00ecedfe1d8ff7827340d593da4c876303b5a2a7fbc94b58fbddb678b9dfc11fd29206cc9d250630f
   languageName: node
   linkType: hard
 
@@ -4220,13 +4220,13 @@ __metadata:
   linkType: hard
 
 "@tanstack/react-query@npm:^5.83.0, @tanstack/react-query@npm:^5.90.21":
-  version: 5.90.21
-  resolution: "@tanstack/react-query@npm:5.90.21"
+  version: 5.91.0
+  resolution: "@tanstack/react-query@npm:5.91.0"
   dependencies:
-    "@tanstack/query-core": "npm:5.90.20"
+    "@tanstack/query-core": "npm:5.91.0"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/e8994c57f6ceb2c886a4d6486a8c6a3f89bc6b1220de3e732448d7fcbeb386e9358f03c73804de72004c6ac2668d0bf1b44cedbb273d3e4b33afcbaee7b7d24d
+  checksum: 10c0/f6bdd9b1348179b8f6146a5f5b7cb41da25dade2102314c76f4693412d12ca9c6e98a3f11573acd815b2bb1a18e7cc70625138bf6a8dcf9d2959ca14610cfea2
   languageName: node
   linkType: hard
 
