@@ -151,16 +151,17 @@ export const huntRouter = router({
 			}),
 		)
 		.output(outputHuntSchema)
-		.query(async ({ input: { huntId: id }, ctx: { hunter } }) => {
+		.query(async ({ input: { huntId }, ctx: { hunter } }) => {
 			const { photos, ...hunt } = await db.hunt.findUniqueOrThrow({
 				include: {
 					photos: true,
 				},
-				where: { id },
+				where: { id: huntId },
 			});
 
 			const huntHunters = await db.huntHunter.findMany({
 				where: {
+					huntId,
 					status:
 						hunt.status !== HuntStatus.Available
 							? InviteStatus.Accepted
@@ -197,9 +198,7 @@ export const huntRouter = router({
 			return {
 				...hunt,
 				reserved: map.get(hunt.id),
-				hunters: huntHunters
-					.filter(({ status }) => status === InviteStatus.Accepted)
-					.map(({ hunter }) => hunter),
+				hunters: huntHunters.map(({ hunter }) => hunter),
 				photos: photos.filter(
 					({ hunterId }) => !hunterId || hunterId === hunter.id,
 				),
