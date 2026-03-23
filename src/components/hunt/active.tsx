@@ -26,7 +26,6 @@ export function HuntDisplayActive({
 			afterHeader={
 				<HuntPics
 					activeIndex={index}
-					hunters={hunt.hunters}
 					huntId={hunt.id}
 					onPick={handlePicPick}
 					photos={hunt.photos}

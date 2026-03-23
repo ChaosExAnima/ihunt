@@ -1,41 +1,31 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Camera, Trash, Upload } from 'lucide-react';
 import { useCallback } from 'react';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
-import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
-import { HunterSchema, PhotoHuntSchema } from '@/lib/schemas';
+import { PhotoHuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
 import { Entity } from '@/lib/types';
 
-import { Avatar } from '../avatar';
 import { PhotoDisplay } from '../photo';
 import { Button } from '../ui/button';
 import { UploadPhoto } from '../upload-photo';
 import { CameraUpload } from '../upload-photo/camera';
 
 interface ActivePhotoProps {
-	hunters: HunterSchema[];
 	huntId: number;
 	photo: PhotoHuntSchema;
 }
 
 interface HuntPics {
 	activeIndex: number;
-	hunters: HunterSchema[];
 	huntId: number;
 	onPick: (index: number) => void;
 	photos: PhotoHuntSchema[];
 }
 
-export function HuntPics({
-	activeIndex,
-	hunters,
-	huntId,
-	onPick,
-	photos,
-}: HuntPics) {
+export function HuntPics({ activeIndex, huntId, onPick, photos }: HuntPics) {
 	const currentPhoto = photos[activeIndex];
 
 	const showPhoto = activeIndex >= 1;
@@ -58,10 +48,12 @@ export function HuntPics({
 	if (photos.length === 0) {
 		return <PicPicker huntId={huntId} />;
 	}
+	const hasUploadedPhoto = photos.some(({ hunterId }) => !!hunterId);
+
 	return (
 		<div>
 			{!!currentPhoto && showPhoto && (
-				<ActivePhoto hunters={hunters} photo={currentPhoto} />
+				<ActivePhoto photo={currentPhoto} />
 			)}
 			<ul className="mb-2 grid grid-cols-6 gap-2">
 				{photos.map((photo, index) => (
@@ -69,7 +61,10 @@ export function HuntPics({
 						<PhotoDisplay
 							className={cn(
 								'aspect-square w-full cursor-pointer rounded-md border border-transparent',
-								index === activeIndex && 'border-rose-700',
+								index === activeIndex && 'border-foreground',
+								index !== activeIndex &&
+									photo.hunterId &&
+									'border-rose-800',
 							)}
 							onClick={handlePick(index)}
 							photo={photo}
@@ -77,31 +72,19 @@ export function HuntPics({
 					</li>
 				))}
 			</ul>
-			<PicPicker huntId={huntId} />
+			{!hasUploadedPhoto && <PicPicker huntId={huntId} />}
 		</div>
 	);
 }
 
-function ActivePhoto({
-	hunters,
-	photo,
-}: Pick<ActivePhotoProps, 'hunters' | 'photo'>) {
-	const currentHunter = useMemo(
-		() => hunters.find((hunter) => hunter.id === photo.hunterId),
-		[photo.hunterId, hunters],
-	);
-	const currentHunterId = useHunterId();
-	const isCurrentHunter = currentHunter?.id === currentHunterId;
+function ActivePhoto({ photo }: Pick<ActivePhotoProps, 'photo'>) {
 	return (
 		<div className="relative mb-2 overflow-hidden rounded-md">
+			<span className="absolute top-0 w-full bg-black/40 p-2 font-semibold">
+				Completion proof
+			</span>
 			<PhotoDisplay className="w-full" photo={photo} />
-			{!!currentHunter && !isCurrentHunter && (
-				<span className="absolute right-0 bottom-0 flex items-center gap-2 rounded-tl-md bg-black/40 p-2 text-sm text-white">
-					Uploaded by:
-					<Avatar hunter={currentHunter} link />
-				</span>
-			)}
-			{isCurrentHunter && <DeletePhotoButton id={photo.id} />}
+			{photo.hunterId && <DeletePhotoButton id={photo.id} />}
 		</div>
 	);
 }
@@ -123,10 +106,10 @@ function DeletePhotoButton({ id }: Entity) {
 		<Button
 			className="absolute right-2 bottom-2"
 			onClick={handleDelete}
-			size="icon"
 			variant="destructive"
 		>
 			<Trash />
+			Delete and retake
 		</Button>
 	);
 }
