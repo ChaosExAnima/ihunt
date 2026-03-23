@@ -152,41 +152,40 @@ export const huntRouter = router({
 		)
 		.output(outputHuntSchema)
 		.query(async ({ input: { huntId: id }, ctx: { hunter } }) => {
-			const { huntHunters, photos, ...hunt } =
-				await db.hunt.findUniqueOrThrow({
-					include: {
-						huntHunters: {
-							include: {
-								hunter: {
-									include: {
-										avatar: true,
-									},
-								},
-							},
-							where: {
-								status: {
-									not: InviteStatus.Expired,
-								},
-							},
-						},
-						photos: true,
-					},
-					where: { id },
-				});
+			const { photos, ...hunt } = await db.hunt.findUniqueOrThrow({
+				include: {
+					photos: true,
+				},
+				where: { id },
+			});
 
-			const currentHunterInvite = huntHunters.find(
-				({ hunterId }) => hunter.id === hunterId,
-			);
+			const huntHunters = await db.huntHunter.findMany({
+				where: {
+					status:
+						hunt.status !== HuntStatus.Available
+							? InviteStatus.Accepted
+							: undefined,
+				},
+				include: {
+					hunter: {
+						include: {
+							avatar: true,
+						},
+					},
+				},
+			});
+
 			if (
-				hunt.status === HuntStatus.Active ||
-				(hunt.status === HuntStatus.Complete &&
-					(!currentHunterInvite ||
-						currentHunterInvite.status !== InviteStatus.Accepted))
+				hunt.status === HuntStatus.Cancelled ||
+				hunt.status === HuntStatus.Pending
 			) {
 				throw new TRPCError({ code: 'NOT_FOUND' });
 			}
 
-			if (hunt.status === HuntStatus.Cancelled) {
+			const currentHunterInvite = huntHunters.find(
+				({ hunterId }) => hunter.id === hunterId,
+			);
+			if (hunt.status === HuntStatus.Complete && !currentHunterInvite) {
 				throw new TRPCError({ code: 'NOT_FOUND' });
 			}
 
