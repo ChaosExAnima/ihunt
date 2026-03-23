@@ -468,25 +468,16 @@ export const adminRouter = router({
 					break;
 				case 'hunt': {
 					await db.hunt.updateMany({
-						data,
+						data: omit(data, 'createdAt', 'hunterIds', 'photoIds'),
 						where,
 					});
 					const hunts = await db.hunt.findMany({
-						include: {
-							huntHunters: {
-								include: {
-									hunter: true,
-								},
-							},
-						},
 						where,
 					});
 					for (const hunt of hunts) {
 						await updateHunt({
 							hunt,
-							hunters: hunt.huntHunters.flatMap(
-								({ hunter }) => hunter,
-							),
+							hunterIds: data.hunterIds,
 						});
 					}
 
@@ -547,47 +538,22 @@ export const adminRouter = router({
 							message: 'Cannot assign more hunters than maximum',
 						});
 					}
-					const { huntHunters, ...hunt } = await db.hunt.update({
+					const hunt = await db.hunt.update({
 						data: {
 							...omit(data, 'hunterIds', 'photoIds'),
 							photos: {
 								set: idsToObjects(data.photoIds),
 							},
-							huntHunters: {
-								connectOrCreate: (data.hunterIds ?? []).map(
-									(hunterId) => ({
-										create: {
-											hunterId,
-										},
-										where: {
-											huntId_hunterId: {
-												hunterId,
-												huntId: id,
-											},
-										},
-									}),
-								),
-							},
 						},
 						where: { id },
-						include: {
-							huntHunters: {
-								include: {
-									hunter: true,
-								},
-								where: {
-									status: InviteStatus.Accepted,
-								},
-							},
-						},
 					});
 					const updates = await updateHunt({
 						hunt,
-						hunters: huntHunters.map(({ hunter }) => hunter),
+						hunterIds: data.hunterIds,
 					});
 					return {
 						...hunt,
-						hunterIds: extractKey(huntHunters, 'hunterId'),
+						hunterIds: data.hunterIds,
 						updates,
 					};
 				}
