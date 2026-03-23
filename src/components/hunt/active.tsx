@@ -4,7 +4,6 @@ import { useCallback } from 'react';
 
 import { trpc } from '@/lib/api';
 import { HuntSchema, PhotoHuntSchema } from '@/lib/schemas';
-import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
 
 import { Button } from '../ui/button';
@@ -25,7 +24,7 @@ export function HuntDisplayActive({
 	const hasUploadedPhoto = hunt.photos.some(({ hunterId }) => !!hunterId);
 	return (
 		<HuntBase
-			className={cn('mx-4', className)}
+			className={className}
 			hunt={hunt}
 			afterHeader={!hasUploadedPhoto && <PicPicker huntId={hunt.id} />}
 		>
