@@ -138,43 +138,46 @@ export async function onHuntInterval() {
 
 export async function updateHunt({
 	hunt,
-	hunterIds = [],
+	hunterIds,
 }: {
 	hunt: Hunt;
 	hunterIds?: number[];
 }) {
 	// Adjust hunt invites
-	await db.huntHunter.updateMany({
-		data: {
-			status: InviteStatus.Expired,
-		},
-		where: {
-			hunterId: {
-				notIn: hunterIds,
+	if (hunterIds) {
+		await db.huntHunter.updateMany({
+			data: {
+				status: InviteStatus.Expired,
 			},
-			status: InviteStatus.Accepted,
-		},
-	});
-	for (const hunterId of hunterIds) {
-		await db.huntHunter.upsert({
 			where: {
-				huntId_hunterId: {
+				hunterId: {
+					notIn: hunterIds,
+				},
+				status: InviteStatus.Accepted,
+			},
+		});
+		for (const hunterId of hunterIds) {
+			await db.huntHunter.upsert({
+				where: {
+					huntId_hunterId: {
+						hunterId,
+						huntId: hunt.id,
+					},
+				},
+				update: {
+					status: InviteStatus.Accepted,
+				},
+				create: {
+					status: InviteStatus.Accepted,
 					hunterId,
 					huntId: hunt.id,
 				},
-			},
-			update: {
-				status: InviteStatus.Accepted,
-			},
-			create: {
-				status: InviteStatus.Accepted,
-				hunterId,
-				huntId: hunt.id,
-			},
-		});
+			});
+		}
 	}
 
 	// Hunt newly up, notify hunters.
+	hunterIds ??= [];
 	if (hunt.status === HuntStatus.Available) {
 		await notifyHunters({
 			event: huntAvailableEvent(),
