@@ -37,6 +37,7 @@ export function HuntHeader({ hunt }: { hunt: HuntSchema }) {
 						date={hunt.completedAt ?? hunt.scheduledAt ?? undefined}
 						name={hunt.name}
 						place={hunt.place}
+						status={hunt.status}
 					/>
 				</>
 			)}
@@ -79,21 +80,30 @@ export function HuntMeta({
 	date,
 	name,
 	place,
-}: Pick<HuntSchema, 'name' | 'place'> & { className?: string; date?: Date }) {
+	status,
+}: Pick<HuntSchema, 'name' | 'place' | 'status'> & {
+	className?: string;
+	date?: Date;
+}) {
 	const formattedDate = useMemo(() => {
-		if (!(date instanceof Date)) {
-			return '';
+		if (!(date instanceof Date) || status === HuntStatus.Active) {
+			return 'now';
 		}
 		const now = new Date();
 		const today =
-			now.getFullYear() === date.getFullYear() &&
 			now.getMonth() === date.getMonth() &&
 			now.getDate() === date.getDate();
-		const formatter = new Intl.DateTimeFormat(Locale, {
-			timeStyle: today ? 'short' : undefined,
-		});
-		return formatter.format(date);
-	}, [date]);
+
+		if (today) {
+			const formatter = new Intl.DateTimeFormat(Locale, {
+				timeStyle: 'short',
+			});
+			return formatter.format(date);
+		}
+
+		const formatter = new Intl.RelativeTimeFormat('en');
+		return formatter.format(date.getDate() - now.getDate(), 'days');
+	}, [date, status]);
 	return (
 		<div className={cn('w-full bg-black/40 p-2', className)}>
 			<Header className="flex items-center gap-2 text-white" level={3}>
