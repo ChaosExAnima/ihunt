@@ -82,14 +82,19 @@ function ListPhoto({
 	);
 }
 
-export function DeletePhotoButton({ id }: Entity) {
+export function DeletePhotoButton({
+	id,
+	onDelete,
+}: Entity & { onDelete?: () => void }) {
 	const queryClient = useQueryClient();
 	const { mutate } = useMutation(
 		trpc.photos.delete.mutationOptions({
-			onSuccess: () =>
-				queryClient.invalidateQueries({
+			async onSuccess() {
+				await queryClient.invalidateQueries({
 					queryKey: trpc.hunt.getActive.queryKey(),
-				}),
+				});
+				onDelete?.();
+			},
 		}),
 	);
 	const handleDelete = useCallback(() => {

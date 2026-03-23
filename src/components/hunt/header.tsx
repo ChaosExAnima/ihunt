@@ -1,5 +1,5 @@
 import { Clock, MapPin, Skull } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
 import { HuntStatus, Locale } from '@/lib/constants';
@@ -15,6 +15,13 @@ export function HuntHeader({ hunt }: { hunt: HuntSchema }) {
 	const [activePhotoId, setActivePhotoId] = useState(
 		hunt.photos.at(0)?.id ?? 0,
 	);
+
+	const handleActivePhotoReset = useCallback(() => {
+		const firstPhoto = hunt.photos.at(0);
+		if (firstPhoto) {
+			setActivePhotoId(firstPhoto.id);
+		}
+	}, [hunt.photos]);
 
 	const isHunterPic =
 		(hunt.photos.find(({ id }) => activePhotoId === id)?.hunterId ?? 0) > 0;
@@ -47,7 +54,10 @@ export function HuntHeader({ hunt }: { hunt: HuntSchema }) {
 				</span>
 			)}
 			{isHunterPic && hunt.status === HuntStatus.Active && (
-				<DeletePhotoButton id={activePhotoId} />
+				<DeletePhotoButton
+					id={activePhotoId}
+					onDelete={handleActivePhotoReset}
+				/>
 			)}
 		</HuntPics>
 	);
