@@ -121,6 +121,7 @@ export const huntRouter = router({
 							hunter: {
 								id: hunter.id,
 							},
+							status: InviteStatus.Accepted,
 						},
 					},
 					status: HuntStatus.Complete,
