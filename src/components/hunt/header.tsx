@@ -1,28 +1,62 @@
 import { Clock, MapPin, Skull } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
-import { Locale } from '@/lib/constants';
+import { HuntStatus, Locale } from '@/lib/constants';
 import { HuntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
 import { arrayOfLength } from '@/lib/utils';
 
 import { Header } from '../header';
-import { PhotoDisplay } from '../photo';
+import { DeletePhotoButton, HuntPics } from './pics';
 
-interface HuntDangerProps {
-	danger?: number;
-	payment?: number;
+export function HuntHeader({ hunt }: { hunt: HuntSchema }) {
+	const [activePhotoId, setActivePhotoId] = useState(
+		hunt.photos.at(0)?.id ?? 0,
+	);
+
+	const isHunterPic =
+		(hunt.photos.find(({ id }) => activePhotoId === id)?.hunterId ?? 0) > 0;
+
+	return (
+		<HuntPics
+			photos={hunt.photos}
+			currentId={activePhotoId}
+			onPick={setActivePhotoId}
+		>
+			{!isHunterPic && (
+				<>
+					<HuntDanger
+						className="absolute top-0 left-0"
+						danger={hunt.danger}
+						payment={hunt.payment}
+					/>
+					<HuntMeta
+						className="absolute bottom-0"
+						date={hunt.completedAt ?? hunt.scheduledAt ?? undefined}
+						name={hunt.name}
+						place={hunt.place}
+					/>
+				</>
+			)}
+			{isHunterPic && (
+				<span className="absolute top-0 w-full bg-black/40 p-2 font-semibold">
+					Completion proof
+				</span>
+			)}
+			{isHunterPic && hunt.status === HuntStatus.Active && (
+				<DeletePhotoButton id={activePhotoId} />
+			)}
+		</HuntPics>
+	);
 }
-
-type HuntHeaderProps = PropsWithClassName<HuntSchema>;
 
 export function HuntDanger({
 	className,
 	danger = 1,
 	payment = 0,
-}: PropsWithClassName<HuntDangerProps>) {
+}: PropsWithClassName<Pick<HuntSchema, 'danger' | 'payment'>>) {
 	const paymentFormatted = useCurrencyFormat(payment);
 	return (
 		<div className={cn('p-2', className)}>
@@ -40,39 +74,12 @@ export function HuntDanger({
 	);
 }
 
-export function HuntHeader(hunt: HuntHeaderProps) {
-	const mainPhoto = hunt.photos?.at(0);
-	if (!mainPhoto) {
-		return null;
-	}
-
-	return (
-		<div className="relative overflow-hidden rounded-lg">
-			<PhotoDisplay
-				className="w-full object-cover object-top"
-				photo={mainPhoto}
-			/>
-			<HuntDanger
-				className="absolute top-0 left-0"
-				danger={hunt.danger}
-				payment={hunt.payment}
-			/>
-			<HuntMeta
-				className="absolute bottom-0"
-				date={hunt.completedAt ?? hunt.scheduledAt ?? undefined}
-				name={hunt.name}
-				place={hunt.place}
-			/>
-		</div>
-	);
-}
-
 export function HuntMeta({
 	className,
 	date,
 	name,
 	place,
-}: Pick<HuntHeaderProps, 'className' | 'name' | 'place'> & { date?: Date }) {
+}: Pick<HuntSchema, 'name' | 'place'> & { className?: string; date?: Date }) {
 	const formattedDate = useMemo(() => {
 		if (!(date instanceof Date)) {
 			return '';

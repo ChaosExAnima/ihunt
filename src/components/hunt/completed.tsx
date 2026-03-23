@@ -1,7 +1,4 @@
-import { CircleCheckBig } from 'lucide-react';
-
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
-import { cn } from '@/lib/styles';
 
 import { HuntDisplayProps } from '.';
 import { Rating } from '../rating';
@@ -30,19 +27,6 @@ export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
 					</blockquote>
 				</>
 			)}
-			<p
-				className={cn(
-					'my-4 flex items-center justify-center gap-2 self-center font-semibold',
-					'text-green-500',
-				)}
-			>
-				<CircleCheckBig
-					aria-label="Completed Hunt"
-					className="size-4 shrink-0"
-					strokeWidth="3"
-				/>
-				Complete!
-			</p>
 		</HuntBase>
 	);
 }
