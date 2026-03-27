@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
+import Cookies from 'js-cookie';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -40,7 +41,7 @@ export const Route = createFileRoute('/')({
 		return {};
 	},
 	async beforeLoad({ context: { queryClient }, search }) {
-		const session = await cookieStore.get(SESSION_COOKIE_NAME);
+		const session = Cookies.get(SESSION_COOKIE_NAME);
 		if (!session) {
 			return;
 		}
@@ -56,7 +57,7 @@ export const Route = createFileRoute('/')({
 			}
 		} catch (err) {
 			if (isTRPCClientError(err) && err.message === 'UNAUTHORIZED') {
-				await cookieStore.delete(SESSION_COOKIE_NAME);
+				Cookies.remove(SESSION_COOKIE_NAME);
 			}
 		}
 	},

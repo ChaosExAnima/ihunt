@@ -40,10 +40,14 @@ export function useNotifyRequest() {
 
 export function useNotifyRequestToast() {
 	const handleSubscribe = useNotifyRequest();
-	const curPermission = Notification.permission;
+	const curPermission =
+		'Notification' in window ? Notification.permission : null;
 	const notifyToast = useRef<null | ReturnType<typeof toast>>(null);
 	useEffect(() => {
-		if (localStorage.getItem('notify-toast') === 'dismissed') {
+		if (
+			localStorage.getItem('notify-toast') === 'dismissed' ||
+			!curPermission
+		) {
 			return;
 		}
 		if (curPermission !== 'granted') {
