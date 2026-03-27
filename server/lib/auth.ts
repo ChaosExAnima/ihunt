@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
 
 import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
-import { omit } from '@/lib/utils';
+import { isDev, omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';
@@ -88,7 +88,7 @@ export function getSession({
 		cookieOptions: {
 			domain: config.cookieDomain,
 			httpOnly: false,
-			sameSite: 'none',
+			secure: !isDev(),
 		},
 		password: authSession,
 	});
