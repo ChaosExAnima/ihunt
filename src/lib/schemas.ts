@@ -5,13 +5,14 @@ import {
 	HUNT_MAX_HUNTERS,
 	HuntStatus,
 	PASSWORD_CHAR_COUNT,
+	PASSWORD_REGEX,
 } from './constants';
 
 export const authSchema = z.object({
 	password: z
 		.string()
 		.toLowerCase()
-		.regex(/[a-z0-9]+/, 'Code must be only numbers or letters')
+		.regex(PASSWORD_REGEX, 'Code must follow this code: A99')
 		.length(PASSWORD_CHAR_COUNT, 'Code must be exactly six characters'),
 });
 

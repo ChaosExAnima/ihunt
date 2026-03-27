@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -18,18 +17,18 @@ import {
 	FormItem,
 	FormMessage,
 } from '@/components/ui/form';
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@/components/ui/input-otp';
+import { Input } from '@/components/ui/input';
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { trpc } from '@/lib/api';
-import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
+import {
+	PASSWORD_CHAR_COUNT,
+	PASSWORD_REGEX,
+	SESSION_COOKIE_NAME,
+} from '@/lib/constants';
 import { authSchema } from '@/lib/schemas';
 
 export const Route = createFileRoute('/')({
@@ -110,26 +109,14 @@ function Index() {
 									Enter your login code below:
 								</FormDescription>
 								<FormControl>
-									<InputOTP
-										autoFocus
-										containerClassName="justify-center"
-										inputMode="text"
+									<Input
+										type="password"
+										placeholder="A99"
+										className="h-16 text-center text-2xl"
 										maxLength={PASSWORD_CHAR_COUNT}
-										pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+										pattern={PASSWORD_REGEX.source}
 										{...field}
-									>
-										<InputOTPGroup className="w-full">
-											{[
-												...Array(PASSWORD_CHAR_COUNT),
-											].map((_, index) => (
-												<InputOTPSlot
-													className="h-12 w-[calc(100%/6)]"
-													index={index}
-													key={index}
-												/>
-											))}
-										</InputOTPGroup>
-									</InputOTP>
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
