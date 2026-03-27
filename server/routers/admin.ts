@@ -113,6 +113,13 @@ export const adminRouter = router({
 				}
 				case 'hunt': {
 					data = await db.hunt.findMany(query);
+					await db.huntHunter.deleteMany({
+						where: {
+							huntId: {
+								in: inIds,
+							},
+						},
+					});
 					await db.hunt.deleteMany(query);
 					break;
 				}
