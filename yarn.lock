@@ -4398,40 +4398,40 @@ __metadata:
   linkType: hard
 
 "@trpc/client@npm:^11.11.0":
-  version: 11.15.0
-  resolution: "@trpc/client@npm:11.15.0"
+  version: 11.15.1
+  resolution: "@trpc/client@npm:11.15.1"
   peerDependencies:
-    "@trpc/server": 11.15.0
+    "@trpc/server": 11.15.1
     typescript: ">=5.7.2"
   bin:
     intent: bin/intent.js
-  checksum: 10c0/ad18431c832647ec915f1b37f8510ec3b3d15d985c2b2a34524ff8efcd64c7d0de830a54646baef03cb13061143b7e29e939a819b5b80e888223fd7ae84a242a
+  checksum: 10c0/ae5560baf7e8c2284a58e0c1e07aff041be1ec2a9c460ef13b5a6a81a2ff3b9725a550e37549ca065225af16791668c8f3779b82558c990cf297e46803f7f465
   languageName: node
   linkType: hard
 
 "@trpc/server@npm:^11.11.0":
-  version: 11.15.0
-  resolution: "@trpc/server@npm:11.15.0"
+  version: 11.15.1
+  resolution: "@trpc/server@npm:11.15.1"
   peerDependencies:
     typescript: ">=5.7.2"
   bin:
     intent: bin/intent.js
-  checksum: 10c0/85495fbf7474b4eed18599244d42443ef53153029fb1d6f95e412ec142e073423a2c03a092111ef4e8e596757efb77f02536b4ae668440dd6f4de56370b73f5a
+  checksum: 10c0/7ad8f6111cde450a32f8e6e52d4cbd033f5c3c8b6ae5bd750c583604332c579ab6968689f2b7bc46697f2eca0b88027fdcda7627f7957d63371472ca27c60928
   languageName: node
   linkType: hard
 
 "@trpc/tanstack-react-query@npm:^11.11.0":
-  version: 11.15.0
-  resolution: "@trpc/tanstack-react-query@npm:11.15.0"
+  version: 11.15.1
+  resolution: "@trpc/tanstack-react-query@npm:11.15.1"
   peerDependencies:
     "@tanstack/react-query": ^5.80.3
-    "@trpc/client": 11.15.0
-    "@trpc/server": 11.15.0
+    "@trpc/client": 11.15.1
+    "@trpc/server": 11.15.1
     react: ">=18.2.0"
     typescript: ">=5.7.2"
   bin:
     intent: bin/intent.js
-  checksum: 10c0/b8fdfee493fdce37ceb1fe632c702db4418950d5ccd98ccfda4f266ebdbd61a09a5c5e719a4daf37a379ff342da5492a5e5e55c7fe04321c0b735b1011d399d9
+  checksum: 10c0/f64be8d3f1422ca4bf6963a3319eaeb5896c63c7779937c4a3eea45ff64396ac2514b8738df9c542cba8c2de549f8b8a65ff2ccfec26042582d87153497a336a
   languageName: node
   linkType: hard
 
