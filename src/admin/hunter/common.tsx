@@ -23,7 +23,7 @@ export function HunterCommonDetails() {
 				max={5}
 				min={0}
 				source="rating"
-				step={0.5}
+				step={0.1}
 				defaultValue={2.5}
 			/>
 			<NumberInput source="money" />

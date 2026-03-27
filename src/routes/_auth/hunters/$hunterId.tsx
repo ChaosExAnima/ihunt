@@ -97,7 +97,7 @@ function RouteComponent() {
 					className={cn(
 						'flex w-full justify-between',
 						avatar && 'absolute top-0 p-2',
-						isLightAvatar ? 'text-black' : 'text-white',
+						avatar && (isLightAvatar ? 'text-black' : 'text-white'),
 					)}
 				>
 					<Rating
@@ -110,7 +110,7 @@ function RouteComponent() {
 				{!!avatar && <PhotoDisplay className="w-full" photo={avatar} />}
 				<div
 					className={cn(
-						'w-full text-sm text-white',
+						'w-full text-sm dark:text-white',
 						avatar && 'absolute bottom-0 bg-black/40 p-2',
 						!avatar && 'my-4',
 					)}

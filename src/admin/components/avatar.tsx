@@ -32,7 +32,7 @@ export const AdminAvatar: FC<
 			{...props}
 		>
 			<AdminPhotoField
-				className="rounded-full"
+				className="aspect-square rounded-full"
 				fit="fill"
 				height={size}
 				width={size}

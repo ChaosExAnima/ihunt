@@ -8,7 +8,6 @@ import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
 import {
-	adminProcedure,
 	debugProcedure,
 	publicProcedure,
 	router,
@@ -18,26 +17,28 @@ import {
 import { userSettingsDatabaseSchema } from '../lib/schema';
 
 export const authRouter = router({
-	logIn: publicProcedure
-		.input(authSchema)
-		.mutation(
-			async ({
-				ctx: { session },
-				input: { password: plainPassword },
-			}) => {
-				try {
-					const password = await passwordToHash(plainPassword);
-					const user = await db.user.findUniqueOrThrow({
-						where: { password },
-					});
-					session.userId = user.id;
-					await session.save();
-					return { success: true };
-				} catch (err) {
-					throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
-				}
+	logIn: publicProcedure.input(authSchema).mutation(
+		async ({
+			ctx: {
+				session,
+				req: { log },
 			},
-		),
+			input: { password: plainPassword },
+		}) => {
+			try {
+				const password = await passwordToHash(plainPassword);
+				const user = await db.user.findUniqueOrThrow({
+					where: { password },
+				});
+				session.userId = user.id;
+				await session.save();
+				log.info('User %d logged in', user.id);
+				return { success: true };
+			} catch (err) {
+				throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
+			}
+		},
+	),
 
 	logOut: publicProcedure.mutation(async ({ ctx: { session } }) => {
 		if (!session.isAdmin) {
@@ -75,7 +76,7 @@ export const authRouter = router({
 			return { success: true };
 		}),
 
-	adminLogout: adminProcedure.mutation(({ ctx: { session } }) => {
+	adminLogout: publicProcedure.mutation(({ ctx: { session } }) => {
 		session.destroy();
 	}),
 

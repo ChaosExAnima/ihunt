@@ -14,22 +14,18 @@ export const currencyFormatter = new Intl.NumberFormat(Locale, {
 });
 
 export function dateFormat(date: Date, showMinutes = false) {
+	const rt = new Intl.RelativeTimeFormat('en');
+
 	const now = Date.now();
 	const diff = now - date.getTime();
 	if (diff >= OLD) {
 		return 'a while ago';
 	} else if (diff >= DAY) {
-		if (diff >= DAY * 2) {
-			return `${Math.floor(diff / DAY)} days ago`;
-		}
-		return 'a day ago';
+		return rt.format(Math.floor(diff / DAY), 'days');
 	} else if (diff >= HOUR) {
-		if (diff >= HOUR * 2) {
-			return `${Math.floor(diff / HOUR)} hours ago`;
-		}
-		return 'an hour ago';
+		return rt.format(Math.floor(diff / HOUR), 'hours');
 	} else if (showMinutes && diff >= MINUTE * 2) {
-		return `${Math.floor(diff / MINUTE)} minutes ago`;
+		return rt.format(Math.floor(diff / MINUTE), 'minutes');
 	}
 	return 'recently';
 }

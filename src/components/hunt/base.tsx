@@ -33,7 +33,7 @@ export function HuntBase({
 
 	return (
 		<Card className={cn(className, 'flex flex-col gap-2 p-4')}>
-			{!hideHeader && <HuntHeader {...hunt} />}
+			{!hideHeader && <HuntHeader hunt={hunt} />}
 			{afterHeader}
 
 			<HuntHuntersDisplay

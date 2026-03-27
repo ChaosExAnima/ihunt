@@ -5,7 +5,7 @@ import { MINUTE } from '@/lib/formats';
 import { clamp, extractIds } from '@/lib/utils';
 
 import { config } from './config';
-import { db, Hunt, Hunter, Prisma } from './db';
+import { db, Hunt, Prisma } from './db';
 import {
 	huntAvailableEvent,
 	huntCompleteEvent,
@@ -138,16 +138,50 @@ export async function onHuntInterval() {
 
 export async function updateHunt({
 	hunt,
-	hunters,
+	hunterIds,
 }: {
 	hunt: Hunt;
-	hunters: Hunter[];
+	hunterIds?: number[];
 }) {
+	// Adjust hunt invites
+	if (hunterIds) {
+		await db.huntHunter.updateMany({
+			data: {
+				status: InviteStatus.Expired,
+			},
+			where: {
+				hunterId: {
+					notIn: hunterIds,
+				},
+				status: InviteStatus.Accepted,
+			},
+		});
+		for (const hunterId of hunterIds) {
+			await db.huntHunter.upsert({
+				where: {
+					huntId_hunterId: {
+						hunterId,
+						huntId: hunt.id,
+					},
+				},
+				update: {
+					status: InviteStatus.Accepted,
+				},
+				create: {
+					status: InviteStatus.Accepted,
+					hunterId,
+					huntId: hunt.id,
+				},
+			});
+		}
+	}
+
 	// Hunt newly up, notify hunters.
+	hunterIds ??= [];
 	if (hunt.status === HuntStatus.Available) {
 		await notifyHunters({
 			event: huntAvailableEvent(),
-			hunters,
+			hunterIds,
 		});
 		return null;
 	}
@@ -155,7 +189,7 @@ export async function updateHunt({
 	if (hunt.status === HuntStatus.Active) {
 		await notifyHunters({
 			event: huntStartingEvent({ hunt, noTime: true }),
-			hunters,
+			hunterIds,
 		});
 		return null;
 	}
@@ -166,13 +200,20 @@ export async function updateHunt({
 		hunt.status !== HuntStatus.Complete ||
 		payment <= 0 ||
 		!huntRating ||
-		hunters.length === 0
+		hunterIds.length === 0
 	) {
 		notifyHuntsReload();
 		return null;
 	}
 
-	const aliveHunters = hunters.filter((hunter) => hunter.alive);
+	const aliveHunters = await db.hunter.findMany({
+		where: {
+			id: {
+				in: hunterIds,
+			},
+			alive: true,
+		},
+	});
 
 	const perHunterPayment = Math.floor(payment / aliveHunters.length); // Rounding errors to iHunt, inc
 

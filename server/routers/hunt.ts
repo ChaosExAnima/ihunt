@@ -30,7 +30,7 @@ export const huntRouter = router({
 	getActive: userProcedure.output(outputHuntSchema.array()).query(
 		async ({
 			ctx: {
-				hunter: { id },
+				hunter: { id: hunterId },
 			},
 		}) => {
 			if (isHuntsDisabled()) {
@@ -41,7 +41,7 @@ export const huntRouter = router({
 				where: {
 					huntHunters: {
 						some: {
-							hunterId: id,
+							hunterId,
 							status: InviteStatus.Accepted,
 						},
 					},
@@ -49,9 +49,12 @@ export const huntRouter = router({
 				},
 			});
 
-			return hunts.map(({ huntHunters, ...hunt }) => ({
+			return hunts.map(({ huntHunters, photos, ...hunt }) => ({
 				...hunt,
 				hunters: huntHunters.map(({ hunter }) => hunter),
+				photos: photos.filter(
+					({ hunterId }) => !hunterId || hunterId === hunterId,
+				),
 			}));
 		},
 	),
@@ -94,12 +97,13 @@ export const huntRouter = router({
 				hunterId: currentHunter.id,
 			});
 
-			return hunts.map(({ huntHunters, ...hunt }) => ({
+			return hunts.map(({ huntHunters, photos, ...hunt }) => ({
 				...hunt,
 				hunters: huntHunters
 					.filter(({ status }) => status === InviteStatus.Accepted)
 					.map(({ hunter }) => hunter),
 				reserved: reservedMap.get(hunt.id),
+				photos: photos.filter(({ hunterId }) => !hunterId),
 			}));
 		}),
 
@@ -117,14 +121,18 @@ export const huntRouter = router({
 							hunter: {
 								id: hunter.id,
 							},
+							status: InviteStatus.Accepted,
 						},
 					},
 					status: HuntStatus.Complete,
 				},
 			});
 
-			return hunts.map(({ huntHunters, ...hunt }) => ({
+			return hunts.map(({ huntHunters, photos, ...hunt }) => ({
 				...hunt,
+				photos: photos.filter(
+					({ hunterId }) => !hunterId || hunterId === hunter.id,
+				),
 				hunters: huntHunters.map(({ hunter }) => hunter),
 			}));
 		}),
@@ -143,27 +151,44 @@ export const huntRouter = router({
 			}),
 		)
 		.output(outputHuntSchema)
-		.query(async ({ input: { huntId: id }, ctx: { hunter } }) => {
-			const { huntHunters, ...hunt } = await db.hunt.findUniqueOrThrow({
+		.query(async ({ input: { huntId }, ctx: { hunter } }) => {
+			const { photos, ...hunt } = await db.hunt.findUniqueOrThrow({
 				include: {
-					huntHunters: {
-						include: {
-							hunter: {
-								include: {
-									avatar: true,
-								},
-							},
-						},
-						where: {
-							status: {
-								not: InviteStatus.Expired,
-							},
-						},
-					},
 					photos: true,
 				},
-				where: { id },
+				where: { id: huntId },
 			});
+
+			const huntHunters = await db.huntHunter.findMany({
+				where: {
+					huntId,
+					status:
+						hunt.status !== HuntStatus.Available
+							? InviteStatus.Accepted
+							: undefined,
+				},
+				include: {
+					hunter: {
+						include: {
+							avatar: true,
+						},
+					},
+				},
+			});
+
+			if (
+				hunt.status === HuntStatus.Cancelled ||
+				hunt.status === HuntStatus.Pending
+			) {
+				throw new TRPCError({ code: 'NOT_FOUND' });
+			}
+
+			const currentHunterInvite = huntHunters.find(
+				({ hunterId }) => hunter.id === hunterId,
+			);
+			if (hunt.status === HuntStatus.Complete && !currentHunterInvite) {
+				throw new TRPCError({ code: 'NOT_FOUND' });
+			}
 
 			const map = invitesToReserved({
 				hunterId: hunter.id,
@@ -173,9 +198,10 @@ export const huntRouter = router({
 			return {
 				...hunt,
 				reserved: map.get(hunt.id),
-				hunters: huntHunters
-					.filter(({ status }) => status === InviteStatus.Accepted)
-					.map(({ hunter }) => hunter),
+				hunters: huntHunters.map(({ hunter }) => hunter),
+				photos: photos.filter(
+					({ hunterId }) => !hunterId || hunterId === hunter.id,
+				),
 			};
 		}),
 

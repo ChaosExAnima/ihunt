@@ -89,44 +89,17 @@ export async function saveVideoStill({
 		if (!(stream instanceof MediaStream)) {
 			return;
 		}
-		let height: number | undefined, width: number | undefined;
 		const track = stream.getVideoTracks().at(0);
-		if (track) {
-			const imageCapture = new ImageCapture(track);
-			const capabilities = await imageCapture.getPhotoCapabilities();
-			if (capabilities.imageHeight) {
-				height = capabilities.imageHeight?.max;
-			}
-			if (capabilities.imageWidth) {
-				width = capabilities.imageWidth?.max;
-			}
-		}
-
-		if (!width || !height) {
-			onError('Invalid video size');
+		if (!track) {
+			onError('Could not access camera');
 			return;
 		}
-
-		const canvas = new OffscreenCanvas(width, height);
-		const ctx = canvas.getContext('2d');
-		if (!ctx) {
-			onError('Cannot save video');
-			return;
-		}
-		ctx.imageSmoothingQuality = 'high';
-
-		// Save original state.
-		ctx.drawImage(videoEle, 0, 0, width, height, 0, 0, width, height);
-		ctx.save();
-
-		const blob = await canvas.convertToBlob({
-			quality: 0.7,
-			type: 'image/jpeg',
-		});
-		await onSave(blob);
+		const imageCapture = new ImageCapture(track);
+		const image = await imageCapture.takePhoto();
+		await onSave(image);
 	} catch (err) {
 		console.warn('Error with saving:', err);
-		onError('Unknown error saving video');
+		onError('Unknown error saving image');
 	}
 }
 

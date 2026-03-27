@@ -1,12 +1,15 @@
-import { Crosshair } from 'lucide-react';
-import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Camera, Crosshair, Upload } from 'lucide-react';
+import { useCallback } from 'react';
 
+import { trpc } from '@/lib/api';
 import { HuntSchema, PhotoHuntSchema } from '@/lib/schemas';
-import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
 
+import { Button } from '../ui/button';
+import { UploadPhoto } from '../upload-photo';
+import { CameraUpload } from '../upload-photo/camera';
 import { HuntBase } from './base';
-import { HuntPics } from './pics';
 
 interface HuntDisplayActiveProps {
 	hunt: HuntSchema & {
@@ -18,28 +21,65 @@ export function HuntDisplayActive({
 	className,
 	hunt,
 }: PropsWithClassName<HuntDisplayActiveProps>) {
-	const [index, setIndex] = useState(0);
-	const handlePicPick = (newIndex: number) =>
-		setIndex((oldIndex) => (oldIndex === newIndex ? 0 : newIndex));
+	const hasUploadedPhoto = hunt.photos.some(({ hunterId }) => !!hunterId);
 	return (
 		<HuntBase
-			afterHeader={
-				<HuntPics
-					activeIndex={index}
-					hunters={hunt.hunters}
-					huntId={hunt.id}
-					onPick={handlePicPick}
-					photos={hunt.photos}
-				/>
-			}
-			className={cn('mx-4', className)}
-			hideHeader={index > 0}
+			className={className}
 			hunt={hunt}
+			afterHeader={!hasUploadedPhoto && <PicPicker huntId={hunt.id} />}
 		>
 			<div className="mt-4 flex items-center justify-center gap-2 text-center font-semibold text-rose-700">
 				<Crosshair className="size-4 shrink-0" />
 				Good hunting!
 			</div>
 		</HuntBase>
+	);
+}
+
+function PicPicker({ huntId }: { huntId: number }) {
+	const queryClient = useQueryClient();
+	const { mutateAsync } = useMutation(
+		trpc.hunt.uploadPhoto.mutationOptions({
+			async onSuccess() {
+				await queryClient.invalidateQueries({
+					queryKey: trpc.hunt.getActive.queryKey(),
+				});
+			},
+		}),
+	);
+	const handleCrop = useCallback(
+		async (blob: Blob) => {
+			const formData = new FormData();
+			formData.append('photo', blob);
+			formData.append('huntId', String(huntId));
+			const result = await mutateAsync(formData);
+			return !!result.id;
+		},
+		[huntId, mutateAsync],
+	);
+
+	return (
+		<div className="grid grid-cols-2 gap-2">
+			<UploadPhoto
+				button={
+					<Button className="w-full" variant="secondary">
+						Upload photo
+						<Upload />
+					</Button>
+				}
+				onCrop={handleCrop}
+				title="Upload a pic"
+			/>
+			<CameraUpload
+				button={
+					<Button className="w-full" variant="success">
+						Take photo
+						<Camera />
+					</Button>
+				}
+				onCrop={handleCrop}
+				title="Take a photo"
+			/>
+		</div>
 	);
 }
