@@ -15,7 +15,7 @@ export function UserList() {
 	return (
 		<List>
 			<Datagrid bulkActionButtons={<BulkActionButtons />}>
-				<TextField source="name" />
+				<TextField source="code" className="uppercase" />
 				<NumberField source="run" />
 				<ReferenceManyField<AdminHunterSchema>
 					label="Hunters"

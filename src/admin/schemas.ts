@@ -62,7 +62,7 @@ export type AdminPhotoSchema = z.infer<typeof adminPhotoSchema>;
 export const adminUserSchema = z.object({
 	hunterId: idSchemaCoerce,
 	id: idSchemaCoerce,
-	name: z.string().nullable(),
+	code: z.string().transform((code) => code.toUpperCase()),
 	run: posIntSchema.prefault(1),
 });
 export type AdminUserSchema = z.infer<typeof adminUserSchema>;

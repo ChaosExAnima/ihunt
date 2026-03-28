@@ -4,7 +4,6 @@ import * as z from 'zod';
 
 import { adminAuthSchema } from '@/admin/schemas';
 import { authSchema, hunterSchema, idSchemaCoerce } from '@/lib/schemas';
-import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
 import {
@@ -14,6 +13,7 @@ import {
 	userProcedure,
 } from '@/server/lib/trpc';
 
+import { getAdminSession } from '../lib/auth';
 import { userSettingsDatabaseSchema } from '../lib/schema';
 
 export const authRouter = router({
@@ -23,30 +23,56 @@ export const authRouter = router({
 				session,
 				req: { log },
 			},
-			input: { password: plainPassword },
+			input,
 		}) => {
-			try {
-				const password = await passwordToHash(plainPassword);
-				const user = await db.user.findUniqueOrThrow({
-					where: { password },
+			const valid = await bcrypt.compare(
+				input.password,
+				config.userPassword,
+			);
+			if (!valid) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Invalid password',
 				});
-				session.userId = user.id;
-				await session.save();
-				log.info('User %d logged in', user.id);
-				return { success: true };
-			} catch (err) {
-				throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
 			}
+
+			const user = await db.user.findUnique({
+				where: {
+					code: input.code,
+				},
+			});
+			if (!user) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Unknown access code',
+				});
+			}
+
+			const hunter = await db.hunter.findUnique({
+				where: {
+					userId: user.id,
+					alive: true,
+				},
+			});
+			if (!hunter) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message:
+						'Your account is deactivated. Please contact support.',
+				});
+			}
+
+			session.userId = user.id;
+
+			log.info('User %d logged in', user.id);
+
+			await session.save();
+			return { success: true };
 		},
 	),
 
-	logOut: publicProcedure.mutation(async ({ ctx: { session } }) => {
-		if (!session.isAdmin) {
-			session.destroy();
-		} else {
-			delete session.userId;
-			await session.save();
-		}
+	logOut: publicProcedure.mutation(({ ctx: { session } }) => {
+		session.destroy();
 	}),
 
 	me: userProcedure
@@ -63,7 +89,7 @@ export const authRouter = router({
 
 	adminLogin: publicProcedure
 		.input(adminAuthSchema)
-		.mutation(async ({ ctx: { session }, input }) => {
+		.mutation(async ({ ctx: { req, res }, input }) => {
 			const valid = await bcrypt.compare(
 				input.password,
 				config.adminPassword,
@@ -71,12 +97,14 @@ export const authRouter = router({
 			if (!valid) {
 				throw new TRPCError({ code: 'UNAUTHORIZED' });
 			}
-			session.isAdmin = true;
+			const session = await getAdminSession({ req, res });
+			session.admin = true;
 			await session.save();
 			return { success: true };
 		}),
 
-	adminLogout: publicProcedure.mutation(({ ctx: { session } }) => {
+	adminLogout: publicProcedure.mutation(async ({ ctx: { req, res } }) => {
+		const session = await getAdminSession({ req, res });
 		session.destroy();
 	}),
 

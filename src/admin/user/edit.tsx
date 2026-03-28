@@ -18,9 +18,9 @@ import {
 export function UserEdit() {
 	const { record: player } = useEditController<AdminUserSchema>();
 	return (
-		<Edit mutationMode="pessimistic" title={`Player ${player?.name ?? ''}`}>
+		<Edit mutationMode="pessimistic" title={`Player ${player?.code ?? ''}`}>
 			<SimpleForm resolver={zodResolver(adminUserSchema)}>
-				<TextInput isRequired source="name" />
+				<TextInput isRequired source="code" />
 				<NumberInput min={1} source="run" />
 				<ReferenceArrayInput reference="hunter" source="hunterIds">
 					<AutocompleteArrayInput

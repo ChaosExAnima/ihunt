@@ -2,7 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import { HunterTypes, HuntStatus } from '@/lib/constants';
-import { handleToHash } from '@/server/lib/auth';
+import { HunterTypeSchema } from '@/lib/schemas';
+import { hunterToAccessCode } from '@/server/lib/auth';
 import { db, Prisma } from '@/server/lib/db';
 import { uploadPhoto } from '@/server/lib/photo';
 
@@ -103,18 +104,17 @@ async function main() {
 				}) satisfies Prisma.HunterCreateManyInput,
 		);
 
+		const typeCounts = {
+			evileena: 0,
+			knight: 0,
+			phooey: 0,
+			'66er': 0,
+		} satisfies Record<HunterTypeSchema, number>;
 		await db.user.createMany({
-			data: await Promise.all(
-				hunters.map(
-					async ({ userId, handle }) =>
-						({
-							id: userId,
-							name: `Test ${userId}`,
-							password: await handleToHash(handle),
-							run: 1,
-						}) satisfies Prisma.UserCreateManyInput,
-				),
-			),
+			data: hunters.map(({ userId, type }) => ({
+				id: userId,
+				code: hunterToAccessCode(type, ++typeCounts[type]),
+			})),
 		});
 
 		await db.hunter.createMany({

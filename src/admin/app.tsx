@@ -68,7 +68,7 @@ export function App() {
 				list={UserList}
 				name="user"
 				options={{ label: 'Players' }}
-				recordRepresentation="name"
+				recordRepresentation="code"
 			/>
 			<Resource
 				icon={Image}
