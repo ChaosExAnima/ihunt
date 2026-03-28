@@ -4,16 +4,17 @@ import {
 	HUNT_MAX_DANGER,
 	HUNT_MAX_HUNTERS,
 	HuntStatus,
-	PASSWORD_CHAR_COUNT,
-	PASSWORD_REGEX,
+	ACCESS_CODE_CHAR_COUNT,
+	ACCESS_CODE_REGEX,
 } from './constants';
 
 export const authSchema = z.object({
-	password: z
+	code: z
 		.string()
 		.toLowerCase()
-		.regex(PASSWORD_REGEX, 'Code must follow this code: A99')
-		.length(PASSWORD_CHAR_COUNT, 'Code must be exactly six characters'),
+		.regex(ACCESS_CODE_REGEX, 'Code must follow this pattern: A99')
+		.length(ACCESS_CODE_CHAR_COUNT, 'Code must be exactly six characters'),
+	password: z.string(),
 });
 
 export const posIntSchema = z.int().positive();

@@ -3,8 +3,8 @@ import type { HunterTypeSchema } from './schemas';
 export const Locale = 'de-DE';
 export const Currency = 'EUR';
 
-export const PASSWORD_CHAR_COUNT = 3;
-export const PASSWORD_REGEX = /^[a-z][0-9]{1,2}$/i;
+export const ACCESS_CODE_CHAR_COUNT = 3;
+export const ACCESS_CODE_REGEX = /^[a-z][0-9]{1,2}$/i;
 export const SESSION_COOKIE_NAME = 'ihunt-session';
 
 export const HuntStatus = {

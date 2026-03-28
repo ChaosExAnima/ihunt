@@ -12,9 +12,9 @@ import { Button } from '@/components/ui/button';
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
+	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -25,8 +25,8 @@ import {
 } from '@/components/ui/popover';
 import { trpc } from '@/lib/api';
 import {
-	PASSWORD_CHAR_COUNT,
-	PASSWORD_REGEX,
+	ACCESS_CODE_CHAR_COUNT,
+	ACCESS_CODE_REGEX,
 	SESSION_COOKIE_NAME,
 } from '@/lib/constants';
 import { authSchema } from '@/lib/schemas';
@@ -68,9 +68,9 @@ function Index() {
 	const router = useRouter();
 	const { isPending, mutate, reset } = useMutation(
 		trpc.auth.logIn.mutationOptions({
-			onError() {
-				form.setError('password', { message: 'Code not found' });
-				form.setFocus('password');
+			onError(error) {
+				form.setError('code', error);
+				form.setFocus('code');
 			},
 			async onSuccess() {
 				await router.navigate({ to: '/hunts' });
@@ -93,8 +93,10 @@ function Index() {
 	return (
 		<main className="flex grow flex-col gap-4 p-4">
 			<Header className="text-center">iHunt Alpha Access</Header>
+			<Header level={2} className="text-2xl">
+				Hunter login
+			</Header>
 			<Form {...form}>
-				{isPending && 'pending!'}
 				<form
 					className="flex w-full grow flex-col gap-4"
 					// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -102,23 +104,42 @@ function Index() {
 				>
 					<FormField
 						control={form.control}
-						name="password"
+						name="code"
 						render={({ field }) => (
 							<FormItem>
-								<FormDescription className="text-center">
-									Enter your login code below:
-								</FormDescription>
+								<FormLabel className="block text-lg">
+									Access Code
+								</FormLabel>
 								<FormControl>
 									<Input
-										type="password"
+										type="text"
 										placeholder="A99"
-										className="h-16 text-center text-2xl"
-										maxLength={PASSWORD_CHAR_COUNT}
-										pattern={PASSWORD_REGEX.source}
+										className="h-10 text-xl uppercase"
+										maxLength={ACCESS_CODE_CHAR_COUNT}
+										pattern={ACCESS_CODE_REGEX.source}
 										{...field}
 									/>
 								</FormControl>
 								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="password"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="block text-lg">
+									Password
+								</FormLabel>
+								<FormControl>
+									<Input
+										type="password"
+										className="h-10 text-xl"
+										autoComplete="password"
+										{...field}
+									/>
+								</FormControl>
 							</FormItem>
 						)}
 					/>
