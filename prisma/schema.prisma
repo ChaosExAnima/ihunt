@@ -102,8 +102,7 @@ model Notification {
 
 model User {
     id         Int         @id @default(autoincrement())
-    password   String      @unique
-    name       String?
+    code       String      @unique
     run        Int         @default(1)
     settings   Json?
     createdAt  DateTime    @default(now())
