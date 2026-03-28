@@ -60,16 +60,6 @@ function PicPicker({ huntId }: { huntId: number }) {
 
 	return (
 		<div className="grid grid-cols-2 gap-2">
-			<UploadPhoto
-				button={
-					<Button className="w-full" variant="secondary">
-						Upload photo
-						<Upload />
-					</Button>
-				}
-				onCrop={handleCrop}
-				title="Upload a pic"
-			/>
 			<CameraUpload
 				button={
 					<Button className="w-full" variant="success">
@@ -79,6 +69,16 @@ function PicPicker({ huntId }: { huntId: number }) {
 				}
 				onCrop={handleCrop}
 				title="Take a photo"
+			/>
+			<UploadPhoto
+				button={
+					<Button className="w-full">
+						Upload photo
+						<Upload />
+					</Button>
+				}
+				onCrop={handleCrop}
+				title="Upload a pic"
 			/>
 		</div>
 	);
