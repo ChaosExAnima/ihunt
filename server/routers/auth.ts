@@ -4,7 +4,6 @@ import * as z from 'zod';
 
 import { adminAuthSchema } from '@/admin/schemas';
 import { authSchema, hunterSchema, idSchemaCoerce } from '@/lib/schemas';
-import { passwordToHash } from '@/server/lib/auth';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
 import {
@@ -23,20 +22,51 @@ export const authRouter = router({
 				session,
 				req: { log },
 			},
-			input: { password: plainPassword },
+			input,
 		}) => {
-			try {
-				const password = await passwordToHash(plainPassword);
-				const user = await db.user.findUniqueOrThrow({
-					where: { password },
+			const valid = await bcrypt.compare(
+				input.password,
+				config.userPassword,
+			);
+			if (!valid) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Invalid password',
 				});
-				session.userId = user.id;
-				await session.save();
-				log.info('User %d logged in', user.id);
-				return { success: true };
-			} catch (err) {
-				throw new TRPCError({ cause: err, code: 'UNAUTHORIZED' });
 			}
+
+			const user = await db.user.findUnique({
+				where: {
+					code: input.code,
+				},
+			});
+			if (!user) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Unknown access code',
+				});
+			}
+
+			const hunter = await db.hunter.findUnique({
+				where: {
+					userId: user.id,
+					alive: true,
+				},
+			});
+			if (!hunter) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message:
+						'Your account is deactivated. Please contact support.',
+				});
+			}
+
+			session.userId = user.id;
+
+			log.info('User %d logged in', user.id);
+
+			await session.save();
+			return { success: true };
 		},
 	),
 

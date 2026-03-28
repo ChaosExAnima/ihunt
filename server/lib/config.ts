@@ -3,6 +3,7 @@ import 'dotenv/config';
 import * as z from 'zod';
 
 const configSchema = z.object({
+	userPassword: z.string().default('password'),
 	adminPassword: z.string(),
 	authPepper: z.string(),
 	authSession: z.string(),
