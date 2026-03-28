@@ -1,6 +1,7 @@
 import { parseArgs } from 'node:util';
 
-import { handleToHash } from '@/server/lib/auth';
+import { hunterTypeSchema } from '@/lib/schemas';
+import { calculateNextAccessCode } from '@/server/lib/auth';
 import { db } from '@/server/lib/db';
 
 async function main() {
@@ -37,19 +38,20 @@ async function main() {
 
 	for (const user of users) {
 		const hunter = user.hunter;
-		if (!hunter) {
+		const type = hunter?.type;
+		if (!type) {
 			continue;
 		}
-		const hashedPassword = await handleToHash(hunter.handle);
-		if (user.password !== hashedPassword) {
-			await db.user.update({
-				data: { password: hashedPassword },
-				where: { id: user.id },
-			});
-			console.log(
-				`Reset password for user ${user.id} from hunter ${hunter.handle}`,
-			);
-		}
+		const newCode = await calculateNextAccessCode(
+			hunterTypeSchema.parse(type),
+		);
+		await db.user.update({
+			data: { code: newCode },
+			where: { id: user.id },
+		});
+		console.log(
+			`Reset password for user ${user.id} from hunter ${hunter.handle}`,
+		);
 	}
 }
 
