@@ -19,7 +19,9 @@ export function Notification(
 		<>
 			<NotificationIcon type={notification.type} />
 			<div className="grow">
-				{notification.title && <h2>{notification.title}</h2>}
+				{notification.title && (
+					<h2 className="font-semibold">{notification.title}</h2>
+				)}
 				{notification.body && (
 					<p className="text-sm">{notification.body}</p>
 				)}
@@ -30,12 +32,16 @@ export function Notification(
 					)}
 				>
 					{dateFormat(notification.created, true)}
+					{notification.huntId && <> &bull; Tap to view hunt</>}
+					{notification.url && !notification.huntId && (
+						<> &bull; Tap to view more</>
+					)}
 				</p>
 			</div>
 		</>
 	);
 
-	const className = 'flex items-center gap-4';
+	const className = 'flex items-stretch gap-2';
 
 	if (notification.huntId) {
 		return (
