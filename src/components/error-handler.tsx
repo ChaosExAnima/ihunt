@@ -13,7 +13,7 @@ export function ErrorHandler({ error, reset }: ErrorComponentProps) {
 		<div className="flex grow flex-col items-center justify-center gap-2">
 			<CircleAlertIcon className="size-1/4" />
 			<p className="text-xl">There is an error</p>
-			<p className="text-muted-foreground max-w-3/4 text-center">
+			<p className="text-muted max-w-3/4 text-center">
 				Try again, or contact support if you keep experiencing the
 				issue.
 			</p>

@@ -26,7 +26,7 @@ export function Notification(
 				<p
 					className={cn(
 						'text-sm',
-						!notification.seen && 'text-muted-foreground',
+						!notification.seen && 'text-muted',
 					)}
 				>
 					{dateFormat(notification.created, true)}

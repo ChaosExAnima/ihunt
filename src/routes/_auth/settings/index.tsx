@@ -102,18 +102,18 @@ function Settings() {
 						{money !== '' ? (
 							<>
 								<p>{money}</p>
-								<p className="text-muted-foreground text-xs">
+								<p className="text-muted text-xs">
 									Money will arrive the next business day
 								</p>
 							</>
 						) : (
-							<p className="text-muted-foreground text-sm italic">
+							<p className="text-muted text-sm italic">
 								Money is hidden
 							</p>
 						)}
 					</div>
 					<Button
-						className="text-muted-foreground self-start"
+						className="text-muted self-start"
 						disabled={updatingSettings}
 						onClick={handleMoneyToggle}
 						size="icon"

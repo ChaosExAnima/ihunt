@@ -61,7 +61,7 @@ function RouteComponent() {
 				</ol>
 			)}
 			{notifications.length === 0 && (
-				<p className="text-muted-foreground">
+				<p className="text-muted">
 					You'll get notifications about your hunts here!
 				</p>
 			)}
