@@ -25,8 +25,8 @@ function RouteComponent() {
 	}
 	return (
 		<>
-			<Header level={1} variant={2} className="mb-2">
-				Top hunters in Cologne
+			<Header level={1} className="mb-2">
+				Hunters in Cologne
 			</Header>
 
 			<ol>
