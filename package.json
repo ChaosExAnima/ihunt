@@ -110,7 +110,7 @@
 		"react-router-dom": "7.13.2"
 	},
 	"lint-staged": {
-		"*.{js,jsx,ts,tsx}": [
+		"!(*gen).{js,jsx,ts,tsx}": [
 			"yarn run lint",
 			"yarn run fmt"
 		],

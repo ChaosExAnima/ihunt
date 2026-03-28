@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthNotificationsRouteImport } from './routes/_auth/notifications'
 import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/index'
 import { Route as AuthHuntsIndexRouteImport } from './routes/_auth/hunts/index'
+import { Route as AuthHuntersIndexRouteImport } from './routes/_auth/hunters/index'
 import { Route as AuthSettingsNotificationsRouteImport } from './routes/_auth/settings/notifications'
 import { Route as AuthHuntsHuntIdRouteImport } from './routes/_auth/hunts/$huntId'
 import { Route as AuthHuntersHunterIdRouteImport } from './routes/_auth/hunters/$hunterId'
@@ -42,6 +43,11 @@ const AuthHuntsIndexRoute = AuthHuntsIndexRouteImport.update({
   path: '/hunts/',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthHuntersIndexRoute = AuthHuntersIndexRouteImport.update({
+  id: '/hunters/',
+  path: '/hunters/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthSettingsNotificationsRoute =
   AuthSettingsNotificationsRouteImport.update({
     id: '/settings/notifications',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/settings/notifications': typeof AuthSettingsNotificationsRoute
+  '/hunters/': typeof AuthHuntersIndexRoute
   '/hunts/': typeof AuthHuntsIndexRoute
   '/settings/': typeof AuthSettingsIndexRoute
 }
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/settings/notifications': typeof AuthSettingsNotificationsRoute
+  '/hunters': typeof AuthHuntersIndexRoute
   '/hunts': typeof AuthHuntsIndexRoute
   '/settings': typeof AuthSettingsIndexRoute
 }
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/_auth/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/_auth/hunts/$huntId': typeof AuthHuntsHuntIdRoute
   '/_auth/settings/notifications': typeof AuthSettingsNotificationsRoute
+  '/_auth/hunters/': typeof AuthHuntersIndexRoute
   '/_auth/hunts/': typeof AuthHuntsIndexRoute
   '/_auth/settings/': typeof AuthSettingsIndexRoute
 }
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
     | '/settings/notifications'
+    | '/hunters/'
     | '/hunts/'
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
     | '/settings/notifications'
+    | '/hunters'
     | '/hunts'
     | '/settings'
   id:
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/_auth/hunters/$hunterId'
     | '/_auth/hunts/$huntId'
     | '/_auth/settings/notifications'
+    | '/_auth/hunters/'
     | '/_auth/hunts/'
     | '/_auth/settings/'
   fileRoutesById: FileRoutesById
@@ -161,6 +173,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthHuntsIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/hunters/': {
+      id: '/_auth/hunters/'
+      path: '/hunters'
+      fullPath: '/hunters/'
+      preLoaderRoute: typeof AuthHuntersIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/settings/notifications': {
       id: '/_auth/settings/notifications'
       path: '/settings/notifications'
@@ -190,6 +209,7 @@ interface AuthRouteChildren {
   AuthHuntersHunterIdRoute: typeof AuthHuntersHunterIdRoute
   AuthHuntsHuntIdRoute: typeof AuthHuntsHuntIdRoute
   AuthSettingsNotificationsRoute: typeof AuthSettingsNotificationsRoute
+  AuthHuntersIndexRoute: typeof AuthHuntersIndexRoute
   AuthHuntsIndexRoute: typeof AuthHuntsIndexRoute
   AuthSettingsIndexRoute: typeof AuthSettingsIndexRoute
 }
@@ -199,6 +219,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthHuntersHunterIdRoute: AuthHuntersHunterIdRoute,
   AuthHuntsHuntIdRoute: AuthHuntsHuntIdRoute,
   AuthSettingsNotificationsRoute: AuthSettingsNotificationsRoute,
+  AuthHuntersIndexRoute: AuthHuntersIndexRoute,
   AuthHuntsIndexRoute: AuthHuntsIndexRoute,
   AuthSettingsIndexRoute: AuthSettingsIndexRoute,
 }

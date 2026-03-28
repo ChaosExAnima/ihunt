@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, notFound } from '@tanstack/react-router';
+import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 import { useCallback, useMemo } from 'react';
 import { thumbHashToAverageRGBA } from 'thumbhash';
@@ -12,6 +12,7 @@ import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import { Loading } from '@/components/loading';
 import { PhotoDisplay } from '@/components/photo';
 import { Rating } from '@/components/rating';
+import { Button } from '@/components/ui/button';
 import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
 import { HUNTER_LOW_RATING, HUNTER_TOP_MIN_RATING } from '@/lib/constants';
@@ -170,9 +171,9 @@ function RouteComponent() {
 				<Header level={3}>Friends</Header>
 			</HunterGroupList>
 
-			{hunts.length > 0 && (
-				<>
-					<Header level={3}>Reviews</Header>
+			<div className="grow">
+				<Header level={3}>Reviews</Header>
+				{hunts.length > 0 && (
 					<ol>
 						{hunter.hunts.map((hunt) => (
 							<li
@@ -197,8 +198,15 @@ function RouteComponent() {
 							</li>
 						))}
 					</ol>
-				</>
-			)}
+				)}
+				{hunts.length === 0 && (
+					<p className="text-muted text-sm">Nothing yet</p>
+				)}
+			</div>
+
+			<Button variant="secondary" asChild className="w-full">
+				<Link to="/hunters">See all hunters in your area</Link>
+			</Button>
 		</>
 	);
 }
