@@ -16,6 +16,7 @@ export const authSchema = z.object({
 		.length(ACCESS_CODE_CHAR_COUNT, 'Code must be exactly six characters'),
 	password: z.string(),
 });
+export type AuthSchema = z.infer<typeof authSchema>;
 
 export const posIntSchema = z.int().positive();
 

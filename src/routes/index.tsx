@@ -1,35 +1,15 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { SubmitHandler } from 'react-hook-form';
 
 import { Header } from '@/components/header';
-import { Button } from '@/components/ui/button';
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
+import { LoginForm } from '@/components/login';
 import { trpc } from '@/lib/api';
-import {
-	ACCESS_CODE_CHAR_COUNT,
-	ACCESS_CODE_REGEX,
-	SESSION_COOKIE_NAME,
-} from '@/lib/constants';
-import { authSchema } from '@/lib/schemas';
+import { SESSION_COOKIE_NAME } from '@/lib/constants';
+import { AuthSchema } from '@/lib/schemas';
 
 export const Route = createFileRoute('/')({
 	validateSearch(search) {
@@ -66,25 +46,14 @@ export const Route = createFileRoute('/')({
 
 function Index() {
 	const router = useRouter();
-	const { isPending, mutate, reset } = useMutation(
+	const { isPending, mutateAsync, reset } = useMutation(
 		trpc.auth.logIn.mutationOptions({
-			onError(error) {
-				form.setError('code', error);
-				form.setFocus('code');
-			},
 			async onSuccess() {
 				await router.navigate({ to: '/hunts' });
 			},
 		}),
 	);
-	const form = useForm<z.infer<typeof authSchema>>({
-		defaultValues: {
-			password: '',
-		},
-		resolver: zodResolver(authSchema),
-	});
-	const onSubmit: SubmitHandler<z.infer<typeof authSchema>> = (data) =>
-		mutate(data);
+	const handleLogin: SubmitHandler<AuthSchema> = (data) => mutateAsync(data);
 
 	useEffect(() => {
 		reset();
@@ -96,79 +65,7 @@ function Index() {
 			<Header level={2} className="text-2xl">
 				Hunter login
 			</Header>
-			<Form {...form}>
-				<form
-					className="flex w-full grow flex-col gap-4"
-					// eslint-disable-next-line @typescript-eslint/no-misused-promises
-					onSubmit={form.handleSubmit(onSubmit)}
-				>
-					<FormField
-						control={form.control}
-						name="code"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="block text-lg">
-									Access Code
-								</FormLabel>
-								<FormControl>
-									<Input
-										type="text"
-										placeholder="A99"
-										className="h-10 text-xl uppercase"
-										maxLength={ACCESS_CODE_CHAR_COUNT}
-										pattern={ACCESS_CODE_REGEX.source}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="password"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="block text-lg">
-									Password
-								</FormLabel>
-								<FormControl>
-									<Input
-										type="password"
-										className="h-10 text-xl"
-										autoComplete="password"
-										{...field}
-									/>
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<Button
-						disabled={isPending}
-						size="lg"
-						type="submit"
-						variant="success"
-					>
-						Log In
-					</Button>
-					<Popover>
-						<PopoverTrigger className="text-muted-foreground cursor-pointer text-center text-xs hover:underline">
-							Forgot your code? Click here for help!
-						</PopoverTrigger>
-						<PopoverContent className="text-sm/relaxed">
-							OC: Your login code is the first six English letters
-							and numbers of your character&rsquo;s handle, all
-							lowercase. For example: If your character&rsquo;s
-							handle is <strong>d@rkKnight666</strong>, your login
-							code is&nbsp;
-							<code className="border-muted rounded-sm border p-1">
-								drkkni
-							</code>
-							.
-						</PopoverContent>
-					</Popover>
-				</form>
-			</Form>
+			<LoginForm onSubmit={handleLogin} disabled={isPending} />
 			<p className="text-muted text-justify text-xs">
 				No unauthorized use. If you have not been invited to install
 				this application please immediately remove it from your device.
