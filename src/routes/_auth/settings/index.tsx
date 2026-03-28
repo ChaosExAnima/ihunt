@@ -138,7 +138,7 @@ function Settings() {
 					</Button>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
-					<Avatar hunter={hunter} />
+					{hunter.avatar && <Avatar hunter={hunter} />}
 					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
 				<SettingBlock label="Bio">
