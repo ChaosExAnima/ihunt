@@ -78,7 +78,7 @@ function RouteComponent() {
 		return <Loading />;
 	}
 	const { avatar, hunts, rating } = hunter;
-	const topHunter = rating > HUNTER_TOP_MIN_RATING;
+	const topHunter = rating >= HUNTER_TOP_MIN_RATING;
 	const lowRating = rating <= HUNTER_LOW_RATING;
 
 	return (
@@ -91,24 +91,26 @@ function RouteComponent() {
 			>
 				<div
 					className={cn(
-						'w-full text-sm',
+						'flex w-full gap-2 text-sm',
 						avatar &&
 							'absolute bottom-0 bg-black/40 px-3 py-2 text-white',
-						!avatar && 'mb-2 flex gap-2',
+						!avatar && 'mb-2',
 					)}
 				>
 					<div className="grow">
 						<div className="flex items-baseline gap-2">
-							<Header level={1} variant={2}>
+							<Header
+								level={1}
+								variant={2}
+								className="leading-none"
+							>
 								{hunter.name}
 							</Header>
 							<p>{hunter.pronouns ?? 'they/them'}</p>
 						</div>
 						<p>@{hunter.handle}</p>
 					</div>
-					{!avatar && (
-						<HunterTypeIcon size="2em" type={hunter.type} />
-					)}
+					<HunterTypeIcon size="2em" type={hunter.type} />
 				</div>
 				<div
 					className={cn(
@@ -119,22 +121,18 @@ function RouteComponent() {
 				>
 					<div className="flex items-center gap-2">
 						<Rating
-							fillClass={cn(
-								'fill-current',
-								topHunter && 'fill-yellow-400',
-							)}
-							className={cn(topHunter && 'text-yellow-600')}
+							fillClass="fill-current"
+							className={cn(topHunter && 'text-yellow-500')}
 							max={5}
 							rating={rating}
 						/>
 
 						{topHunter && (
-							<span className="rounded-lg bg-yellow-400 px-2 py-1 text-xs">
+							<span className="rounded-lg bg-yellow-400 px-2 py-1 text-xs dark:text-black">
 								Top hunter
 							</span>
 						)}
 					</div>
-					{avatar && <HunterTypeIcon size="2em" type={hunter.type} />}
 				</div>
 				{!!avatar && (
 					<PhotoDisplay

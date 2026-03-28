@@ -6,6 +6,8 @@ import { Header } from '@/components/header';
 import { Loading } from '@/components/loading';
 import { Rating } from '@/components/rating';
 import { trpc } from '@/lib/api';
+import { HUNTER_TOP_MIN_RATING } from '@/lib/constants';
+import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/hunters/')({
 	component: RouteComponent,
@@ -37,7 +39,16 @@ function RouteComponent() {
 						>
 							<Avatar hunter={hunter} />
 							<span className="grow">{hunter.handle}</span>
-							<Rating fill rating={hunter.rating} size="1.2em" />
+							<Rating
+								fill
+								rating={hunter.rating}
+								size="1.2em"
+								fillClass="fill-current"
+								className={cn(
+									hunter.rating >= HUNTER_TOP_MIN_RATING &&
+										'text-yellow-500',
+								)}
+							/>
 						</Link>
 					</li>
 				))}

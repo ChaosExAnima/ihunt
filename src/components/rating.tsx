@@ -1,5 +1,5 @@
 import { LucideProps, Star, StarHalf } from 'lucide-react';
-import { memo } from 'react';
+import { CSSProperties, memo } from 'react';
 
 import { cn } from '@/lib/styles';
 import { arrayOfLength } from '@/lib/utils';
@@ -38,8 +38,9 @@ function RatingBase({
 			{hasHalfStar && (
 				<RatingStarHalf
 					{...props}
+					max={max}
 					className={starClassName}
-					fill={remainder > 0}
+					fill={fill}
 				/>
 			)}
 			{remainder > 0 &&
@@ -52,21 +53,32 @@ function RatingBase({
 
 function RatingStarHalf({
 	fill,
+	className,
+	max,
 	...props
-}: Omit<RatingProps, 'max' | 'rating'>) {
+}: Omit<RatingProps, 'rating'>) {
 	if (!fill) {
-		return <StarHalf {...props} />;
+		return <StarHalf {...props} className={className} />;
+	}
+
+	if (fill && !max) {
+		const style: CSSProperties = {};
+		if (props.size) {
+			style.width =
+				typeof props.size === 'string'
+					? `calc(${props.size}/2)`
+					: `${props.size / 2}px`;
+		}
+		return (
+			<span className="overflow-hidden" style={style}>
+				<StarHalf {...props} className={className} />
+			</span>
+		);
 	}
 
 	return (
 		<span className="relative">
-			<StarHalf
-				{...props}
-				className={cn(
-					props.className,
-					'absolute left-0 fill-black dark:fill-white',
-				)}
-			/>
+			<StarHalf {...props} className={cn(className, 'absolute left-0')} />
 			<Star {...props} />
 		</span>
 	);

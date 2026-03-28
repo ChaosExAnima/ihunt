@@ -17,7 +17,7 @@ export function HunterGroupList({ hunterId }: HunterGroupListProps) {
 	const groupHunters = group?.hunters ?? [];
 
 	if (groupHunters.length === 0) {
-		return null;
+		return <span className="text-muted">No friends yet</span>;
 	}
 	return <HunterList hunters={groupHunters} />;
 }
