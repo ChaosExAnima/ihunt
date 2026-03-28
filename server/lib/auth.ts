@@ -19,6 +19,7 @@ interface SessionData {
 }
 
 export const HASH_ITERATIONS = 10;
+export const ADMIN_SESSION_NAME = 'ihunt-admin';
 
 export async function createAuthContext({
 	req,
@@ -41,7 +42,8 @@ export async function createAuthContext({
 		context.hostBase = defaultHost;
 	}
 
-	if (session.isAdmin) {
+	const adminSession = await getAdminSession({ req, res });
+	if (adminSession.admin) {
 		context.admin = true;
 	}
 
@@ -88,6 +90,21 @@ export function getSession({
 		cookieOptions: {
 			domain: config.cookieDomain,
 			httpOnly: false,
+			secure: !isDev(),
+		},
+		password: authSession,
+	});
+}
+
+export function getAdminSession({
+	req,
+	res,
+}: Pick<CreateFastifyContextOptions, 'req' | 'res'>) {
+	return getIronSession<{ admin?: boolean }>(req.raw, res.raw, {
+		cookieName: ADMIN_SESSION_NAME,
+		cookieOptions: {
+			domain: config.cookieDomain,
+			httpOnly: true,
 			secure: !isDev(),
 		},
 		password: authSession,

@@ -13,6 +13,7 @@ import {
 	userProcedure,
 } from '@/server/lib/trpc';
 
+import { getAdminSession } from '../lib/auth';
 import { userSettingsDatabaseSchema } from '../lib/schema';
 
 export const authRouter = router({
@@ -70,13 +71,8 @@ export const authRouter = router({
 		},
 	),
 
-	logOut: publicProcedure.mutation(async ({ ctx: { session } }) => {
-		if (!session.isAdmin) {
-			session.destroy();
-		} else {
-			delete session.userId;
-			await session.save();
-		}
+	logOut: publicProcedure.mutation(({ ctx: { session } }) => {
+		session.destroy();
 	}),
 
 	me: userProcedure
@@ -93,7 +89,7 @@ export const authRouter = router({
 
 	adminLogin: publicProcedure
 		.input(adminAuthSchema)
-		.mutation(async ({ ctx: { session }, input }) => {
+		.mutation(async ({ ctx: { req, res }, input }) => {
 			const valid = await bcrypt.compare(
 				input.password,
 				config.adminPassword,
@@ -101,12 +97,14 @@ export const authRouter = router({
 			if (!valid) {
 				throw new TRPCError({ code: 'UNAUTHORIZED' });
 			}
-			session.isAdmin = true;
+			const session = await getAdminSession({ req, res });
+			session.admin = true;
 			await session.save();
 			return { success: true };
 		}),
 
-	adminLogout: publicProcedure.mutation(({ ctx: { session } }) => {
+	adminLogout: publicProcedure.mutation(async ({ ctx: { req, res } }) => {
+		const session = await getAdminSession({ req, res });
 		session.destroy();
 	}),
 
