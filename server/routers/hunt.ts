@@ -198,7 +198,9 @@ export const huntRouter = router({
 			return {
 				...hunt,
 				reserved: map.get(hunt.id),
-				hunters: huntHunters.map(({ hunter }) => hunter),
+				hunters: huntHunters
+					.filter(({ status }) => status === InviteStatus.Accepted)
+					.map(({ hunter }) => hunter),
 				photos: photos.filter(
 					({ hunterId }) => !hunterId || hunterId === hunter.id,
 				),
