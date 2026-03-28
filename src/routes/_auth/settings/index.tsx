@@ -98,20 +98,6 @@ function Settings() {
 						value={hunter.pronouns ?? ''}
 					/>
 				</SettingBlock>
-				<SettingBlock className="flex-col items-start" label="Rating">
-					<Rating max={5} rating={hunter.rating} />
-					{hunter.rating <= 1 && (
-						<p className="text-accent text-xs">
-							Your rating is low! Boost it with more jobs or your
-							account may be terminated.
-						</p>
-					)}
-					{hunter.rating > 4 && (
-						<p className="text-success text-xs">
-							You are one of our top hunters!
-						</p>
-					)}
-				</SettingBlock>
 				<SettingBlock label="Cash">
 					<div className="grow flex-col items-start gap-0">
 						{money !== '' ? (
