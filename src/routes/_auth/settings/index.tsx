@@ -5,7 +5,6 @@ import { useCallback, useId } from 'react';
 
 import { Avatar } from '@/components/avatar';
 import { Header } from '@/components/header';
-import { HunterGroupList } from '@/components/hunter/group-list';
 import { Loading } from '@/components/loading';
 import { Rating } from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
@@ -157,18 +156,7 @@ function Settings() {
 						onCheckedChange={toggleTheme}
 					/>
 				</SettingBlock>
-				<SettingBlock label="Friends">
-					<HunterGroupList />
-				</SettingBlock>
 			</section>
-			<Button asChild variant="secondary">
-				<Link
-					params={{ hunterId: hunter.id.toString() }}
-					to="/hunters/$hunterId"
-				>
-					Profile
-				</Link>
-			</Button>
 			<Button asChild variant="secondary">
 				<Link to="/settings/notifications">Notifications Settings</Link>
 			</Button>

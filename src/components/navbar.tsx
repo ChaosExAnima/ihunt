@@ -61,7 +61,12 @@ export function Navbar({
 				{hunterId && (
 					<NavbarItemLink
 						noLabel
-						icon={<Avatar hunter={hunter} />}
+						icon={
+							<Avatar
+								hunter={hunter}
+								className="border-2 border-inherit"
+							/>
+						}
 						name="My Profile"
 						to="/hunters/$hunterId"
 						params={{ hunterId: hunterId.toString() }}
@@ -86,10 +91,10 @@ function NavbarItemLink({
 			<Link
 				{...props}
 				activeProps={{
-					className: 'text-primary',
+					className: 'text-primary border-primary',
 				}}
 				aria-label={name}
-				className="text-muted-foreground flex w-full gap-2 p-4 text-center"
+				className="text-muted flex w-full gap-2 p-4 text-center"
 			>
 				{icon}
 				{!noLabel && name}
