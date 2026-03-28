@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { thumbHashToAverageRGBA } from 'thumbhash';
-import * as z from 'zod';
 
 import { Callout } from '@/components/callout';
 import { Header } from '@/components/header';
@@ -17,17 +16,7 @@ import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
 import { HUNTER_LOW_RATING, HUNTER_TOP_MIN_RATING } from '@/lib/constants';
 import { dateFormat } from '@/lib/formats';
-import { hunterSchema, huntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
-
-export const hunterPageSchema = z.object({
-	...hunterSchema.shape,
-	friends: hunterSchema.array(),
-	huntCount: z.number().min(0),
-	hunts: huntSchema.array(),
-	rating: z.number().max(5).min(1),
-});
-export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
@@ -85,8 +74,6 @@ function RouteComponent() {
 		);
 	}, [thumbHash]);
 
-	const formatDate = useCallback((date: Date) => dateFormat(date), []);
-
 	if (!hunter) {
 		return <Loading />;
 	}
@@ -98,14 +85,35 @@ function RouteComponent() {
 		<>
 			<div
 				className={cn(
-					'rounded-lg',
-					avatar && 'relative overflow-hidden',
+					'flex flex-col',
+					avatar && 'relative overflow-hidden rounded-lg',
 				)}
 			>
 				<div
 					className={cn(
+						'w-full text-sm',
+						avatar &&
+							'absolute bottom-0 bg-black/40 px-3 py-2 text-white',
+						!avatar && 'mb-2 flex gap-2',
+					)}
+				>
+					<div className="grow">
+						<div className="flex items-baseline gap-2">
+							<Header level={1} variant={2}>
+								{hunter.name}
+							</Header>
+							<p>{hunter.pronouns ?? 'they/them'}</p>
+						</div>
+						<p>@{hunter.handle}</p>
+					</div>
+					{!avatar && (
+						<HunterTypeIcon size="2em" type={hunter.type} />
+					)}
+				</div>
+				<div
+					className={cn(
 						'flex w-full justify-between',
-						avatar && 'absolute top-0 p-2',
+						avatar && 'absolute top-0 px-3 py-2',
 						avatar && (isLightAvatar ? 'text-black' : 'text-white'),
 					)}
 				>
@@ -117,7 +125,7 @@ function RouteComponent() {
 							)}
 							className={cn(topHunter && 'text-yellow-600')}
 							max={5}
-							rating={hunter.rating}
+							rating={rating}
 						/>
 
 						{topHunter && (
@@ -126,25 +134,16 @@ function RouteComponent() {
 							</span>
 						)}
 					</div>
-					<HunterTypeIcon size="2em" type={hunter.type} />
+					{avatar && <HunterTypeIcon size="2em" type={hunter.type} />}
 				</div>
-				{!!avatar && <PhotoDisplay className="w-full" photo={avatar} />}
-				<div
-					className={cn(
-						'w-full text-sm dark:text-white',
-						avatar && 'absolute bottom-0 bg-black/40 p-2',
-						!avatar && 'my-4',
-					)}
-				>
-					<div className="flex items-baseline gap-2">
-						<Header level={1} variant={2}>
-							{hunter.name}
-						</Header>
-						<p>{hunter.pronouns ?? 'they/them'}</p>
-					</div>
-					<p>@{hunter.handle}</p>
-				</div>
+				{!!avatar && (
+					<PhotoDisplay
+						className="aspect-square w-full"
+						photo={avatar}
+					/>
+				)}
 			</div>
+
 			{!hunter.alive && (
 				<Header level={3} className="text-rose-600">
 					User account deactivated
@@ -167,9 +166,8 @@ function RouteComponent() {
 				</>
 			)}
 
-			<HunterGroupList hunterId={hunter.id}>
-				<Header level={3}>Friends</Header>
-			</HunterGroupList>
+			<Header level={3}>Friends</Header>
+			<HunterGroupList hunterId={hunter.id} />
 
 			<div className="grow">
 				<Header level={3}>Reviews</Header>
@@ -186,15 +184,20 @@ function RouteComponent() {
 										rating={hunt.rating}
 										size="1em"
 									/>
-									<span className="text-muted">
-										{formatDate(
-											hunt.completedAt ??
-												hunt.scheduledAt ??
-												hunt.createdAt,
+									<time
+										className="text-muted"
+										dateTime={(
+											hunt.completedAt ?? hunt.createdAt
+										).toUTCString()}
+									>
+										{dateFormat(
+											hunt.completedAt ?? hunt.createdAt,
 										)}
-									</span>
+									</time>
 								</p>
-								<p>&ldquo;{hunt.comment}&rdquo;</p>
+								{hunt.comment && (
+									<p>&ldquo;{hunt.comment}&rdquo;</p>
+								)}
 							</li>
 						))}
 					</ol>

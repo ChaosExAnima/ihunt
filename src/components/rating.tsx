@@ -38,7 +38,7 @@ function RatingBase({
 			{hasHalfStar && (
 				<RatingStarHalf
 					{...props}
-					className={className}
+					className={starClassName}
 					fill={remainder > 0}
 				/>
 			)}
