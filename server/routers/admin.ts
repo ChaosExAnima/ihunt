@@ -7,7 +7,7 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@/admin/schemas';
-import { idArray, idSchemaCoerce } from '@/lib/schemas';
+import { hunterTypeSchema, idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, extractKey, idsToObjects, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
@@ -15,7 +15,7 @@ import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
-import { handleToHash } from '../lib/auth';
+import { calculateNextAccessCode } from '../lib/auth';
 import { InviteStatus } from '../lib/schema';
 
 export const adminRouter = router({
@@ -45,14 +45,14 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
-					const hunter = await db.hunter.findUnique({
+					const hunter = await db.hunter.findUniqueOrThrow({
 						where: { id: data.hunterId },
 					});
 					return await db.user.create({
 						data: {
 							...data,
-							password: await handleToHash(
-								hunter?.handle ?? 'password',
+							code: await calculateNextAccessCode(
+								hunterTypeSchema.parse(hunter.type),
 							),
 						},
 					});
@@ -321,18 +321,7 @@ export const adminRouter = router({
 						};
 					}
 					case 'user': {
-						const users = await db.user.findMany({
-							...query,
-							omit: { password: true },
-							where: {
-								...where,
-								name: filter?.q
-									? {
-											contains: filter.q,
-										}
-									: undefined,
-							},
-						});
+						const users = await db.user.findMany(query);
 						return {
 							data: users,
 							total: await db.user.count({ where }),
@@ -392,10 +381,7 @@ export const adminRouter = router({
 				case 'photo':
 					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					return db.user.findUniqueOrThrow({
-						...query,
-						omit: { password: true },
-					});
+					return db.user.findUniqueOrThrow(query);
 				}
 			}
 		}),
@@ -450,10 +436,7 @@ export const adminRouter = router({
 						};
 					case 'user':
 						return {
-							data: await db.user.findMany({
-								...query,
-								omit: { password: true },
-							}),
+							data: await db.user.findMany(query),
 							total: await db.user.count({ where }),
 						};
 				}
@@ -586,17 +569,21 @@ export const adminRouter = router({
 	resetPassword: adminProcedure
 		.input(z.object({ userId: idSchemaCoerce }))
 		.mutation(async ({ input: { userId } }) => {
-			const hunter = await db.hunter.findUnique({
+			const hunter = await db.hunter.findUniqueOrThrow({
 				where: {
 					userId,
 				},
 			});
+
+			const newCode = await calculateNextAccessCode(
+				hunterTypeSchema.parse(hunter.type),
+			);
 			await db.user.update({
 				where: {
 					id: userId,
 				},
 				data: {
-					password: await handleToHash(hunter?.handle ?? 'password'),
+					code: newCode,
 				},
 			});
 		}),

@@ -1,15 +1,15 @@
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
-import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
 
-import { PASSWORD_CHAR_COUNT, SESSION_COOKIE_NAME } from '@/lib/constants';
+import { SESSION_COOKIE_NAME } from '@/lib/constants';
+import { HunterTypeSchema } from '@/lib/schemas';
 import { isDev, omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';
 import { userSettingsDatabaseSchema } from './schema';
 
-const { authPepper, authSession } = config;
+const { authSession } = config;
 
 export type Context = Awaited<ReturnType<typeof createAuthContext>>;
 
@@ -61,7 +61,7 @@ export async function createAuthContext({
 				id: session.userId,
 			},
 			omit: {
-				password: true,
+				code: true,
 			},
 		});
 		return {
@@ -94,22 +94,34 @@ export function getSession({
 	});
 }
 
-export async function passwordToHash(input: string) {
-	const fullHash = await bcrypt.hash(input, authPepper);
-	return fullHash.slice(authPepper.length);
+export function hunterTypeToAccessLetter(type: HunterTypeSchema) {
+	return type.charAt(0).replace('6', 's'); // use S instead of the number 6.
 }
 
-export function stringToPassword(input: string) {
-	return input
-		.toLowerCase()
-		.replaceAll(/[^a-z0-9]+/g, '')
-		.slice(0, PASSWORD_CHAR_COUNT);
+export function hunterToAccessCode(type: HunterTypeSchema, index: number) {
+	return hunterTypeToAccessLetter(type) + index.toString().padStart(2, '0');
 }
 
-export function handleToHash(handle: string) {
-	const input = stringToPassword(handle);
-	if (input.length !== PASSWORD_CHAR_COUNT) {
-		throw Error('Invalid password length');
-	}
-	return passwordToHash(input);
+export async function calculateNextAccessCode(type: HunterTypeSchema) {
+	const typeLetter = hunterTypeToAccessLetter(type);
+	const codes = await db.user.findMany({
+		where: {
+			code: {
+				startsWith: typeLetter,
+			},
+		},
+	});
+	const newIndex = codes.reduce((index, { code }) => {
+		if (!code) {
+			return index;
+		}
+
+		const newIndex = Number.parseInt(code.slice(1));
+		if (newIndex && Number.isFinite(newIndex)) {
+			return newIndex + 1;
+		}
+		return index;
+	}, 0);
+
+	return typeLetter + newIndex.toString().padStart(2, '0');
 }
