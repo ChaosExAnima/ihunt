@@ -78,6 +78,22 @@ export const hunterRouter = router({
 		},
 	),
 
+	getList: userProcedure.output(hunterSchema.array()).query(async () => {
+		return db.hunter.findMany({
+			include: {
+				avatar: true,
+			},
+			orderBy: [
+				{
+					rating: 'desc',
+				},
+				{
+					handle: 'asc',
+				},
+			],
+		});
+	}),
+
 	getOne: userProcedure
 		.input(
 			z.object({
