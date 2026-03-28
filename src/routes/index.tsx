@@ -1,15 +1,16 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
-import { SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Header } from '@/components/header';
 import { LoginForm } from '@/components/login';
 import { trpc } from '@/lib/api';
 import { SESSION_COOKIE_NAME } from '@/lib/constants';
-import { AuthSchema } from '@/lib/schemas';
+import { authSchema, AuthSchema } from '@/lib/schemas';
 
 export const Route = createFileRoute('/')({
 	validateSearch(search) {
@@ -46,14 +47,28 @@ export const Route = createFileRoute('/')({
 
 function Index() {
 	const router = useRouter();
-	const { isPending, mutateAsync, reset } = useMutation(
+	const { mutate, reset } = useMutation(
 		trpc.auth.logIn.mutationOptions({
 			async onSuccess() {
 				await router.navigate({ to: '/hunts' });
 			},
+			onError(error) {
+				const { message } = error;
+				form.setError(message.includes('code') ? 'code' : 'password', {
+					message,
+				});
+			},
 		}),
 	);
-	const handleLogin: SubmitHandler<AuthSchema> = (data) => mutateAsync(data);
+	const handleLogin: SubmitHandler<AuthSchema> = (data) => {
+		mutate(data);
+	};
+	const form = useForm<AuthSchema>({
+		defaultValues: {
+			password: '',
+		},
+		resolver: zodResolver(authSchema),
+	});
 
 	useEffect(() => {
 		reset();
@@ -65,7 +80,7 @@ function Index() {
 			<Header level={2} className="text-2xl">
 				Hunter login
 			</Header>
-			<LoginForm onSubmit={handleLogin} disabled={isPending} />
+			<LoginForm onSubmit={handleLogin} form={form} />
 			<p className="text-muted text-justify text-xs">
 				No unauthorized use. If you have not been invited to install
 				this application please immediately remove it from your device.

@@ -4,16 +4,14 @@ import {
 	HUNT_MAX_DANGER,
 	HUNT_MAX_HUNTERS,
 	HuntStatus,
-	ACCESS_CODE_CHAR_COUNT,
 	ACCESS_CODE_REGEX,
 } from './constants';
 
 export const authSchema = z.object({
 	code: z
-		.string()
+		.string({ error: 'Please enter your access code' })
 		.toLowerCase()
-		.regex(ACCESS_CODE_REGEX, 'Code must follow this pattern: A99')
-		.length(ACCESS_CODE_CHAR_COUNT, 'Code must be exactly six characters'),
+		.regex(ACCESS_CODE_REGEX, 'Code must follow this pattern: A01'),
 	password: z.string(),
 });
 export type AuthSchema = z.infer<typeof authSchema>;

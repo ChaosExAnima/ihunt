@@ -1,9 +1,8 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitEventHandler, useCallback } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, UseFormReturn } from 'react-hook-form';
 
 import { ACCESS_CODE_CHAR_COUNT, ACCESS_CODE_REGEX } from '@/lib/constants';
-import { AuthSchema, authSchema } from '@/lib/schemas';
+import { AuthSchema } from '@/lib/schemas';
 
 import { Button } from './ui/button';
 import {
@@ -18,30 +17,18 @@ import { Input } from './ui/input';
 
 export function LoginForm({
 	onSubmit,
+	form,
 	disabled,
 }: {
 	onSubmit: SubmitHandler<AuthSchema>;
+	form: UseFormReturn<AuthSchema>;
 	disabled?: boolean;
 }) {
-	const form = useForm<AuthSchema>({
-		defaultValues: {
-			password: '',
-		},
-		resolver: zodResolver(authSchema),
-	});
-
 	const handleSubmit: SubmitEventHandler = useCallback(
 		(event) => {
 			event.preventDefault();
 			const submit = form.handleSubmit(onSubmit);
-			void submit(event).catch((error: unknown) => {
-				form.setError('form', {
-					message:
-						error instanceof Error
-							? error.message
-							: 'Could not log in',
-				});
-			});
+			void submit(event);
 		},
 		[onSubmit, form],
 	);
@@ -90,6 +77,7 @@ export function LoginForm({
 									{...field}
 								/>
 							</FormControl>
+							<FormMessage />
 						</FormItem>
 					)}
 				/>
