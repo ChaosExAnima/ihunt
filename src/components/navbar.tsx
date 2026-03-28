@@ -1,8 +1,9 @@
 import type { JSX, PropsWithChildren, ReactNode } from 'react';
 
 import { Link, LinkProps } from '@tanstack/react-router';
-import { BellIcon, Crosshair } from 'lucide-react';
+import { BellIcon, Crosshair, SettingsIcon } from 'lucide-react';
 
+import { useHunterId } from '@/hooks/use-hunter';
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
 
@@ -28,6 +29,7 @@ export function Navbar({
 	isHuntActive,
 	unreadCount,
 }: PropsWithChildren<NavbarProps>) {
+	const hunterId = useHunterId();
 	return (
 		<nav className="border-border dark:bg-background sticky mb-4 border-b bg-white  shadow-md">
 			<ol className="flex items-center justify-start gap-2">
@@ -52,10 +54,24 @@ export function Navbar({
 				</NavbarItemLink>
 				<NavbarItemLink
 					noLabel
-					icon={<Avatar hunter={hunter} />}
+					icon={<SettingsIcon />}
 					name="Settings"
 					to="/settings"
 				/>
+				{hunterId && (
+					<NavbarItemLink
+						noLabel
+						icon={
+							<Avatar
+								hunter={hunter}
+								className="border-2 border-inherit"
+							/>
+						}
+						name="My Profile"
+						to="/hunters/$hunterId"
+						params={{ hunterId: hunterId.toString() }}
+					/>
+				)}
 				{children ? <li>{children}</li> : null}
 			</ol>
 		</nav>
@@ -75,10 +91,10 @@ function NavbarItemLink({
 			<Link
 				{...props}
 				activeProps={{
-					className: 'text-primary',
+					className: 'text-primary border-primary',
 				}}
 				aria-label={name}
-				className="text-muted-foreground flex w-full gap-2 p-4 text-center"
+				className="text-muted flex w-full gap-2 p-4 text-center"
 			>
 				{icon}
 				{!noLabel && name}

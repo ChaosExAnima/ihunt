@@ -45,6 +45,18 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 
 	const isLockedDown = useLockedDown(hunt.scheduledAt);
 
+	const expiresTs = reserved?.expires?.getTime();
+	const [minutesLeft, setMinutesLeft] = useState(() =>
+		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
+	);
+
+	const handleInterval = useCallback(() => {
+		if (expiresTs) {
+			setMinutesLeft(Math.ceil((expiresTs - Date.now()) / MINUTE));
+		}
+	}, [expiresTs]);
+	useInterval({ cb: handleInterval, interval: 10 * SECOND });
+
 	return (
 		<HuntBase {...props}>
 			<HuntInvite
@@ -52,6 +64,7 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 				hasSpace={openSpots > 0}
 				hasJoined={hasAccepted}
 				reserved={reserved}
+				minutesLeft={minutesLeft}
 				key={reserved?.status}
 			/>
 
@@ -74,7 +87,11 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 					</Button>
 				)}
 				{reserved?.status === 'invited' && !hasAccepted && (
-					<HuntInviteRejectButton huntId={huntId} />
+					<HuntInviteRejectButton
+						huntId={huntId}
+						minutesLeft={minutesLeft}
+						key={reserved?.status}
+					/>
 				)}
 			</div>
 
@@ -101,23 +118,13 @@ function HuntInvite({
 	hasSpace,
 	hasJoined,
 	reserved,
+	minutesLeft = 0,
 }: Pick<HuntSchema, 'reserved'> & {
 	noHunts: boolean;
 	hasSpace: boolean;
 	hasJoined: boolean;
+	minutesLeft?: number;
 }) {
-	const expiresTs = reserved?.expires?.getTime();
-	const [minutesLeft, setMinutesLeft] = useState(() =>
-		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
-	);
-
-	const handleInterval = useCallback(() => {
-		if (expiresTs) {
-			setMinutesLeft(Math.ceil((expiresTs - Date.now()) / MINUTE));
-		}
-	}, [expiresTs]);
-	useInterval({ cb: handleInterval, interval: 10 * SECOND });
-
 	if (
 		!reserved ||
 		minutesLeft <= 0 ||
@@ -164,7 +171,13 @@ function HuntInvite({
 	);
 }
 
-function HuntInviteRejectButton({ huntId }: { huntId: number }) {
+function HuntInviteRejectButton({
+	huntId,
+	minutesLeft = 0,
+}: {
+	huntId: number;
+	minutesLeft?: number;
+}) {
 	const invalidate = useInvalidate();
 	const { mutate: rejectInvite } = useMutation(
 		trpc.invite.rejectInvite.mutationOptions({
@@ -176,15 +189,26 @@ function HuntInviteRejectButton({ huntId }: { huntId: number }) {
 	const handleReject = useCallback(() => {
 		rejectInvite({ huntId });
 	}, [huntId, rejectInvite]);
+	const id = useId();
 	return (
-		<Button
-			className="rounded-full font-bold"
-			onClick={handleReject}
-			variant="destructive"
+		<ConfirmDialog
+			onConfirm={handleReject}
+			title="Reject hunt invite"
+			id={id}
+			trigger={
+				<Button
+					className="rounded-full font-bold"
+					variant="destructive"
+					aria-controls={id}
+				>
+					<X />
+					Decline
+				</Button>
+			}
 		>
-			<X />
-			Decline
-		</Button>
+			If you decline, you cannot rejoin the hunt for {minutesLeft}{' '}
+			minutes.
+		</ConfirmDialog>
 	);
 }
 

@@ -21,11 +21,11 @@ export function dateFormat(date: Date, showMinutes = false) {
 	if (diff >= OLD) {
 		return 'a while ago';
 	} else if (diff >= DAY) {
-		return rt.format(Math.floor(diff / DAY), 'days');
+		return rt.format(-Math.floor(diff / DAY), 'days');
 	} else if (diff >= HOUR) {
-		return rt.format(Math.floor(diff / HOUR), 'hours');
+		return rt.format(-Math.floor(diff / HOUR), 'hours');
 	} else if (showMinutes && diff >= MINUTE * 2) {
-		return rt.format(Math.floor(diff / MINUTE), 'minutes');
+		return rt.format(-Math.floor(diff / MINUTE), 'minutes');
 	}
 	return 'recently';
 }

@@ -94,8 +94,8 @@
 		--primary-foreground: var(--color-stone-900);
 		--secondary: var(--color-stone-900);
 		--secondary-foreground: var(--color-stone-100);
-		--muted: var(--color-stone-700);
-		--muted-foreground: var(--color-stone-500);
+		--muted: var(--color-stone-500);
+		--muted-foreground: var(--color-stone-700);
 
 		--card: hsl(20 14.3% 4.1%);
 		--card-foreground: hsl(60 9.1% 97.8%);

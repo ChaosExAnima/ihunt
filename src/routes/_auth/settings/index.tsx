@@ -5,9 +5,7 @@ import { useCallback, useId } from 'react';
 
 import { Avatar } from '@/components/avatar';
 import { Header } from '@/components/header';
-import { HunterGroupList } from '@/components/hunter/group-list';
 import { Loading } from '@/components/loading';
-import { Rating } from '@/components/rating';
 import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
 import { EditableBlock } from '@/components/settings/editable-block';
 import { SettingBlock } from '@/components/settings/setting-block';
@@ -99,37 +97,23 @@ function Settings() {
 						value={hunter.pronouns ?? ''}
 					/>
 				</SettingBlock>
-				<SettingBlock className="flex-col items-start" label="Rating">
-					<Rating max={5} rating={hunter.rating} />
-					{hunter.rating <= 1 && (
-						<p className="text-accent text-xs">
-							Your rating is low! Boost it with more jobs or your
-							account may be terminated.
-						</p>
-					)}
-					{hunter.rating > 4 && (
-						<p className="text-success text-xs">
-							You are one of our top hunters!
-						</p>
-					)}
-				</SettingBlock>
 				<SettingBlock label="Cash">
 					<div className="grow flex-col items-start gap-0">
 						{money !== '' ? (
 							<>
 								<p>{money}</p>
-								<p className="text-muted-foreground text-xs">
+								<p className="text-muted text-xs">
 									Money will arrive the next business day
 								</p>
 							</>
 						) : (
-							<p className="text-muted-foreground text-sm italic">
+							<p className="text-muted text-sm italic">
 								Money is hidden
 							</p>
 						)}
 					</div>
 					<Button
-						className="text-muted-foreground self-start"
+						className="text-muted self-start"
 						disabled={updatingSettings}
 						onClick={handleMoneyToggle}
 						size="icon"
@@ -139,7 +123,7 @@ function Settings() {
 					</Button>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
-					<Avatar hunter={hunter} />
+					{hunter.avatar && <Avatar hunter={hunter} />}
 					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
 				<SettingBlock label="Bio">
@@ -157,18 +141,7 @@ function Settings() {
 						onCheckedChange={toggleTheme}
 					/>
 				</SettingBlock>
-				<SettingBlock label="Friends">
-					<HunterGroupList />
-				</SettingBlock>
 			</section>
-			<Button asChild variant="secondary">
-				<Link
-					params={{ hunterId: hunter.id.toString() }}
-					to="/hunters/$hunterId"
-				>
-					Profile
-				</Link>
-			</Button>
 			<Button asChild variant="secondary">
 				<Link to="/settings/notifications">Notifications Settings</Link>
 			</Button>

@@ -1,29 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, notFound } from '@tanstack/react-router';
+import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { thumbHashToAverageRGBA } from 'thumbhash';
-import * as z from 'zod';
 
+import { Callout } from '@/components/callout';
 import { Header } from '@/components/header';
 import { HunterGroupList } from '@/components/hunter/group-list';
 import { HunterTypeIcon } from '@/components/hunter/type-icon';
 import { Loading } from '@/components/loading';
 import { PhotoDisplay } from '@/components/photo';
 import { Rating } from '@/components/rating';
+import { Button } from '@/components/ui/button';
+import { useHunterId } from '@/hooks/use-hunter';
 import { trpc } from '@/lib/api';
+import { HUNTER_LOW_RATING, HUNTER_TOP_MIN_RATING } from '@/lib/constants';
 import { dateFormat } from '@/lib/formats';
-import { hunterSchema, huntSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
-
-export const hunterPageSchema = z.object({
-	...hunterSchema.shape,
-	friends: hunterSchema.array(),
-	huntCount: z.number().min(0),
-	hunts: huntSchema.array(),
-	rating: z.number().max(5).min(1),
-});
-export type HunterPageSchema = z.infer<typeof hunterPageSchema>;
 
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,
@@ -60,6 +53,9 @@ function RouteComponent() {
 		}),
 	);
 
+	const currentHunterId = useHunterId();
+	const isMe = hunterId === currentHunterId?.toString();
+
 	const thumbHash = hunter?.avatar?.blurry ?? null;
 	const isLightAvatar = useMemo(() => {
 		if (!thumbHash) {
@@ -78,55 +74,89 @@ function RouteComponent() {
 		);
 	}, [thumbHash]);
 
-	const formatDate = useCallback((date: Date) => dateFormat(date), []);
-
 	if (!hunter) {
 		return <Loading />;
 	}
-	const { avatar, hunts } = hunter;
+	const { avatar, hunts, rating } = hunter;
+	const topHunter = rating >= HUNTER_TOP_MIN_RATING;
+	const lowRating = rating <= HUNTER_LOW_RATING;
 
 	return (
 		<>
 			<div
 				className={cn(
-					'rounded-lg',
-					avatar && 'relative overflow-hidden',
+					'flex flex-col',
+					avatar && 'relative overflow-hidden rounded-lg',
 				)}
 			>
 				<div
 					className={cn(
+						'flex w-full gap-2 text-sm',
+						avatar &&
+							'absolute bottom-0 bg-black/40 px-3 py-2 text-white',
+						!avatar && 'mb-2',
+					)}
+				>
+					<div className="grow">
+						<div className="flex items-baseline gap-2">
+							<Header
+								level={1}
+								variant={2}
+								className="leading-none"
+							>
+								{hunter.name}
+							</Header>
+							<p>{hunter.pronouns ?? 'they/them'}</p>
+						</div>
+						<p>@{hunter.handle}</p>
+					</div>
+					<HunterTypeIcon size="2em" type={hunter.type} />
+				</div>
+				<div
+					className={cn(
 						'flex w-full justify-between',
-						avatar && 'absolute top-0 p-2',
+						avatar && 'absolute top-0 px-3 py-2',
 						avatar && (isLightAvatar ? 'text-black' : 'text-white'),
 					)}
 				>
-					<Rating
-						fillClass="fill-current"
-						max={5}
-						rating={hunter.rating}
-					/>
-					<HunterTypeIcon size="2em" type={hunter.type} />
-				</div>
-				{!!avatar && <PhotoDisplay className="w-full" photo={avatar} />}
-				<div
-					className={cn(
-						'w-full text-sm dark:text-white',
-						avatar && 'absolute bottom-0 bg-black/40 p-2',
-						!avatar && 'my-4',
-					)}
-				>
-					<div className="flex items-baseline gap-2">
-						<Header level={2}>{hunter.name}</Header>
-						<p>{hunter.pronouns ?? 'they/them'}</p>
+					<div className="flex items-center gap-2">
+						<Rating
+							fillClass="fill-current"
+							className={cn(topHunter && 'text-yellow-500')}
+							max={5}
+							rating={rating}
+						/>
+
+						{topHunter && (
+							<span className="rounded-lg bg-yellow-400 px-2 py-1 text-xs dark:text-black">
+								Top hunter
+							</span>
+						)}
 					</div>
-					<p>@{hunter.handle}</p>
 				</div>
+				{!!avatar && (
+					<PhotoDisplay
+						className="aspect-square w-full"
+						photo={avatar}
+					/>
+				)}
 			</div>
+
 			{!hunter.alive && (
-				<p className="text-xl text-rose-600">
+				<Header level={3} className="text-rose-600">
 					User account deactivated
-				</p>
+				</Header>
 			)}
+
+			{lowRating && isMe && (
+				<Callout variant="error">
+					<p className="font-semibold">Your rating is low!</p>
+					<p className="text-sm">
+						Take more hunts to boost your rating
+					</p>
+				</Callout>
+			)}
+
 			{hunter.bio && (
 				<>
 					<Header level={3}>About me</Header>
@@ -134,13 +164,12 @@ function RouteComponent() {
 				</>
 			)}
 
-			<HunterGroupList hunterId={hunter.id}>
-				<Header level={3}>Friends</Header>
-			</HunterGroupList>
+			<Header level={3}>Friends</Header>
+			<HunterGroupList hunterId={hunter.id} />
 
-			{hunts.length > 0 && (
-				<>
-					<Header level={3}>Reviews</Header>
+			<div className="grow">
+				<Header level={3}>Reviews</Header>
+				{hunts.length > 0 && (
 					<ol>
 						{hunter.hunts.map((hunt) => (
 							<li
@@ -153,20 +182,32 @@ function RouteComponent() {
 										rating={hunt.rating}
 										size="1em"
 									/>
-									<span className="text-muted">
-										{formatDate(
-											hunt.completedAt ??
-												hunt.scheduledAt ??
-												hunt.createdAt,
+									<time
+										className="text-muted"
+										dateTime={(
+											hunt.completedAt ?? hunt.createdAt
+										).toUTCString()}
+									>
+										{dateFormat(
+											hunt.completedAt ?? hunt.createdAt,
 										)}
-									</span>
+									</time>
 								</p>
-								<p>&ldquo;{hunt.comment}&rdquo;</p>
+								{hunt.comment && (
+									<p>&ldquo;{hunt.comment}&rdquo;</p>
+								)}
 							</li>
 						))}
 					</ol>
-				</>
-			)}
+				)}
+				{hunts.length === 0 && (
+					<p className="text-muted text-sm">Nothing yet</p>
+				)}
+			</div>
+
+			<Button variant="secondary" asChild className="w-full">
+				<Link to="/hunters">See all hunters in your area</Link>
+			</Button>
 		</>
 	);
 }

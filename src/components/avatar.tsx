@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { UserRound, UserRoundX } from 'lucide-react';
 
-import { useHunterId } from '@/hooks/use-hunter';
 import { HunterSchema } from '@/lib/schemas';
 import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
@@ -16,17 +15,12 @@ interface AvatarProps {
 
 export function Avatar({ className, hunter, link = false }: AvatarProps) {
 	const photo = hunter.avatar;
-	const currentHunterId = useHunterId();
 
 	if (link) {
 		return (
 			<Link
 				params={{ hunterId: hunter.id.toString() }}
-				to={
-					currentHunterId === hunter.id
-						? '/settings'
-						: '/hunters/$hunterId'
-				}
+				to="/hunters/$hunterId"
 			>
 				<Avatar hunter={hunter} />
 			</Link>
@@ -55,7 +49,7 @@ export function AvatarEmpty({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border-border border',
+				'border-border text-border border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}
@@ -69,7 +63,7 @@ export function AvatarLocked({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border-border border',
+				'border-border text-border border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}
