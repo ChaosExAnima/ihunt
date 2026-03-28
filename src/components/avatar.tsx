@@ -49,7 +49,7 @@ export function AvatarEmpty({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border-border border',
+				'border-border text-border border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}
@@ -63,7 +63,7 @@ export function AvatarLocked({ className }: PropsWithClassName) {
 	return (
 		<div
 			className={cn(
-				'border-border border',
+				'border-border text-border border',
 				'flex size-10 shrink-0 items-center justify-center rounded-full',
 				className,
 			)}
