@@ -18,7 +18,7 @@ export function UserCreate() {
 				resolver={zodResolver(adminUserSchema.omit({ id: true }))}
 				toolbar={<CreateToolbar />}
 			>
-				<TextInput isRequired source="name" />
+				<TextInput isRequired source="code" />
 				<NumberInput min={1} defaultValue={1} source="run" />
 				<ReferenceArrayInput reference="hunter" source="hunterIds">
 					<AutocompleteArrayInput

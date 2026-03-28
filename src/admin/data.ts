@@ -11,6 +11,7 @@ import {
 import { AuthProvider, DataProvider, useDataProvider } from 'react-admin';
 import superjson from 'superjson';
 
+import { isDev } from '@/lib/utils';
 import { AppRouter } from '@/server/index';
 
 import { adminAuthSchema, adminCreateInput } from './schemas';
@@ -22,7 +23,7 @@ const trpc = createTRPCClient<AppRouter>({
 			enabled: () => !!localStorage.getItem('debugApi'),
 		}),
 		splitLink({
-			condition: (op) => isNonJsonSerializable(op.input),
+			condition: (op) => isNonJsonSerializable(op.input) || isDev(),
 			false: httpBatchLink({
 				transformer: superjson,
 				url,
