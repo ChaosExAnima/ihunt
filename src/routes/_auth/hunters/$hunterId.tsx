@@ -94,7 +94,7 @@ function RouteComponent() {
 
 			{!hunter.alive && (
 				<Header level={3} className="text-rose-600">
-					User account deactivated
+					Account deactivated
 				</Header>
 			)}
 
