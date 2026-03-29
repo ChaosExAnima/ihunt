@@ -6,6 +6,8 @@ import {
 	MailXIcon,
 	MailIcon,
 	LucideProps,
+	EuroIcon,
+	UserRoundMinusIcon,
 } from 'lucide-react';
 
 import { dateFormat } from '@/lib/formats';
@@ -84,6 +86,13 @@ export function typeToIcon(type: NotifyTypeSchema) {
 			return MailCheckIcon;
 		case 'invite-decline':
 			return MailXIcon;
+		case 'hunter-money-negative':
+			return EuroIcon;
+		case 'hunter-deactivated':
+			return UserRoundMinusIcon;
+		case 'hunter-rating-top':
+		case 'hunter-rating-low':
+			return StarIcon;
 		default:
 			return MailIcon;
 	}
