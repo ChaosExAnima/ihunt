@@ -98,22 +98,22 @@ function Settings() {
 					/>
 				</SettingBlock>
 				<SettingBlock label="Cash">
-					<div className="grow flex-col items-start gap-0">
+					<div className="grow">
 						{money !== '' ? (
-							<>
-								<p>{money}</p>
-								<p className="text-muted text-xs">
-									Money will arrive the next business day
-								</p>
-							</>
+							<p className="grow text-xl">{money}</p>
 						) : (
-							<p className="text-muted text-sm italic">
+							<p className="text-muted grow text-sm italic">
 								Money is hidden
+							</p>
+						)}
+						{!!money && (
+							<p className="text-muted text-xs">
+								Payments take 1-2 business days
 							</p>
 						)}
 					</div>
 					<Button
-						className="text-muted self-start"
+						className="text-muted"
 						disabled={updatingSettings}
 						onClick={handleMoneyToggle}
 						size="icon"
