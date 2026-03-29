@@ -7,7 +7,8 @@ import {
 	MailIcon,
 	LucideProps,
 	EuroIcon,
-	UserRoundMinusIcon,
+	UserRoundXIcon,
+	StarOffIcon,
 } from 'lucide-react';
 
 import { dateFormat } from '@/lib/formats';
@@ -102,10 +103,11 @@ export function typeToIcon(type: NotifyTypeSchema) {
 		case 'hunter-money-negative':
 			return EuroIcon;
 		case 'hunter-deactivated':
-			return UserRoundMinusIcon;
+			return UserRoundXIcon;
 		case 'hunter-rating-top':
-		case 'hunter-rating-low':
 			return StarIcon;
+		case 'hunter-rating-low':
+			return StarOffIcon;
 		default:
 			return MailIcon;
 	}

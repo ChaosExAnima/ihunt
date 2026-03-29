@@ -51,7 +51,7 @@ function RouteComponent() {
 						<li
 							key={notification.id}
 							className={cn(
-								'flex items-center gap-4 rounded-lg bg-white px-3 py-2',
+								'border-border flex items-center gap-4 rounded-lg border px-3 py-2',
 								notification.seen && 'text-muted',
 							)}
 						>
