@@ -45,11 +45,33 @@ export async function createAuthContext({
 	const adminSession = await getAdminSession({ req, res });
 	if (adminSession.admin) {
 		context.admin = true;
+
+		if (config.adminHunterId && !session.userId) {
+			const hunter = await db.hunter.findUniqueOrThrow({
+				include: {
+					avatar: true,
+				},
+				where: {
+					id: config.adminHunterId,
+				},
+			});
+			return {
+				...context,
+				hunter,
+				user: {
+					settings: {
+						hideMoney: false,
+						notifications: {},
+					},
+				},
+			};
+		}
 	}
 
 	if (!session.userId) {
 		return context;
 	}
+
 	try {
 		const { hunter, ...user } = await db.user.findUniqueOrThrow({
 			include: {

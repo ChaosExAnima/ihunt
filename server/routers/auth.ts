@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import * as z from 'zod';
 
 import { adminAuthSchema } from '@/admin/schemas';
-import { authSchema, hunterSchema, idSchemaCoerce } from '@/lib/schemas';
+import { authSchema, hunterSchema } from '@/lib/schemas';
 import { config } from '@/server/lib/config';
 import { db } from '@/server/lib/db';
 import {
@@ -109,17 +109,22 @@ export const authRouter = router({
 	}),
 
 	switch: debugProcedure
-		.input(z.object({ hunterId: idSchemaCoerce }))
+		.input(z.object({ hunterId: z.coerce.number().int().nonnegative() }))
 		.mutation(async ({ ctx: { session }, input: { hunterId } }) => {
 			try {
 				const hunter = await db.hunter.findUniqueOrThrow({
-					where: { id: hunterId },
+					where: {
+						id: hunterId,
+					},
 				});
 				if (!hunter.alive || !hunter.userId) {
 					throw new Error('Hunter is not available to switch to');
 				}
 
-				session.userId = hunter.userId;
+				if (hunter.userId) {
+					session.userId = hunter.userId;
+				}
+
 				await session.save();
 				return { success: true };
 			} catch (err) {

@@ -165,6 +165,7 @@ function SwitchUser() {
 				<SelectValue placeholder="Current hunter" />
 			</SelectTrigger>
 			<SelectContent>
+				<SelectItem value="0">Admin</SelectItem>
 				{hunters.map((hunter) => (
 					<SelectItem key={hunter.id} value={hunter.id.toString()}>
 						{hunter.handle}

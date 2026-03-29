@@ -5,6 +5,7 @@ import * as z from 'zod';
 const configSchema = z.object({
 	userPassword: z.string().default('password'),
 	adminPassword: z.string(),
+	adminHunterId: z.coerce.number().int().positive().optional(),
 	authPepper: z.string(),
 	authSession: z.string(),
 	cookieDomain: z.string().optional(),
