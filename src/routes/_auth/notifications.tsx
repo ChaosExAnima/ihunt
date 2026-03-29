@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { Loading } from '@/components/loading';
 import { Notification } from '@/components/notification';
 import { trpc } from '@/lib/api';
+import { SECOND } from '@/lib/formats';
 import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/notifications')({
@@ -16,7 +17,10 @@ export const Route = createFileRoute('/_auth/notifications')({
 });
 
 function RouteComponent() {
-	const { isLoading, data } = useQuery(trpc.notify.list.queryOptions());
+	const { isLoading, data } = useQuery({
+		...trpc.notify.list.queryOptions(),
+		refetchInterval: 30 * SECOND,
+	});
 	const [notifications, setNotifications] = useState<typeof data>();
 
 	if (data && !notifications) {

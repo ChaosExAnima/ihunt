@@ -1,3 +1,4 @@
+import { FastifyBaseLogger } from 'fastify';
 import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
@@ -204,6 +205,7 @@ interface NotifyArgs {
 	event: NotifyEventSchema;
 	force?: boolean;
 	userId: number;
+	logger?: FastifyBaseLogger;
 }
 
 export function notifyHunters({
@@ -263,9 +265,11 @@ export async function notifyHunter({
 	return notifyUser({ userId, event, ...rest });
 }
 
-export async function notifyUser({ event, force, userId }: NotifyArgs) {
+export async function notifyUser({ event, force, userId, logger }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { icon, ...event });
+
+	logger?.info(event, `Sending ${event.type} to ${userId}`);
 
 	const user = await db.user.findUniqueOrThrow({
 		where: {
@@ -334,6 +338,7 @@ export async function notifyUser({ event, force, userId }: NotifyArgs) {
 		await db.userVapid.deleteMany({
 			where: { id: { in: toPrune } },
 		});
+		logger?.debug(`Pruned ${toPrune.length} VAPIDs`);
 	}
 
 	return succeeded;
