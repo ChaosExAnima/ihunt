@@ -9,7 +9,7 @@ import {
 } from '@/admin/schemas';
 import { hunterTypeSchema, idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
-import { extractIds, extractKey, idsToObjects, omit } from '@/lib/utils';
+import { extractIds, extractKey, idsToEntities, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
 import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
@@ -27,7 +27,7 @@ export const adminRouter = router({
 					const { hunters, ...group } = await db.hunterGroup.create({
 						data: {
 							hunters: {
-								connect: idsToObjects(data.hunterIds),
+								connect: idsToEntities(data.hunterIds),
 							},
 							name: data.name,
 						},
@@ -503,7 +503,7 @@ export const adminRouter = router({
 					const { hunters, ...group } = await db.hunterGroup.update({
 						data: {
 							hunters: {
-								set: idsToObjects(data.hunterIds),
+								set: idsToEntities(data.hunterIds),
 							},
 							name: data.name,
 						},
@@ -532,7 +532,7 @@ export const adminRouter = router({
 						data: {
 							...omit(data, 'hunterIds', 'photoIds'),
 							photos: {
-								set: idsToObjects(data.photoIds),
+								set: idsToEntities(data.photoIds),
 							},
 						},
 						where: { id },

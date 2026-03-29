@@ -42,3 +42,6 @@ data
 dist
 src/dev-dist
 server.js
+
+# assets
+*.csv

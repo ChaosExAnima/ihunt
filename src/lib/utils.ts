@@ -30,11 +30,18 @@ export function extractKey<
 	return obj.map(({ [key]: value }) => value);
 }
 
-export function idsToObjects(ids?: number[]): Entity[] | undefined {
+export function idsToEntities(ids?: number[]): Entity[] | undefined {
 	if (!ids) {
 		return undefined;
 	}
 	return ids.map((id) => ({ id }));
+}
+
+export function entitiesToIdMap<
+	TEntity extends Entity,
+	TKey extends keyof TEntity,
+>(objects: TEntity[], key: TKey) {
+	return new Map(objects.map((object) => [object[key], object.id]));
 }
 
 export function isDev() {
