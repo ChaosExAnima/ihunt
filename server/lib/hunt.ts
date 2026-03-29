@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server';
+import { FastifyBaseLogger } from 'fastify';
 
 import {
 	HUNT_LOCKDOWN_MINUTES,
@@ -22,7 +23,6 @@ import {
 	ratingLow,
 } from './notify';
 import { InviteStatus } from './schema';
-import { logger } from './server';
 
 export const huntDisplayInclude = {
 	huntHunters: {
@@ -76,7 +76,7 @@ export function isHuntsDisabled() {
 
 const huntsNotified = new Set<number>();
 
-export async function onHuntInterval() {
+export async function onHuntInterval(logger?: FastifyBaseLogger) {
 	if (isHuntsDisabled()) {
 		return;
 	}
@@ -123,7 +123,7 @@ export async function onHuntInterval() {
 	const results = await Promise.all(notifyPromises);
 	const total = results.filter((v): v is true => !!v).length;
 	if (total) {
-		logger.info(
+		logger?.info(
 			`Notified ${total} users for ${upcomingHunts.length} hunts`,
 		);
 	}
@@ -139,7 +139,7 @@ export async function onHuntInterval() {
 		},
 	});
 	if (inviteResults.count) {
-		logger.info(`Expired ${inviteResults.count} invites`);
+		logger?.info(`Expired ${inviteResults.count} invites`);
 	}
 }
 
