@@ -123,6 +123,8 @@ function CurrentSlide({
 		});
 	}, [api]);
 
+	const dotClass = 'block size-2 rounded-full transition-colors';
+
 	return (
 		<div
 			className={cn(
@@ -133,7 +135,7 @@ function CurrentSlide({
 				<span
 					key={id}
 					className={cn(
-						'block size-2 rounded-full',
+						dotClass,
 						index === current
 							? 'bg-rose-500 dark:bg-rose-600'
 							: 'bg-rose-600 dark:bg-rose-800',
@@ -144,17 +146,27 @@ function CurrentSlide({
 				<span
 					key={id}
 					className={cn(
-						'block size-2 rounded-full transition-colors',
+						dotClass,
 						index + active.length === current
 							? 'bg-lime-500 dark:bg-lime-600'
 							: 'bg-lime-600 dark:bg-lime-800',
 					)}
 				/>
 			))}
+			{active.length === 0 && available.length === 0 && (
+				<span
+					className={cn(
+						dotClass,
+						0 === current
+							? 'bg-stone-200 dark:bg-stone-400'
+							: 'bg-stone-400 dark:bg-stone-600',
+					)}
+				/>
+			)}
 			<span
 				className={cn(
-					'block size-2 rounded-full',
-					active.length + available.length === current
+					dotClass,
+					active.length + available.length + 1 === current
 						? 'bg-stone-200 dark:bg-stone-400'
 						: 'bg-stone-400 dark:bg-stone-600',
 				)}
