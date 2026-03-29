@@ -125,6 +125,9 @@ export const huntRouter = router({
 						},
 					},
 					status: HuntStatus.Complete,
+					completedAt: {
+						not: null,
+					},
 				},
 			});
 

@@ -29,5 +29,5 @@ export const HunterTypes = {
 	SixtySixer: '66er',
 } as const satisfies Record<string, HunterTypeSchema>;
 
-export const HUNTER_TOP_MIN_RATING = 4;
+export const HUNTER_TOP_MIN_RATING = 4.5;
 export const HUNTER_LOW_RATING = 2;
