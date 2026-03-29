@@ -132,16 +132,14 @@ function RouteComponent() {
 										rating={hunt.rating}
 										size="1em"
 									/>
-									<time
-										className="text-muted"
-										dateTime={(
-											hunt.completedAt ?? hunt.createdAt
-										).toUTCString()}
-									>
-										{dateFormat(
-											hunt.completedAt ?? hunt.createdAt,
-										)}
-									</time>
+									{hunt.completedAt && (
+										<time
+											className="text-muted"
+											dateTime={hunt.completedAt.toUTCString()}
+										>
+											{dateFormat(hunt.completedAt)}
+										</time>
+									)}
 								</p>
 								{hunt.comment && (
 									<p>&ldquo;{hunt.comment}&rdquo;</p>
