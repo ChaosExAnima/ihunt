@@ -16,6 +16,7 @@ import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
 import { calculateNextAccessCode } from '../lib/auth';
+import { hunterUpdateNotifications } from '../lib/hunter';
 import { InviteStatus } from '../lib/schema';
 
 export const adminRouter = router({
@@ -473,12 +474,28 @@ export const adminRouter = router({
 
 					break;
 				}
-				case 'hunter':
+				case 'hunter': {
+					const hunters = await db.hunter.findMany({
+						where: {
+							id: {
+								in: ids,
+							},
+						},
+					});
+					for (const hunter of hunters) {
+						await hunterUpdateNotifications(hunter, data);
+					}
+
+					if (data.alive === false) {
+						data.userId = null;
+					}
+
 					await db.hunter.updateMany({
 						data,
 						where,
 					});
 					break;
+				}
 				case 'photo':
 					await db.photo.updateMany({
 						data,
@@ -547,11 +564,23 @@ export const adminRouter = router({
 						updates,
 					};
 				}
-				case 'hunter':
-					return db.hunter.update({
+				case 'hunter': {
+					const hunter = await db.hunter.findUniqueOrThrow({
+						where: { id },
+					});
+
+					await hunterUpdateNotifications(hunter, data);
+
+					// Dead hunters cannot be played.
+					if (data.alive === false) {
+						data.userId = null;
+					}
+
+					return await db.hunter.update({
 						data,
 						where: { id },
 					});
+				}
 				case 'photo':
 					return db.photo.update({
 						data,

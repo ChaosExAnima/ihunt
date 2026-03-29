@@ -110,6 +110,10 @@ export const notifyTypeSchema = z.enum([
 	'invite-accept',
 	'invite-decline',
 	'invite-receive',
+	'hunter-rating-low',
+	'hunter-rating-top',
+	'hunter-money-negative',
+	'hunter-deactivated',
 ]);
 export type NotifyTypeSchema = z.infer<typeof notifyTypeSchema>;
 

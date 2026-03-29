@@ -1,7 +1,7 @@
 import { BadgeEuro } from 'lucide-react';
 import {
 	ChangeEventHandler,
-	FormEventHandler,
+	SubmitEventHandler,
 	useCallback,
 	useState,
 } from 'react';
@@ -55,7 +55,7 @@ export function MoneyDialog() {
 	}, []);
 
 	const [update, { isPending }] = useUpdate<AdminHunterSchema>();
-	const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
+	const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
 		(event) => {
 			event.preventDefault();
 			if (!hunter) {

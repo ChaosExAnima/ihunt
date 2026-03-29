@@ -20,8 +20,9 @@ const notificationNames: Partial<Record<NotifyTypeSchema, string>> = {
 	'invite-accept': 'Sent invitation accepted',
 	'invite-decline': 'Sent invitation declined',
 	'invite-receive': 'New invitation',
+	'hunter-rating-top': 'Top rated hunter',
+	'hunter-rating-low': 'Low ratings',
 };
-/* eslint-enable */
 
 function NotificationControl({
 	fieldName,
