@@ -9,11 +9,39 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
 	return {
+		publicDir: resolve(import.meta.dirname, 'public'),
+		root: 'src',
 		build: {
 			outDir: resolve(import.meta.dirname, 'dist'),
 			emptyOutDir: true,
 		},
-		publicDir: resolve(import.meta.dirname, 'public'),
+
+		server: {
+			host: '0.0.0.0',
+			allowedHosts: true, // Unsafe, but this only runs in dev anyway.
+			strictPort: true,
+			proxy: {
+				'/trpc': `http://localhost:${env.PORT ?? 4000}`,
+				'/images': 'http://localhost:9000',
+			},
+		},
+
+		resolve: {
+			alias: [
+				{
+					find: '@',
+					replacement: resolve(import.meta.dirname, './src'),
+				},
+				{
+					find: '@/server',
+					replacement: resolve(
+						import.meta.dirname,
+						'./server/index.ts',
+					),
+				},
+			],
+		},
+
 		plugins: [
 			tanstackRouter({
 				autoCodeSplitting: true,
@@ -67,30 +95,5 @@ export default defineConfig(({ mode }) => {
 			process.env.ANALYZE_BUNDLE === '1' &&
 				(visualizer() as PluginOption),
 		],
-		resolve: {
-			alias: [
-				{
-					find: '@',
-					replacement: resolve(import.meta.dirname, './src'),
-				},
-				{
-					find: '@/server',
-					replacement: resolve(
-						import.meta.dirname,
-						'./server/index.ts',
-					),
-				},
-			],
-		},
-		root: 'src',
-		server: {
-			host: '0.0.0.0',
-			allowedHosts: true, // Unsafe, but this only runs in dev anyway.
-			strictPort: true,
-			proxy: {
-				'/trpc': `http://localhost:${env.PORT ?? 4000}`,
-				'/images': 'http://localhost:9000',
-			},
-		},
 	};
 });
