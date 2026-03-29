@@ -44,7 +44,7 @@ function RouteComponent() {
 	return (
 		<>
 			<Carousel className="-mx-4 flex grow flex-col" setApi={setApi}>
-				<CarouselContent className="min-h-full" slot="ul">
+				<CarouselContent className="grow pb-4">
 					{isLoadingAvailable && isLoadingActive && (
 						<CarouselItem>
 							<HuntLoading className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg" />

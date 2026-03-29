@@ -37,37 +37,38 @@ export function HuntsCompleted() {
 		return <Loading />;
 	}
 
-	if (hunts.length === 0) {
-		return (
-			<div className="mx-4">
-				<Header className="mb-2" level={3}>
-					No completed hunts yet!
-				</Header>
-				<p>
-					Come back here after finishing a hunt to see your hunter
-					history.
-				</p>
-			</div>
-		);
-	}
-
 	return (
-		<ol className="mx-4 flex min-h-full flex-col">
-			{huntsByDate.map(([date, hunts]) => (
-				<li className="mb-4" key={date}>
-					<p className="mb-4">{date}</p>
-					<ul className="flex flex-col gap-4">
-						{hunts.map((hunt) => (
-							<HuntCompleted hunt={hunt} key={hunt.id} />
-						))}
-					</ul>
-				</li>
-			))}
+		<div className="mx-4 flex grow flex-col">
+			{huntsByDate.length > 0 && (
+				<ol className="flex grow flex-col">
+					{huntsByDate.map(([date, hunts]) => (
+						<li className="mb-4" key={date}>
+							<p className="mb-4">{date}</p>
+							<ul className="flex flex-col gap-4">
+								{hunts.map((hunt) => (
+									<HuntCompleted hunt={hunt} key={hunt.id} />
+								))}
+							</ul>
+						</li>
+					))}
+				</ol>
+			)}
+			{huntsByDate.length === 0 && (
+				<div className="grow">
+					<Header className="mb-2" level={3}>
+						No completed hunts yet!
+					</Header>
+					<p>
+						Come back here after finishing a hunt to see your hunter
+						history.
+					</p>
+				</div>
+			)}
 			<p className="text-muted text-sm">
 				For your safety, hunts older than 7 days are hidden. Please
 				contact support if you have any questions.
 			</p>
-		</ol>
+		</div>
 	);
 }
 
