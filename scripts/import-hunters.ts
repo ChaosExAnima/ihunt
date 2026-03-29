@@ -11,13 +11,8 @@ import { db, Prisma } from '@/server/lib/db';
 import { InviteStatus } from '@/server/lib/schema';
 
 async function main() {
-	const { positionals, values } = parseArgs({
+	const { positionals } = parseArgs({
 		allowPositionals: true,
-		options: {
-			dead: {
-				type: 'boolean',
-			},
-		},
 	});
 
 	const files = await Promise.all(positionals.map(processFile));
@@ -27,7 +22,7 @@ async function main() {
 
 	for (const file of files) {
 		const { rows } = file;
-		await processHunters(rows, !values.dead);
+		await processHunters(rows);
 	}
 }
 
@@ -85,7 +80,7 @@ async function processFile(path: string) {
 	};
 }
 
-async function processHunters(rows: CSVHunterSchema[], alive = true) {
+async function processHunters(rows: CSVHunterSchema[]) {
 	const groupNames = new Set<string>();
 	const hunterObjects = rows.map(parseHunterRow);
 
@@ -106,7 +101,9 @@ async function processHunters(rows: CSVHunterSchema[], alive = true) {
 
 	// Users
 	const users = await db.user.createManyAndReturn({
-		data: hunterObjects.map(({ code }) => ({ code, run: 1 })),
+		data: hunterObjects
+			.filter(({ code }) => !!code)
+			.map(({ code }) => ({ code, run: 1 })),
 	});
 	const userCodeMap = entitiesToIdMap(users, 'code');
 	console.log('Created', users.length, 'users');
@@ -114,7 +111,6 @@ async function processHunters(rows: CSVHunterSchema[], alive = true) {
 	// Hunters
 	const hunters = await db.hunter.createManyAndReturn({
 		data: hunterObjects.map(({ code, create, groupName }) => ({
-			alive,
 			...create,
 			groupId: groupName ? groupNameMap.get(groupName) : null,
 			userId: userCodeMap.get(code),
@@ -160,8 +156,14 @@ function parseHunterRow(row: CSVHunterSchema) {
 	console.log('Got hunter', shape.name, `(${shape.handle})`);
 
 	return {
-		code: code && !code.startsWith('N') ? code : null,
-		create: shape satisfies Prisma.HunterCreateInput,
+		code:
+			code && !code.startsWith('n') && !code.startsWith('d')
+				? code
+				: null,
+		create: {
+			...shape,
+			alive: !!code && !code.startsWith('d'),
+		} satisfies Prisma.HunterCreateInput,
 		groupName,
 		reviews: reviews.map(
 			(comment, index) =>
