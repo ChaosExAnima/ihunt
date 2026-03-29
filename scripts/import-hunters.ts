@@ -103,7 +103,7 @@ async function processHunters(rows: CSVHunterSchema[]) {
 	const users = await db.user.createManyAndReturn({
 		data: hunterObjects
 			.filter(({ code }) => !!code)
-			.map(({ code }) => ({ code, run: 1 })),
+			.map(({ code }) => ({ code: code as string, run: 1 })),
 	});
 	const userCodeMap = entitiesToIdMap(users, 'code');
 	console.log('Created', users.length, 'users');
@@ -113,7 +113,7 @@ async function processHunters(rows: CSVHunterSchema[]) {
 		data: hunterObjects.map(({ code, create, groupName }) => ({
 			...create,
 			groupId: groupName ? groupNameMap.get(groupName) : null,
-			userId: userCodeMap.get(code),
+			userId: code ? userCodeMap.get(code) : null,
 		})),
 	});
 	const hunterHandleMap = entitiesToIdMap(hunters, 'handle');
