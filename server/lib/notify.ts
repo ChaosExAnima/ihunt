@@ -127,39 +127,63 @@ export function inviteSendEvent({
 	};
 }
 
-export function ratingLow(): NotifyEventSchema {
+export function ratingLow({
+	hunterId,
+}: {
+	hunterId: number;
+}): NotifyEventSchema {
 	return {
 		type: 'hunter-rating-low',
 		title: 'Low rating',
 		body: 'Your rating is low. Do more hunts to get your rating up!',
+		url: `/hunters/${hunterId}`,
+		hunterId,
 	};
 }
 
-export function ratingHigh(): NotifyEventSchema {
+export function ratingHigh({
+	hunterId,
+}: {
+	hunterId: number;
+}): NotifyEventSchema {
 	return {
 		type: 'hunter-rating-top',
 		title: 'Top hunter',
 		body: 'Congratulations, you are one of the top hunters in Cologne!',
+		url: `/hunters/${hunterId}`,
+		hunterId,
 	};
 }
 
-export function moneyNegative({ money }: { money: number }): NotifyEventSchema {
+export function moneyNegative({
+	money,
+	hunterId,
+}: {
+	money: number;
+	hunterId: number;
+}): NotifyEventSchema {
 	return {
 		type: 'hunter-money-negative',
 		title: 'Negative balance',
 		body: `Your account balance is ${money}€. Please pay the amount within the next 30 days or your account may be suspended.`,
+		url: `/hunters/${hunterId}`,
+		hunterId,
 	};
 }
 
 export function hunterDeactivated({
 	handle,
+	hunterId,
 }: {
 	handle: string;
+	hunterId: number;
 }): NotifyEventSchema {
 	return {
 		type: 'hunter-deactivated',
 		title: `Friend ${handle} deactivated`,
 		body: `Your group member ${handle} has deactivated their account.`,
+		url: `/hunters/${hunterId}`,
+		hunterId,
 	};
 }
 

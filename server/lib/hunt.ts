@@ -265,7 +265,7 @@ export async function updateHunt({
 			hunter.rating < HUNTER_TOP_MIN_RATING
 		) {
 			await notifyHunter({
-				event: ratingHigh(),
+				event: ratingHigh({ hunterId: hunter.id }),
 				hunter,
 			});
 		} else if (
@@ -273,7 +273,7 @@ export async function updateHunt({
 			hunter.rating > HUNTER_LOW_RATING
 		) {
 			await notifyHunter({
-				event: ratingLow(),
+				event: ratingLow({ hunterId: hunter.id }),
 				hunter,
 			});
 		}

@@ -35,9 +35,10 @@ export function Notification(
 				>
 					{dateFormat(notification.created, true)}
 					{notification.huntId && <> &bull; Tap to view hunt</>}
-					{notification.url && !notification.huntId && (
-						<> &bull; Tap to view more</>
-					)}
+					{notification.hunterId && <> &bull; Tap to view profile</>}
+					{notification.url &&
+						!notification.huntId &&
+						!notification.hunterId && <> &bull; Tap to view more</>}
 				</p>
 			</div>
 		</>
@@ -50,6 +51,18 @@ export function Notification(
 			<Link
 				to="/hunts/$huntId"
 				params={{ huntId: notification.huntId.toString() }}
+				className={className}
+			>
+				{notify}
+			</Link>
+		);
+	}
+
+	if (notification.hunterId) {
+		return (
+			<Link
+				to="/hunters/$hunterId"
+				params={{ hunterId: notification.hunterId.toString() }}
 				className={className}
 			>
 				{notify}

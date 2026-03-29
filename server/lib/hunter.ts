@@ -26,6 +26,7 @@ export async function hunterUpdateNotifications(
 			hunters: groupHunters,
 			event: hunterDeactivated({
 				handle: hunter.handle,
+				hunterId,
 			}),
 		});
 	}
@@ -33,7 +34,7 @@ export async function hunterUpdateNotifications(
 	if (hunter.money >= 0 && typeof data.money === 'number' && data.money < 0) {
 		await notifyHunter({
 			hunterId,
-			event: moneyNegative({ money: data.money }),
+			event: moneyNegative({ money: data.money, hunterId }),
 		});
 	}
 
