@@ -20,7 +20,10 @@ export function Notification(
 ) {
 	const notify = (
 		<>
-			<NotificationIcon type={notification.type} />
+			<NotificationIcon
+				type={notification.type}
+				className="mt-1 size-4 shrink-0"
+			/>
 			<div className="grow">
 				{notification.title && (
 					<h2 className="font-semibold">{notification.title}</h2>
