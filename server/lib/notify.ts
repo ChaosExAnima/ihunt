@@ -1,3 +1,4 @@
+import { FastifyBaseLogger } from 'fastify';
 import { createHash } from 'node:crypto';
 import EventEmitter, { on } from 'node:events';
 import webpush, { WebPushError } from 'web-push';
@@ -119,11 +120,71 @@ export function inviteSendEvent({
 	hunt: Hunt;
 }): NotifyEventSchema {
 	return {
-		body: `${fromHunter.handle} has invited you to join them on the hunt ${hunt.name}.`,
-		title: `${fromHunter.handle} invited you to hunt`,
 		type: 'invite-receive',
+		title: `${fromHunter.handle} invited you to hunt`,
+		body: `${fromHunter.handle} has invited you to join them on the hunt ${hunt.name}.`,
 		url: `/hunts/${hunt.id}`,
 		huntId: hunt.id,
+	};
+}
+
+export function ratingLow({
+	hunterId,
+}: {
+	hunterId: number;
+}): NotifyEventSchema {
+	return {
+		type: 'hunter-rating-low',
+		title: 'Low rating',
+		body: 'Your rating is low. Do more hunts to get your rating up!',
+		url: `/hunters/${hunterId}`,
+		hunterId,
+	};
+}
+
+export function ratingHigh({
+	hunterId,
+}: {
+	hunterId: number;
+}): NotifyEventSchema {
+	return {
+		type: 'hunter-rating-top',
+		title: 'Top hunter',
+		body: 'Congratulations, you are one of the top hunters in Cologne!',
+		url: `/hunters/${hunterId}`,
+		hunterId,
+	};
+}
+
+export function moneyNegative({
+	money,
+	hunterId,
+}: {
+	money: number;
+	hunterId: number;
+}): NotifyEventSchema {
+	return {
+		type: 'hunter-money-negative',
+		title: 'Negative balance',
+		body: `Your account balance is ${money}€. Please pay the amount within the next 30 days or your account may be suspended.`,
+		url: `/hunters/${hunterId}`,
+		hunterId,
+	};
+}
+
+export function hunterDeactivated({
+	handle,
+	hunterId,
+}: {
+	handle: string;
+	hunterId: number;
+}): NotifyEventSchema {
+	return {
+		type: 'hunter-deactivated',
+		title: `Friend ${handle} deactivated`,
+		body: `Your group member ${handle} has deactivated their account.`,
+		url: `/hunters/${hunterId}`,
+		hunterId,
 	};
 }
 
@@ -144,6 +205,7 @@ interface NotifyArgs {
 	event: NotifyEventSchema;
 	force?: boolean;
 	userId: number;
+	logger?: FastifyBaseLogger;
 }
 
 export function notifyHunters({
@@ -203,9 +265,11 @@ export async function notifyHunter({
 	return notifyUser({ userId, event, ...rest });
 }
 
-export async function notifyUser({ event, force, userId }: NotifyArgs) {
+export async function notifyUser({ event, force, userId, logger }: NotifyArgs) {
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { icon, ...event });
+
+	logger?.info(event, `Sending ${event.type} to ${userId}`);
 
 	const user = await db.user.findUniqueOrThrow({
 		where: {
@@ -274,6 +338,7 @@ export async function notifyUser({ event, force, userId }: NotifyArgs) {
 		await db.userVapid.deleteMany({
 			where: { id: { in: toPrune } },
 		});
+		logger?.debug(`Pruned ${toPrune.length} VAPIDs`);
 	}
 
 	return succeeded;

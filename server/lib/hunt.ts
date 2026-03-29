@@ -1,6 +1,12 @@
 import { TRPCError } from '@trpc/server';
+import { FastifyBaseLogger } from 'fastify';
 
-import { HUNT_LOCKDOWN_MINUTES, HuntStatus } from '@/lib/constants';
+import {
+	HUNT_LOCKDOWN_MINUTES,
+	HUNTER_LOW_RATING,
+	HUNTER_TOP_MIN_RATING,
+	HuntStatus,
+} from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
 import { clamp, extractIds } from '@/lib/utils';
 
@@ -13,9 +19,10 @@ import {
 	notifyHunter,
 	notifyHunters,
 	notifyHuntsReload,
+	ratingHigh,
+	ratingLow,
 } from './notify';
 import { InviteStatus } from './schema';
-import { logger } from './server';
 
 export const huntDisplayInclude = {
 	huntHunters: {
@@ -69,7 +76,7 @@ export function isHuntsDisabled() {
 
 const huntsNotified = new Set<number>();
 
-export async function onHuntInterval() {
+export async function onHuntInterval(logger?: FastifyBaseLogger) {
 	if (isHuntsDisabled()) {
 		return;
 	}
@@ -116,7 +123,7 @@ export async function onHuntInterval() {
 	const results = await Promise.all(notifyPromises);
 	const total = results.filter((v): v is true => !!v).length;
 	if (total) {
-		logger.info(
+		logger?.info(
 			`Notified ${total} users for ${upcomingHunts.length} hunts`,
 		);
 	}
@@ -132,7 +139,7 @@ export async function onHuntInterval() {
 		},
 	});
 	if (inviteResults.count) {
-		logger.info(`Expired ${inviteResults.count} invites`);
+		logger?.info(`Expired ${inviteResults.count} invites`);
 	}
 }
 
@@ -252,6 +259,24 @@ export async function updateHunt({
 			event: huntCompleteEvent({ hunt }),
 			hunter,
 		});
+
+		if (
+			newRating >= HUNTER_TOP_MIN_RATING &&
+			hunter.rating < HUNTER_TOP_MIN_RATING
+		) {
+			await notifyHunter({
+				event: ratingHigh({ hunterId: hunter.id }),
+				hunter,
+			});
+		} else if (
+			newRating <= HUNTER_LOW_RATING &&
+			hunter.rating > HUNTER_LOW_RATING
+		) {
+			await notifyHunter({
+				event: ratingLow({ hunterId: hunter.id }),
+				hunter,
+			});
+		}
 	}
 
 	return {

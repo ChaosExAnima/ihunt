@@ -6,6 +6,9 @@ import {
 	MailXIcon,
 	MailIcon,
 	LucideProps,
+	EuroIcon,
+	UserRoundXIcon,
+	StarOffIcon,
 } from 'lucide-react';
 
 import { dateFormat } from '@/lib/formats';
@@ -17,7 +20,10 @@ export function Notification(
 ) {
 	const notify = (
 		<>
-			<NotificationIcon type={notification.type} />
+			<NotificationIcon
+				type={notification.type}
+				className="mt-1 size-4 shrink-0"
+			/>
 			<div className="grow">
 				{notification.title && (
 					<h2 className="font-semibold">{notification.title}</h2>
@@ -33,9 +39,10 @@ export function Notification(
 				>
 					{dateFormat(notification.created, true)}
 					{notification.huntId && <> &bull; Tap to view hunt</>}
-					{notification.url && !notification.huntId && (
-						<> &bull; Tap to view more</>
-					)}
+					{notification.hunterId && <> &bull; Tap to view profile</>}
+					{notification.url &&
+						!notification.huntId &&
+						!notification.hunterId && <> &bull; Tap to view more</>}
 				</p>
 			</div>
 		</>
@@ -48,6 +55,18 @@ export function Notification(
 			<Link
 				to="/hunts/$huntId"
 				params={{ huntId: notification.huntId.toString() }}
+				className={className}
+			>
+				{notify}
+			</Link>
+		);
+	}
+
+	if (notification.hunterId) {
+		return (
+			<Link
+				to="/hunters/$hunterId"
+				params={{ hunterId: notification.hunterId.toString() }}
 				className={className}
 			>
 				{notify}
@@ -84,6 +103,14 @@ export function typeToIcon(type: NotifyTypeSchema) {
 			return MailCheckIcon;
 		case 'invite-decline':
 			return MailXIcon;
+		case 'hunter-money-negative':
+			return EuroIcon;
+		case 'hunter-deactivated':
+			return UserRoundXIcon;
+		case 'hunter-rating-top':
+			return StarIcon;
+		case 'hunter-rating-low':
+			return StarOffIcon;
 		default:
 			return MailIcon;
 	}

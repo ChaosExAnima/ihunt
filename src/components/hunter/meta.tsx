@@ -14,15 +14,14 @@ export function HunterMetaName({
 	hunter: Pick<HunterSchema, 'name' | 'pronouns' | 'handle' | 'type'>;
 }) {
 	return (
-		<div className={cn('flex w-full gap-2 text-sm', className)}>
+		<div className={cn('flex w-full gap-2', className)}>
 			<div className="grow">
-				<div className="flex items-baseline gap-2">
-					<Header level={1} variant={2} className="leading-none">
-						{hunter.name}
-					</Header>
-					<p>{hunter.pronouns ?? 'they/them'}</p>
-				</div>
-				<p>@{hunter.handle}</p>
+				<Header level={1} variant={2} className="">
+					{hunter.name}
+				</Header>
+				<p>
+					@{hunter.handle} &bull; {hunter.pronouns ?? 'they/them'}
+				</p>
 			</div>
 			<HunterTypeIcon size="2em" type={hunter.type} />
 		</div>

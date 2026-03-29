@@ -75,7 +75,20 @@ export function useNotifySubscribe() {
 	useSubscription(
 		trpc.notify.onNotify.subscriptionOptions(skipToken, {
 			onData(event) {
-				invalidate([trpc.hunt.getAvailable.queryKey()]);
+				// Invalidate relevant queries
+				const toInvalidate = [trpc.notify.pathKey()];
+				if (
+					event.type.startsWith('hunt-') ||
+					event.type.startsWith('invite-')
+				) {
+					toInvalidate.push(trpc.hunt.getAvailable.queryKey());
+				} else if (event.type.startsWith('hunter-')) {
+					toInvalidate.push(
+						trpc.hunter.pathKey(),
+						trpc.auth.me.queryKey(),
+					);
+				}
+
 				if (event.title) {
 					toast({
 						description: event.body,
@@ -83,6 +96,8 @@ export function useNotifySubscribe() {
 						title: event.title,
 					});
 				}
+
+				invalidate(toInvalidate);
 			},
 		}),
 	);

@@ -110,6 +110,10 @@ export const notifyTypeSchema = z.enum([
 	'invite-accept',
 	'invite-decline',
 	'invite-receive',
+	'hunter-rating-low',
+	'hunter-rating-top',
+	'hunter-money-negative',
+	'hunter-deactivated',
 ]);
 export type NotifyTypeSchema = z.infer<typeof notifyTypeSchema>;
 
@@ -120,5 +124,6 @@ export const notifyEventSchema = z.object({
 	type: notifyTypeSchema,
 	url: z.url().optional(),
 	huntId: idSchema.optional(),
+	hunterId: idSchema.optional(),
 });
 export type NotifyEventSchema = z.infer<typeof notifyEventSchema>;

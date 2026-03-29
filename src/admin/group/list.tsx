@@ -1,5 +1,6 @@
 import {
 	Datagrid,
+	EditButton,
 	List,
 	NumberField,
 	ReferenceArrayField,
@@ -13,6 +14,7 @@ export function GroupList() {
 		<List>
 			<Datagrid
 				bulkActionButtons={false}
+				rowClick={false}
 				sort={{ field: 'name', order: 'ASC' }}
 			>
 				<NumberField source="id" />
@@ -24,6 +26,7 @@ export function GroupList() {
 				>
 					<AdminHunters />
 				</ReferenceArrayField>
+				<EditButton />
 			</Datagrid>
 		</List>
 	);

@@ -2,8 +2,9 @@ import {
 	fastifyTRPCPlugin,
 	type FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify';
+import { setInterval } from 'node:timers/promises';
 
-import { MINUTE } from '@/lib/formats';
+import { MINUTE, SECOND } from '@/lib/formats';
 import { isDev } from '@/lib/utils';
 
 import { createAuthContext } from './lib/auth';
@@ -41,18 +42,25 @@ async function startServer() {
 	});
 
 	// Main loop
-	const timerId = setInterval(() => {
-		void onHuntInterval();
-		void onInviteInterval();
-	}, MINUTE);
+	void startMainLoop();
 
 	try {
 		await startDevMode();
 		await server.listen({ host: '0.0.0.0', port: config.port });
 	} catch (err) {
-		timerId.close();
 		server.log.error(err);
 		process.exit(1);
+	}
+}
+
+async function startMainLoop() {
+	for await (const startTime of setInterval(
+		isDev() ? SECOND * 10 : MINUTE,
+		Date.now(),
+	)) {
+		await onHuntInterval(server.log);
+		await onInviteInterval(server.log);
+		server.log.info(`Finished loop in ${Date.now() - startTime}ms`);
 	}
 }
 

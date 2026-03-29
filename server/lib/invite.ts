@@ -1,3 +1,5 @@
+import { FastifyBaseLogger } from 'fastify';
+
 import { HuntStatus } from '@/lib/constants';
 import { todayStart } from '@/lib/formats';
 import { HuntReservedSchema, HuntReservedStatusSchema } from '@/lib/schemas';
@@ -167,8 +169,8 @@ export async function fetchInviteesForHunt({
 	return invitees;
 }
 
-export async function onInviteInterval() {
-	await db.huntHunter.updateMany({
+export async function onInviteInterval(logger?: FastifyBaseLogger) {
+	const { count } = await db.huntHunter.updateMany({
 		data: {
 			status: InviteStatus.Expired,
 		},
@@ -179,6 +181,9 @@ export async function onInviteInterval() {
 			status: InviteStatus.Pending,
 		},
 	});
+	if (count) {
+		logger?.debug(`Cleared ${count} invites`);
+	}
 }
 
 export async function respondToInvite({

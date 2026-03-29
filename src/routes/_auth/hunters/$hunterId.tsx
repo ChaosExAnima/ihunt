@@ -94,7 +94,7 @@ function RouteComponent() {
 
 			{!hunter.alive && (
 				<Header level={3} className="text-rose-600">
-					User account deactivated
+					Account deactivated
 				</Header>
 			)}
 
@@ -132,16 +132,14 @@ function RouteComponent() {
 										rating={hunt.rating}
 										size="1em"
 									/>
-									<time
-										className="text-muted"
-										dateTime={(
-											hunt.completedAt ?? hunt.createdAt
-										).toUTCString()}
-									>
-										{dateFormat(
-											hunt.completedAt ?? hunt.createdAt,
-										)}
-									</time>
+									{hunt.completedAt && (
+										<time
+											className="text-muted"
+											dateTime={hunt.completedAt.toUTCString()}
+										>
+											{dateFormat(hunt.completedAt)}
+										</time>
+									)}
 								</p>
 								{hunt.comment && (
 									<p>&ldquo;{hunt.comment}&rdquo;</p>
