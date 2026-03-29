@@ -20,7 +20,8 @@ export function HunterMetaName({
 					{hunter.name}
 				</Header>
 				<p>
-					@{hunter.handle} &bull; {hunter.pronouns ?? 'they/them'}
+					@{hunter.handle}
+					{hunter.pronouns && <>&nbsp;&bull; {hunter.pronouns}</>}
 				</p>
 			</div>
 			<HunterTypeIcon size="2em" type={hunter.type} />
