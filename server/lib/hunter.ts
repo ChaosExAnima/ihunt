@@ -1,9 +1,13 @@
+import { HUNTER_LOW_RATING, HUNTER_TOP_MIN_RATING } from '@/lib/constants';
+
 import { db, Hunter, Prisma } from './db';
 import {
 	notifyHunter,
 	notifyHunters,
 	hunterDeactivated,
 	moneyNegative,
+	ratingHigh,
+	ratingLow,
 } from './notify';
 
 export async function hunterUpdateNotifications(
@@ -35,6 +39,28 @@ export async function hunterUpdateNotifications(
 		await notifyHunter({
 			hunterId,
 			event: moneyNegative({ money: data.money, hunterId }),
+		});
+	}
+
+	if (
+		hunter.rating < HUNTER_TOP_MIN_RATING &&
+		typeof data.rating === 'number' &&
+		data.rating >= HUNTER_TOP_MIN_RATING
+	) {
+		await notifyHunter({
+			hunterId,
+			event: ratingHigh({ hunterId }),
+		});
+	}
+
+	if (
+		hunter.rating > HUNTER_LOW_RATING &&
+		typeof data.rating === 'number' &&
+		data.rating <= HUNTER_LOW_RATING
+	) {
+		await notifyHunter({
+			hunterId,
+			event: ratingLow({ hunterId }),
 		});
 	}
 
