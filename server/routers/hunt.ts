@@ -60,7 +60,11 @@ export const huntRouter = router({
 	),
 
 	getAvailable: userProcedure
-		.output(outputHuntSchema.array())
+		.output(
+			outputHuntSchema
+				.omit({ comment: true, completedAt: true, clientName: true })
+				.array(),
+		)
 		.query(async ({ ctx: { hunter: currentHunter } }) => {
 			if (isHuntsDisabled()) {
 				return [];

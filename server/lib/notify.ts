@@ -43,8 +43,9 @@ export function huntAvailableEvent(): NotifyEventSchema {
 export function huntCompleteEvent({ hunt }: { hunt: Hunt }): NotifyEventSchema {
 	const { id, name, rating } = hunt;
 	let body = '';
+	const clientName = hunt.clientName ?? 'Your client';
 	if (rating !== null && rating > 0) {
-		body = `Your client gave you ${rating} stars.`;
+		body = `${clientName} gave you ${rating} stars.`;
 		if (rating > 3) {
 			body += ' Good job!';
 		}

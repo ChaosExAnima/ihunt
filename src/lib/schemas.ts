@@ -89,11 +89,10 @@ export const huntSchema = z.object({
 	reserved: huntReservedSchema.nullish(),
 
 	// Rating
-	completedAt: z.coerce.date().nullable(),
+	completedAt: z.coerce.date().nullish(),
 	clientName: z.string().nullish(),
 	rating: z.coerce.number().min(0).max(5),
-	comment: z.string().nullable(),
-	minRating: z.number().min(0).max(5).default(0),
+	comment: z.string().nullish(),
 });
 export type HuntSchema = z.infer<typeof huntSchema>;
 export const huntsSchema = huntSchema.array();

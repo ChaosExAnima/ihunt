@@ -60,7 +60,6 @@ export function HuntList() {
 					source="payment"
 				/>
 				<NumberField source="danger" />
-				<NumberField source="minRating" />
 				<ReferenceArrayField
 					reference="hunter"
 					sortable={false}
