@@ -12,6 +12,8 @@ import { db } from '@/server/lib/db';
 import { outputHuntSchema } from '@/server/lib/schema';
 import { debugProcedure, router, userProcedure } from '@/server/lib/trpc';
 
+import { config } from '../lib/config';
+
 export const hunterRouter = router({
 	getGroup: userProcedure
 		.input(
@@ -69,6 +71,14 @@ export const hunterRouter = router({
 					},
 				},
 			});
+
+			if (config.adminHunterId) {
+				hunters.push(
+					await db.hunter.findUniqueOrThrow({
+						where: { id: config.adminHunterId },
+					}),
+				);
+			}
 
 			return hunters.map(({ handle, id }) => ({
 				handle,

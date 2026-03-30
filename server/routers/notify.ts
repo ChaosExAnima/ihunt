@@ -138,6 +138,9 @@ export const notifyRouter = router({
 		},
 		signal,
 	}) {
+		if (!user.id) {
+			return;
+		}
 		const iterable = ee.toIterable('notify', { signal });
 
 		log.info(`user ${user.id} subscribed to notify events`);
@@ -163,6 +166,9 @@ export const notifyRouter = router({
 	subscribe: userProcedure
 		.input(subscriptionSchema)
 		.mutation(async ({ ctx: { user }, input }) => {
+			if (!user.id) {
+				return { success: false };
+			}
 			const subscription = await saveSubscription({
 				subscription: input,
 				userId: user.id,
