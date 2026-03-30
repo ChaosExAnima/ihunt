@@ -59,6 +59,7 @@ export async function createAuthContext({
 				...context,
 				hunter,
 				user: {
+					id: null,
 					settings: {
 						hideMoney: false,
 						notifications: {},

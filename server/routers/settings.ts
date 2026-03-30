@@ -67,6 +67,12 @@ export const settingsRouter = router({
 	updateSettings: userProcedure
 		.input(userSettingsSchema.partial())
 		.mutation(async ({ ctx: { user }, input }) => {
+			if (!user.id) {
+				return {
+					hideMoney: false,
+					notifications: {},
+				};
+			}
 			const updated = await db.user.update({
 				data: {
 					settings: mergeDeep(user.settings, input),
