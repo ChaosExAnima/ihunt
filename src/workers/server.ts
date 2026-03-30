@@ -2,16 +2,29 @@
 /// <reference types="vite/client" />
 
 import { RouteHandlerCallbackOptions } from 'workbox-core';
+import z from 'zod';
 
 import { MINUTE, SECOND } from '@/lib/formats';
 
 declare const self: ServiceWorkerGlobalScope;
 
+const apiSchema = z.object({
+	result: z.object({
+		data: z.object({
+			json: z.object({
+				message: z.string(),
+				status: z.literal('ok'),
+				servers: z.url().array(),
+			}),
+		}),
+	}),
+});
+
 export class WorkerServer {
 	private abortController = new AbortController();
 	private currentServer?: string;
 	private servers: string[] = [
-		`${self.location.protocol}://${self.location.host}`,
+		`${self.location.protocol}//${self.location.host}`,
 	];
 	private delay = 5 * SECOND;
 	private timerId = -1;
@@ -24,15 +37,26 @@ export class WorkerServer {
 		try {
 			const url = new URL(host);
 			const response = await fetch(new URL('/trpc/api.hello', url), {
-				method: 'HEAD',
 				signal: this.abortController.signal,
 			});
 			if (!response.ok) {
 				throw Error('Heartbeat not okay');
 			}
+			const body = await response.json();
+			const parsed = apiSchema.parse(body);
+
+			const oldServers = this.servers.length;
+			for (const server of parsed.result.data.json.servers) {
+				if (!this.servers.includes(server)) {
+					this.servers.push(server);
+				}
+			}
+			if (this.servers.length !== oldServers) {
+				console.log('Servers are now:', this.servers.join(', '));
+			}
 			return true;
-		} catch (_err: unknown) {
-			console.log('server response err:', _err);
+		} catch (err: unknown) {
+			console.log('server response err:', err, host);
 			return false;
 		}
 	}
@@ -51,7 +75,6 @@ export class WorkerServer {
 				});
 				return response;
 			} catch (err: unknown) {
-				// TODO: See if server isn't reachable, and retry with other servers.
 				console.warn('error with request:', err, newUrl);
 			}
 		}
@@ -59,11 +82,7 @@ export class WorkerServer {
 	}
 
 	async update() {
-		if (this.servers.length <= 1) {
-			return;
-		}
-
-		for (const host of this.servers) {
+		for (const host of this.servers.toReversed()) {
 			const isAvailable = await this.checkServer(host);
 			if (isAvailable) {
 				if (host !== this.currentServer) {
