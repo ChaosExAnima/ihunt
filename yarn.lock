@@ -4308,8 +4308,8 @@ __metadata:
   linkType: hard
 
 "@tanstack/router-plugin@npm:^1.166.2":
-  version: 1.167.9
-  resolution: "@tanstack/router-plugin@npm:1.167.9"
+  version: 1.167.10
+  resolution: "@tanstack/router-plugin@npm:1.167.10"
   dependencies:
     "@babel/core": "npm:^7.28.5"
     "@babel/plugin-syntax-jsx": "npm:^7.27.1"
@@ -4343,7 +4343,7 @@ __metadata:
       optional: true
   bin:
     intent: bin/intent.js
-  checksum: 10c0/a3143df0bbfd60352b232344886c1f58094023521d7113b39af5faaf1c1552a22960ff9874816f9a9059139ec1576ff2c5a37a455bdefc5349309025260ffc16
+  checksum: 10c0/15374a6c0051246e92a93ac1af7ea7d2a3c2544c35949c863fdc8614d073ca2c250018be1c0ab2b0e8ae2fc64afbc2777fec0990c4003d0aa503ade209f351ea
   languageName: node
   linkType: hard
 
