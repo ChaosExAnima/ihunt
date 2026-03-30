@@ -21,6 +21,7 @@ model Hunt {
     maxHunters  Int          @default(5)
     minRating   Int          @default(0)
     photos      Photo[]
+    clientName  String?
     rating      Float?
     comment     String?
     payment     Int
