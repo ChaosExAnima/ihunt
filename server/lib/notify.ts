@@ -9,6 +9,7 @@ import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db, Hunt, Hunter } from './db';
+import { mediaRoot } from './photo';
 import {
 	SubscriptionSchema,
 	subscriptionSchema,
@@ -197,10 +198,6 @@ export function notifyHuntsReload(event: Partial<NotifyEventSchema> = {}) {
 
 export const ee = new IterableEventEmitter<NotifyEvents>();
 
-// TODO: Move from the media host to public static host.
-const icon = `${config.mediaHost}/ihunt-logo.png`;
-const badge = `${config.mediaHost}/ihunt-badge.svg`;
-
 interface NotifyArgs {
 	event: NotifyEventSchema;
 	force?: boolean;
@@ -266,6 +263,9 @@ export async function notifyHunter({
 }
 
 export async function notifyUser({ event, force, userId, logger }: NotifyArgs) {
+	const icon = `${mediaRoot()}/ihunt-logo.png`;
+	const badge = `${mediaRoot()}/ihunt-badge.svg`;
+
 	// Notify via active subscriptions first.
 	ee.emit('notify', userId, { icon, ...event });
 

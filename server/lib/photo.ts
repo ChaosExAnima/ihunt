@@ -56,9 +56,13 @@ export function outputPhoto({
 	};
 }
 
+export function mediaRoot() {
+	return `${config.serverHosts.at(0) ?? '/'}${config.mediaPath}`;
+}
+
 export function photoUrl({ path, ...options }: PhotoUrlArgs) {
 	const url = generateImageUrl({
-		endpoint: config.mediaHost,
+		endpoint: mediaRoot(),
 		options,
 		url: `local:///${path}`,
 	});

@@ -15,7 +15,7 @@ const configSchema = z.object({
 		.string()
 		.transform((l) => l.split(','))
 		.default([]),
-	mediaHost: z.url(),
+	mediaPath: z.string().default('/'),
 	nodeEnv: z
 		.enum(['development', 'production', 'test'])
 		.default('development'),
