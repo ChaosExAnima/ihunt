@@ -38,11 +38,11 @@ export const photosRouter = router({
 				width: posIntSchema.optional(),
 			}),
 		)
-		.query(async ({ input: { id, ...options } }) => {
+		.query(async ({ input: { id, ...options }, ctx: { isLan } }) => {
 			const photo = await db.photo.findUniqueOrThrow({
 				where: { id },
 			});
-			return outputPhoto({ photo, ...options });
+			return outputPhoto({ photo, isLan, ...options });
 		}),
 
 	getSizes: loggedInProcedure
@@ -60,12 +60,12 @@ export const photosRouter = router({
 					.min(1),
 			}),
 		)
-		.query(async ({ input: { id, sizes, ...options } }) => {
+		.query(async ({ input: { id, sizes, ...options }, ctx: { isLan } }) => {
 			const photo = await db.photo.findUniqueOrThrow({
 				where: { id },
 			});
 			return sizes.map((size) =>
-				outputPhoto({ photo, ...size, ...options }),
+				outputPhoto({ photo, isLan, ...size, ...options }),
 			);
 		}),
 
@@ -82,7 +82,7 @@ export const photosRouter = router({
 			),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const { admin, hunter } = ctx;
+			const { admin, hunter, isLan } = ctx;
 			const { huntId, photo } = input;
 			let hunterId = hunter?.id;
 			if (admin) {
@@ -150,7 +150,7 @@ export const photosRouter = router({
 
 				return {
 					...result,
-					url: photoUrl(result),
+					url: photoUrl({ ...result, isLan }),
 				};
 			} catch (err) {
 				if (err instanceof TRPCError) {

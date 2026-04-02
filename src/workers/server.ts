@@ -14,7 +14,8 @@ const apiSchema = z.object({
 			json: z.object({
 				message: z.string(),
 				status: z.literal('ok'),
-				servers: z.url().array(),
+				publicHost: z.url(),
+				lanHost: z.url().optional(),
 			}),
 		}),
 	}),
@@ -23,14 +24,23 @@ const apiSchema = z.object({
 export class WorkerServer {
 	private abortController = new AbortController();
 	private currentServer?: string;
-	private servers: string[] = [
-		`${self.location.protocol}//${self.location.host}`,
-	];
+	private publicServer = `${self.location.protocol}//${self.location.host}`;
+	private lanServer?: string;
 	private delay = 5 * SECOND;
 	private timerId = -1;
 
 	constructor() {
-		void this.update();
+		void this.getServers();
+	}
+
+	async getServers() {
+		console.log('checking servers...');
+
+		const response = await this.checkServer(this.publicServer);
+		if (response?.lanHost) {
+			this.lanServer = response.lanHost;
+			void this.update();
+		}
 	}
 
 	async checkServer(host: string) {
@@ -45,20 +55,11 @@ export class WorkerServer {
 			const body = await response.json();
 			const parsed = apiSchema.parse(body);
 
-			const oldServers = this.servers.length;
-			for (const server of parsed.result.data.json.servers) {
-				if (!this.servers.includes(server)) {
-					this.servers.push(server);
-				}
-			}
-			if (this.servers.length !== oldServers) {
-				console.log('Servers are now:', this.servers.join(', '));
-			}
-			return true;
+			return parsed.result.data.json;
 		} catch (err: unknown) {
 			console.log('server response err:', err, host);
-			return false;
 		}
+		return null;
 	}
 
 	async routeCallback(
@@ -82,11 +83,17 @@ export class WorkerServer {
 	}
 
 	async update() {
-		for (const host of this.servers.toReversed()) {
-			const isAvailable = await this.checkServer(host);
-			if (isAvailable) {
+		if (!this.lanServer) {
+			return;
+		}
+
+		for (const host of [this.lanServer, this.publicServer]) {
+			const result = await this.checkServer(host);
+
+			if (result) {
 				if (host !== this.currentServer) {
 					this.currentServer = host;
+					console.log('Set server to:', this.currentServer);
 				} else {
 					this.delay = Math.min(this.delay * 5, MINUTE);
 				}

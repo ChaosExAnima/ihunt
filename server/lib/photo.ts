@@ -12,25 +12,28 @@ import { omit } from '@/lib/utils';
 import { config } from './config';
 import { db, Photo } from './db';
 
-type PhotoUrlArgs = PhotoUrlOptions & {
-	path: string;
-};
-
-interface UploadPhotoArgs {
-	buffer: Uint8Array;
-	hunterId?: null | number;
-	huntId?: null | number;
-	name?: string;
+export function mediaRoot(lan = false) {
+	let host = config.publicHost;
+	if (lan && config.lanHost) {
+		host = config.lanHost;
+	}
+	return `${host}${config.mediaPath}`;
 }
 
-export async function generateThumbhash(fullImage: sharp.Sharp) {
-	const image = fullImage.resize(100, 100, { fit: 'inside' });
-	const { data, info } = await image
-		.ensureAlpha()
-		.raw()
-		.toBuffer({ resolveWithObject: true });
-	const thumbhash = rgbaToThumbHash(info.width, info.height, data);
-	return Buffer.from(thumbhash).toString('base64');
+export function photoUrl({
+	path,
+	isLan,
+	...options
+}: PhotoUrlOptions & {
+	path: string;
+	isLan?: boolean;
+}) {
+	const url = generateImageUrl({
+		endpoint: mediaRoot(isLan),
+		options,
+		url: `local:///${path}`,
+	});
+	return url;
 }
 
 export function outputPhoto({
@@ -40,6 +43,7 @@ export function outputPhoto({
 	...options
 }: PhotoUrlOptions & {
 	photo: Photo;
+	isLan?: boolean;
 }) {
 	const actualHeight = Math.min(targetHeight, photo.height);
 	const actualWidth = Math.min(targetWidth, photo.width);
@@ -56,17 +60,11 @@ export function outputPhoto({
 	};
 }
 
-export function mediaRoot() {
-	return `${config.serverHosts.at(0) ?? '/'}${config.mediaPath}`;
-}
-
-export function photoUrl({ path, ...options }: PhotoUrlArgs) {
-	const url = generateImageUrl({
-		endpoint: mediaRoot(),
-		options,
-		url: `local:///${path}`,
-	});
-	return url;
+interface UploadPhotoArgs {
+	buffer: Uint8Array;
+	hunterId?: null | number;
+	huntId?: null | number;
+	name?: string;
 }
 
 export async function uploadPhoto({
@@ -109,4 +107,14 @@ export async function uploadPhoto({
 			width,
 		},
 	});
+}
+
+export async function generateThumbhash(fullImage: sharp.Sharp) {
+	const image = fullImage.resize(100, 100, { fit: 'inside' });
+	const { data, info } = await image
+		.ensureAlpha()
+		.raw()
+		.toBuffer({ resolveWithObject: true });
+	const thumbhash = rgbaToThumbHash(info.width, info.height, data);
+	return Buffer.from(thumbhash).toString('base64');
 }

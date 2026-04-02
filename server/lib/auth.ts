@@ -26,20 +26,19 @@ export async function createAuthContext({
 	res,
 }: CreateFastifyContextOptions) {
 	const session = await getSession({ req, res });
-
 	const context = {
 		req,
 		res,
 		session,
-		hostBase: `${req.protocol}://${req.hostname}${req.port ? ':' + req.port : ''}`,
 		admin: false,
 		hunter: null,
 		user: null,
+		isLan: false,
 	};
 
-	const defaultHost = config.serverHosts.at(0);
-	if (defaultHost && !config.serverHosts.includes(context.hostBase)) {
-		context.hostBase = defaultHost;
+	const requestHost = `${req.protocol}://${req.hostname}${req.port ? ':' + req.port : ''}`;
+	if (requestHost === config.lanHost) {
+		context.isLan = true;
 	}
 
 	const adminSession = await getAdminSession({ req, res });

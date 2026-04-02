@@ -21,10 +21,8 @@ const configSchema = z.object({
 		.default('development'),
 	port: z.coerce.number().int().min(1).prefault(4000),
 	databaseUrl: z.url({ protocol: /^postgres$/ }),
-	serverHosts: z
-		.string()
-		.min(10)
-		.transform((s) => s.split(',')),
+	publicHost: z.url(),
+	lanHost: z.url().optional(),
 	uploadPath: z.string().min(2),
 	clientConfigDir: z.string().optional(),
 	vapidPrivKey: z.string().optional(),

@@ -161,6 +161,7 @@ export const adminRouter = router({
 		.query(
 			async ({
 				input: { filter, ids, meta, pagination, resource, sort },
+				ctx: { isLan },
 			}) => {
 				const where = ids
 					? {
@@ -316,7 +317,7 @@ export const adminRouter = router({
 						return {
 							data: photos.map((photo) => ({
 								...photo,
-								url: photoUrl(photo),
+								url: photoUrl({ ...photo, isLan }),
 							})),
 							total: await db.photo.count({ where }),
 						};

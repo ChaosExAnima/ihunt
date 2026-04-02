@@ -15,7 +15,10 @@ import { server } from './lib/server';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
-	const origins = config.serverHosts.map((host) => new URL(host).hostname);
+	const origins = [new URL(config.publicHost).hostname];
+	if (config.lanHost) {
+		origins.push(new URL(config.lanHost).hostname);
+	}
 	server.addHook('onRequest', (req, reply, done) => {
 		let reqOrigin = req.headers.origin ?? req.host;
 		if (reqOrigin.startsWith('http')) {
