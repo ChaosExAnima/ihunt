@@ -114,26 +114,33 @@ export const notifyRouter = router({
 				type: notifyTypeSchema.optional(),
 			}),
 		)
-		.mutation(async ({ input: { body, force, ids, title, type } }) => {
-			let sent = 0;
-			for (const userId of ids) {
-				try {
-					const result = await notifyUser({
-						event: { body, title, type: type ?? 'message' },
-						force,
-						userId,
-					});
-					if (result) {
-						sent++;
+		.mutation(
+			async ({
+				input: { body, force, ids, title, type },
+				ctx: {
+					req: { log },
+				},
+			}) => {
+				let sent = 0;
+				for (const userId of ids) {
+					try {
+						const result = await notifyUser({
+							event: { body, title, type: type ?? 'message' },
+							force,
+							userId,
+						});
+						if (result) {
+							sent++;
+						}
+					} catch (err) {
+						handleError({ err, throws: false, logger: log });
 					}
-				} catch (err) {
-					handleError({ err, throws: false });
 				}
-			}
-			return {
-				sent,
-			};
-		}),
+				return {
+					sent,
+				};
+			},
+		),
 
 	onNotify: userProcedure.subscription(async function* ({
 		ctx: {

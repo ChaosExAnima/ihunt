@@ -1,8 +1,8 @@
 import { TRPC_ERROR_CODE_KEY, TRPCError } from '@trpc/server';
+import { FastifyBaseLogger } from 'fastify';
 import z, { ZodError } from 'zod';
 
 import { Prisma } from './db';
-import { logger } from './server';
 
 interface HandleErrorArgs {
 	code?: TRPC_ERROR_CODE_KEY;
@@ -10,6 +10,7 @@ interface HandleErrorArgs {
 	message?: string;
 	notFoundMsg?: string;
 	throws?: boolean;
+	logger?: FastifyBaseLogger;
 }
 
 export function handleError({
@@ -18,6 +19,7 @@ export function handleError({
 	message = 'Unknown error',
 	notFoundMsg = 'Not found',
 	throws = true,
+	logger,
 }: HandleErrorArgs) {
 	if (err instanceof TRPCError && throws) {
 		throw err;
@@ -33,7 +35,7 @@ export function handleError({
 		message = z.treeifyError(err).errors.join(', ');
 	}
 
-	logger.error(err, 'TRPC error');
+	logger?.error(err, 'TRPC error');
 
 	if (throws) {
 		throw new TRPCError({
