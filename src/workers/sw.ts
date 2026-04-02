@@ -36,10 +36,12 @@ imageCache();
 // clean old assets
 cleanupOutdatedCaches();
 
-// only cache pages and external assets on local build + start or in production
 if (import.meta.env.PROD) {
-	// to allow work offline
-	registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
+	registerRoute(
+		new NavigationRoute(createHandlerBoundToURL('index.html'), {
+			denylist: [/^\/_admin\.html/, /^\/admin/],
+		}),
+	);
 }
 
 self.addEventListener('push', onPush);
