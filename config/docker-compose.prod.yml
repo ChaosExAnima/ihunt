@@ -10,14 +10,12 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/data/uploads:/media
-      - ./config/data/db:/app/db
     env_file: .env.production
     environment:
-      DB_PATH: /app/db/prod.db
       UPLOAD_PATH: /media
-      MEDIA_HOST: http://localhost:9999/images
-      SERVER_HOSTS: http://localhost:9999
-      CLIENT_CONFIG_DIR: .
+      MEDIA_PATH: /media
+      PUBLIC_HOST: https://ihunt-eu.com
+      LAN_HOST: https://lan.ihunt-eu.com
 
   images:
     image: ghcr.io/imgproxy/imgproxy:latest
