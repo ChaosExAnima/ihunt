@@ -21,3 +21,7 @@ declare module '@fastify/vite/plugin' {
 	}): Plugin;
 	export default viteFastify;
 }
+
+declare module '*.css';
+declare module '@fontsource/*' {}
+declare module '@fontsource-variable/*' {}
