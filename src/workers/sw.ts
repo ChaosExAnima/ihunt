@@ -39,7 +39,7 @@ cleanupOutdatedCaches();
 if (import.meta.env.PROD) {
 	registerRoute(
 		new NavigationRoute(createHandlerBoundToURL('index.html'), {
-			denylist: [/^\/_admin\.html/, /^\/admin/],
+			denylist: [/^\/admin/, /^\/images/, /^\/trpc/],
 		}),
 	);
 }
