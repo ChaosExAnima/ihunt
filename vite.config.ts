@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => {
 		build: {
 			outDir: resolve(import.meta.dirname, 'dist'),
 			emptyOutDir: true,
+			rolldownOptions: {
+				input: {
+					app: 'index.html',
+					// We need an underscore as S3 doesn't like file keys beginning with /admin
+					admin: '_admin.html',
+				},
+			},
 		},
 
 		server: {
