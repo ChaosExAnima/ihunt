@@ -59,6 +59,7 @@ export async function createAuthContext({
 				hunter,
 				user: {
 					id: null,
+					code: null,
 					settings: {
 						hideMoney: false,
 						notifications: {},
@@ -83,9 +84,6 @@ export async function createAuthContext({
 			},
 			where: {
 				id: session.userId,
-			},
-			omit: {
-				code: true,
 			},
 		});
 		return {

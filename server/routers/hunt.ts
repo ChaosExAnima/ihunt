@@ -31,9 +31,11 @@ export const huntRouter = router({
 		async ({
 			ctx: {
 				hunter: { id: hunterId },
+				user: { code },
+				admin,
 			},
 		}) => {
-			if (isHuntsDisabled()) {
+			if (isHuntsDisabled(code, admin)) {
 				return [];
 			}
 			const hunts = await db.hunt.findMany({
@@ -59,10 +61,15 @@ export const huntRouter = router({
 		},
 	),
 
-	getAvailable: userProcedure
-		.output(outputHuntSchema.array())
-		.query(async ({ ctx: { hunter: currentHunter } }) => {
-			if (isHuntsDisabled()) {
+	getAvailable: userProcedure.output(outputHuntSchema.array()).query(
+		async ({
+			ctx: {
+				hunter: currentHunter,
+				user: { code },
+				admin,
+			},
+		}) => {
+			if (isHuntsDisabled(code, admin)) {
 				return [];
 			}
 
@@ -105,7 +112,8 @@ export const huntRouter = router({
 				reserved: reservedMap.get(hunt.id),
 				photos: photos.filter(({ hunterId }) => !hunterId),
 			}));
-		}),
+		},
+	),
 
 	getCompleted: userProcedure
 		.output(outputHuntSchema.array())
@@ -140,12 +148,20 @@ export const huntRouter = router({
 			}));
 		}),
 
-	getHuntsToday: userProcedure.query(async ({ ctx: { hunter } }) => {
-		if (isHuntsDisabled()) {
-			return 0;
-		}
-		return fetchDailyHuntCount(hunter.id);
-	}),
+	getHuntsToday: userProcedure.query(
+		async ({
+			ctx: {
+				hunter,
+				user: { code },
+				admin,
+			},
+		}) => {
+			if (isHuntsDisabled(code, admin)) {
+				return 0;
+			}
+			return fetchDailyHuntCount(hunter.id);
+		},
+	),
 
 	getOne: userProcedure
 		.input(
@@ -214,11 +230,13 @@ export const huntRouter = router({
 		async ({
 			ctx: {
 				hunter: currentHunter,
+				user: { code },
+				admin,
 				req: { log },
 			},
 			input: { huntId },
 		}) => {
-			assertHuntsEnabled();
+			assertHuntsEnabled(code, admin);
 
 			const hunterId = currentHunter.id;
 			const hunt = await db.hunt.findUniqueOrThrow({
@@ -363,18 +381,27 @@ export const huntRouter = router({
 					.parse(Object.fromEntries(fd.entries())),
 			),
 		)
-		.mutation(async ({ ctx: { hunter }, input }) => {
-			assertHuntsEnabled();
+		.mutation(
+			async ({
+				ctx: {
+					hunter,
+					user: { code },
+					admin,
+				},
+				input,
+			}) => {
+				assertHuntsEnabled(code, admin);
 
-			const { huntId, name, photo } = input;
-			const bytes = await photo.bytes();
-			const result = await uploadPhoto({
-				buffer: bytes,
-				hunterId: hunter.id,
-				huntId,
-				name,
-			});
+				const { huntId, name, photo } = input;
+				const bytes = await photo.bytes();
+				const result = await uploadPhoto({
+					buffer: bytes,
+					hunterId: hunter.id,
+					huntId,
+					name,
+				});
 
-			return { id: result.id };
-		}),
+				return { id: result.id };
+			},
+		),
 });
