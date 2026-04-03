@@ -1,4 +1,4 @@
-name: ihunt
+name: ihunt-prod
 services:
   api:
     build:
@@ -9,19 +9,20 @@ services:
     image: ghcr.io/chaosexanima/ihunt:latest
     restart: unless-stopped
     volumes:
-      - ./config/data/uploads:/media
+      - ./data/media-prod:/media
     env_file: .env.production
     environment:
-      UPLOAD_PATH: /media
-      MEDIA_PATH: /media
       PUBLIC_HOST: https://ihunt-eu.com
       LAN_HOST: https://lan.ihunt-eu.com
+      COOKIE_DOMAIN: .ihunt-eu.com
+      UPLOAD_PATH: /media
+      MEDIA_PATH: /images
 
   images:
     image: ghcr.io/imgproxy/imgproxy:latest
     restart: unless-stopped
     volumes:
-      - ./config/data/uploads:/mnt/images:ro
+      - ./data/media-prod:/mnt/images:ro
     env_file: .env.production
     environment:
       PORT: 9000
@@ -35,13 +36,21 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/nginx.conf:/etc/nginx/templates/default.conf.template:ro
-      - ./dist/client:/etc/nginx/html:ro
+      - ./data/certs/etc:/certs
+      - ./dist:/etc/nginx/html:ro
       - nginx_cache:/var/cache/nginx:delegated
-    links:
-      - images:images
-      - api:api
     ports:
-      - "9999:80"
+      - "443:443"
+
+  certbot:
+    image: certbot/dns-cloudflare
+    restart: no
+    volumes:
+      - ./data/certs/etc:/etc/letsencrypt
+      - ./data/certs/lib:/var/lib/letsencrypt
+      - ./data/certs/cloudflare.ini:/cloudflare.ini
+    # command: certificates
+    command: certonly -n --keep --dns-cloudflare --dns-cloudflare-credentials /cloudflare.ini -d lan.ihunt-eu.com
 
 volumes:
   nginx_cache:
