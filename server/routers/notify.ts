@@ -116,7 +116,7 @@ export const notifyRouter = router({
 		)
 		.mutation(
 			async ({
-				input: { body, force, ids, title, type },
+				input: { body, force, ids, title, type = 'message' },
 				ctx: {
 					req: { log },
 				},
@@ -124,8 +124,20 @@ export const notifyRouter = router({
 				let sent = 0;
 				for (const userId of ids) {
 					try {
+						const hunter = await db.hunter.findUnique({
+							where: { userId },
+						});
+						if (hunter) {
+							await db.notification.create({
+								data: {
+									hunterId: hunter.id,
+									type,
+									event: { body, title, type },
+								},
+							});
+						}
 						const result = await notifyUser({
-							event: { body, title, type: type ?? 'message' },
+							event: { body, title, type },
 							force,
 							userId,
 						});
