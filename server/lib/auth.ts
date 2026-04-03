@@ -36,8 +36,8 @@ export async function createAuthContext({
 		isLan: false,
 	};
 
-	const requestHost = `${req.protocol}://${req.hostname}${req.port ? ':' + req.port : ''}`;
-	if (requestHost === config.lanHost) {
+	// Check LAN, with hard-coded HTTPS as proxy isn't SSL.
+	if (`https://${req.hostname}` === config.lanHost) {
 		context.isLan = true;
 	}
 
