@@ -46,17 +46,7 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
-					const hunter = await db.hunter.findUniqueOrThrow({
-						where: { id: data.hunterId },
-					});
-					return await db.user.create({
-						data: {
-							...data,
-							code: await calculateNextAccessCode(
-								hunterTypeSchema.parse(hunter.type),
-							),
-						},
-					});
+					return await db.user.create({ data });
 				}
 			}
 		}),
