@@ -153,6 +153,11 @@ function RouteComponent() {
 				)}
 			</div>
 
+			{isMe && (
+				<Button asChild>
+					<Link to="/settings">Edit my profile</Link>
+				</Button>
+			)}
 			<Button variant="secondary" asChild className="w-full">
 				<Link to="/hunters">See all hunters in your area</Link>
 			</Button>
