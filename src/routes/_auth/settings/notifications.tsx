@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useId, useMemo } from 'react';
 
+import { BackButton } from '@/components/back-button';
 import { Header } from '@/components/header';
 import { SettingBlock } from '@/components/settings/setting-block';
 import { Button } from '@/components/ui/button';
@@ -107,11 +108,7 @@ function NotificationsPage() {
 					/>
 				))}
 			</section>
-			<Button asChild variant="secondary">
-				<Link className="mt-auto" to="/settings">
-					Back
-				</Link>
-			</Button>
+			<BackButton className="mt-auto" />
 		</>
 	);
 }

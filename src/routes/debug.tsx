@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
 
+import { BackButton } from '@/components/back-button';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { apiDebug, trpc } from '@/lib/api';
@@ -46,9 +47,7 @@ function RouteComponent() {
 					Log out
 				</Button>
 			)}
-			<Button variant="secondary" asChild>
-				<Link to="/">Back</Link>
-			</Button>
+			<BackButton />
 		</main>
 	);
 }

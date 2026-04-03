@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link, notFound } from '@tanstack/react-router';
+import { createFileRoute, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
-import { ArrowLeft } from 'lucide-react';
 
+import { BackButton } from '@/components/back-button';
 import { HuntDisplay } from '@/components/hunt';
 import { Loading } from '@/components/loading';
-import { Button } from '@/components/ui/button';
 import { useAvailableHunt } from '@/hooks/use-available-hunt';
 import { trpc } from '@/lib/api';
 
@@ -45,12 +44,7 @@ function RouteComponent() {
 				onAcceptHunt={onJoin}
 				remainingHunts={remainingToday}
 			/>
-			<Button asChild variant="secondary">
-				<Link to="/hunts">
-					<ArrowLeft />
-					Back
-				</Link>
-			</Button>
+			<BackButton />
 			{inviteModal}
 		</>
 	);

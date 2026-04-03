@@ -142,7 +142,7 @@ function Settings() {
 					/>
 				</SettingBlock>
 			</section>
-			<Button asChild variant="secondary">
+			<Button asChild variant="secondary" className="mt-auto">
 				<Link to="/settings/notifications">Notifications Settings</Link>
 			</Button>
 			<Button
