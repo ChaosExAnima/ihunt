@@ -28,7 +28,7 @@ export const queryClient = new QueryClient({
 	},
 });
 
-export const LAN_SERVER_KEY = 'ihunt-lan-server';
+const LAN_SERVER_KEY = 'ihunt-lan-server';
 
 function getHost() {
 	const { protocol, host: curHost } = window.location;
@@ -106,6 +106,13 @@ async function checkServer() {
 	}
 }
 let lanWorking = true;
+
+export function apiDebug() {
+	return {
+		lanWorking,
+		lanServer,
+	};
+}
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({
 	client: trpcClient,

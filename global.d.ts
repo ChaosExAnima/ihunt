@@ -5,7 +5,6 @@ interface ImportMeta {
 }
 
 interface ImportMetaEnv {
-	readonly VITE_SERVER_HOSTS: string;
 	readonly VITE_VAPID_PUB_KEY: string;
 }
 
@@ -15,6 +14,10 @@ interface ViteTypeOptions {
 
 interface RequestInit {
 	targetAddressSpace?: 'local';
+}
+
+interface Window {
+	__IHUNT_VERSION__?: string;
 }
 
 declare module '@fastify/vite/plugin' {

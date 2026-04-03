@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DebugRouteImport } from './routes/debug'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthNotificationsRouteImport } from './routes/_auth/notifications'
@@ -19,6 +20,11 @@ import { Route as AuthSettingsNotificationsRouteImport } from './routes/_auth/se
 import { Route as AuthHuntsHuntIdRouteImport } from './routes/_auth/hunts/$huntId'
 import { Route as AuthHuntersHunterIdRouteImport } from './routes/_auth/hunters/$hunterId'
 
+const DebugRoute = DebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
@@ -67,6 +73,7 @@ const AuthHuntersHunterIdRoute = AuthHuntersHunterIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/debug': typeof DebugRoute
   '/notifications': typeof AuthNotificationsRoute
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/debug': typeof DebugRoute
   '/notifications': typeof AuthNotificationsRoute
   '/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/hunts/$huntId': typeof AuthHuntsHuntIdRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/debug': typeof DebugRoute
   '/_auth/notifications': typeof AuthNotificationsRoute
   '/_auth/hunters/$hunterId': typeof AuthHuntersHunterIdRoute
   '/_auth/hunts/$huntId': typeof AuthHuntsHuntIdRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/debug'
     | '/notifications'
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/debug'
     | '/notifications'
     | '/hunters/$hunterId'
     | '/hunts/$huntId'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_auth'
+    | '/debug'
     | '/_auth/notifications'
     | '/_auth/hunters/$hunterId'
     | '/_auth/hunts/$huntId'
@@ -134,10 +146,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  DebugRoute: typeof DebugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/debug': {
+      id: '/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof DebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -229,6 +249,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  DebugRoute: DebugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

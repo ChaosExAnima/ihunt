@@ -7843,6 +7843,7 @@ __metadata:
     typescript-eslint: "npm:^8.58.0"
     vite: "npm:^8.0.3"
     vite-plugin-pwa: "npm:^1.2.0"
+    vite-plugin-version-mark: "npm:^0.2.2"
     web-push: "npm:^3.6.7"
     workbox-core: "npm:^7.4.0"
     workbox-precaching: "npm:^7.4.0"
@@ -12596,6 +12597,17 @@ __metadata:
     "@vite-pwa/assets-generator":
       optional: true
   checksum: 10c0/d037591fc6a44b9a97f45b2452f691fce34c1c8ece4721d4f1a068f6dd7c30991b63c090a2af87d5b78d351bf5f5eee9d9dbbfc4bb39a77d3bc2ab7d2ca5df6b
+  languageName: node
+  linkType: hard
+
+"vite-plugin-version-mark@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "vite-plugin-version-mark@npm:0.2.2"
+  peerDependencies:
+    "@nuxt/kit": ">3.3.0"
+    "@nuxt/schema": ">3.3.0"
+    vite: "*"
+  checksum: 10c0/6535745a01ecbb6fb1d8f16ee13996e8de8e4d751df65f281a57c9d6b4dae43da17052a13486165070770d1c723b9baa6b4a2f1c1b1a69a4753929e5a252a7e9
   languageName: node
   linkType: hard
 

@@ -154,6 +154,9 @@ function Settings() {
 			>
 				Log out
 			</Button>
+			<Link to="/debug" className="text-muted text-sm">
+				Debug info
+			</Link>
 		</>
 	);
 }
