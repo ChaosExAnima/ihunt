@@ -26,20 +26,19 @@ export async function createAuthContext({
 	res,
 }: CreateFastifyContextOptions) {
 	const session = await getSession({ req, res });
-
 	const context = {
 		req,
 		res,
 		session,
-		hostBase: `${req.protocol}://${req.hostname}${req.port ? ':' + req.port : ''}`,
 		admin: false,
 		hunter: null,
 		user: null,
+		isLan: false,
 	};
 
-	const defaultHost = config.serverHosts.at(0);
-	if (defaultHost && !config.serverHosts.includes(context.hostBase)) {
-		context.hostBase = defaultHost;
+	// Check LAN, with hard-coded HTTPS as proxy isn't SSL.
+	if (`https://${req.hostname}` === config.lanHost) {
+		context.isLan = true;
 	}
 
 	const adminSession = await getAdminSession({ req, res });
@@ -60,6 +59,7 @@ export async function createAuthContext({
 				hunter,
 				user: {
 					id: null,
+					code: null,
 					settings: {
 						hideMoney: false,
 						notifications: {},
@@ -84,9 +84,6 @@ export async function createAuthContext({
 			},
 			where: {
 				id: session.userId,
-			},
-			omit: {
-				code: true,
 			},
 		});
 		return {

@@ -5,6 +5,7 @@ import { resolve } from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, PluginOption, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { vitePluginVersionMark } from 'vite-plugin-version-mark';
 
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
@@ -14,6 +15,13 @@ export default defineConfig(({ mode }) => {
 		build: {
 			outDir: resolve(import.meta.dirname, 'dist'),
 			emptyOutDir: true,
+			rolldownOptions: {
+				input: {
+					app: 'index.html',
+					// We need an underscore as S3 doesn't like file keys beginning with /admin
+					admin: '_admin.html',
+				},
+			},
 		},
 
 		server: {
@@ -94,6 +102,11 @@ export default defineConfig(({ mode }) => {
 			}),
 			process.env.ANALYZE_BUNDLE === '1' &&
 				(visualizer() as PluginOption),
+			vitePluginVersionMark({
+				ifLog: false,
+				ifMeta: false,
+				ifShortSHA: true,
+			}),
 		],
 	};
 });

@@ -166,7 +166,7 @@ function CurrentSlide({
 			<span
 				className={cn(
 					dotClass,
-					active.length + available.length + 1 === current
+					Math.max(active.length + available.length, 1) === current
 						? 'bg-stone-200 dark:bg-stone-400'
 						: 'bg-stone-400 dark:bg-stone-600',
 				)}

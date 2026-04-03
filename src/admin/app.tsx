@@ -1,7 +1,9 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Crosshair, Image, Swords, UserRound, UsersRound } from 'lucide-react';
-import { useEffect } from 'react';
-import { Admin, DataProvider, Resource } from 'react-admin';
+import { ReactNode, useEffect } from 'react';
+import { StrictMode } from 'react';
+import { Admin, DataProvider, Layout, Resource, useTheme } from 'react-admin';
+import { createRoot } from 'react-dom/client';
 
 import { queryClient } from '@/lib/api';
 
@@ -21,17 +23,11 @@ import { UserCreate } from './user/create';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
 
-export function App() {
-	useEffect(() => {
-		const oldTitle = document.title;
-		document.title = 'iHunt Admin';
-		return () => {
-			document.title = oldTitle;
-		};
-	}, []);
-
+function App() {
 	return (
 		<Admin
+			disableTelemetry
+			layout={CustomLayout}
 			authProvider={authProvider}
 			dataProvider={dataProvider as DataProvider<string>}
 			loginPage={LoginPage}
@@ -76,7 +72,37 @@ export function App() {
 				name="photo"
 				recordRepresentation="id"
 			/>
-			<ReactQueryDevtools />
 		</Admin>
 	);
 }
+
+function CustomLayout({ children }: { children: ReactNode }) {
+	const [theme] = useTheme();
+	useEffect(() => {
+		if (theme === 'dark') {
+			document.body.classList.add('dark');
+		} else {
+			document.body.classList.remove('dark');
+		}
+	}, [theme]);
+	return (
+		<Layout>
+			{children}
+			<ReactQueryDevtools />
+		</Layout>
+	);
+}
+
+function start() {
+	const rootElement = document.getElementById('root')!;
+	if (!rootElement.innerHTML) {
+		const root = createRoot(rootElement);
+		root.render(
+			<StrictMode>
+				<App />
+			</StrictMode>,
+		);
+	}
+}
+
+start();

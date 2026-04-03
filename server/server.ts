@@ -1,3 +1,4 @@
+import { fastifyCors } from '@fastify/cors';
 import {
 	fastifyTRPCPlugin,
 	type FastifyTRPCPluginOptions,
@@ -15,18 +16,14 @@ import { server } from './lib/server';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
-	const origins = config.serverHosts.map((host) => new URL(host).hostname);
-	server.addHook('onRequest', (req, reply, done) => {
-		let reqOrigin = req.headers.origin ?? req.host;
-		if (reqOrigin.startsWith('http')) {
-			reqOrigin = reqOrigin.replace(/^https?:\/\//, '');
-		}
-		if (origins.includes(reqOrigin)) {
-			reply.header('access-control-allow-origin', `https://${reqOrigin}`);
-		}
-		reply.header('access-control-allow-credentials', 'true');
-
-		done();
+	await server.register(fastifyCors, {
+		credentials: true,
+		origin: (origin?: string) =>
+			Promise.resolve(
+				origin && origin === config.lanHost
+					? config.lanHost
+					: config.publicHost,
+			),
 	});
 
 	// Register TRPC

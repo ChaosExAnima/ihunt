@@ -12,57 +12,65 @@ import { omit } from '@/lib/utils';
 import { config } from './config';
 import { db, Photo } from './db';
 
-type PhotoUrlArgs = PhotoUrlOptions & {
+export function mediaRoot(lan = false) {
+	let host = config.publicHost;
+	if (lan && config.lanHost) {
+		host = config.lanHost;
+	}
+	return `${host}${config.mediaPath}`;
+}
+
+export function photoUrl({
+	path,
+	isLan,
+	...options
+}: PhotoUrlOptions & {
 	path: string;
-};
+	isLan?: boolean;
+}) {
+	return generateImageUrl({
+		endpoint: mediaRoot(isLan),
+		options,
+		url: `local:///${path}`,
+	});
+}
+
+const ROUND_TO_PIXELS = 100;
+
+function actualSize(photoSize: number, targetSize?: number) {
+	const actualSize = targetSize ? Math.min(targetSize, photoSize) : photoSize;
+	return Math.ceil(actualSize / ROUND_TO_PIXELS) * ROUND_TO_PIXELS;
+}
+
+export function outputPhoto({
+	height: targetHeight,
+	photo,
+	width: targetWidth,
+	...options
+}: PhotoUrlOptions & {
+	photo: Photo;
+	isLan?: boolean;
+}) {
+	const actualWidth = actualSize(photo.width, targetWidth);
+	const actualHeight = actualSize(photo.height, targetHeight);
+	return {
+		...omit(photo, 'huntId', 'hunterId', 'path'),
+		width: actualWidth,
+		height: actualHeight,
+		url: photoUrl({
+			...options,
+			width: actualWidth,
+			height: actualHeight,
+			path: photo.path,
+		}),
+	};
+}
 
 interface UploadPhotoArgs {
 	buffer: Uint8Array;
 	hunterId?: null | number;
 	huntId?: null | number;
 	name?: string;
-}
-
-export async function generateThumbhash(fullImage: sharp.Sharp) {
-	const image = fullImage.resize(100, 100, { fit: 'inside' });
-	const { data, info } = await image
-		.ensureAlpha()
-		.raw()
-		.toBuffer({ resolveWithObject: true });
-	const thumbhash = rgbaToThumbHash(info.width, info.height, data);
-	return Buffer.from(thumbhash).toString('base64');
-}
-
-export function outputPhoto({
-	height: targetHeight = 0,
-	photo,
-	width: targetWidth = 0,
-	...options
-}: PhotoUrlOptions & {
-	photo: Photo;
-}) {
-	const actualHeight = Math.min(targetHeight, photo.height);
-	const actualWidth = Math.min(targetWidth, photo.width);
-	return {
-		...omit(photo, 'huntId', 'hunterId', 'path'),
-		height: actualHeight,
-		url: photoUrl({
-			...options,
-			height: actualHeight,
-			path: photo.path,
-			width: actualWidth,
-		}),
-		width: actualWidth,
-	};
-}
-
-export function photoUrl({ path, ...options }: PhotoUrlArgs) {
-	const url = generateImageUrl({
-		endpoint: config.mediaHost,
-		options,
-		url: `local:///${path}`,
-	});
-	return url;
 }
 
 export async function uploadPhoto({
@@ -105,4 +113,14 @@ export async function uploadPhoto({
 			width,
 		},
 	});
+}
+
+export async function generateThumbhash(fullImage: sharp.Sharp) {
+	const image = fullImage.resize(100, 100, { fit: 'inside' });
+	const { data, info } = await image
+		.ensureAlpha()
+		.raw()
+		.toBuffer({ resolveWithObject: true });
+	const thumbhash = rgbaToThumbHash(info.width, info.height, data);
+	return Buffer.from(thumbhash).toString('base64');
 }

@@ -3,30 +3,21 @@ import 'dotenv/config';
 import * as z from 'zod';
 
 const configSchema = z.object({
-	userPassword: z.string().default('password'),
-	adminPassword: z.string(),
-	adminHunterId: z.coerce.number().int().positive().optional(),
-	authPepper: z.string(),
-	authSession: z.string(),
-	cookieDomain: z.string().optional(),
-	dbPath: z.string().optional(),
-	huntsDisabled: z.coerce.boolean().default(false),
-	logging: z
-		.string()
-		.transform((l) => l.split(','))
-		.default([]),
-	mediaHost: z.url(),
 	nodeEnv: z
 		.enum(['development', 'production', 'test'])
 		.default('development'),
+	publicHost: z.url(),
+	lanHost: z.url().optional(),
 	port: z.coerce.number().int().min(1).prefault(4000),
 	databaseUrl: z.url({ protocol: /^postgres$/ }),
-	serverHosts: z
-		.string()
-		.min(10)
-		.transform((s) => s.split(',')),
+	authSession: z.string(),
+	cookieDomain: z.string().optional(),
+	userPassword: z.string().default('password'),
+	adminPassword: z.string(),
+	adminHunterId: z.coerce.number().int().positive().optional(),
+	huntsDisabled: z.coerce.boolean().default(false),
+	mediaPath: z.string().default('/'),
 	uploadPath: z.string().min(2),
-	clientConfigDir: z.string().optional(),
 	vapidPrivKey: z.string().optional(),
 	vapidPubKey: z.string().optional(),
 	vapidSubject: z

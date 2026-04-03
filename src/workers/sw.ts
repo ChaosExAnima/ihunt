@@ -13,8 +13,6 @@ import { imageCache } from 'workbox-recipes';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import * as z from 'zod';
 
-import { WorkerServer } from './server';
-
 declare const self: ServiceWorkerGlobalScope;
 
 self.__WB_DISABLE_DEV_LOGS = true;
@@ -24,11 +22,6 @@ clientsClaim();
 
 const entries = self.__WB_MANIFEST;
 
-const server = new WorkerServer();
-
-const trpcRoute = new RegExp('/trpc.*');
-registerRoute(trpcRoute, server.routeCallback.bind(server));
-
 // static assets
 precacheAndRoute(entries);
 imageCache();
@@ -36,10 +29,12 @@ imageCache();
 // clean old assets
 cleanupOutdatedCaches();
 
-// only cache pages and external assets on local build + start or in production
 if (import.meta.env.PROD) {
-	// to allow work offline
-	registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
+	registerRoute(
+		new NavigationRoute(createHandlerBoundToURL('index.html'), {
+			denylist: [/^\/admin/, /^\/images/, /^\/trpc/],
+		}),
+	);
 }
 
 self.addEventListener('push', onPush);

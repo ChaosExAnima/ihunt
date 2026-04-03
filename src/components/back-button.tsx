@@ -1,13 +1,19 @@
-import { Link, useCanGoBack, useRouter } from '@tanstack/react-router';
+import {
+	Link,
+	LinkProps,
+	useCanGoBack,
+	useRouter,
+} from '@tanstack/react-router';
+import { ArrowLeftIcon } from 'lucide-react';
 import { useCallback } from 'react';
 
 import { Button, ButtonProps } from './ui/button';
 
 export function BackButton({
 	children,
-	goHome = true,
+	to = '/',
 	...props
-}: Omit<ButtonProps, 'onClick'> & { goHome?: boolean }) {
+}: Omit<ButtonProps, 'onClick'> & { goHome?: boolean; to?: LinkProps['to'] }) {
 	const router = useRouter();
 	const canGoBack = useCanGoBack();
 	const handleBack = useCallback(() => {
@@ -15,19 +21,28 @@ export function BackButton({
 	}, [router.history]);
 
 	if (!canGoBack) {
-		if (goHome) {
-			return (
-				<Button variant="secondary" {...props} asChild>
-					<Link to="/hunts">{children ?? 'Go home'}</Link>
-				</Button>
-			);
-		}
-		return null;
+		return (
+			<Button variant="secondary" {...props} asChild>
+				<Link to={to}>
+					{children ?? (
+						<>
+							<ArrowLeftIcon />
+							Go back
+						</>
+					)}
+				</Link>
+			</Button>
+		);
 	}
 
 	return (
 		<Button variant="secondary" {...props} onClick={handleBack}>
-			{children ?? 'Go back'}
+			{children ?? (
+				<>
+					<ArrowLeftIcon />
+					Go back
+				</>
+			)}
 		</Button>
 	);
 }

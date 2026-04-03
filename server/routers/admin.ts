@@ -46,17 +46,7 @@ export const adminRouter = router({
 				case 'hunter':
 					return await db.hunter.create({ data });
 				case 'user': {
-					const hunter = await db.hunter.findUniqueOrThrow({
-						where: { id: data.hunterId },
-					});
-					return await db.user.create({
-						data: {
-							...data,
-							code: await calculateNextAccessCode(
-								hunterTypeSchema.parse(hunter.type),
-							),
-						},
-					});
+					return await db.user.create({ data });
 				}
 			}
 		}),
@@ -161,6 +151,7 @@ export const adminRouter = router({
 		.query(
 			async ({
 				input: { filter, ids, meta, pagination, resource, sort },
+				ctx: { isLan },
 			}) => {
 				const where = ids
 					? {
@@ -316,7 +307,7 @@ export const adminRouter = router({
 						return {
 							data: photos.map((photo) => ({
 								...photo,
-								url: photoUrl(photo),
+								url: photoUrl({ ...photo, isLan }),
 							})),
 							total: await db.photo.count({ where }),
 						};

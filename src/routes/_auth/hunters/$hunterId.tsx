@@ -131,6 +131,7 @@ function RouteComponent() {
 										max={5}
 										rating={hunt.rating}
 										size="1em"
+										fill
 									/>
 									{hunt.completedAt && (
 										<time
@@ -149,10 +150,15 @@ function RouteComponent() {
 					</ol>
 				)}
 				{hunts.length === 0 && (
-					<p className="text-muted text-sm">Nothing yet</p>
+					<p className="text-muted">Nothing yet</p>
 				)}
 			</div>
 
+			{isMe && (
+				<Button asChild>
+					<Link to="/settings">Edit my profile</Link>
+				</Button>
+			)}
 			<Button variant="secondary" asChild className="w-full">
 				<Link to="/hunters">See all hunters in your area</Link>
 			</Button>

@@ -142,7 +142,7 @@ function Settings() {
 					/>
 				</SettingBlock>
 			</section>
-			<Button asChild variant="secondary">
+			<Button asChild variant="secondary" className="mt-auto">
 				<Link to="/settings/notifications">Notifications Settings</Link>
 			</Button>
 			<Button
@@ -154,6 +154,9 @@ function Settings() {
 			>
 				Log out
 			</Button>
+			<Link to="/debug" className="text-muted text-sm">
+				Debug info
+			</Link>
 		</>
 	);
 }

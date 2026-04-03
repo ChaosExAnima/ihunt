@@ -66,3 +66,26 @@ export async function hunterUpdateNotifications(
 
 	return data;
 }
+
+export async function isHunterNPC(hunter: Hunter) {
+	if (!hunter.userId) {
+		return false;
+	}
+
+	const user = await db.user.findUnique({
+		where: {
+			id: hunter.userId,
+		},
+	});
+
+	if (!user) {
+		return false;
+	}
+	return isCodeNPC(user.code);
+}
+
+export function isCodeNPC(code: string) {
+	return (
+		code.toLowerCase().startsWith('n') || code.toLowerCase().startsWith('d')
+	);
+}

@@ -7,6 +7,7 @@ import {
 	notifyTypeSchema,
 } from '@/lib/schemas';
 
+import { config } from '../lib/config';
 import { db, Prisma } from '../lib/db';
 import { handleError } from '../lib/error';
 import { ee, notifyUser, saveSubscription } from '../lib/notify';
@@ -25,7 +26,7 @@ export const notifyRouter = router({
 				})
 				.array(),
 		)
-		.query(async ({ ctx: { hunter, hostBase } }) => {
+		.query(async ({ ctx: { hunter, isLan } }) => {
 			const notifications = await db.notification.findMany({
 				where: {
 					hunter,
@@ -39,6 +40,9 @@ export const notifyRouter = router({
 				.omit({ type: true, url: true })
 				.extend({ url: z.string().optional() });
 
+			const host =
+				isLan && config.lanHost ? config.lanHost : config.publicHost;
+
 			return notifications.map(
 				({ id, createdAt, type, event: rawEvent, seenAt }) => {
 					const event = schema.parse(rawEvent);
@@ -49,7 +53,7 @@ export const notifyRouter = router({
 						type: notifyTypeSchema.parse(type),
 						...event,
 						url: event.url?.startsWith('/')
-							? `${hostBase}${event.url}`
+							? `${host}${event.url}`
 							: event.url,
 					};
 				},
@@ -110,26 +114,45 @@ export const notifyRouter = router({
 				type: notifyTypeSchema.optional(),
 			}),
 		)
-		.mutation(async ({ input: { body, force, ids, title, type } }) => {
-			let sent = 0;
-			for (const userId of ids) {
-				try {
-					const result = await notifyUser({
-						event: { body, title, type: type ?? 'message' },
-						force,
-						userId,
-					});
-					if (result) {
-						sent++;
+		.mutation(
+			async ({
+				input: { body, force, ids, title, type = 'message' },
+				ctx: {
+					req: { log },
+				},
+			}) => {
+				let sent = 0;
+				for (const userId of ids) {
+					try {
+						const hunter = await db.hunter.findUnique({
+							where: { userId },
+						});
+						if (hunter) {
+							await db.notification.create({
+								data: {
+									hunterId: hunter.id,
+									type,
+									event: { body, title, type },
+								},
+							});
+						}
+						const result = await notifyUser({
+							event: { body, title, type },
+							force,
+							userId,
+						});
+						if (result) {
+							sent++;
+						}
+					} catch (err) {
+						handleError({ err, throws: false, logger: log });
 					}
-				} catch (err) {
-					handleError({ err, throws: false });
 				}
-			}
-			return {
-				sent,
-			};
-		}),
+				return {
+					sent,
+				};
+			},
+		),
 
 	onNotify: userProcedure.subscription(async function* ({
 		ctx: {

@@ -54,6 +54,7 @@ export function LoginForm({
 									className="h-10 text-xl uppercase"
 									maxLength={ACCESS_CODE_CHAR_COUNT}
 									pattern={ACCESS_CODE_REGEX.source}
+									data-1p-ignore
 									{...field}
 								/>
 							</FormControl>
@@ -73,7 +74,8 @@ export function LoginForm({
 								<Input
 									type="password"
 									className="h-10 text-xl"
-									autoComplete="password"
+									autoComplete="current-password"
+									data-1p-ignore
 									{...field}
 								/>
 							</FormControl>

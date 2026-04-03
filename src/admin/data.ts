@@ -8,6 +8,7 @@ import {
 	loggerLink,
 	splitLink,
 } from '@trpc/client';
+import Cookies from 'js-cookie';
 import { AuthProvider, DataProvider, useDataProvider } from 'react-admin';
 import superjson from 'superjson';
 
@@ -64,6 +65,7 @@ export const authProvider = {
 	async logout() {
 		try {
 			await trpc.auth.adminLogout.mutate();
+			Cookies.remove('ihunt-admin');
 		} catch {
 			// Do nothing
 		}

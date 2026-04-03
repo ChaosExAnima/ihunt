@@ -1,6 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useRouter,
+} from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
@@ -39,6 +44,10 @@ export const Route = createFileRoute('/')({
 		} catch (err) {
 			if (isTRPCClientError(err) && err.message === 'UNAUTHORIZED') {
 				Cookies.remove(SESSION_COOKIE_NAME);
+			}
+
+			if (err instanceof Response) {
+				throw err;
 			}
 		}
 	},
@@ -81,6 +90,9 @@ function Index() {
 				Hunter login
 			</Header>
 			<LoginForm onSubmit={handleLogin} form={form} />
+			<Link to="/debug" className="text-muted text-sm">
+				Debug info
+			</Link>
 			<p className="text-muted text-justify text-xs">
 				No unauthorized use. If you have not been invited to install
 				this application please immediately remove it from your device.

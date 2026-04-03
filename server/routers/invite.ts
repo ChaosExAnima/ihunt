@@ -26,44 +26,53 @@ export const inviteRouter = router({
 			}),
 		)
 		.output(idArray)
-		.query(async ({ ctx: { hunter }, input: { huntId } }) => {
-			// No group means nobody to invite.
-			if (!hunter.groupId || isHuntsDisabled()) {
-				return [];
-			}
-
-			// Load the hunt and check if we're already full.
-			const hunt = await db.hunt.findUniqueOrThrow({
-				include: {
-					huntHunters: true,
+		.query(
+			async ({
+				ctx: {
+					hunter,
+					user: { code },
+					admin,
 				},
-				where: { id: huntId },
-			});
+				input: { huntId },
+			}) => {
+				// No group means nobody to invite.
+				if (!hunter.groupId || isHuntsDisabled(code, admin)) {
+					return [];
+				}
 
-			if (
-				hunt.huntHunters.length >= hunt.maxHunters ||
-				!hunt.huntHunters.some(
-					({ hunterId, status }) =>
-						hunterId === hunter.id &&
-						status === InviteStatus.Accepted,
-				)
-			) {
-				return [];
-			}
+				// Load the hunt and check if we're already full.
+				const hunt = await db.hunt.findUniqueOrThrow({
+					include: {
+						huntHunters: true,
+					},
+					where: { id: huntId },
+				});
 
-			if (huntInLockdown(hunt)) {
-				return [];
-			}
+				if (
+					hunt.huntHunters.length >= hunt.maxHunters ||
+					!hunt.huntHunters.some(
+						({ hunterId, status }) =>
+							hunterId === hunter.id &&
+							status === InviteStatus.Accepted,
+					)
+				) {
+					return [];
+				}
 
-			// Get the invitees
-			const invitees = await fetchInviteesForHunt({
-				fromHunterId: hunter.id,
-				groupId: hunter.groupId,
-				huntId,
-			});
+				if (huntInLockdown(hunt)) {
+					return [];
+				}
 
-			return extractIds(invitees);
-		}),
+				// Get the invitees
+				const invitees = await fetchInviteesForHunt({
+					fromHunterId: hunter.id,
+					groupId: hunter.groupId,
+					huntId,
+				});
+
+				return extractIds(invitees);
+			},
+		),
 
 	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
 		const invites = await db.huntHunter.findMany({

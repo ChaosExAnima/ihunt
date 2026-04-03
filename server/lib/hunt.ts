@@ -12,6 +12,7 @@ import { clamp, extractIds } from '@/lib/utils';
 
 import { config } from './config';
 import { db, Hunt, Prisma } from './db';
+import { isCodeNPC } from './hunter';
 import {
 	huntAvailableEvent,
 	huntCompleteEvent,
@@ -40,8 +41,8 @@ export const huntDisplayInclude = {
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
 
-export function assertHuntsEnabled() {
-	if (isHuntsDisabled()) {
+export function assertHuntsEnabled(code?: string | null, isAdmin?: boolean) {
+	if (isHuntsDisabled(code, isAdmin)) {
 		throw new TRPCError({
 			code: 'FORBIDDEN',
 			message: 'Hunts are disabled',
@@ -70,7 +71,10 @@ export function huntInLockdown(hunt: Hunt) {
 	);
 }
 
-export function isHuntsDisabled() {
+export function isHuntsDisabled(code?: string | null, isAdmin?: boolean) {
+	if ((code && isCodeNPC(code)) || isAdmin) {
+		return false;
+	}
 	return config.huntsDisabled;
 }
 
