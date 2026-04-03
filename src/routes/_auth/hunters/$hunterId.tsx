@@ -150,7 +150,7 @@ function RouteComponent() {
 					</ol>
 				)}
 				{hunts.length === 0 && (
-					<p className="text-muted text-sm">Nothing yet</p>
+					<p className="text-muted">Nothing yet</p>
 				)}
 			</div>
 
