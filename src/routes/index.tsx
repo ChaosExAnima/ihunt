@@ -40,6 +40,10 @@ export const Route = createFileRoute('/')({
 			if (isTRPCClientError(err) && err.message === 'UNAUTHORIZED') {
 				Cookies.remove(SESSION_COOKIE_NAME);
 			}
+
+			if (err instanceof Response) {
+				throw err;
+			}
 		}
 	},
 	component: Index,

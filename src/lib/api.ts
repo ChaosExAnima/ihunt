@@ -36,8 +36,7 @@ function getHost() {
 }
 
 async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
-	if (!lanWorking) {
-		console.debug('LAN not working, sending to public server');
+	if (!lanWorking || isDev()) {
 		return fetch(input, init);
 	}
 	const path = input instanceof Request ? input.url : input;
