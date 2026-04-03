@@ -131,6 +131,7 @@ function RouteComponent() {
 										max={5}
 										rating={hunt.rating}
 										size="1em"
+										fill
 									/>
 									{hunt.completedAt && (
 										<time
