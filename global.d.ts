@@ -13,6 +13,10 @@ interface ViteTypeOptions {
 	strictImportMetaEnv: unknown;
 }
 
+interface RequestInit {
+	targetAddressSpace?: 'local';
+}
+
 declare module '@fastify/vite/plugin' {
 	export function viteFastify(options?: {
 		clientModule?: string;

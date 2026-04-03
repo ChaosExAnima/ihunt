@@ -44,10 +44,9 @@ async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
 	const host = getHost();
 	const url = new URL(path, host);
 	try {
-		const resp = fetch(url, {
+		const resp = window.fetch(url, {
 			...init,
-			...(input instanceof Request ? input : {}),
-			...(lanWorking ? { targetAddressSpace: 'local' } : {}),
+			targetAddressSpace: 'local',
 			credentials: 'include',
 		});
 		return resp;
