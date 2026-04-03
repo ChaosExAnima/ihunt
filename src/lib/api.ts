@@ -15,7 +15,7 @@ import type { AppRouter } from '@/server/index';
 
 import { toast } from '@/hooks/use-toast';
 
-import { MINUTE } from './formats';
+import { MINUTE, SECOND } from './formats';
 import { isDev } from './utils';
 
 export const queryClient = new QueryClient({
@@ -43,7 +43,7 @@ async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
 	const host = getHost();
 	const url = new URL(path, host);
 	try {
-		const resp = window.fetch(url, {
+		const resp = await fetch(url, {
 			...init,
 			targetAddressSpace: 'local',
 			credentials: 'include',
@@ -53,12 +53,47 @@ async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
 		const resp = await fetch(input, init);
 		if (resp.ok) {
 			lanWorking = false;
+			timeout = 5 * SECOND; // Reset timeout
+			console.log(
+				'LAN request failed, checking again in',
+				timeout / SECOND,
+				'seconds',
+			);
 			window.setTimeout(() => {
-				void checkServer();
-			}, MINUTE);
-			console.log('LAN request failed, checking again soon');
+				void testLanServer();
+			}, timeout);
 		}
 		return resp;
+	}
+}
+
+let timeout = 5 * SECOND;
+async function testLanServer() {
+	if (!lanServer || lanWorking) {
+		return;
+	}
+
+	try {
+		const response = await fetch(new URL('/trpc/api.hello', lanServer), {
+			targetAddressSpace: 'local',
+			credentials: 'include',
+			signal: AbortSignal.timeout(5 * SECOND),
+		});
+		if (!response.ok) {
+			throw new Error();
+		}
+		console.debug('LAN test worked, enabling LAN');
+		lanWorking = true;
+	} catch {
+		timeout = Math.min(timeout * 2, MINUTE);
+		console.debug(
+			'LAN test failed, trying in',
+			timeout / SECOND,
+			'seconds',
+		);
+		window.setTimeout(() => {
+			void testLanServer();
+		}, timeout);
 	}
 }
 
@@ -95,9 +130,9 @@ const trpcClient = createTRPCClient<AppRouter>({
 
 let lanServer = localStorage.getItem(LAN_SERVER_KEY);
 if (!lanServer) {
-	void checkServer();
+	void loadLanServer();
 }
-async function checkServer() {
+async function loadLanServer() {
 	const response = await trpcClient.api.hello.query();
 	if (response.lanHost) {
 		lanServer = response.lanHost;
