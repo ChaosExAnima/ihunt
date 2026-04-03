@@ -28,35 +28,41 @@ export function photoUrl({
 	path: string;
 	isLan?: boolean;
 }) {
-	const url = generateImageUrl({
+	return generateImageUrl({
 		endpoint: mediaRoot(isLan),
 		options,
 		url: `local:///${path}`,
 	});
-	return url;
+}
+
+const ROUND_TO_PIXELS = 100;
+
+function actualSize(photoSize: number, targetSize?: number) {
+	const actualSize = targetSize ? Math.min(targetSize, photoSize) : photoSize;
+	return Math.ceil(actualSize / ROUND_TO_PIXELS) * ROUND_TO_PIXELS;
 }
 
 export function outputPhoto({
-	height: targetHeight = 0,
+	height: targetHeight,
 	photo,
-	width: targetWidth = 0,
+	width: targetWidth,
 	...options
 }: PhotoUrlOptions & {
 	photo: Photo;
 	isLan?: boolean;
 }) {
-	const actualHeight = Math.min(targetHeight, photo.height);
-	const actualWidth = Math.min(targetWidth, photo.width);
+	const actualWidth = actualSize(photo.width, targetWidth);
+	const actualHeight = actualSize(photo.height, targetHeight);
 	return {
 		...omit(photo, 'huntId', 'hunterId', 'path'),
+		width: actualWidth,
 		height: actualHeight,
 		url: photoUrl({
 			...options,
+			width: actualWidth,
 			height: actualHeight,
 			path: photo.path,
-			width: actualWidth,
 		}),
-		width: actualWidth,
 	};
 }
 
