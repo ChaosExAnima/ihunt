@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
-import { useCallback, useId } from 'react';
+import { FocusEventHandler, useCallback, useId } from 'react';
 
 import { ActionButton } from '@/components/action-button';
 import { Avatar } from '@/components/avatar';
@@ -42,20 +42,24 @@ function Settings() {
 			onSuccess() {
 				invalidate([
 					trpc.auth.me.queryKey(),
-					trpc.hunter.getOne.queryKey(),
+					trpc.hunter.getOne.queryKey({ hunterId: hunter?.id }),
 				]);
 			},
 		}),
 	);
-	const handleBioChange = useCallback(
-		(bio: string) => {
-			updateFields({ bio });
+	const handleBioChange: FocusEventHandler<
+		HTMLInputElement | HTMLTextAreaElement
+	> = useCallback(
+		(event) => {
+			updateFields({ bio: event.target.value });
 		},
 		[updateFields],
 	);
-	const handlePronounsChange = useCallback(
-		(pronouns: string) => {
-			updateFields({ pronouns });
+	const handlePronounsChange: FocusEventHandler<
+		HTMLInputElement | HTMLTextAreaElement
+	> = useCallback(
+		(event) => {
+			updateFields({ pronouns: event.target.value });
 		},
 		[updateFields],
 	);
@@ -92,11 +96,12 @@ function Settings() {
 				<SettingBlock label="Handle">
 					<p>{hunter.handle}</p>
 				</SettingBlock>
-				<SettingBlock label="Pronouns">
+				<SettingBlock label="Pronouns" id={`${idBase}-pronouns`}>
 					<EditableBlock
-						onChange={handlePronounsChange}
-						value={hunter.pronouns ?? ''}
-						disabled={updatingFields}
+						onBlur={handlePronounsChange}
+						id={`${idBase}-pronouns`}
+						initialValue={hunter.pronouns ?? ''}
+						isUpdating={updatingFields}
 					/>
 				</SettingBlock>
 				<SettingBlock label="Cash">
@@ -127,13 +132,15 @@ function Settings() {
 					{hunter.avatar && <Avatar hunter={hunter} />}
 					<AvatarReplaceButton existing={!!hunter.avatar} />
 				</SettingBlock>
-				<SettingBlock label="Bio">
+				<SettingBlock id={`${idBase}-bio`} label="Bio">
 					<EditableBlock
 						multiline
-						onChange={handleBioChange}
+						id={`${idBase}-bio`}
+						className="field-sizing-content resize-none"
 						placeholder="Tell us about yourself!"
-						value={hunter.bio ?? ''}
-						disabled={updatingFields}
+						initialValue={hunter.bio ?? ''}
+						onBlur={handleBioChange}
+						isUpdating={updatingFields}
 					/>
 				</SettingBlock>
 				<SettingBlock id={`${idBase}-theme`} label="Light Mode">

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 
-import { useDebounceCallback } from '@/hooks/use-debounce-callback';
-
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 
 interface EditableBlockBaseProps {
 	multiline?: boolean;
-	onChange: (value: string) => void;
+	onChange?: (value: string) => void;
 	prefix?: string;
-	value: string;
+	initialValue: string;
+	isUpdating?: boolean;
 }
 
 type EditableBlockProps = EditableBlockBaseProps &
@@ -19,10 +18,11 @@ type EditableBlockProps = EditableBlockBaseProps &
 	>;
 
 export function EditableBlock({
-	multiline = false,
+	initialValue,
 	onChange,
+	isUpdating,
 	prefix,
-	value: initialValue,
+	multiline = false,
 	...props
 }: EditableBlockProps) {
 	const [value, setValue] = useState(initialValue);
@@ -34,9 +34,18 @@ export function EditableBlock({
 			newValue = prefix + newValue;
 		}
 		setValue(newValue);
+		onChange?.(newValue);
 	};
-	useDebounceCallback(onChange, value);
 	const Component = multiline ? Textarea : Input;
 
-	return <Component {...props} onChange={handleChange} value={value} />;
+	return (
+		<>
+			<Component
+				{...props}
+				value={value}
+				onChange={handleChange}
+				readOnly={isUpdating || props.readOnly}
+			/>
+		</>
+	);
 }
