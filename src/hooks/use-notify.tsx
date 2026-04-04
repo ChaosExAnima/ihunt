@@ -116,6 +116,11 @@ function NotificationAction({ onSubscribe }: { onSubscribe: () => void }) {
 async function requestNotifyPermission(
 	serverCallback: (subscription: PushSubscription) => unknown,
 ) {
+	const vapidKey = __VAPID_KEY__;
+	if (!vapidKey) {
+		return;
+	}
+
 	//  Request permission for notifications
 	const permission = await Notification.requestPermission();
 	if (permission !== 'granted') {
@@ -126,7 +131,7 @@ async function requestNotifyPermission(
 	try {
 		const subscription = await registration.pushManager.subscribe({
 			// TODO: Import key via API to allow it being set during runtime.
-			applicationServerKey: import.meta.env.VITE_VAPID_PUB_KEY,
+			applicationServerKey: vapidKey,
 			userVisibleOnly: true,
 		});
 

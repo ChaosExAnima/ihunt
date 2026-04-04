@@ -9,6 +9,7 @@ import { vitePluginVersionMark } from 'vite-plugin-version-mark';
 
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
+
 	return {
 		publicDir: resolve(import.meta.dirname, 'public'),
 		root: 'src',
@@ -22,6 +23,10 @@ export default defineConfig(({ mode }) => {
 					admin: '_admin.html',
 				},
 			},
+		},
+
+		define: {
+			__VAPID_KEY__: `"${env.VAPID_PUB_KEY}"`,
 		},
 
 		server: {
