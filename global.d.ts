@@ -4,10 +4,6 @@ interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }
 
-interface ImportMetaEnv {
-	readonly VITE_VAPID_PUB_KEY: string;
-}
-
 interface ViteTypeOptions {
 	strictImportMetaEnv: unknown;
 }
@@ -17,8 +13,10 @@ interface RequestInit {
 }
 
 interface Window {
-	__IHUNT_VERSION__?: string;
+	readonly __IHUNT_VERSION__?: string;
 }
+
+declare const __VAPID_KEY__: string;
 
 declare module '@fastify/vite/plugin' {
 	export function viteFastify(options?: {

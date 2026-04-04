@@ -3,6 +3,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
 import { useCallback, useId } from 'react';
 
+import { ActionButton } from '@/components/action-button';
 import { Avatar } from '@/components/avatar';
 import { Header } from '@/components/header';
 import { Loading } from '@/components/loading';
@@ -36,7 +37,7 @@ function Settings() {
 		});
 	}, [settings?.hideMoney, updateSettings]);
 
-	const { mutate: updateFields } = useMutation(
+	const { mutate: updateFields, isPending: updatingFields } = useMutation(
 		trpc.settings.updateFields.mutationOptions({
 			onSuccess() {
 				invalidate([
@@ -95,6 +96,7 @@ function Settings() {
 					<EditableBlock
 						onChange={handlePronounsChange}
 						value={hunter.pronouns ?? ''}
+						disabled={updatingFields}
 					/>
 				</SettingBlock>
 				<SettingBlock label="Cash">
@@ -112,15 +114,14 @@ function Settings() {
 							</p>
 						)}
 					</div>
-					<Button
+					<ActionButton
 						className="text-muted"
-						disabled={updatingSettings}
+						updating={updatingSettings}
 						onClick={handleMoneyToggle}
 						size="icon"
 						variant="ghost"
-					>
-						{money !== '' ? <Eye /> : <EyeClosed />}
-					</Button>
+						icon={money !== '' ? <Eye /> : <EyeClosed />}
+					/>
 				</SettingBlock>
 				<SettingBlock label="Avatar">
 					{hunter.avatar && <Avatar hunter={hunter} />}
@@ -132,6 +133,7 @@ function Settings() {
 						onChange={handleBioChange}
 						placeholder="Tell us about yourself!"
 						value={hunter.bio ?? ''}
+						disabled={updatingFields}
 					/>
 				</SettingBlock>
 				<SettingBlock id={`${idBase}-theme`} label="Light Mode">
@@ -145,15 +147,15 @@ function Settings() {
 			<Button asChild variant="secondary" className="mt-auto">
 				<Link to="/settings/notifications">Notifications Settings</Link>
 			</Button>
-			<Button
+			<ActionButton
 				className="w-full"
-				disabled={loggingOut}
+				updating={loggingOut}
 				onClick={handleLogOut}
 				type="submit"
 				variant="destructive"
 			>
 				Log out
-			</Button>
+			</ActionButton>
 			<Link to="/debug" className="text-muted text-sm">
 				Debug info
 			</Link>
