@@ -6,6 +6,7 @@ import {
 	httpSubscriptionLink,
 	isNonJsonSerializable,
 	loggerLink,
+	retryLink,
 	splitLink,
 } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
@@ -28,7 +29,104 @@ export const queryClient = new QueryClient({
 	},
 });
 
+const url = '/trpc';
+const trpcClient = createTRPCClient<AppRouter>({
+	links: [
+		loggerLink({
+			enabled: () => !!localStorage.getItem('debugApi'),
+		}),
+		retryLink({
+			retry(opts) {
+				if (
+					opts.error.data &&
+					opts.error.data.code !== 'INTERNAL_SERVER_ERROR'
+				) {
+					return false;
+				}
+				if (opts.op.type !== 'query') {
+					return false;
+				}
+
+				return opts.attempts <= 3;
+			},
+			retryDelayMs: (index) => Math.min(SECOND * 2 ** index, 30 * SECOND),
+		}),
+		splitLink({
+			condition: (op) => op.type === 'subscription',
+			false: splitLink({
+				condition: (op) => isNonJsonSerializable(op.input) || isDev(),
+				false: httpBatchLink({
+					url,
+					fetch: lanFetch,
+					transformer: superjson,
+				}),
+				true: httpLink({
+					url,
+					fetch: lanFetch,
+					transformer: superjson,
+				}),
+			}),
+			true: httpSubscriptionLink({
+				url,
+				transformer: superjson,
+			}),
+		}),
+	],
+});
+
+export const trpc = createTRPCOptionsProxy<AppRouter>({
+	client: trpcClient,
+	queryClient,
+});
+
 const LAN_SERVER_KEY = 'ihunt-lan-server';
+
+let lanServer = localStorage.getItem(LAN_SERVER_KEY);
+let lanWorking = false;
+if (!lanServer) {
+	void loadLanServer().then(() => testLanServer());
+} else {
+	void testLanServer();
+}
+
+async function loadLanServer() {
+	const response = await trpcClient.api.hello.query();
+	if (response.lanHost) {
+		lanServer = response.lanHost;
+		localStorage.setItem(LAN_SERVER_KEY, response.lanHost);
+		console.log('Set LAN server to:', lanServer);
+	}
+}
+
+let timeout = 5 * SECOND;
+async function testLanServer() {
+	if (!lanServer || lanWorking) {
+		return;
+	}
+
+	try {
+		const response = await fetch(new URL('/trpc/api.hello', lanServer), {
+			targetAddressSpace: 'local',
+			credentials: 'include',
+			signal: AbortSignal.timeout(2 * SECOND),
+		});
+		if (!response.ok) {
+			throw new Error();
+		}
+		console.debug('LAN test worked, enabling LAN');
+		lanWorking = true;
+	} catch {
+		timeout = Math.min(timeout * 2, MINUTE);
+		console.debug(
+			'LAN test failed, trying in',
+			timeout / SECOND,
+			'seconds',
+		);
+		window.setTimeout(() => {
+			void testLanServer();
+		}, timeout);
+	}
+}
 
 function getHost() {
 	const { protocol, host: curHost } = window.location;
@@ -67,89 +165,9 @@ async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
 	}
 }
 
-let timeout = 5 * SECOND;
-async function testLanServer() {
-	if (!lanServer || lanWorking) {
-		return;
-	}
-
-	try {
-		const response = await fetch(new URL('/trpc/api.hello', lanServer), {
-			targetAddressSpace: 'local',
-			credentials: 'include',
-			signal: AbortSignal.timeout(5 * SECOND),
-		});
-		if (!response.ok) {
-			throw new Error();
-		}
-		console.debug('LAN test worked, enabling LAN');
-		lanWorking = true;
-	} catch {
-		timeout = Math.min(timeout * 2, MINUTE);
-		console.debug(
-			'LAN test failed, trying in',
-			timeout / SECOND,
-			'seconds',
-		);
-		window.setTimeout(() => {
-			void testLanServer();
-		}, timeout);
-	}
-}
-
-const url = '/trpc';
-const trpcClient = createTRPCClient<AppRouter>({
-	links: [
-		loggerLink({
-			enabled: () => !!localStorage.getItem('debugApi'),
-		}),
-		splitLink({
-			condition: (op) => op.type === 'subscription',
-			false: splitLink({
-				condition: (op) => isNonJsonSerializable(op.input) || isDev(),
-				false: httpBatchLink({
-					url,
-					fetch: lanFetch,
-					transformer: superjson,
-				}),
-				true: httpLink({
-					url,
-					fetch: lanFetch,
-					transformer: superjson,
-				}),
-			}),
-			true: httpSubscriptionLink({
-				transformer: superjson,
-				url() {
-					return new URL(url, getHost()).toString();
-				},
-			}),
-		}),
-	],
-});
-
-let lanServer = localStorage.getItem(LAN_SERVER_KEY);
-if (!lanServer) {
-	void loadLanServer();
-}
-async function loadLanServer() {
-	const response = await trpcClient.api.hello.query();
-	if (response.lanHost) {
-		lanServer = response.lanHost;
-		localStorage.setItem(LAN_SERVER_KEY, response.lanHost);
-		console.log('Set LAN server to:', lanServer);
-	}
-}
-let lanWorking = true;
-
 export function apiDebug() {
 	return {
 		lanWorking,
 		lanServer,
 	};
 }
-
-export const trpc = createTRPCOptionsProxy<AppRouter>({
-	client: trpcClient,
-	queryClient,
-});
