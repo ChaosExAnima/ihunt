@@ -49,11 +49,13 @@ export function LoginForm({
 							</FormLabel>
 							<FormControl>
 								<Input
+									autoFocus
 									type="text"
 									placeholder="A99"
 									className="h-10 text-xl uppercase"
 									maxLength={ACCESS_CODE_CHAR_COUNT}
 									pattern={ACCESS_CODE_REGEX.source}
+									autoComplete="username"
 									data-1p-ignore
 									{...field}
 								/>
