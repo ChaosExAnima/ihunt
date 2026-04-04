@@ -11,6 +11,7 @@ import {
 } from '@/lib/photos';
 import { MaybePromise } from '@/lib/types';
 
+import { ActionButton } from '../action-button';
 import { Button } from '../ui/button';
 import {
 	Dialog,
@@ -134,13 +135,19 @@ function CameraCropper({
 	onCancel: () => void;
 	onSave: (photo: Blob) => MaybePromise<void>;
 }) {
+	const [pending, setPending] = useState(false);
 	const [tempCrop, setTempComp] = useState<PixelCrop>();
 	const imageRef = useRef<HTMLImageElement>(null);
 	const [disabled] = useState(false);
 
 	const handleSave = useCallback(() => {
 		if (imageRef.current && tempCrop) {
-			void imageToBlob(imageRef.current, tempCrop).then(onSave);
+			setPending(true);
+			void imageToBlob(imageRef.current, tempCrop)
+				.then(onSave)
+				.catch(() => {
+					setPending(false);
+				});
 		}
 	}, [onSave, tempCrop]);
 
@@ -165,13 +172,14 @@ function CameraCropper({
 				<Button onClick={onCancel} variant="secondary">
 					Go Back
 				</Button>
-				<Button
-					disabled={!tempCrop}
+				<ActionButton
 					onClick={handleSave}
 					variant="success"
+					updating={pending}
+					disabled={!tempCrop}
 				>
 					Save
-				</Button>
+				</ActionButton>
 			</DialogFooter>
 		</>
 	);

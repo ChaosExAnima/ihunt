@@ -33,13 +33,13 @@ export function UploadPhoto({
 	onCrop,
 	title,
 }: UploadPhotoProps) {
-	const [disabled, setDisabled] = useState(false);
+	const [pending, setPending] = useState(false);
 	const [imgSrc, setImgSrc] = useState('');
 	const [errorMsg, setErrorMsg] = useState('');
 	const [show, setShow] = useState(false);
 
 	const reset = useCallback(() => {
-		setDisabled(false);
+		setPending(false);
 		setImgSrc('');
 		setErrorMsg('');
 		setShow(false);
@@ -91,7 +91,7 @@ export function UploadPhoto({
 			if (!tempCrop || !imgSrc || !imageRef.current) {
 				return;
 			}
-			setDisabled(true);
+			setPending(true);
 			try {
 				const blob = await imageToBlob(imageRef.current, tempCrop);
 				const result = await onCrop(blob);
@@ -104,7 +104,7 @@ export function UploadPhoto({
 				console.error(err);
 				setErrorMsg('Cannot upload image, try again');
 			}
-			setDisabled(false);
+			setPending(false);
 		})();
 	}, [imgSrc, onCrop, reset, tempCrop]);
 
@@ -125,14 +125,14 @@ export function UploadPhoto({
 			<input
 				accept="image/*"
 				className="hidden"
-				disabled={disabled}
+				disabled={pending}
 				onChange={handleFileChange}
 				ref={inputRef}
 				type="file"
 			/>
 			<ControllableDialog
 				description="Upload image"
-				disabled={disabled}
+				updating={pending}
 				noDescription
 				onConfirm={handleDialogConfirm}
 				onOpenChange={handleOpenChange}
@@ -144,12 +144,12 @@ export function UploadPhoto({
 					aspect={aspect}
 					circular={circular}
 					className="rounded-lg"
-					disabled={disabled}
+					disabled={pending}
 					imageRef={imageRef}
 					imageSrc={imgSrc}
 					onComplete={setTempComp}
 				>
-					{disabled && (
+					{pending && (
 						<div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center bg-black/50">
 							<LoaderCircle
 								className="animate-spin"

@@ -3,6 +3,7 @@ import { ReactNode, useCallback, useState } from 'react';
 
 import { cn } from '@/lib/styles';
 
+import { ActionButton } from './action-button';
 import { Button } from './ui/button';
 import {
 	Dialog,
@@ -20,6 +21,7 @@ export interface ConfirmDialogProps {
 	confirmLabel?: ReactNode;
 	description?: string;
 	disabled?: boolean;
+	updating?: boolean;
 	id?: string;
 	isDangerous?: boolean;
 	noDescription?: boolean;
@@ -64,6 +66,7 @@ export function ControllableDialog({
 	confirmLabel = 'Confirm',
 	description,
 	disabled,
+	updating,
 	id,
 	isDangerous,
 	noDescription,
@@ -89,13 +92,14 @@ export function ControllableDialog({
 							Close
 						</Button>
 					</DialogClose>
-					<Button
+					<ActionButton
 						disabled={disabled}
+						updating={updating}
 						onClick={onConfirm}
 						variant={isDangerous ? 'destructive' : 'success'}
 					>
 						{confirmLabel}
-					</Button>
+					</ActionButton>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
