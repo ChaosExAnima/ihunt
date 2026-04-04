@@ -7,7 +7,7 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@/admin/schemas';
-import { hunterTypeSchema, idArray, idSchemaCoerce } from '@/lib/schemas';
+import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, extractKey, idsToEntities, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
@@ -15,7 +15,6 @@ import { updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
-import { calculateNextAccessCode } from '../lib/auth';
 import { hunterUpdateNotifications } from '../lib/hunter';
 import { InviteStatus } from '../lib/schema';
 
@@ -570,27 +569,5 @@ export const adminRouter = router({
 					});
 				}
 			}
-		}),
-
-	resetPassword: adminProcedure
-		.input(z.object({ userId: idSchemaCoerce }))
-		.mutation(async ({ input: { userId } }) => {
-			const hunter = await db.hunter.findUniqueOrThrow({
-				where: {
-					userId,
-				},
-			});
-
-			const newCode = await calculateNextAccessCode(
-				hunterTypeSchema.parse(hunter.type),
-			);
-			await db.user.update({
-				where: {
-					id: userId,
-				},
-				data: {
-					code: newCode,
-				},
-			});
 		}),
 });
