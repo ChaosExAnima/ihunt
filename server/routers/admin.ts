@@ -7,6 +7,7 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@/admin/schemas';
+import { HuntStatus } from '@/lib/constants';
 import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, extractKey, idsToEntities, omit } from '@/lib/utils';
@@ -569,5 +570,37 @@ export const adminRouter = router({
 					});
 				}
 			}
+		}),
+
+	wallData: adminProcedure
+		.input(
+			z.object({
+				hunterId: idSchemaCoerce,
+				before: z.date().max(Date.now()).nullish(),
+			}),
+		)
+		.query(async ({ input: { hunterId, before } }) => {
+			return db.huntHunter.findFirst({
+				where: {
+					hunterId,
+					...(before && {
+						createdAt: {
+							lt: before,
+						},
+					}),
+					status: InviteStatus.Accepted,
+					hunt: {
+						status: HuntStatus.Complete,
+						comment: {
+							not: null,
+						},
+					},
+				},
+				orderBy: { createdAt: 'desc' },
+				include: {
+					hunt: true,
+					hunter: true,
+				},
+			});
 		}),
 });

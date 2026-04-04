@@ -32,6 +32,8 @@ import { AdminUserSchema } from './schemas';
 import { UserCreate } from './user/create';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
+import '@fontsource-variable/geist-mono';
+import '@fontsource/kanit';
 
 const { Route } = tanStackRouterProvider;
 

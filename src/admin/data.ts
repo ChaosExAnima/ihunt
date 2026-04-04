@@ -186,6 +186,10 @@ export const dataProvider = {
 			huntIds: params.huntIds,
 		});
 	},
+
+	async reviewWallNext(params: { hunterId: number; before: Date | null }) {
+		return trpc.admin.wallData.query(params);
+	},
 } satisfies DataProvider<Resources>;
 
 export type AdminDataProvider = DataProvider & typeof dataProvider;
