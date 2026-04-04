@@ -1,3 +1,4 @@
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
 import {
 	createTRPCClient,
@@ -10,23 +11,33 @@ import {
 	splitLink,
 } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
+import { get, set, del } from 'idb-keyval';
 import superjson from 'superjson';
 
 import type { AppRouter } from '@/server/index';
 
 import { toast } from '@/hooks/use-toast';
 
-import { MINUTE, SECOND } from './formats';
+import { HOUR, MINUTE, SECOND } from './formats';
 import { isDev } from './utils';
 
 export const queryClient = new QueryClient({
 	defaultOptions: {
 		mutations: {
+			networkMode: 'offlineFirst',
 			onError(err) {
 				toast({ description: err.message, title: 'Error' });
 			},
 		},
+		queries: {
+			networkMode: 'offlineFirst',
+			gcTime: 2 * HOUR,
+		},
 	},
+});
+
+export const persister = createAsyncStoragePersister({
+	storage: { getItem: get, setItem: set, removeItem: del },
 });
 
 const url = '/trpc';

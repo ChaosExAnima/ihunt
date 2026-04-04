@@ -1,5 +1,5 @@
-import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
@@ -9,7 +9,7 @@ import { ErrorHandler } from './components/error-handler';
 import { Loading } from './components/loading';
 import { useOffline } from './hooks/use-offline';
 import { useTheme } from './hooks/use-theme';
-import { queryClient } from './lib/api';
+import { persister, queryClient } from './lib/api';
 import { isDev } from './lib/utils';
 import { routeTree } from './routeTree.gen';
 import '@fontsource-variable/geist-mono';
@@ -47,12 +47,15 @@ export function App() {
 	useOffline();
 
 	return (
-		<QueryClientProvider client={queryClient}>
+		<PersistQueryClientProvider
+			client={queryClient}
+			persistOptions={{ persister }}
+		>
 			<RouterProvider router={router} />
 			{devMode && <ReactQueryDevtools />}
 			{devMode && <TanStackRouterDevtools router={router} />}
 			{devMode && <DevTools />}
-		</QueryClientProvider>
+		</PersistQueryClientProvider>
 	);
 }
 
