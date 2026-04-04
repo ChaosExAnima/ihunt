@@ -4,7 +4,7 @@ import { SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { ACCESS_CODE_CHAR_COUNT, ACCESS_CODE_REGEX } from '@/lib/constants';
 import { AuthSchema } from '@/lib/schemas';
 
-import { Button } from './ui/button';
+import { ActionButton } from './action-button';
 import {
 	Form,
 	FormControl,
@@ -83,14 +83,14 @@ export function LoginForm({
 						</FormItem>
 					)}
 				/>
-				<Button
-					disabled={disabled}
+				<ActionButton
+					updating={disabled}
 					size="lg"
 					type="submit"
 					variant="success"
 				>
 					Log In
-				</Button>
+				</ActionButton>
 			</form>
 		</Form>
 	);
