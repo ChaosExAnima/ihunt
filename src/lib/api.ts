@@ -79,23 +79,62 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
 	queryClient,
 });
 
+async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
+	if (!lanWorking || isDev()) {
+		return fetch(input, init);
+	}
+	const path = input instanceof Request ? input.url : input;
+	const { protocol, host: curHost } = window.location;
+	const host =
+		lanServer && lanWorking ? lanServer : `${protocol}//${curHost}`;
+	const url = new URL(path, host);
+	try {
+		const resp = await fetch(url, {
+			...init,
+			targetAddressSpace: 'local',
+			credentials: 'include',
+		});
+		return resp;
+	} catch {
+		const resp = await fetch(input, init);
+		if (resp.ok) {
+			lanWorking = false;
+			timeout = 5 * SECOND; // Reset timeout
+			console.log(
+				'LAN request failed, checking again in',
+				timeout / SECOND,
+				'seconds',
+			);
+			window.setTimeout(() => {
+				void testLanServer();
+			}, timeout);
+		}
+		return resp;
+	}
+}
+
 const LAN_SERVER_KEY = 'ihunt-lan-server';
 
 let lanServer = localStorage.getItem(LAN_SERVER_KEY);
 let lanWorking = false;
-if (!lanServer) {
-	void loadLanServer().then(() => testLanServer());
-} else {
-	void testLanServer();
-}
+void loadLanServer().then(() => testLanServer());
 
 async function loadLanServer() {
 	const response = await trpcClient.api.hello.query();
-	if (response.lanHost) {
+	if (response.lanHost && lanServer !== response.lanHost) {
 		lanServer = response.lanHost;
 		localStorage.setItem(LAN_SERVER_KEY, response.lanHost);
 		console.log('Set LAN server to:', lanServer);
+	} else if (!response.lanHost && lanServer) {
+		lanServer = null;
+		localStorage.removeItem(LAN_SERVER_KEY);
+		console.log('Removed LAN server entry');
 	}
+
+	window.setTimeout(() => {
+		console.log('Checking LAN server again');
+		void loadLanServer();
+	}, MINUTE * 5);
 }
 
 let timeout = 5 * SECOND;
@@ -125,43 +164,6 @@ async function testLanServer() {
 		window.setTimeout(() => {
 			void testLanServer();
 		}, timeout);
-	}
-}
-
-function getHost() {
-	const { protocol, host: curHost } = window.location;
-	return lanServer && lanWorking ? lanServer : `${protocol}//${curHost}`;
-}
-
-async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
-	if (!lanWorking || isDev()) {
-		return fetch(input, init);
-	}
-	const path = input instanceof Request ? input.url : input;
-	const host = getHost();
-	const url = new URL(path, host);
-	try {
-		const resp = await fetch(url, {
-			...init,
-			targetAddressSpace: 'local',
-			credentials: 'include',
-		});
-		return resp;
-	} catch {
-		const resp = await fetch(input, init);
-		if (resp.ok) {
-			lanWorking = false;
-			timeout = 5 * SECOND; // Reset timeout
-			console.log(
-				'LAN request failed, checking again in',
-				timeout / SECOND,
-				'seconds',
-			);
-			window.setTimeout(() => {
-				void testLanServer();
-			}, timeout);
-		}
-		return resp;
 	}
 }
 
