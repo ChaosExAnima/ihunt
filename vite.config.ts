@@ -99,6 +99,9 @@ export default defineConfig(({ mode }) => {
 				scope: '/',
 				srcDir: 'workers',
 				strategies: 'injectManifest',
+				workbox: {
+					globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+				},
 			}),
 			process.env.ANALYZE_BUNDLE === '1' &&
 				(visualizer() as PluginOption),
