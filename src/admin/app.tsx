@@ -19,6 +19,7 @@ import { HunterCreate } from './hunter/create';
 import { HunterEdit } from './hunter/edit';
 import { HunterList } from './hunter/list';
 import { PhotoList } from './photo/list';
+import { AdminUserSchema } from './schemas';
 import { UserCreate } from './user/create';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
@@ -64,7 +65,9 @@ function App() {
 				list={UserList}
 				name="user"
 				options={{ label: 'Players' }}
-				recordRepresentation="code"
+				recordRepresentation={(record: AdminUserSchema) =>
+					record.code.toUpperCase()
+				}
 			/>
 			<Resource
 				icon={Image}
