@@ -187,8 +187,8 @@ export const dataProvider = {
 		});
 	},
 
-	async reviewWallNext(params: { hunterId: number; before: Date | null }) {
-		return trpc.admin.wallData.query(params);
+	async reviewWallNext() {
+		return trpc.admin.wallData.query();
 	},
 } satisfies DataProvider<Resources>;
 
