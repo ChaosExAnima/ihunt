@@ -572,35 +572,88 @@ export const adminRouter = router({
 			}
 		}),
 
-	wallData: adminProcedure
-		.input(
-			z.object({
-				hunterId: idSchemaCoerce,
-				before: z.date().max(Date.now()).nullish(),
-			}),
-		)
-		.query(async ({ input: { hunterId, before } }) => {
-			return db.huntHunter.findFirst({
-				where: {
-					hunterId,
-					...(before && {
-						createdAt: {
-							lt: before,
-						},
-					}),
-					status: InviteStatus.Accepted,
-					hunt: {
-						status: HuntStatus.Complete,
-						comment: {
-							not: null,
-						},
+	wallData: adminProcedure.query(async () => {
+		const reviews = await db.huntHunter.findMany({
+			// All hunts that are completed + have a comment, where the hunter was part of the hunt.
+			where: {
+				status: InviteStatus.Accepted,
+				hunt: {
+					status: HuntStatus.Complete,
+					comment: {
+						not: null,
 					},
 				},
-				orderBy: { createdAt: 'desc' },
-				include: {
-					hunt: true,
-					hunter: true,
+			},
+			include: {
+				hunt: {
+					include: {
+						photos: true,
+					},
 				},
-			});
-		}),
+				hunter: {
+					include: {
+						avatar: true,
+					},
+				},
+			},
+		});
+
+		type Review = (typeof reviews)[0];
+
+		// Create a map and set of reviews based on string ID.
+		const availableReviews = new Set<string>();
+		const reviewMap = new Map<string, Review>();
+		for (const review of reviews) {
+			const id = `${review.huntId}:${review.hunterId}`;
+			availableReviews.add(id);
+			reviewMap.set(id, review);
+		}
+
+		// Have counts of hunts + hunters, and final sequence.
+		const sequence: Review[] = [];
+		const huntCounts = new Map<number, number>();
+		const hunterCounts = new Map<number, number>();
+
+		while (availableReviews.size > 0) {
+			let bestCandidateId: string | null = null;
+			let bestScore = Infinity;
+
+			// Iterate over available reviews, summing the hunt + hunter frequency and using the lowest total score.
+			for (const id of availableReviews) {
+				const review = reviewMap.get(id);
+				if (!review) {
+					continue;
+				}
+				const score =
+					(huntCounts.get(review.huntId) ?? 0) +
+					(hunterCounts.get(review.hunterId) ?? 0);
+
+				if (score < bestScore) {
+					bestScore = score;
+					bestCandidateId = id;
+				}
+			}
+
+			// Set the review, and remove it from the available review list.
+			const bestCandidate = bestCandidateId
+				? reviewMap.get(bestCandidateId)
+				: null;
+			if (bestCandidate) {
+				huntCounts.set(
+					bestCandidate.huntId,
+					(huntCounts.get(bestCandidate.huntId) ?? 0) + 1,
+				);
+				hunterCounts.set(
+					bestCandidate.hunterId,
+					(hunterCounts.get(bestCandidate.hunterId) ?? 0) + 1,
+				);
+				sequence.push(bestCandidate);
+				availableReviews.delete(
+					`${bestCandidate.huntId}:${bestCandidate.hunterId}`,
+				);
+			}
+		}
+
+		return sequence;
+	}),
 });
