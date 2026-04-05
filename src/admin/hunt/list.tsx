@@ -49,11 +49,7 @@ export function HuntList() {
 			}}
 			actions={<HuntListActions />}
 		>
-			<DataTable
-				bulkActionButtons={<HuntBulkActions />}
-				rowClick={false}
-				sort={{ field: 'id', order: 'ASC' }}
-			>
+			<DataTable bulkActionButtons={<HuntBulkActions />} rowClick={false}>
 				<DataTable.Col source="id" />
 				<DataTable.Col source="name" />
 				<DataTable.Col source="status" render={renderHuntStatus} />

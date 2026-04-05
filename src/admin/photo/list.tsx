@@ -28,10 +28,7 @@ export function PhotoList() {
 			perPage={25}
 			queryOptions={{ meta: { showAll: true } }}
 		>
-			<Datagrid
-				expand={<PhotoExpand />}
-				sort={{ field: 'id', order: 'ASC' }}
-			>
+			<Datagrid expand={<PhotoExpand />}>
 				<TextField source="id" />
 				<FunctionField
 					label="Name"

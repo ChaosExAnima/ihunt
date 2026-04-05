@@ -216,7 +216,10 @@ export const adminFilter = z
 						],
 					})),
 					alive: z.boolean(),
-					groupId: idSchema,
+					groupId: z
+						.int()
+						.nonnegative()
+						.transform((id) => (id === 0 ? null : id)),
 				})
 				.partial()
 				.optional(),
