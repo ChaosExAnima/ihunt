@@ -10,17 +10,20 @@ import {
 	BulkDeleteWithConfirmButton,
 	BulkUpdateWithConfirmButton,
 	Button,
-	Datagrid,
+	ColumnsButton,
+	CreateButton,
+	DataTable,
 	DateField,
-	FunctionField,
+	DateInput,
+	FilterButton,
 	IconButtonWithTooltip,
 	Link,
 	List,
-	NumberField,
 	NumberInput,
 	ReferenceArrayField,
+	SearchInput,
 	SelectArrayInput,
-	TextField,
+	TopToolbar,
 	useListContext,
 	useRecordContext,
 	useUpdate,
@@ -36,46 +39,59 @@ import { HuntCompleteDialog } from './complete-dialog';
 
 export function HuntList() {
 	return (
-		<List filters={listFilters}>
-			<Datagrid
-				bulkActionButtons={<HuntBulkActions />}
-				rowClick={false}
-				sort={{ field: 'id', order: 'ASC' }}
-			>
-				<NumberField source="id" />
-				<TextField source="name" />
-				<FunctionField render={renderHuntStatus} source="status" />
-				<DateField
-					emptyText="Not scheduled"
-					label="Scheduled for"
-					source="scheduledAt"
-				/>
-				<NumberField
+		<List
+			filters={listFilters}
+			filterDefaultValues={{
+				status: [
+					{ id: 'pending', name: 'Pending' },
+					{ id: 'active', name: 'Active' },
+				],
+			}}
+			actions={<HuntListActions />}
+		>
+			<DataTable bulkActionButtons={<HuntBulkActions />} rowClick={false}>
+				<DataTable.Col source="id" />
+				<DataTable.Col source="name" />
+				<DataTable.Col source="status" render={renderHuntStatus} />
+				<DataTable.Col source="scheduledAt" label="Scheduled for">
+					<DateField
+						showTime
+						locales={Locale}
+						emptyText="Not scheduled"
+						label="Scheduled for"
+						source="scheduledAt"
+					/>
+				</DataTable.Col>
+
+				<DataTable.NumberCol
+					source="payment"
 					locales={Locale}
 					options={{
 						currency: 'EUR',
 						maximumFractionDigits: 0,
 						style: 'currency',
 					}}
-					source="payment"
 				/>
-				<NumberField source="danger" />
-				<NumberField source="minRating" />
-				<ReferenceArrayField
-					reference="hunter"
-					sortable={false}
-					source="hunterIds"
-				>
-					<AdminHuntHunters />
-				</ReferenceArrayField>
-				<NumberField
-					label="Photos"
-					sortable={false}
+				<DataTable.NumberCol source="danger" />
+				<DataTable.Col source="hunterIds" label="Hunters">
+					<ReferenceArrayField
+						reference="hunter"
+						sortable={false}
+						source="hunterIds"
+					>
+						<AdminHuntHunters />
+					</ReferenceArrayField>
+				</DataTable.Col>
+				<DataTable.NumberCol
 					source="photoIds"
-					transform={(photoIds: number[]) => photoIds.length}
+					label="Photos"
+					render={(photoIds: number[]) => photoIds.length}
 				/>
-				<HuntActions />
-			</Datagrid>
+				<DataTable.NumberCol source="rating" />
+				<DataTable.Col>
+					<HuntActions />
+				</DataTable.Col>
+			</DataTable>
 		</List>
 	);
 }
@@ -83,12 +99,25 @@ export function HuntList() {
 const listFilters = [
 	<SelectArrayInput
 		alwaysOn
-		choices={huntStatusChoices()}
-		key="1"
+		key="status"
 		source="status"
+		choices={huntStatusChoices()}
 	/>,
-	<NumberInput key="2" max={HUNT_MAX_DANGER} min={1} source="danger" />,
+	<SearchInput key="search" source="q" alwaysOn />,
+	<DateInput key="scheduledAt" source="scheduledAt" />,
+	<NumberInput key="danger" max={HUNT_MAX_DANGER} min={1} source="danger" />,
+	<NumberInput key="payment" min={0} source="payment" />,
 ];
+
+function HuntListActions() {
+	return (
+		<TopToolbar>
+			<ColumnsButton />
+			<FilterButton />
+			<CreateButton />
+		</TopToolbar>
+	);
+}
 
 function HuntActions() {
 	const hunt = useRecordContext<AdminHuntSchema>();

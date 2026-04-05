@@ -80,7 +80,7 @@ export function MoneyDialog() {
 
 	return (
 		<Dialog onOpenChange={handleOpenClose} open={open}>
-			<DialogTrigger>
+			<DialogTrigger asChild>
 				<IconButtonWithTooltip label="Pay money">
 					<BadgeEuro />
 				</IconButtonWithTooltip>

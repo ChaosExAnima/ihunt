@@ -5,10 +5,12 @@ import {
 	hunterSchema,
 	huntSchema,
 	idArray,
+	idSchema,
 	idSchemaCoerce,
 	photoSchema,
 	posIntSchema,
 } from '@/lib/schemas';
+import { idsToEntities } from '@/lib/utils';
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
@@ -96,54 +98,170 @@ export const adminCreateInput = z.discriminatedUnion('resource', [
 	}),
 ]);
 
+function connectId(id?: number | null) {
+	if (id === null) {
+		return {
+			disconnect: true,
+		};
+	}
+	if (!id) {
+		return undefined;
+	}
+	return {
+		connect: {
+			id,
+		},
+	};
+}
+
+function setIds(ids?: number[]) {
+	if (!ids) {
+		return undefined;
+	}
+	return {
+		set: idsToEntities(ids),
+	};
+}
+
 export const adminInput = z.discriminatedUnion('resource', [
 	z.object({
-		data: adminHuntSchema.omit({ id: true }).partial(),
 		resource: z.literal('hunt'),
+		data: adminHuntSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ photoIds, ...rest }) => ({
+				...rest,
+				photos: setIds(photoIds),
+			})),
 	}),
 	z.object({
-		data: adminHunterSchema.omit({ id: true }).partial(),
 		resource: z.literal('hunter'),
+		data: adminHunterSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ avatarId, groupId, userId, ...rest }) => ({
+				...rest,
+				avatar: connectId(avatarId),
+				group: connectId(groupId),
+				user: connectId(userId),
+			})),
 	}),
 	z.object({
-		data: adminGroupSchema.omit({ id: true }).partial(),
 		resource: z.literal('group'),
+		data: adminGroupSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ hunterIds, ...rest }) => ({
+				...rest,
+				hunters: setIds(hunterIds),
+			})),
 	}),
 	z.object({
-		data: adminPhotoSchema.omit({ id: true }).partial(),
 		resource: z.literal('photo'),
+		data: adminPhotoSchema
+			.omit({ id: true, blurry: true, url: true })
+			.partial(),
 	}),
 	z.object({
-		data: adminUserSchema.omit({ id: true }).partial(),
+		data: adminUserSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ hunterId, ...rest }) => ({
+				...rest,
+				hunter: connectId(hunterId),
+			})),
 		resource: z.literal('user'),
 	}),
 ]);
 
+export const adminSort = z
+	.object({
+		field: z.string(),
+		order: z.enum(['ASC', 'DESC']),
+	})
+	.optional();
+
+const INSENSITIVE = { mode: 'insensitive' } as const;
+
 export const adminFilter = z
 	.discriminatedUnion('resource', [
 		z.object({
-			...schemaToFilter(adminHuntSchema),
 			resource: z.literal('hunt'),
+			filter: z
+				.object({
+					q: z.string().transform((q) => ({
+						name: { contains: q, ...INSENSITIVE },
+					})),
+					status: z
+						.string()
+						.array()
+						.transform((statuses) => ({ in: statuses })),
+					danger: z.int().min(0).max(5),
+					scheduledAt: z.coerce.date().transform((date) => ({
+						gte: new Date(date.setHours(0, 0, 0)),
+						lte: new Date(date.setHours(23, 59, 59)),
+					})),
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminHunterSchema, []),
 			resource: z.literal('hunter'),
+			filter: z
+				.object({
+					q: z.string().transform((q) => ({
+						OR: [
+							{ name: { contains: q, ...INSENSITIVE } },
+							{ handle: { contains: q, ...INSENSITIVE } },
+						],
+					})),
+					alive: z.boolean(),
+					groupId: z
+						.int()
+						.nonnegative()
+						.transform((id) => (id === 0 ? null : id)),
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminGroupSchema, ['hunterIds', 'name']),
 			resource: z.literal('group'),
+			filter: z
+				.object({
+					q: z.string().transform((q) => ({
+						name: { contains: q, ...INSENSITIVE },
+					})),
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminPhotoSchema, ['url']),
 			resource: z.literal('photo'),
+			filter: z
+				.object({
+					huntId: idSchema,
+					hunterId: idSchema,
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminUserSchema),
+			filter: z
+				.object({
+					hunter: z
+						.boolean()
+						.transform((hasHunter) =>
+							hasHunter ? { isNot: null } : { is: null },
+						),
+				})
+				.partial()
+				.optional(),
 			resource: z.literal('user'),
 		}),
 	])
 	.and(
 		z.object({
+			sort: adminSort,
 			meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
 			pagination: z
 				.object({
@@ -153,27 +271,3 @@ export const adminFilter = z
 				.optional(),
 		}),
 	);
-
-function schemaToFilter<TShape extends z.ZodRawShape>(
-	schema: z.ZodObject<TShape>,
-	filterOmit: (keyof TShape)[] = [],
-) {
-	const filter = filterOmit.reduce(
-		(obj, curr) => ({ ...obj, [curr]: true }),
-		{},
-	);
-	return {
-		filter: schema
-			// @ts-expect-error Filtering type doesn't work as expected
-			.omit({ id: true, ...filter })
-			.extend({ q: z.string() })
-			.partial()
-			.optional(),
-		sort: z
-			.object({
-				field: z.string(),
-				order: z.enum(['ASC', 'DESC']),
-			})
-			.optional(),
-	};
-}
