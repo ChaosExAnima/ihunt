@@ -51,17 +51,23 @@ function Settings() {
 		HTMLInputElement | HTMLTextAreaElement
 	> = useCallback(
 		(event) => {
-			updateFields({ bio: event.target.value });
+			const newBio = event.target.value;
+			if (newBio !== hunter?.bio) {
+				updateFields({ bio: event.target.value });
+			}
 		},
-		[updateFields],
+		[updateFields, hunter?.bio],
 	);
 	const handlePronounsChange: FocusEventHandler<
 		HTMLInputElement | HTMLTextAreaElement
 	> = useCallback(
 		(event) => {
-			updateFields({ pronouns: event.target.value });
+			const newPronouns = event.target.value;
+			if (newPronouns !== hunter?.pronouns) {
+				updateFields({ pronouns: event.target.value });
+			}
 		},
-		[updateFields],
+		[updateFields, hunter?.pronouns],
 	);
 
 	const router = useRouter();
