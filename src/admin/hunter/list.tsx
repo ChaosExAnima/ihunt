@@ -26,7 +26,7 @@ import { AdminHunterSchema } from '../schemas';
 import { MoneyDialog } from './money-dialog';
 
 const listFilters = [
-	<SearchInput alwaysOn key="1" source="name" />,
+	<SearchInput alwaysOn key="1" source="q" />,
 	<BooleanInput
 		className="flex h-12 flex-col justify-center"
 		key="2"
@@ -44,6 +44,11 @@ export function HunterList() {
 		<List filters={listFilters}>
 			<Datagrid rowClick={false} sort={{ field: 'id', order: 'ASC' }}>
 				<TextField source="id" />
+				<ReferenceField
+					reference="user"
+					sortable={false}
+					source="userId"
+				/>
 				<TextField source="name" />
 				<TextField source="handle" />
 				<ReferenceField
@@ -54,11 +59,6 @@ export function HunterList() {
 				/>
 				<AdminAvatar label="Avatar" />
 				<FunctionField label="Type" render={renderType} sortBy="type" />
-				<ReferenceField
-					reference="user"
-					sortable={false}
-					source="userId"
-				/>
 				<NumberField
 					label="Rating"
 					source="rating"

@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-	AutocompleteArrayInput,
+	AutocompleteInput,
 	Edit,
 	NumberInput,
-	ReferenceArrayInput,
+	ReferenceInput,
 	TextInput,
 	useEditController,
 } from 'react-admin';
@@ -29,8 +29,8 @@ export function UserEdit() {
 					className="[&_input]:uppercase"
 				/>
 				<NumberInput min={1} source="run" />
-				<ReferenceArrayInput reference="hunter" source="hunterIds">
-					<AutocompleteArrayInput
+				<ReferenceInput reference="hunter" source="hunterId">
+					<AutocompleteInput
 						label="Hunters"
 						optionText={(record: AdminHunterSchema) =>
 							record.userId && record.userId !== player?.id
@@ -38,7 +38,7 @@ export function UserEdit() {
 								: record.handle
 						}
 					/>
-				</ReferenceArrayInput>
+				</ReferenceInput>
 			</SimpleForm>
 		</Edit>
 	);

@@ -173,23 +173,29 @@ export const adminRouter = router({
 					where,
 				};
 
+				let filterWhere = {
+					...where,
+					...filter,
+				};
+				if ('q' in filterWhere) {
+					delete filterWhere.q;
+				}
+				const textSearch = filter && 'q' in filter ? filter.q : null;
+				if (textSearch) {
+					filterWhere = {
+						...filterWhere,
+						...textSearch,
+					};
+				}
+
 				switch (resource) {
 					case 'group': {
-						const { q: queryString, ...filterWhere } = filter ?? {};
 						const groups = await db.hunterGroup.findMany({
 							...query,
 							include: {
 								hunters: { select: { id: true } },
 							},
-							where: {
-								...where,
-								...filterWhere,
-								name: queryString
-									? {
-											contains: queryString,
-										}
-									: undefined,
-							},
+							where: filterWhere,
 						});
 
 						return {
@@ -198,13 +204,11 @@ export const adminRouter = router({
 								hunterIds: extractIds(hunters),
 							})),
 							total: await db.hunterGroup.count({
-								where: { ...filter, ...where },
+								where: filterWhere,
 							}),
 						};
 					}
 					case 'hunt': {
-						const { q: queryString, ...filterWhere } = filter ?? {};
-
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
@@ -213,11 +217,7 @@ export const adminRouter = router({
 									select: { id: true },
 								},
 							},
-							where: {
-								...where,
-								...filterWhere,
-								...queryString,
-							},
+							where: filterWhere,
 						});
 						return {
 							data: hunts.map(
@@ -240,16 +240,11 @@ export const adminRouter = router({
 								}),
 							),
 							total: await db.hunt.count({
-								where: {
-									...where,
-									...filterWhere,
-									...queryString,
-								},
+								where: filterWhere,
 							}),
 						};
 					}
 					case 'hunter': {
-						const { q: queryString, ...filterWhere } = filter ?? {};
 						const hunters = await db.hunter.findMany({
 							...query,
 							include: {
@@ -262,20 +257,7 @@ export const adminRouter = router({
 									},
 								},
 							},
-							where: {
-								...where,
-								...filterWhere,
-								OR: queryString
-									? [
-											{ name: { contains: queryString } },
-											{
-												handle: {
-													contains: queryString,
-												},
-											},
-										]
-									: undefined,
-							},
+							where: filterWhere,
 						});
 						return {
 							data: hunters.map(({ huntHunters, ...hunter }) => ({
@@ -283,7 +265,7 @@ export const adminRouter = router({
 								huntIds: extractKey(huntHunters, 'huntId'),
 							})),
 							total: await db.hunter.count({
-								where: { ...filter, ...where },
+								where: filterWhere,
 							}),
 						};
 					}
@@ -291,8 +273,7 @@ export const adminRouter = router({
 						const photos = await db.photo.findMany({
 							...query,
 							where: {
-								...where,
-								...filter,
+								...filterWhere,
 								OR: !meta?.showAll
 									? [
 											{
@@ -310,7 +291,7 @@ export const adminRouter = router({
 								...photo,
 								url: photoUrl({ ...photo, isLan }),
 							})),
-							total: await db.photo.count({ where }),
+							total: await db.photo.count({ where: filterWhere }),
 						};
 					}
 					case 'user': {
@@ -374,7 +355,17 @@ export const adminRouter = router({
 				case 'photo':
 					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					return db.user.findUniqueOrThrow(query);
+					const { hunter, ...user } = await db.user.findUniqueOrThrow(
+						{
+							...query,
+							include: { hunter: { select: { id: true } } },
+						},
+					);
+
+					return {
+						...user,
+						hunterId: hunter?.id,
+					};
 				}
 			}
 		}),

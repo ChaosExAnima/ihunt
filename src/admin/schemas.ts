@@ -5,6 +5,7 @@ import {
 	hunterSchema,
 	huntSchema,
 	idArray,
+	idSchema,
 	idSchemaCoerce,
 	photoSchema,
 	posIntSchema,
@@ -114,7 +115,13 @@ export const adminInput = z.discriminatedUnion('resource', [
 		resource: z.literal('photo'),
 	}),
 	z.object({
-		data: adminUserSchema.omit({ id: true }).partial(),
+		data: adminUserSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ hunterId, ...rest }) => ({
+				...rest,
+				hunter: hunterId ? { connect: { id: hunterId } } : undefined,
+			})),
 		resource: z.literal('user'),
 	}),
 ]);
@@ -126,6 +133,8 @@ export const adminSort = z
 	})
 	.optional();
 
+const INSENSITIVE = { mode: 'insensitive' } as const;
+
 export const adminFilter = z
 	.discriminatedUnion('resource', [
 		z.object({
@@ -133,7 +142,7 @@ export const adminFilter = z
 			filter: z
 				.object({
 					q: z.string().transform((q) => ({
-						name: { contains: q, mode: 'insensitive' as const },
+						name: { contains: q, ...INSENSITIVE },
 					})),
 					status: z
 						.string()
@@ -147,27 +156,52 @@ export const adminFilter = z
 				})
 				.partial()
 				.optional(),
-			sort: adminSort,
 		}),
 		z.object({
-			...schemaToFilter(adminHunterSchema, []),
 			resource: z.literal('hunter'),
+			filter: z
+				.object({
+					q: z.string().transform((q) => ({
+						OR: [
+							{ name: { contains: q, ...INSENSITIVE } },
+							{ handle: { contains: q, ...INSENSITIVE } },
+						],
+					})),
+					alive: z.boolean(),
+					groupId: idSchema,
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminGroupSchema, ['hunterIds', 'name']),
 			resource: z.literal('group'),
+			filter: z
+				.object({
+					q: z.string().transform((q) => ({
+						name: { contains: q, ...INSENSITIVE },
+					})),
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminPhotoSchema, ['url']),
 			resource: z.literal('photo'),
+			filter: z
+				.object({
+					huntId: idSchema,
+					hunterId: idSchema,
+				})
+				.partial()
+				.optional(),
 		}),
 		z.object({
-			...schemaToFilter(adminUserSchema),
 			resource: z.literal('user'),
+			filter: z.object().partial().optional(),
 		}),
 	])
 	.and(
 		z.object({
+			sort: adminSort,
 			meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
 			pagination: z
 				.object({
@@ -177,27 +211,3 @@ export const adminFilter = z
 				.optional(),
 		}),
 	);
-
-function schemaToFilter<TShape extends z.ZodRawShape>(
-	schema: z.ZodObject<TShape>,
-	filterOmit: (keyof TShape)[] = [],
-) {
-	const filter = filterOmit.reduce(
-		(obj, curr) => ({ ...obj, [curr]: true }),
-		{},
-	);
-	return {
-		filter: schema
-			// @ts-expect-error Filtering type doesn't work as expected
-			.omit({ id: true, ...filter })
-			.extend({ q: z.string() })
-			.partial()
-			.optional(),
-		sort: z
-			.object({
-				field: z.string(),
-				order: z.enum(['ASC', 'DESC']),
-			})
-			.optional(),
-	};
-}
