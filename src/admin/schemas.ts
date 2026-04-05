@@ -119,11 +119,35 @@ export const adminInput = z.discriminatedUnion('resource', [
 	}),
 ]);
 
+export const adminSort = z
+	.object({
+		field: z.string(),
+		order: z.enum(['ASC', 'DESC']),
+	})
+	.optional();
+
 export const adminFilter = z
 	.discriminatedUnion('resource', [
 		z.object({
-			...schemaToFilter(adminHuntSchema),
 			resource: z.literal('hunt'),
+			filter: z
+				.object({
+					q: z.string().transform((q) => ({
+						name: { contains: q, mode: 'insensitive' as const },
+					})),
+					status: z
+						.string()
+						.array()
+						.transform((statuses) => ({ in: statuses })),
+					danger: z.int().min(0).max(5),
+					scheduledAt: z.coerce.date().transform((date) => ({
+						gte: new Date(date.setHours(0, 0, 0)),
+						lte: new Date(date.setHours(23, 59, 59)),
+					})),
+				})
+				.partial()
+				.optional(),
+			sort: adminSort,
 		}),
 		z.object({
 			...schemaToFilter(adminHunterSchema, []),

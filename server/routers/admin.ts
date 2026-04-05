@@ -204,6 +204,7 @@ export const adminRouter = router({
 					}
 					case 'hunt': {
 						const { q: queryString, ...filterWhere } = filter ?? {};
+
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
@@ -215,11 +216,7 @@ export const adminRouter = router({
 							where: {
 								...where,
 								...filterWhere,
-								name: queryString
-									? {
-											contains: queryString,
-										}
-									: undefined,
+								...queryString,
 							},
 						});
 						return {
@@ -243,7 +240,11 @@ export const adminRouter = router({
 								}),
 							),
 							total: await db.hunt.count({
-								where: { ...filter, ...where },
+								where: {
+									...where,
+									...filterWhere,
+									...queryString,
+								},
 							}),
 						};
 					}
