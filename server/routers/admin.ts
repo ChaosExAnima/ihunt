@@ -295,10 +295,13 @@ export const adminRouter = router({
 						};
 					}
 					case 'user': {
-						const users = await db.user.findMany(query);
+						const users = await db.user.findMany({
+							...query,
+							where: filterWhere,
+						});
 						return {
 							data: users,
-							total: await db.user.count({ where }),
+							total: await db.user.count({ where: filterWhere }),
 						};
 					}
 				}
@@ -442,7 +445,7 @@ export const adminRouter = router({
 					break;
 				case 'hunt': {
 					await db.hunt.updateMany({
-						data: omit(data, 'createdAt', 'hunterIds', 'photoIds'),
+						data: omit(data, 'createdAt', 'hunterIds'),
 						where,
 					});
 					const hunts = await db.hunt.findMany({
@@ -470,7 +473,7 @@ export const adminRouter = router({
 					}
 
 					if (data.alive === false) {
-						data.userId = null;
+						data.user = undefined;
 					}
 
 					await db.hunter.updateMany({
@@ -501,12 +504,7 @@ export const adminRouter = router({
 			switch (resource) {
 				case 'group': {
 					const { hunters, ...group } = await db.hunterGroup.update({
-						data: {
-							hunters: {
-								set: idsToEntities(data.hunterIds),
-							},
-							name: data.name,
-						},
+						data,
 						include: {
 							hunters: { select: { id: true } },
 						},
@@ -518,10 +516,11 @@ export const adminRouter = router({
 					};
 				}
 				case 'hunt': {
+					const { hunterIds, ...dataRest } = data;
 					if (
-						data.hunterIds &&
+						hunterIds &&
 						data.maxHunters &&
-						data.hunterIds.length > data.maxHunters
+						hunterIds.length > data.maxHunters
 					) {
 						throw new TRPCError({
 							code: 'BAD_REQUEST',
@@ -529,21 +528,16 @@ export const adminRouter = router({
 						});
 					}
 					const hunt = await db.hunt.update({
-						data: {
-							...omit(data, 'hunterIds', 'photoIds'),
-							photos: {
-								set: idsToEntities(data.photoIds),
-							},
-						},
+						data: dataRest,
 						where: { id },
 					});
 					const updates = await updateHunt({
 						hunt,
-						hunterIds: data.hunterIds,
+						hunterIds,
 					});
 					return {
 						...hunt,
-						hunterIds: data.hunterIds,
+						hunterIds,
 						updates,
 					};
 				}
@@ -556,7 +550,7 @@ export const adminRouter = router({
 
 					// Dead hunters cannot be played.
 					if (data.alive === false) {
-						data.userId = null;
+						data.user = undefined;
 					}
 
 					return await db.hunter.update({

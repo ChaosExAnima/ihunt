@@ -10,6 +10,7 @@ import {
 	photoSchema,
 	posIntSchema,
 } from '@/lib/schemas';
+import { idsToEntities } from '@/lib/utils';
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
@@ -97,22 +98,69 @@ export const adminCreateInput = z.discriminatedUnion('resource', [
 	}),
 ]);
 
+function connectId(id?: number | null) {
+	if (id === null) {
+		return {
+			disconnect: true,
+		};
+	}
+	if (!id) {
+		return undefined;
+	}
+	return {
+		connect: {
+			id,
+		},
+	};
+}
+
+function setIds(ids?: number[]) {
+	if (!ids) {
+		return undefined;
+	}
+	return {
+		set: idsToEntities(ids),
+	};
+}
+
 export const adminInput = z.discriminatedUnion('resource', [
 	z.object({
-		data: adminHuntSchema.omit({ id: true }).partial(),
 		resource: z.literal('hunt'),
+		data: adminHuntSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ photoIds, ...rest }) => ({
+				...rest,
+				photos: setIds(photoIds),
+			})),
 	}),
 	z.object({
-		data: adminHunterSchema.omit({ id: true }).partial(),
 		resource: z.literal('hunter'),
+		data: adminHunterSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ avatarId, groupId, userId, ...rest }) => ({
+				...rest,
+				avatar: connectId(avatarId),
+				group: connectId(groupId),
+				user: connectId(userId),
+			})),
 	}),
 	z.object({
-		data: adminGroupSchema.omit({ id: true }).partial(),
 		resource: z.literal('group'),
+		data: adminGroupSchema
+			.omit({ id: true })
+			.partial()
+			.transform(({ hunterIds, ...rest }) => ({
+				...rest,
+				hunters: setIds(hunterIds),
+			})),
 	}),
 	z.object({
-		data: adminPhotoSchema.omit({ id: true }).partial(),
 		resource: z.literal('photo'),
+		data: adminPhotoSchema
+			.omit({ id: true, blurry: true, url: true })
+			.partial(),
 	}),
 	z.object({
 		data: adminUserSchema
@@ -120,7 +168,7 @@ export const adminInput = z.discriminatedUnion('resource', [
 			.partial()
 			.transform(({ hunterId, ...rest }) => ({
 				...rest,
-				hunter: hunterId ? { connect: { id: hunterId } } : undefined,
+				hunter: connectId(hunterId),
 			})),
 		resource: z.literal('user'),
 	}),
@@ -195,8 +243,17 @@ export const adminFilter = z
 				.optional(),
 		}),
 		z.object({
+			filter: z
+				.object({
+					hunter: z
+						.boolean()
+						.transform((hasHunter) =>
+							hasHunter ? { isNot: null } : { is: null },
+						),
+				})
+				.partial()
+				.optional(),
 			resource: z.literal('user'),
-			filter: z.object().partial().optional(),
 		}),
 	])
 	.and(

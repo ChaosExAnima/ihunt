@@ -1,4 +1,5 @@
 import {
+	BooleanInput,
 	BulkDeleteWithConfirmButton,
 	DataTable,
 	List,
@@ -12,7 +13,7 @@ import { MessageDialog } from './message-dialog';
 
 export function UserList() {
 	return (
-		<List>
+		<List filters={[<BooleanInput source="hunter" />]}>
 			<DataTable bulkActionButtons={<BulkActionButtons />}>
 				<DataTable.NumberCol source="id" width="2rem" />
 				<DataTable.Col
@@ -20,7 +21,6 @@ export function UserList() {
 					className="uppercase"
 					width="4rem"
 				/>
-				<DataTable.NumberCol source="run" width="2rem" />
 				<DataTable.Col label="Hunter">
 					<ReferenceOneField<AdminHunterSchema>
 						reference="hunter"
