@@ -10,6 +10,7 @@ import {
 import { HunterTypes } from '@/lib/constants';
 
 import { AdminAvatarInput } from '../components/avatar';
+import { AdminUserSchema } from '../schemas';
 
 export function HunterCommonDetails() {
 	return (
@@ -28,7 +29,13 @@ export function HunterCommonDetails() {
 			/>
 			<NumberInput source="money" />
 			<ReferenceInput reference="user" source="userId">
-				<AutocompleteInput label="Player" />
+				<AutocompleteInput
+					className="[&_input]:uppercase"
+					optionText={(record: AdminUserSchema) =>
+						record.code.toUpperCase()
+					}
+					label="Player"
+				/>
 			</ReferenceInput>
 			<AdminAvatarInput />
 			<TextInput minRows={4} multiline source="bio" />
