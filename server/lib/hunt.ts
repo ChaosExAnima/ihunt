@@ -161,6 +161,7 @@ export async function updateHunt({
 				status: InviteStatus.Expired,
 			},
 			where: {
+				huntId: hunt.id,
 				hunterId: {
 					notIn: hunterIds,
 				},

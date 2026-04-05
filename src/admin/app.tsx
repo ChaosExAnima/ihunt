@@ -1,8 +1,16 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Crosshair, Image, Swords, UserRound, UsersRound } from 'lucide-react';
+import { tanStackRouterProvider } from 'ra-router-tanstack';
 import { ReactNode, useEffect } from 'react';
 import { StrictMode } from 'react';
-import { Admin, DataProvider, Layout, Resource, useTheme } from 'react-admin';
+import {
+	Admin,
+	CustomRoutes,
+	DataProvider,
+	Layout,
+	Resource,
+	useTheme,
+} from 'react-admin';
 import { createRoot } from 'react-dom/client';
 
 import { queryClient } from '@/lib/api';
@@ -19,10 +27,15 @@ import { HunterCreate } from './hunter/create';
 import { HunterEdit } from './hunter/edit';
 import { HunterList } from './hunter/list';
 import { PhotoList } from './photo/list';
+import { ReviewWall } from './review-wall';
 import { AdminUserSchema } from './schemas';
 import { UserCreate } from './user/create';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';
+import '@fontsource-variable/geist-mono';
+import '@fontsource/kanit';
+
+const { Route } = tanStackRouterProvider;
 
 function App() {
 	return (
@@ -33,6 +46,7 @@ function App() {
 			dataProvider={dataProvider as DataProvider<string>}
 			loginPage={LoginPage}
 			queryClient={queryClient}
+			routerProvider={tanStackRouterProvider}
 		>
 			<Resource
 				create={HuntCreate}
@@ -75,6 +89,9 @@ function App() {
 				name="photo"
 				recordRepresentation="id"
 			/>
+			<CustomRoutes noLayout>
+				<Route path="/wall" element={<ReviewWall />} />
+			</CustomRoutes>
 		</Admin>
 	);
 }
