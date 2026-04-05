@@ -44,8 +44,8 @@ export const settingsRouter = router({
 	updateFields: userProcedure
 		.input(
 			z.object({
-				bio: z.string().trim().max(500).min(1).optional(),
-				pronouns: z.string().trim().max(40).min(1).optional(),
+				bio: z.string().trim().max(500).min(0).optional(),
+				pronouns: z.string().trim().max(40).min(0).optional(),
 			}),
 		)
 		.mutation(

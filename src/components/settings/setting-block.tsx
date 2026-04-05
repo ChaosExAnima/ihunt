@@ -19,7 +19,12 @@ export function SettingBlock({
 }: PropsWithChildren<SettingBlockProps>) {
 	return (
 		<>
-			<Label htmlFor={id}>{label}</Label>
+			{id && <Label htmlFor={id}>{label}</Label>}
+			{!id && (
+				<span className="text-sm leading-none font-medium text-stone-700 dark:text-stone-500">
+					{label}
+				</span>
+			)}
 			<div className={cn('flex items-center gap-4', className)}>
 				{children}
 			</div>
