@@ -70,6 +70,8 @@ const trpcClient = createTRPCClient<AppRouter>({
 					url,
 					fetch: lanFetch,
 					transformer: superjson,
+					maxItems: 10,
+					maxURLLength: 2083,
 				}),
 				true: httpLink({
 					url,

@@ -28,6 +28,8 @@ const trpc = createTRPCClient<AppRouter>({
 			false: httpBatchLink({
 				transformer: superjson,
 				url,
+				maxItems: 10,
+				maxURLLength: 2083,
 			}),
 			true: httpLink({ transformer: superjson, url }),
 		}),
