@@ -11,6 +11,13 @@ import { HunterTypes } from '@/lib/constants';
 
 import { AdminAvatarInput } from '../components/avatar';
 
+export const hunterTypeChoices = Object.entries(HunterTypes).map(
+	([key, val]) => ({
+		id: val,
+		name: key,
+	}),
+);
+
 export function HunterCommonDetails() {
 	return (
 		<div className="gap-4 md:grid md:grid-cols-2">
@@ -40,8 +47,3 @@ export function HunterCommonDetails() {
 		</div>
 	);
 }
-
-const hunterTypeChoices = Object.entries(HunterTypes).map(([key, val]) => ({
-	id: val,
-	name: key,
-}));

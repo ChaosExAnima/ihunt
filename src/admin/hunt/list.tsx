@@ -97,13 +97,18 @@ export function HuntList() {
 }
 
 const listFilters = [
+	<SearchInput
+		key="search"
+		source="q"
+		alwaysOn
+		className="mt-0! [&_input]:h-8!"
+	/>,
 	<SelectArrayInput
 		alwaysOn
 		key="status"
 		source="status"
 		choices={huntStatusChoices()}
 	/>,
-	<SearchInput key="search" source="q" alwaysOn />,
 	<DateInput key="scheduledAt" source="scheduledAt" />,
 	<NumberInput key="danger" max={HUNT_MAX_DANGER} min={1} source="danger" />,
 	<NumberInput key="payment" min={0} source="payment" />,

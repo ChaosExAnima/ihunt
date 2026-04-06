@@ -13,6 +13,7 @@ import {
 	ReferenceField,
 	ReferenceInput,
 	SearchInput,
+	SelectArrayInput,
 	TextField,
 	useRecordContext,
 } from 'react-admin';
@@ -23,10 +24,17 @@ import { roundToHalves } from '@/lib/formats';
 
 import { AdminAvatar } from '../components/avatar';
 import { AdminHunterSchema } from '../schemas';
+import { hunterTypeChoices } from './common';
 import { MoneyDialog } from './money-dialog';
 
 const listFilters = [
-	<SearchInput alwaysOn key="1" source="q" />,
+	<SearchInput
+		alwaysOn
+		key="1"
+		source="q"
+		className="mt-0! [&_input]:h-8!"
+	/>,
+	<SelectArrayInput choices={hunterTypeChoices} source="type" />,
 	<BooleanInput
 		className="flex h-12 flex-col justify-center"
 		key="2"

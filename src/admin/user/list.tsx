@@ -13,7 +13,14 @@ import { MessageDialog } from './message-dialog';
 
 export function UserList() {
 	return (
-		<List filters={[<BooleanInput source="hunter" />]}>
+		<List
+			filters={[
+				<BooleanInput
+					source="hunter"
+					className="flex h-12 flex-col justify-center"
+				/>,
+			]}
+		>
 			<DataTable bulkActionButtons={<BulkActionButtons />}>
 				<DataTable.NumberCol source="id" width="2rem" />
 				<DataTable.Col
