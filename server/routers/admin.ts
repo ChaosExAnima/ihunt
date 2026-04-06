@@ -150,36 +150,14 @@ export const adminRouter = router({
 		)
 		.query(
 			async ({
-				input: { filter, ids, meta, pagination, resource, sort },
+				input: { filter, ids, meta, perPage, page, resource, sort },
 				ctx: { isLan },
 			}) => {
-				const where = ids
-					? {
-							id: {
-								in: ids,
-							},
-						}
-					: {};
-				const query = {
-					orderBy: sort
-						? {
-								[sort.field]: sort.order.toLowerCase(),
-							}
-						: undefined,
-					skip: pagination
-						? pagination.perPage * (pagination.page - 1)
-						: undefined,
-					take: pagination?.perPage,
-					where,
-				};
-
-				let filterWhere = {
-					...where,
-					...filter,
-				};
+				let filterWhere = filter ?? {};
 				if ('q' in filterWhere) {
 					delete filterWhere.q;
 				}
+
 				const textSearch = filter && 'q' in filter ? filter.q : null;
 				if (textSearch) {
 					filterWhere = {
@@ -188,6 +166,22 @@ export const adminRouter = router({
 					};
 				}
 
+				const where = {
+					id: ids ? { in: ids } : undefined,
+					...filterWhere,
+				};
+
+				const query = {
+					orderBy: sort
+						? {
+								[sort.field]: sort.order.toLowerCase(),
+							}
+						: undefined,
+					skip: perPage && page ? perPage * (page - 1) : undefined,
+					take: perPage,
+					where,
+				};
+
 				switch (resource) {
 					case 'group': {
 						const groups = await db.hunterGroup.findMany({
@@ -195,7 +189,6 @@ export const adminRouter = router({
 							include: {
 								hunters: { select: { id: true } },
 							},
-							where: filterWhere,
 						});
 
 						return {
@@ -204,7 +197,7 @@ export const adminRouter = router({
 								hunterIds: extractIds(hunters),
 							})),
 							total: await db.hunterGroup.count({
-								where: filterWhere,
+								where,
 							}),
 						};
 					}
@@ -217,7 +210,6 @@ export const adminRouter = router({
 									select: { id: true },
 								},
 							},
-							where: filterWhere,
 						});
 						return {
 							data: hunts.map(
@@ -240,7 +232,7 @@ export const adminRouter = router({
 								}),
 							),
 							total: await db.hunt.count({
-								where: filterWhere,
+								where,
 							}),
 						};
 					}
@@ -257,23 +249,20 @@ export const adminRouter = router({
 									},
 								},
 							},
-							where: filterWhere,
 						});
 						return {
 							data: hunters.map(({ huntHunters, ...hunter }) => ({
 								...hunter,
 								huntIds: extractKey(huntHunters, 'huntId'),
 							})),
-							total: await db.hunter.count({
-								where: filterWhere,
-							}),
+							total: await db.hunter.count({ where }),
 						};
 					}
 					case 'photo': {
 						const photos = await db.photo.findMany({
 							...query,
 							where: {
-								...filterWhere,
+								...where,
 								OR: !meta?.showAll
 									? [
 											{
@@ -291,17 +280,14 @@ export const adminRouter = router({
 								...photo,
 								url: photoUrl({ ...photo, isLan }),
 							})),
-							total: await db.photo.count({ where: filterWhere }),
+							total: await db.photo.count({ where }),
 						};
 					}
 					case 'user': {
-						const users = await db.user.findMany({
-							...query,
-							where: filterWhere,
-						});
+						const users = await db.user.findMany({ ...query });
 						return {
 							data: users,
-							total: await db.user.count({ where: filterWhere }),
+							total: await db.user.count({ where }),
 						};
 					}
 				}
@@ -383,7 +369,9 @@ export const adminRouter = router({
 			),
 		)
 		.query(
-			async ({ input: { id, pagination, resource, sort, target } }) => {
+			async ({
+				input: { id, perPage, page, resource, sort, target },
+			}) => {
 				const where = {
 					[target]: id,
 				};
@@ -393,10 +381,8 @@ export const adminRouter = router({
 								[sort.field]: sort.order.toLowerCase(),
 							}
 						: undefined,
-					skip: pagination
-						? pagination.perPage * (pagination.page - 1)
-						: undefined,
-					take: pagination?.perPage,
+					skip: perPage && page ? perPage * (page - 1) : undefined,
+					take: perPage,
 					where,
 				};
 

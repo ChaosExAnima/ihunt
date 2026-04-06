@@ -215,6 +215,12 @@ export const adminFilter = z
 							{ handle: { contains: q, ...INSENSITIVE } },
 						],
 					})),
+					type: z
+						.string()
+						.array()
+						.transform((types) => ({
+							in: types,
+						})),
 					alive: z.boolean(),
 					groupId: z
 						.int()
@@ -263,11 +269,7 @@ export const adminFilter = z
 		z.object({
 			sort: adminSort,
 			meta: z.record(z.string(), z.string().or(z.boolean())).optional(),
-			pagination: z
-				.object({
-					page: posIntSchema,
-					perPage: posIntSchema,
-				})
-				.optional(),
+			page: posIntSchema.optional(),
+			perPage: posIntSchema.optional(),
 		}),
 	);
