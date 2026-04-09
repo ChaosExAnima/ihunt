@@ -13,7 +13,7 @@ services:
     env_file: .env.production
     environment:
       PUBLIC_HOST: https://ihunt-eu.com
-      LAN_HOST: https://lan.ihunt-eu.com
+      LAN_HOST: https://cologne.ihunt-eu.com
       COOKIE_DOMAIN: .ihunt-eu.com
       UPLOAD_PATH: /media
       MEDIA_PATH: /images
@@ -50,7 +50,7 @@ services:
       - ./data/certs/lib:/var/lib/letsencrypt
       - ./data/certs/cloudflare.ini:/cloudflare.ini
     # command: certificates
-    command: certonly -n --keep --dns-cloudflare --dns-cloudflare-credentials /cloudflare.ini -d lan.ihunt-eu.com
+    command: certonly -n --keep --dns-cloudflare --dns-cloudflare-credentials /cloudflare.ini -d cologne.ihunt-eu.com
 
 volumes:
   nginx_cache:
