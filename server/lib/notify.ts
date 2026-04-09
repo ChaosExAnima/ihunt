@@ -9,6 +9,7 @@ import { omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db, Hunt, Hunter } from './db';
+import { isHuntsDisabled } from './hunt';
 import { mediaRoot } from './photo';
 import {
 	SubscriptionSchema,
@@ -240,6 +241,10 @@ export async function notifyHunter({
 				hunter: Hunter;
 		  }
 	)) {
+	if (isHuntsDisabled()) {
+		return false;
+	}
+
 	const { userId, id } =
 		hunter ??
 		(await db.hunter.findUniqueOrThrow({
