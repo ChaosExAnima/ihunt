@@ -9,7 +9,7 @@ import {
 	idSchemaCoerce,
 } from '@/lib/schemas';
 import { db } from '@/server/lib/db';
-import { outputHuntSchema } from '@/server/lib/schema';
+import { InviteStatus, outputHuntSchema } from '@/server/lib/schema';
 import { debugProcedure, router, userProcedure } from '@/server/lib/trpc';
 
 import { config } from '../lib/config';
@@ -129,6 +129,7 @@ export const hunterRouter = router({
 								hunt: {
 									status: HuntStatus.Complete,
 								},
+								status: InviteStatus.Accepted,
 							},
 							include: {
 								hunt: true,
