@@ -154,12 +154,11 @@ export const adminRouter = router({
 				ctx: { isLan },
 			}) => {
 				let filterWhere = filter ?? {};
-				if ('q' in filterWhere) {
-					delete filterWhere.q;
-				}
 
-				const textSearch = filter && 'q' in filter ? filter.q : null;
-				if (textSearch) {
+				if (filter && 'q' in filter) {
+					const textSearch = filter.q;
+					// @ts-expect-error -- Query is broken
+					delete filterWhere.q;
 					filterWhere = {
 						...filterWhere,
 						...textSearch,
