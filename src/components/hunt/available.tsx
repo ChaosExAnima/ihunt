@@ -69,13 +69,14 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 			/>
 
 			<div className="flex justify-center gap-2">
-				{!hasAccepted && canJoinHunt && (
-					<HuntJoinButton
-						danger={danger}
-						isLockedDown={isLockedDown}
-						onAccept={handleAccept}
-					/>
-				)}
+				{!hasAccepted &&
+					(canJoinHunt || reserved?.status === 'invited') && (
+						<HuntJoinButton
+							danger={danger}
+							isLockedDown={isLockedDown}
+							onAccept={handleAccept}
+						/>
+					)}
 				{hasAccepted && (
 					<Button
 						className="rounded-full font-bold"

@@ -49,7 +49,7 @@ export function HuntHeader({ hunt }: { hunt: HuntSchema }) {
 				</>
 			)}
 			{isHunterPic && (
-				<span className="absolute top-0 w-full bg-black/40 p-2 font-semibold">
+				<span className="absolute top-0 w-full bg-black/40 p-2 font-semibold text-white">
 					Completion proof
 				</span>
 			)}
