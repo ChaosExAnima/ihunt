@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { LoaderCircleIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Header } from '@/components/header';
 import { PhotoDisplay } from '@/components/photo';
 import { Rating } from '@/components/rating';
-import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/api';
 
 export function ReviewWall() {
@@ -20,15 +19,22 @@ export function ReviewWall() {
 			({ hunterId }) => hunterId === review.hunterId,
 		) ?? review?.hunter.avatar;
 
-	const handleNext = useCallback(() => {
-		setIndex((prev) => prev + 1);
-	}, []);
-	const handleReset = useCallback(() => {
-		setIndex(0);
-	}, []);
+	const totalImages = reviews?.length ?? 0;
+	useEffect(() => {
+		if (!totalImages) {
+			return;
+		}
+		const timerId = window.setInterval(() => {
+			setIndex((prev) => (prev + 1 >= totalImages ? 0 : prev + 1));
+		}, 10_000);
+
+		return () => {
+			window.clearInterval(timerId);
+		};
+	}, [totalImages]);
 
 	return (
-		<main className="flex h-screen w-screen items-center justify-center gap-2 bg-black">
+		<main className="relative flex h-screen w-screen items-center justify-center gap-2 bg-black">
 			{isLoading && (
 				<LoaderCircleIcon className="size-1/4 animate-spin" />
 			)}
@@ -48,10 +54,13 @@ export function ReviewWall() {
 					<p className="font-[Kanit] text-xl font-semibold">
 						{review.hunt.comment}
 					</p>
-					<Button onClick={handleNext} size="lg">
-						Next ({index + 1}/{reviews?.length})
-					</Button>
 				</div>
+			)}
+
+			{totalImages > 0 && (
+				<span className="absolute bottom-10 left-10 text-sm text-white">
+					{index + 1} / {totalImages}
+				</span>
 			)}
 
 			{photo && (
@@ -59,15 +68,6 @@ export function ReviewWall() {
 					photo={photo}
 					className="h-screen object-contain"
 				/>
-			)}
-			{!review && index > 0 && (
-				<Button
-					onClick={handleReset}
-					size="lg"
-					className="text-xl font-semibold"
-				>
-					Start again
-				</Button>
 			)}
 		</main>
 	);
