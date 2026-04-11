@@ -133,7 +133,7 @@ function RouteComponent() {
 										size="1em"
 										fill
 									/>
-									{hunt.completedAt && (
+									{hunt.completedAt instanceof Date && (
 										<time
 											className="text-muted"
 											dateTime={hunt.completedAt.toUTCString()}
