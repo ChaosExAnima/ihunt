@@ -262,6 +262,7 @@ export async function completeHunt({
 			payment,
 			rating: huntRating,
 			status: HuntStatus.Complete,
+			completedAt: new Date(),
 		},
 	});
 

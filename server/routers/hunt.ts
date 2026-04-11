@@ -205,7 +205,11 @@ export const huntRouter = router({
 			const currentHunterInvite = huntHunters.find(
 				({ hunterId }) => hunter.id === hunterId,
 			);
-			if (hunt.status === HuntStatus.Complete && !currentHunterInvite) {
+			if (
+				(hunt.status === HuntStatus.Complete ||
+					hunt.status === HuntStatus.Active) &&
+				!currentHunterInvite
+			) {
 				throw new TRPCError({ code: 'NOT_FOUND' });
 			}
 
