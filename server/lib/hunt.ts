@@ -272,11 +272,12 @@ export async function completeHunt({
 			},
 		});
 
-		const newRating = clamp({
+		let newRating = clamp({
 			input: (huntRating + hunter.rating) / 2,
 			max: 5,
 			min: 1,
 		});
+		newRating = Math.round(newRating * 10) / 10;
 
 		await db.hunter.update({
 			data: {
