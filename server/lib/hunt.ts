@@ -8,7 +8,8 @@ import {
 	HuntStatus,
 } from '@/lib/constants';
 import { MINUTE } from '@/lib/formats';
-import { clamp, extractIds } from '@/lib/utils';
+import { notifyEventSchema } from '@/lib/schemas';
+import { clamp } from '@/lib/utils';
 
 import { config } from './config';
 import { db, Hunt, Prisma } from './db';
@@ -78,8 +79,6 @@ export function isHuntsDisabled(code?: string | null, isAdmin?: boolean) {
 	return config.huntsDisabled;
 }
 
-const huntsNotified = new Set<number>();
-
 export async function onHuntInterval(logger?: FastifyBaseLogger) {
 	if (isHuntsDisabled()) {
 		return;
@@ -92,6 +91,9 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 			huntHunters: {
 				include: {
 					hunter: true,
+				},
+				where: {
+					status: InviteStatus.Accepted,
 				},
 			},
 		},
@@ -108,42 +110,47 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 	}
 
 	// Send notifications that hunt is upcoming.
-	const notifyPromises: Promise<boolean>[] = [];
+	let total = 0;
 	for (const hunt of upcomingHunts) {
-		if (huntsNotified.has(hunt.id)) {
-			continue;
-		}
-
-		for (const { hunter } of hunt.huntHunters) {
-			notifyPromises.push(
-				notifyHunter({
+		try {
+			for (const { hunter } of hunt.huntHunters) {
+				const notifications = await db.notification.findMany({
+					where: {
+						type: 'hunt-starting',
+						hunterId: hunt.id,
+					},
+				});
+				const notification = notifications.filter(
+					({ hunterId, event: rawEvent }) => {
+						if (typeof rawEvent !== 'string') {
+							return false;
+						}
+						const event = notifyEventSchema.parse(
+							JSON.parse(rawEvent),
+						);
+						return (
+							hunter.id === hunterId && event.huntId === hunt.id
+						);
+					},
+				);
+				if (notification) {
+					continue;
+				}
+				await notifyHunter({
 					event: huntStartingEvent({ hunt }),
 					hunter,
-				}),
-			);
+					logger,
+				});
+				total++;
+			}
+		} catch (err) {
+			logger?.error(err, `Error notifying hunters for hunt ${hunt.id}`);
 		}
-		huntsNotified.add(hunt.id);
 	}
-	const results = await Promise.all(notifyPromises);
-	const total = results.filter((v): v is true => !!v).length;
 	if (total) {
 		logger?.info(
 			`Notified ${total} users for ${upcomingHunts.length} hunts`,
 		);
-	}
-
-	// Expire all invites.
-	const inviteResults = await db.huntHunter.updateMany({
-		data: { status: InviteStatus.Expired },
-		where: {
-			huntId: {
-				in: extractIds(upcomingHunts),
-			},
-			status: InviteStatus.Pending,
-		},
-	});
-	if (inviteResults.count) {
-		logger?.info(`Expired ${inviteResults.count} invites`);
 	}
 }
 
