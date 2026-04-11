@@ -195,7 +195,7 @@ export async function updateHunt({
 			event: huntAvailableEvent(),
 			hunterIds,
 		});
-		return null;
+		return;
 	}
 
 	if (hunt.status === HuntStatus.Active) {
@@ -203,31 +203,60 @@ export async function updateHunt({
 			event: huntStartingEvent({ hunt, noTime: true }),
 			hunterIds,
 		});
-		return null;
+		return;
 	}
 
-	// Early checks to ensure we're good.
-	const { payment, rating: huntRating } = hunt;
-	if (
-		hunt.status !== HuntStatus.Complete ||
-		payment <= 0 ||
-		!huntRating ||
-		hunterIds.length === 0
-	) {
-		notifyHuntsReload();
-		return null;
-	}
+	notifyHuntsReload();
+}
 
-	const aliveHunters = await db.hunter.findMany({
+export async function completeHunt({
+	huntId,
+	payment,
+	huntRating,
+	comment,
+	logger,
+}: {
+	huntId: number;
+	payment: number;
+	huntRating: number;
+	comment?: string;
+	logger: FastifyBaseLogger;
+}) {
+	const huntHunters = await db.huntHunter.findMany({
 		where: {
-			id: {
-				in: hunterIds,
-			},
-			alive: true,
+			huntId,
+			status: InviteStatus.Accepted,
+		},
+		include: {
+			hunter: true,
+		},
+	});
+	const hunt = await db.hunt.findUniqueOrThrow({
+		where: {
+			id: huntId,
 		},
 	});
 
+	if (!huntHunters.length || hunt.status === HuntStatus.Complete) {
+		return;
+	}
+
+	const hunters = huntHunters.map(({ hunter }) => hunter);
+	const aliveHunters = hunters.filter(({ alive }) => alive);
+
 	const perHunterPayment = Math.floor(payment / aliveHunters.length); // Rounding errors to iHunt, inc
+
+	await db.hunt.update({
+		where: {
+			id: huntId,
+		},
+		data: {
+			comment,
+			payment,
+			rating: huntRating,
+			status: HuntStatus.Complete,
+		},
+	});
 
 	// Update and notify the hunters.
 	for (const hunter of aliveHunters) {
@@ -243,9 +272,10 @@ export async function updateHunt({
 			},
 		});
 
-		const newRating = calculateNewRating({
-			hunterRating: hunter.rating,
-			huntRating: huntRating,
+		const newRating = clamp({
+			input: (huntRating + hunter.rating) / 2,
+			max: 5,
+			min: 1,
 		});
 
 		await db.hunter.update({
@@ -263,7 +293,12 @@ export async function updateHunt({
 		await notifyHunter({
 			event: huntCompleteEvent({ hunt }),
 			hunter,
+			logger,
 		});
+
+		logger.info(
+			`Updated hunter ${hunter.handle} (${hunter.id}) rating from ${hunter.rating} to ${newRating} and paid ${perHunterPayment} for hunt ${hunt.name} (${hunt.id})`,
+		);
 
 		if (
 			newRating >= HUNTER_TOP_MIN_RATING &&
@@ -272,6 +307,7 @@ export async function updateHunt({
 			await notifyHunter({
 				event: ratingHigh({ hunterId: hunter.id }),
 				hunter,
+				logger,
 			});
 		} else if (
 			newRating <= HUNTER_LOW_RATING &&
@@ -280,12 +316,8 @@ export async function updateHunt({
 			await notifyHunter({
 				event: ratingLow({ hunterId: hunter.id }),
 				hunter,
+				logger,
 			});
 		}
 	}
-
-	return {
-		paymentPerHunter: perHunterPayment,
-		totalPayment: hunt.payment,
-	};
 }

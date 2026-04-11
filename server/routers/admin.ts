@@ -12,7 +12,7 @@ import { idArray, idSchemaCoerce } from '@/lib/schemas';
 import { Entity } from '@/lib/types';
 import { extractIds, extractKey, idsToEntities, omit } from '@/lib/utils';
 import { db } from '@/server/lib/db';
-import { updateHunt } from '@/server/lib/hunt';
+import { completeHunt, updateHunt } from '@/server/lib/hunt';
 import { photoUrl } from '@/server/lib/photo';
 import { adminProcedure, router } from '@/server/lib/trpc';
 
@@ -516,14 +516,13 @@ export const adminRouter = router({
 						data: dataRest,
 						where: { id },
 					});
-					const updates = await updateHunt({
+					await updateHunt({
 						hunt,
 						hunterIds,
 					});
 					return {
 						...hunt,
 						hunterIds,
-						updates,
 					};
 				}
 				case 'hunter': {
@@ -556,6 +555,29 @@ export const adminRouter = router({
 				}
 			}
 		}),
+
+	completeHunt: adminProcedure
+		.input(
+			z.object({
+				huntId: idSchemaCoerce,
+				payment: z.int().nonnegative(),
+				comment: z.string().optional(),
+				huntRating: z.number().nonnegative(),
+			}),
+		)
+		.mutation(
+			async ({
+				input,
+				ctx: {
+					req: { log },
+				},
+			}) => {
+				await completeHunt({
+					...input,
+					logger: log,
+				});
+			},
+		),
 
 	wallData: adminProcedure.query(async () => {
 		const reviews = await db.huntHunter.findMany({

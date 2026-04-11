@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 import {
 	ChangeEvent,
@@ -10,7 +11,7 @@ import {
 	Button,
 	IconButtonWithTooltip,
 	useRecordContext,
-	useUpdate,
+	useRefresh,
 } from 'react-admin';
 
 import {
@@ -22,9 +23,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { HuntStatus } from '@/lib/constants';
 import { currencyFormatter } from '@/lib/formats';
 
+import { useTypedDataProvider } from '../data';
 import { AdminHuntSchema } from '../schemas';
 
 export function HuntCompleteDialog() {
@@ -35,21 +36,29 @@ export function HuntCompleteDialog() {
 		payment: hunt?.payment ?? 0,
 		rating: hunt?.rating ?? 5,
 	});
-	const [update, { isLoading }] = useUpdate<AdminHuntSchema>();
 
+	const dataProvider = useTypedDataProvider();
+	const { isPending, mutateAsync } = useMutation({
+		mutationFn: dataProvider.completeHunt,
+	});
+
+	const huntId = hunt?.id;
+	const refresh = useRefresh();
 	const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
 		(event) => {
 			event.preventDefault();
-			void update('hunt', {
-				data: {
-					...modalData,
-					completedAt: new Date(),
-					status: HuntStatus.Complete,
-				},
-				id: hunt?.id,
+			if (!huntId) {
+				return;
+			}
+			void mutateAsync({
+				huntId,
+				...modalData,
+			}).then(() => {
+				refresh();
+				setModalOpen(false);
 			});
 		},
-		[hunt?.id, modalData, update],
+		[huntId, modalData, mutateAsync, refresh],
 	);
 	const createFieldHandler = useCallback(
 		(field: keyof typeof modalData) =>
@@ -111,7 +120,7 @@ export function HuntCompleteDialog() {
 						placeholder="Put your complaints here"
 						value={modalData.comment}
 					/>
-					<Button color="success" disabled={isLoading} type="submit">
+					<Button color="success" disabled={isPending} type="submit">
 						Complete
 					</Button>
 				</form>

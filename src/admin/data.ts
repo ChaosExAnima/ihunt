@@ -165,6 +165,31 @@ export const dataProvider = {
 		return { data: result.ids };
 	},
 
+	async completeHunt({
+		huntId,
+		rating,
+		payment,
+		comment,
+	}: {
+		huntId: number;
+		rating: number;
+		payment: number;
+		comment?: string;
+	}) {
+		try {
+			await trpc.admin.completeHunt.mutate({
+				huntId,
+				comment,
+				payment,
+				huntRating: rating,
+			});
+			return { success: true };
+		} catch (err) {
+			console.warn('Error completing hunt:', err);
+			return { success: false };
+		}
+	},
+
 	async uploadPhoto(params: {
 		blob: Blob;
 		hunterId?: number;
