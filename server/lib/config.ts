@@ -16,6 +16,7 @@ const configSchema = z.object({
 	adminPassword: z.string(),
 	adminHunterId: z.coerce.number().int().positive().optional(),
 	huntsDisabled: z.coerce.boolean().default(false),
+	heartbeatDisabled: z.coerce.boolean().default(false),
 	mediaPath: z.string().default('/'),
 	uploadPath: z.string().min(2),
 	vapidPrivKey: z.string().optional(),

@@ -39,7 +39,9 @@ async function startServer() {
 	});
 
 	// Main loop
-	void startMainLoop();
+	if (!config.heartbeatDisabled) {
+		void startMainLoop();
+	}
 
 	try {
 		await startDevMode();
