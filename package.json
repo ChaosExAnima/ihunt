@@ -31,7 +31,7 @@
 		"@trpc/server": "^11.16.0",
 		"bcryptjs": "^3.0.3",
 		"dotenv": "^17.4.0",
-		"fastify": "^5.8.4",
+		"fastify": "^5.8.5",
 		"iron-session": "^8.0.4",
 		"sharp": "^0.34.5",
 		"superjson": "^2.2.6",
