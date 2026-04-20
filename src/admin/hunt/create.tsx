@@ -52,7 +52,6 @@ export function HuntCreate() {
 					<DateTimeInput defaultValue={null} source="scheduledAt" />
 					<NumberInput
 						defaultValue={HUNT_MAX_HUNTERS}
-						max={HUNT_MAX_HUNTERS}
 						min={1}
 						source="maxHunters"
 					/>
