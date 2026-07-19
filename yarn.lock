@@ -2126,16 +2126,16 @@ __metadata:
   linkType: hard
 
 "@fontsource-variable/geist-mono@npm:^5.2.7":
-  version: 5.2.7
-  resolution: "@fontsource-variable/geist-mono@npm:5.2.7"
-  checksum: 10c0/f401fe26e9edeadbef79ab32afb03393d03908d16efa355b94cc7f0a68f5ea96adacd4a2b0724f11eff4cc0b7484693d10f3098cda769692e6497c05af274ad6
+  version: 5.3.0
+  resolution: "@fontsource-variable/geist-mono@npm:5.3.0"
+  checksum: 10c0/21a4097b3ccce08cbc181199f68a9193adc17d997ef8d883eab7565c6d79a82b2f8d7656f32f97b66f1f0b4ebba78a1a822c6318d55e0c5f572d74683ab036ee
   languageName: node
   linkType: hard
 
 "@fontsource/kanit@npm:^5.2.8":
-  version: 5.2.8
-  resolution: "@fontsource/kanit@npm:5.2.8"
-  checksum: 10c0/807f29f3d36f5bf2260cf8fc62f9aad79172d61cd50904aa2c45f350b9f006d631530f9caeb366940aebb31640107202633e4ed658d1a3a2a71b35683d002074
+  version: 5.3.0
+  resolution: "@fontsource/kanit@npm:5.3.0"
+  checksum: 10c0/834e554cce043992cf2fd348bcd88d4f71be3a80a2b0371d3fe0424733b13a74b62bf4609447aaa530866a585a589c1257100ffc33f0dcd39e9cf23b5067dce7
   languageName: node
   linkType: hard
 
