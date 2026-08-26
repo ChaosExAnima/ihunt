@@ -4,7 +4,7 @@ import { generateImageUrl } from '@imgproxy/imgproxy-node';
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import sharp from 'sharp';
+import { sharp, Sharp } from 'sharp';
 import { rgbaToThumbHash } from 'thumbhash';
 
 import { omit } from '@/lib/utils';
@@ -115,7 +115,7 @@ export async function uploadPhoto({
 	});
 }
 
-export async function generateThumbhash(fullImage: sharp.Sharp) {
+export async function generateThumbhash(fullImage: Sharp) {
 	const image = fullImage.resize(100, 100, { fit: 'inside' });
 	const { data, info } = await image
 		.ensureAlpha()
