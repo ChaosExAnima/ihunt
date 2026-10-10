@@ -82,7 +82,7 @@ export const dataProvider = {
 		}
 		const input = adminCreateInput.parse({ data, resource });
 		const result = await trpc.admin.create.mutate(input);
-		return { data: result } as { data: any };
+		return { data: result as any };
 	},
 	// delete a record by id
 	async delete(resource, params) {
@@ -90,7 +90,7 @@ export const dataProvider = {
 			id: params.id,
 			resource,
 		});
-		return { data: result } as { data: any };
+		return { data: result as any };
 	},
 	// delete a list of records based on an array of ids
 	async deleteMany(resource, params) {
