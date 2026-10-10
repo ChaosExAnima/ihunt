@@ -35,18 +35,13 @@ export function LoginForm({
 
 	return (
 		<Form {...form}>
-			<form
-				className="flex w-full grow flex-col gap-4"
-				onSubmit={handleSubmit}
-			>
+			<form className="flex w-full grow flex-col gap-4" onSubmit={handleSubmit}>
 				<FormField
 					control={form.control}
 					name="code"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className="block text-lg">
-								Access Code
-							</FormLabel>
+							<FormLabel className="block text-lg">Access Code</FormLabel>
 							<FormControl>
 								<Input
 									autoFocus
@@ -69,9 +64,7 @@ export function LoginForm({
 					name="password"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className="block text-lg">
-								Password
-							</FormLabel>
+							<FormLabel className="block text-lg">Password</FormLabel>
 							<FormControl>
 								<Input
 									type="password"

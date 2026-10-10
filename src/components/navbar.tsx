@@ -62,10 +62,7 @@ export function Navbar({
 					<NavbarItemLink
 						noLabel
 						icon={
-							<Avatar
-								hunter={hunter}
-								className="border-2 border-inherit"
-							/>
+							<Avatar hunter={hunter} className="border-2 border-inherit" />
 						}
 						name="My Profile"
 						to="/hunters/$hunterId"

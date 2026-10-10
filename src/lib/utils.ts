@@ -54,8 +54,7 @@ export function isDev() {
 export function isPlainObject(value: unknown): value is object {
 	if (typeof value !== 'object' || value === null) return false;
 
-	if (Object.prototype.toString.call(value) !== '[object Object]')
-		return false;
+	if (Object.prototype.toString.call(value) !== '[object Object]') return false;
 
 	const proto = Object.getPrototypeOf(value) as null | object;
 	if (proto === null) return true;

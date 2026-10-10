@@ -69,14 +69,13 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 			/>
 
 			<div className="flex justify-center gap-2">
-				{!hasAccepted &&
-					(canJoinHunt || reserved?.status === 'invited') && (
-						<HuntJoinButton
-							danger={danger}
-							isLockedDown={isLockedDown}
-							onAccept={handleAccept}
-						/>
-					)}
+				{!hasAccepted && (canJoinHunt || reserved?.status === 'invited') && (
+					<HuntJoinButton
+						danger={danger}
+						isLockedDown={isLockedDown}
+						onAccept={handleAccept}
+					/>
+				)}
 				{hasAccepted && (
 					<Button
 						className="rounded-full font-bold"
@@ -207,8 +206,7 @@ function HuntInviteRejectButton({
 				</Button>
 			}
 		>
-			If you decline, you cannot rejoin the hunt for {minutesLeft}{' '}
-			minutes.
+			If you decline, you cannot rejoin the hunt for {minutesLeft} minutes.
 		</ConfirmDialog>
 	);
 }
@@ -244,10 +242,7 @@ function HuntJoinButton({
 						className="rounded-full font-bold"
 						variant="success"
 					>
-						<CircleCheckBig
-							aria-label="Accept hunt"
-							strokeWidth="3"
-						/>
+						<CircleCheckBig aria-label="Accept hunt" strokeWidth="3" />
 						Accept
 					</Button>
 				),
@@ -258,8 +253,8 @@ function HuntJoinButton({
 	if (isLockedDown && !accepted) {
 		return (
 			<ConfirmDialog {...dialogProps} title="Confirm joining hunt">
-				Because this hunt is happening soon, once you accept this hunt
-				you <strong>cannot</strong> cancel.
+				Because this hunt is happening soon, once you accept this hunt you{' '}
+				<strong>cannot</strong> cancel.
 			</ConfirmDialog>
 		);
 	}
@@ -273,18 +268,16 @@ function HuntJoinButton({
 				noDescription
 			>
 				<p>
-					This hunt is marked at the{' '}
-					<strong>highest danger rating</strong>. Please confirm you
-					understand and accept the risks.
+					This hunt is marked at the <strong>highest danger rating</strong>.
+					Please confirm you understand and accept the risks.
 				</p>
 				<p className="text-muted mt-4 text-sm">
-					By accepting this hunt, you agree that iHunt is not liable
-					nor is able to provide support for any events which occur as
-					a result of accepting this contract, including but not
-					limited to: injury, maiming, death, murder, property damage,
-					theft, breaking and entering, and grave desecration. You
-					also understand that if this hunt is not completed iHunt may
-					at their discretion terminate your account for inactivity.
+					By accepting this hunt, you agree that iHunt is not liable nor is able
+					to provide support for any events which occur as a result of accepting
+					this contract, including but not limited to: injury, maiming, death,
+					murder, property damage, theft, breaking and entering, and grave
+					desecration. You also understand that if this hunt is not completed
+					iHunt may at their discretion terminate your account for inactivity.
 				</p>
 			</ConfirmDialog>
 		);

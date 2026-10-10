@@ -18,19 +18,13 @@ export function UserCreate() {
 				resolver={zodResolver(adminUserSchema.omit({ id: true }))}
 				toolbar={<CreateToolbar />}
 			>
-				<TextInput
-					isRequired
-					source="code"
-					className="[&_input]:uppercase"
-				/>
+				<TextInput isRequired source="code" className="[&_input]:uppercase" />
 				<NumberInput min={1} defaultValue={1} source="run" />
 				<ReferenceArrayInput reference="hunter" source="hunterIds">
 					<AutocompleteArrayInput
 						label="Hunter"
 						optionText={(record: AdminHunterSchema) =>
-							record.userId
-								? `${record.handle} (taken)`
-								: record.handle
+							record.userId ? `${record.handle} (taken)` : record.handle
 						}
 					/>
 				</ReferenceArrayInput>

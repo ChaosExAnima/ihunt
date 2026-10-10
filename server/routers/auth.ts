@@ -25,10 +25,7 @@ export const authRouter = router({
 			},
 			input,
 		}) => {
-			const valid = await bcrypt.compare(
-				input.password,
-				config.userPassword,
-			);
+			const valid = await bcrypt.compare(input.password, config.userPassword);
 			if (!valid) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
@@ -57,8 +54,7 @@ export const authRouter = router({
 			if (!hunter) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
-					message:
-						'Your account is deactivated. Please contact support.',
+					message: 'Your account is deactivated. Please contact support.',
 				});
 			}
 
@@ -90,10 +86,7 @@ export const authRouter = router({
 	adminLogin: publicProcedure
 		.input(adminAuthSchema)
 		.mutation(async ({ ctx: { req, res }, input }) => {
-			const valid = await bcrypt.compare(
-				input.password,
-				config.adminPassword,
-			);
+			const valid = await bcrypt.compare(input.password, config.adminPassword);
 			if (!valid) {
 				throw new TRPCError({ code: 'UNAUTHORIZED' });
 			}

@@ -31,10 +31,7 @@ export function HuntPics({
 		<div className={className}>
 			{!!currentPhoto && (
 				<div className="relative mb-2 overflow-hidden rounded-md">
-					<PhotoDisplay
-						className="aspect-square w-full"
-						photo={currentPhoto}
-					/>
+					<PhotoDisplay className="aspect-square w-full" photo={currentPhoto} />
 					{children}
 				</div>
 			)}

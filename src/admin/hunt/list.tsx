@@ -195,9 +195,7 @@ function HuntBulkActions() {
 				<BulkUpdateWithConfirmButton
 					data={{
 						status:
-							showType === 'hide'
-								? HuntStatus.Pending
-								: HuntStatus.Available,
+							showType === 'hide' ? HuntStatus.Pending : HuntStatus.Available,
 					}}
 					icon={showType === 'hide' ? <EyeClosedIcon /> : <EyeIcon />}
 					label={showType === 'hide' ? 'Hide Hunts' : 'Show Hunts'}

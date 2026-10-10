@@ -32,11 +32,7 @@ export function MessageDialog() {
 			const data = new FormData(event.currentTarget);
 			const title = data.get('title')?.valueOf();
 			const body = data.get('body')?.valueOf();
-			if (
-				!title ||
-				typeof title !== 'string' ||
-				typeof body === 'object'
-			) {
+			if (!title || typeof title !== 'string' || typeof body === 'object') {
 				notify('Invalid options provided', { type: 'error' });
 				return;
 			}

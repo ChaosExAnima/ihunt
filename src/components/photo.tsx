@@ -48,19 +48,13 @@ export function PhotoDisplay({
 		setDimensions((prev) => ({
 			height:
 				Math.ceil(
-					max(
-						prev.height,
-						ref.parentElement?.offsetHeight,
-						ref.offsetHeight,
-					) * window.devicePixelRatio,
+					max(prev.height, ref.parentElement?.offsetHeight, ref.offsetHeight) *
+						window.devicePixelRatio,
 				) || undefined,
 			width:
 				Math.ceil(
-					max(
-						prev.width,
-						ref.parentElement?.offsetWidth,
-						ref.offsetWidth,
-					) * window.devicePixelRatio,
+					max(prev.width, ref.parentElement?.offsetWidth, ref.offsetWidth) *
+						window.devicePixelRatio,
 				) || undefined,
 		}));
 	}, []);

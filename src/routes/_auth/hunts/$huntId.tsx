@@ -12,9 +12,7 @@ export const Route = createFileRoute('/_auth/hunts/$huntId')({
 	component: RouteComponent,
 	async loader({ context: { queryClient }, params: { huntId } }) {
 		try {
-			await queryClient.fetchQuery(
-				trpc.hunt.getOne.queryOptions({ huntId }),
-			);
+			await queryClient.fetchQuery(trpc.hunt.getOne.queryOptions({ huntId }));
 		} catch (err) {
 			if (isTRPCClientError(err)) {
 				if (err.message === 'NOT_FOUND') {

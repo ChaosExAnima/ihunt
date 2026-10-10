@@ -39,11 +39,7 @@ export function HunterCommonDetails() {
 			</ReferenceInput>
 			<AdminAvatarInput />
 			<TextInput minRows={4} multiline source="bio" />
-			<BooleanInput
-				className="col-span-2"
-				source="alive"
-				defaultValue={true}
-			/>
+			<BooleanInput className="col-span-2" source="alive" defaultValue={true} />
 		</div>
 	);
 }

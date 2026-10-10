@@ -125,12 +125,8 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 						if (typeof rawEvent !== 'string') {
 							return false;
 						}
-						const event = notifyEventSchema.parse(
-							JSON.parse(rawEvent),
-						);
-						return (
-							hunter.id === hunterId && event.huntId === hunt.id
-						);
+						const event = notifyEventSchema.parse(JSON.parse(rawEvent));
+						return hunter.id === hunterId && event.huntId === hunt.id;
 					},
 				);
 				if (notification) {
@@ -148,9 +144,7 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 		}
 	}
 	if (total) {
-		logger?.info(
-			`Notified ${total} users for ${upcomingHunts.length} hunts`,
-		);
+		logger?.info(`Notified ${total} users for ${upcomingHunts.length} hunts`);
 	}
 }
 

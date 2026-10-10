@@ -61,8 +61,7 @@ export function MoneyDialog() {
 			if (!hunter) {
 				return;
 			}
-			const money =
-				hunter.money + (mode === 'subtract' ? -1 : 1) * amount;
+			const money = hunter.money + (mode === 'subtract' ? -1 : 1) * amount;
 			void update('hunter', {
 				data: {
 					money,
@@ -88,9 +87,7 @@ export function MoneyDialog() {
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>
-						{mode === 'subtract'
-							? 'Taking money from '
-							: 'Giving money to '}
+						{mode === 'subtract' ? 'Taking money from ' : 'Giving money to '}
 						{hunter.handle}
 					</DialogTitle>
 				</DialogHeader>

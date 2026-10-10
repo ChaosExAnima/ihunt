@@ -13,9 +13,7 @@ export function useImageColor(thumbHash?: string | null, threshold = 0.5) {
 		);
 		const average = thumbHashToAverageRGBA(binary);
 		return (
-			average.r >= threshold &&
-			average.g >= threshold &&
-			average.b >= threshold
+			average.r >= threshold && average.g >= threshold && average.b >= threshold
 		);
 	}, [thumbHash, threshold]);
 }

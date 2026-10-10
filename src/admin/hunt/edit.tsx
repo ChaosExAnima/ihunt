@@ -68,11 +68,7 @@ export function HuntEdit() {
 					</div>
 					<DateTimeInput source="completedAt" />
 					<NumberInput max={5} min={0} source="rating" step={0.5} />
-					<TextInput
-						className="col-span-2"
-						multiline
-						source="comment"
-					/>
+					<TextInput className="col-span-2" multiline source="comment" />
 				</div>
 			</SimpleForm>
 		</Edit>

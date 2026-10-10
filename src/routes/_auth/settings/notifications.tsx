@@ -87,9 +87,7 @@ function NotificationsPage() {
 			<Header>Notifications</Header>
 			{needsPermission && (
 				<>
-					<p className="text-accent">
-						You have disabled notifications.
-					</p>
+					<p className="text-accent">You have disabled notifications.</p>
 					<Button onClick={handleRequestNotify} variant="success">
 						Enable notifications
 					</Button>

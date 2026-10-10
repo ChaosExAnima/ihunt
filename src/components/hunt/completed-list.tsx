@@ -59,14 +59,13 @@ export function HuntsCompleted() {
 						No completed hunts yet!
 					</Header>
 					<p>
-						Come back here after finishing a hunt to see your hunter
-						history.
+						Come back here after finishing a hunt to see your hunter history.
 					</p>
 				</div>
 			)}
 			<p className="text-muted text-sm">
-				For your safety, hunts older than 7 days are hidden. Please
-				contact support if you have any questions.
+				For your safety, hunts older than 7 days are hidden. Please contact
+				support if you have any questions.
 			</p>
 		</div>
 	);

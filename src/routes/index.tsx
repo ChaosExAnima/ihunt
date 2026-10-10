@@ -32,9 +32,7 @@ export const Route = createFileRoute('/')({
 			return;
 		}
 		try {
-			const player = await queryClient.fetchQuery(
-				trpc.auth.me.queryOptions(),
-			);
+			const player = await queryClient.fetchQuery(trpc.auth.me.queryOptions());
 
 			if (player) {
 				throw redirect({
@@ -94,13 +92,13 @@ function Index() {
 				Debug info
 			</Link>
 			<p className="text-muted text-justify text-xs">
-				No unauthorized use. If you have not been invited to install
-				this application please immediately remove it from your device.
-				Usage of this application does not constitute an endorsement of
-				its content or purpose by iHunt or its affiliates. Misuse of
-				this application or other violation of our terms of service may
-				result in immediate app deletion, revocation of access, and/or
-				potential legal action at iHunt's sole discretion.
+				No unauthorized use. If you have not been invited to install this
+				application please immediately remove it from your device. Usage of this
+				application does not constitute an endorsement of its content or purpose
+				by iHunt or its affiliates. Misuse of this application or other
+				violation of our terms of service may result in immediate app deletion,
+				revocation of access, and/or potential legal action at iHunt's sole
+				discretion.
 			</p>
 		</main>
 	);

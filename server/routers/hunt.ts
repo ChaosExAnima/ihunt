@@ -288,9 +288,7 @@ export const huntRouter = router({
 					},
 				});
 
-				log.info(
-					`${currentHunter.name} canceled hunt with ID ${huntId}`,
-				);
+				log.info(`${currentHunter.name} canceled hunt with ID ${huntId}`);
 				notifyHuntsReload();
 				return { accepted: false, huntId };
 			}

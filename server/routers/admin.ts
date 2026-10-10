@@ -211,25 +211,20 @@ export const adminRouter = router({
 							},
 						});
 						return {
-							data: hunts.map(
-								({ huntHunters, photos, ...hunt }) => ({
-									...hunt,
-									hunterIds: extractKey(
-										huntHunters.filter(
-											({ status }) =>
-												status ===
-												InviteStatus.Accepted,
-										),
-										'hunterId',
+							data: hunts.map(({ huntHunters, photos, ...hunt }) => ({
+								...hunt,
+								hunterIds: extractKey(
+									huntHunters.filter(
+										({ status }) => status === InviteStatus.Accepted,
 									),
-									photoIds: extractIds(photos),
-									reserved: huntHunters.some(
-										({ status, expiresAt }) =>
-											status === InviteStatus.Pending &&
-											!!expiresAt,
-									),
-								}),
-							),
+									'hunterId',
+								),
+								photoIds: extractIds(photos),
+								reserved: huntHunters.some(
+									({ status, expiresAt }) =>
+										status === InviteStatus.Pending && !!expiresAt,
+								),
+							})),
 							total: await db.hunt.count({
 								where,
 							}),
@@ -304,15 +299,14 @@ export const adminRouter = router({
 			const query = { where: { id } };
 			switch (resource) {
 				case 'group': {
-					const { hunters, ...group } =
-						await db.hunterGroup.findUniqueOrThrow({
-							...query,
-							include: {
-								hunters: {
-									select: { id: true },
-								},
+					const { hunters, ...group } = await db.hunterGroup.findUniqueOrThrow({
+						...query,
+						include: {
+							hunters: {
+								select: { id: true },
 							},
-						});
+						},
+					});
 					return {
 						...group,
 						hunterIds: extractIds(hunters),
@@ -343,12 +337,10 @@ export const adminRouter = router({
 				case 'photo':
 					return db.photo.findUniqueOrThrow(query);
 				case 'user': {
-					const { hunter, ...user } = await db.user.findUniqueOrThrow(
-						{
-							...query,
-							include: { hunter: { select: { id: true } } },
-						},
-					);
+					const { hunter, ...user } = await db.user.findUniqueOrThrow({
+						...query,
+						include: { hunter: { select: { id: true } } },
+					});
 
 					return {
 						...user,
@@ -367,53 +359,49 @@ export const adminRouter = router({
 				}),
 			),
 		)
-		.query(
-			async ({
-				input: { id, perPage, page, resource, sort, target },
-			}) => {
-				const where = {
-					[target]: id,
-				};
-				const query = {
-					orderBy: sort
-						? {
-								[sort.field]: sort.order.toLowerCase(),
-							}
-						: undefined,
-					skip: perPage && page ? perPage * (page - 1) : undefined,
-					take: perPage,
-					where,
-				};
+		.query(async ({ input: { id, perPage, page, resource, sort, target } }) => {
+			const where = {
+				[target]: id,
+			};
+			const query = {
+				orderBy: sort
+					? {
+							[sort.field]: sort.order.toLowerCase(),
+						}
+					: undefined,
+				skip: perPage && page ? perPage * (page - 1) : undefined,
+				take: perPage,
+				where,
+			};
 
-				switch (resource) {
-					case 'group':
-						return {
-							data: await db.hunterGroup.findMany(query),
-							total: await db.hunterGroup.count({ where }),
-						};
-					case 'hunt':
-						return {
-							data: await db.hunt.findMany(query),
-							total: await db.hunt.count({ where }),
-						};
-					case 'hunter':
-						return {
-							data: await db.hunter.findMany(query),
-							total: await db.hunter.count({ where }),
-						};
-					case 'photo':
-						return {
-							data: await db.photo.findMany(query),
-							total: await db.photo.count({ where }),
-						};
-					case 'user':
-						return {
-							data: await db.user.findMany(query),
-							total: await db.user.count({ where }),
-						};
-				}
-			},
-		),
+			switch (resource) {
+				case 'group':
+					return {
+						data: await db.hunterGroup.findMany(query),
+						total: await db.hunterGroup.count({ where }),
+					};
+				case 'hunt':
+					return {
+						data: await db.hunt.findMany(query),
+						total: await db.hunt.count({ where }),
+					};
+				case 'hunter':
+					return {
+						data: await db.hunter.findMany(query),
+						total: await db.hunter.count({ where }),
+					};
+				case 'photo':
+					return {
+						data: await db.photo.findMany(query),
+						total: await db.photo.count({ where }),
+					};
+				case 'user':
+					return {
+						data: await db.user.findMany(query),
+						total: await db.user.count({ where }),
+					};
+			}
+		}),
 
 	isValid: adminProcedure.query(() => true),
 

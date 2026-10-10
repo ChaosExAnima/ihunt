@@ -28,15 +28,8 @@ export function Notification(
 				{notification.title && (
 					<h2 className="font-semibold">{notification.title}</h2>
 				)}
-				{notification.body && (
-					<p className="text-sm">{notification.body}</p>
-				)}
-				<p
-					className={cn(
-						'text-sm',
-						!notification.seen && 'text-muted',
-					)}
-				>
+				{notification.body && <p className="text-sm">{notification.body}</p>}
+				<p className={cn('text-sm', !notification.seen && 'text-muted')}>
 					{dateFormat(notification.created, true)}
 					{notification.huntId && <> &bull; Tap to view hunt</>}
 					{notification.hunterId && <> &bull; Tap to view profile</>}

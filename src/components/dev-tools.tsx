@@ -83,10 +83,7 @@ export function DevTools() {
 				>
 					<FileLock />
 				</ExternalLink>
-				<ExternalLink
-					href="https://lucide.dev/icons/"
-					name="Lucide Icons"
-				>
+				<ExternalLink href="https://lucide.dev/icons/" name="Lucide Icons">
 					<FileImage />
 				</ExternalLink>
 			</ul>

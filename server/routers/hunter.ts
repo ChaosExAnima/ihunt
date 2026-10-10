@@ -58,35 +58,33 @@ export const hunterRouter = router({
 			};
 		}),
 
-	getMany: debugProcedure.query(
-		async ({ ctx: { hunter: currentHunter } }) => {
-			const hunters = await db.hunter.findMany({
-				orderBy: {
-					handle: 'asc',
+	getMany: debugProcedure.query(async ({ ctx: { hunter: currentHunter } }) => {
+		const hunters = await db.hunter.findMany({
+			orderBy: {
+				handle: 'asc',
+			},
+			where: {
+				alive: true,
+				userId: {
+					not: null,
 				},
-				where: {
-					alive: true,
-					userId: {
-						not: null,
-					},
-				},
-			});
+			},
+		});
 
-			if (config.adminHunterId) {
-				hunters.push(
-					await db.hunter.findUniqueOrThrow({
-						where: { id: config.adminHunterId },
-					}),
-				);
-			}
+		if (config.adminHunterId) {
+			hunters.push(
+				await db.hunter.findUniqueOrThrow({
+					where: { id: config.adminHunterId },
+				}),
+			);
+		}
 
-			return hunters.map(({ handle, id }) => ({
-				handle,
-				id,
-				me: id === currentHunter?.id,
-			}));
-		},
-	),
+		return hunters.map(({ handle, id }) => ({
+			handle,
+			id,
+			me: id === currentHunter?.id,
+		}));
+	}),
 
 	getList: userProcedure.output(hunterSchema.array()).query(async () => {
 		return db.hunter.findMany({
@@ -114,30 +112,27 @@ export const hunterRouter = router({
 			hunterSchema.extend({
 				alive: z.boolean(),
 				groupId: idSchemaCoerce.nullish(),
-				hunts: outputHuntSchema
-					.omit({ hunters: true, photos: true })
-					.array(),
+				hunts: outputHuntSchema.omit({ hunters: true, photos: true }).array(),
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const { huntHunters, ...hunter } =
-				await db.hunter.findUniqueOrThrow({
-					include: {
-						avatar: true,
-						huntHunters: {
-							where: {
-								hunt: {
-									status: HuntStatus.Complete,
-								},
-								status: InviteStatus.Accepted,
+			const { huntHunters, ...hunter } = await db.hunter.findUniqueOrThrow({
+				include: {
+					avatar: true,
+					huntHunters: {
+						where: {
+							hunt: {
+								status: HuntStatus.Complete,
 							},
-							include: {
-								hunt: true,
-							},
+							status: InviteStatus.Accepted,
+						},
+						include: {
+							hunt: true,
 						},
 					},
-					where: { id },
-				});
+				},
+				where: { id },
+			});
 
 			return {
 				...hunter,

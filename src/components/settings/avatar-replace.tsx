@@ -44,11 +44,7 @@ export function AvatarReplaceButton({ existing }: { existing?: boolean }) {
 				circular
 				onCrop={handleCrop}
 				title={existing ? 'Replace avatar' : 'Add avatar'}
-				button={
-					existing ? undefined : (
-						<Button variant="secondary">Add</Button>
-					)
-				}
+				button={existing ? undefined : <Button variant="secondary">Add</Button>}
 			/>
 			{existing && (
 				<Button variant="destructive" onClick={handleRemove}>

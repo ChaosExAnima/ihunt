@@ -23,11 +23,7 @@ export function UserEdit() {
 			title={`Player ${player?.code.toUpperCase() ?? ''}`}
 		>
 			<SimpleForm resolver={zodResolver(adminUserSchema)}>
-				<TextInput
-					isRequired
-					source="code"
-					className="[&_input]:uppercase"
-				/>
+				<TextInput isRequired source="code" className="[&_input]:uppercase" />
 				<NumberInput min={1} source="run" />
 				<ReferenceInput reference="hunter" source="hunterId">
 					<AutocompleteInput

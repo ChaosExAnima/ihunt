@@ -45,8 +45,7 @@ function RouteComponent() {
 								size="1.2em"
 								fillClass="fill-current"
 								className={cn(
-									hunter.rating >= HUNTER_TOP_MIN_RATING &&
-										'text-yellow-500',
+									hunter.rating >= HUNTER_TOP_MIN_RATING && 'text-yellow-500',
 								)}
 							/>
 						</Link>

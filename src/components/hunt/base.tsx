@@ -39,9 +39,7 @@ export function HuntBase({
 			<HuntHuntersDisplay
 				hunters={hunt.hunters}
 				reservations={hunt.reserved?.count}
-				maxHunters={
-					hunt.status !== HuntStatus.Available ? 0 : hunt.maxHunters
-				}
+				maxHunters={hunt.status !== HuntStatus.Available ? 0 : hunt.maxHunters}
 			/>
 
 			{!hideText && (

@@ -97,10 +97,7 @@ export function CameraUpload({
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				{state === 'camera' && (
-					<CameraStream
-						onError={setErrorMsg}
-						onSave={handleStartCrop}
-					/>
+					<CameraStream onError={setErrorMsg} onSave={handleStartCrop} />
 				)}
 				{state === 'crop' && (
 					<CameraCropper
@@ -112,9 +109,7 @@ export function CameraUpload({
 					/>
 				)}
 				{!!errorMsg && (
-					<p className="text-right font-bold text-red-500">
-						{errorMsg}
-					</p>
+					<p className="text-right font-bold text-red-500">{errorMsg}</p>
 				)}
 				<DialogDescription>Tip: {tipMessage}</DialogDescription>
 			</DialogContent>
