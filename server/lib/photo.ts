@@ -4,7 +4,7 @@ import { generateImageUrl } from '@imgproxy/imgproxy-node';
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { sharp, Sharp } from 'sharp';
+import sharp, { Sharp } from 'sharp';
 import { rgbaToThumbHash } from 'thumbhash';
 
 import { omit } from '@/lib/utils';
