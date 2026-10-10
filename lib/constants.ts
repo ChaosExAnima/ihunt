@@ -11,6 +11,7 @@ export const HuntStatus = {
 	Active: 'active',
 	Available: 'available',
 	Cancelled: 'cancelled',
+	Reviewing: 'reviewing',
 	Complete: 'complete',
 	Pending: 'pending',
 } as const;
