@@ -23,11 +23,7 @@ export function UserList() {
 		>
 			<DataTable bulkActionButtons={<BulkActionButtons />}>
 				<DataTable.NumberCol source="id" width="2rem" />
-				<DataTable.Col
-					source="code"
-					className="uppercase"
-					width="4rem"
-				/>
+				<DataTable.Col source="code" className="uppercase" width="4rem" />
 				<DataTable.Col label="Hunter">
 					<ReferenceOneField<AdminHunterSchema>
 						reference="hunter"

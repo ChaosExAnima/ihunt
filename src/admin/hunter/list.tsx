@@ -28,12 +28,7 @@ import { hunterTypeChoices } from './common';
 import { MoneyDialog } from './money-dialog';
 
 const listFilters = [
-	<SearchInput
-		alwaysOn
-		key="1"
-		source="q"
-		className="mt-0! [&_input]:h-8!"
-	/>,
+	<SearchInput alwaysOn key="1" source="q" className="mt-0! [&_input]:h-8!" />,
 	<SelectArrayInput choices={hunterTypeChoices} source="type" />,
 	<BooleanInput
 		className="flex h-12 flex-col justify-center"
@@ -73,11 +68,7 @@ export function HunterList() {
 				/>
 				<AdminAvatar label="Avatar" />
 				<FunctionField label="Type" render={renderType} sortBy="type" />
-				<NumberField
-					label="Rating"
-					source="rating"
-					transform={roundToHalves}
-				/>
+				<NumberField label="Rating" source="rating" transform={roundToHalves} />
 				<NumberField
 					locales={Locale}
 					options={{

@@ -42,9 +42,7 @@ async function main() {
 		if (!type) {
 			continue;
 		}
-		const newCode = await calculateNextAccessCode(
-			hunterTypeSchema.parse(type),
-		);
+		const newCode = await calculateNextAccessCode(hunterTypeSchema.parse(type));
 		await db.user.update({
 			data: { code: newCode },
 			where: { id: user.id },

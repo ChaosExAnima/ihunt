@@ -85,10 +85,7 @@ function RouteComponent() {
 					rating={rating}
 				/>
 				{!!avatar && (
-					<PhotoDisplay
-						className="aspect-square w-full"
-						photo={avatar}
-					/>
+					<PhotoDisplay className="aspect-square w-full" photo={avatar} />
 				)}
 			</div>
 
@@ -101,9 +98,7 @@ function RouteComponent() {
 			{lowRating && isMe && (
 				<Callout variant="error">
 					<p className="font-semibold">Your rating is low!</p>
-					<p className="text-sm">
-						Take more hunts to boost your rating
-					</p>
+					<p className="text-sm">Take more hunts to boost your rating</p>
 				</Callout>
 			)}
 
@@ -127,12 +122,7 @@ function RouteComponent() {
 								key={hunt.id}
 							>
 								<p className="flex items-center gap-2">
-									<Rating
-										max={5}
-										rating={hunt.rating}
-										size="1em"
-										fill
-									/>
+									<Rating max={5} rating={hunt.rating} size="1em" fill />
 									{hunt.completedAt instanceof Date && (
 										<time
 											className="text-muted"
@@ -142,16 +132,12 @@ function RouteComponent() {
 										</time>
 									)}
 								</p>
-								{hunt.comment && (
-									<p>&ldquo;{hunt.comment}&rdquo;</p>
-								)}
+								{hunt.comment && <p>&ldquo;{hunt.comment}&rdquo;</p>}
 							</li>
 						))}
 					</ol>
 				)}
-				{hunts.length === 0 && (
-					<p className="text-muted">Nothing yet</p>
-				)}
+				{hunts.length === 0 && <p className="text-muted">Nothing yet</p>}
 			</div>
 
 			{isMe && (

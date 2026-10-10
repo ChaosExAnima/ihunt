@@ -19,9 +19,7 @@ async function main() {
 	await Promise.all(
 		photos.map(async (photo) => {
 			try {
-				const buffer = await readFile(
-					resolve(config.uploadPath, photo.path),
-				);
+				const buffer = await readFile(resolve(config.uploadPath, photo.path));
 				const image = sharp(buffer);
 				const blurry = await generateThumbhash(image);
 				await db.photo.update({

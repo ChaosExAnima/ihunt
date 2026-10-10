@@ -67,10 +67,7 @@ export function AdminHunters({ withName = false }: { withName?: boolean }) {
 									type: 'edit',
 								})}
 							>
-								<ChipField
-									icon={<AdminAvatar size={30} />}
-									source="handle"
-								/>
+								<ChipField icon={<AdminAvatar size={30} />} source="handle" />
 							</Link>
 						)}
 					</RecordContextProvider>

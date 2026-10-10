@@ -3,9 +3,7 @@ import 'dotenv/config';
 import * as z from 'zod';
 
 const configSchema = z.object({
-	nodeEnv: z
-		.enum(['development', 'production', 'test'])
-		.default('development'),
+	nodeEnv: z.enum(['development', 'production', 'test']).default('development'),
 	publicHost: z.url(),
 	lanHost: z.url().optional(),
 	port: z.coerce.number().int().min(1).prefault(4000),

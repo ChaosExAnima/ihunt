@@ -52,8 +52,7 @@ export const inviteRouter = router({
 					hunt.huntHunters.length >= hunt.maxHunters ||
 					!hunt.huntHunters.some(
 						({ hunterId, status }) =>
-							hunterId === hunter.id &&
-							status === InviteStatus.Accepted,
+							hunterId === hunter.id && status === InviteStatus.Accepted,
 					)
 				) {
 					return [];
@@ -130,95 +129,88 @@ export const inviteRouter = router({
 				huntId: idSchemaCoerce,
 			}),
 		)
-		.mutation(
-			async ({ ctx: { hunter: currentHunter }, input: { huntId } }) => {
-				if (!currentHunter.groupId) {
-					throw new TRPCError({
-						code: 'FORBIDDEN',
-						message: 'You are not in a group',
-					});
-				}
-
-				// Prevent creating invites when hunt is locked down or unavailable.
-				const hunt = await db.hunt.findUniqueOrThrow({
-					where: {
-						id: huntId,
-					},
+		.mutation(async ({ ctx: { hunter: currentHunter }, input: { huntId } }) => {
+			if (!currentHunter.groupId) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'You are not in a group',
 				});
-				if (
-					hunt.status !== HuntStatus.Available ||
-					huntInLockdown(hunt)
-				) {
-					throw new TRPCError({
-						code: 'FORBIDDEN',
-						message: 'Hunt cannot have invites',
-					});
-				}
+			}
 
-				const invitees = await fetchInviteesForHunt({
-					fromHunterId: currentHunter.id,
-					groupId: currentHunter.groupId,
-					huntId,
+			// Prevent creating invites when hunt is locked down or unavailable.
+			const hunt = await db.hunt.findUniqueOrThrow({
+				where: {
+					id: huntId,
+				},
+			});
+			if (hunt.status !== HuntStatus.Available || huntInLockdown(hunt)) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Hunt cannot have invites',
 				});
+			}
 
-				if (invitees.length === 0) {
-					throw new TRPCError({
-						code: 'NOT_FOUND',
-						message: 'Nobody left to invite today',
-					});
-				}
+			const invitees = await fetchInviteesForHunt({
+				fromHunterId: currentHunter.id,
+				groupId: currentHunter.groupId,
+				huntId,
+			});
 
-				const expiresAt = new Date(
-					Date.now() + MINUTE * HUNT_INVITE_MINUTES,
-				);
-				const event = inviteSendEvent({
-					fromHunter: currentHunter,
-					hunt,
+			if (invitees.length === 0) {
+				throw new TRPCError({
+					code: 'NOT_FOUND',
+					message: 'Nobody left to invite today',
 				});
+			}
 
-				for (const invitee of invitees) {
-					try {
-						const hunterId = invitee.id;
-						await db.huntHunter.upsert({
-							where: {
-								huntId_hunterId: {
-									hunterId,
-									huntId,
-								},
-							},
-							create: {
-								expiresAt,
-								fromHunterId: currentHunter.id,
-								huntId,
+			const expiresAt = new Date(Date.now() + MINUTE * HUNT_INVITE_MINUTES);
+			const event = inviteSendEvent({
+				fromHunter: currentHunter,
+				hunt,
+			});
+
+			for (const invitee of invitees) {
+				try {
+					const hunterId = invitee.id;
+					await db.huntHunter.upsert({
+						where: {
+							huntId_hunterId: {
 								hunterId,
-								status: InviteStatus.Pending,
+								huntId,
 							},
-							update: {
-								expiresAt,
-								fromHunterId: currentHunter.id,
-								status: InviteStatus.Pending,
-							},
-						});
-						await notifyHunter({
-							event,
-							hunter: invitee,
-						});
-					} catch (err) {
-						if (
-							err instanceof PrismaClientKnownRequestError &&
-							err.code === 'P2002'
-						) {
-							continue;
-						}
-						throw err;
+						},
+						create: {
+							expiresAt,
+							fromHunterId: currentHunter.id,
+							huntId,
+							hunterId,
+							status: InviteStatus.Pending,
+						},
+						update: {
+							expiresAt,
+							fromHunterId: currentHunter.id,
+							status: InviteStatus.Pending,
+						},
+					});
+					await notifyHunter({
+						event,
+						hunter: invitee,
+					});
+				} catch (err) {
+					if (
+						err instanceof PrismaClientKnownRequestError &&
+						err.code === 'P2002'
+					) {
+						continue;
 					}
+					throw err;
 				}
+			}
 
-				return {
-					count: invitees.length,
-				};
-			},
-		),
+			return {
+				count: invitees.length,
+			};
+		}),
 
 	resetInvites: adminProcedure
 		.input(

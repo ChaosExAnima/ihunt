@@ -79,8 +79,8 @@ export function HuntInviteModal({
 				))}
 			</ul>
 			<p className="text-muted">
-				Your group will have {HUNT_INVITE_MINUTES} minutes to accept or
-				decline the hunt.
+				Your group will have {HUNT_INVITE_MINUTES} minutes to accept or decline
+				the hunt.
 			</p>
 		</ConfirmDialog>
 	);

@@ -47,10 +47,7 @@ export default defineConfig(({ mode }) => {
 				},
 				{
 					find: '@/server',
-					replacement: resolve(
-						import.meta.dirname,
-						'./server/index.ts',
-					),
+					replacement: resolve(import.meta.dirname, './server/index.ts'),
 				},
 			],
 		},
@@ -108,8 +105,7 @@ export default defineConfig(({ mode }) => {
 					globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
 				},
 			}),
-			process.env.ANALYZE_BUNDLE === '1' &&
-				(visualizer() as PluginOption),
+			process.env.ANALYZE_BUNDLE === '1' && (visualizer() as PluginOption),
 			vitePluginVersionMark({
 				ifLog: false,
 				ifMeta: false,

@@ -49,11 +49,7 @@ export async function fetchDailyHuntCount(hunterId: number) {
 				gte: dateStart,
 			},
 			status: {
-				in: [
-					HuntStatus.Active,
-					HuntStatus.Available,
-					HuntStatus.Complete,
-				],
+				in: [HuntStatus.Active, HuntStatus.Available, HuntStatus.Complete],
 			},
 		},
 	});
@@ -82,10 +78,7 @@ export function invitesToReserved({
 		if (invite.fromHunterId === hunterId) {
 			status = 'sent';
 		} else if (invite.hunterId === hunterId && status !== 'sent') {
-			status =
-				invite.status === InviteStatus.Rejected
-					? 'declined'
-					: 'invited';
+			status = invite.status === InviteStatus.Rejected ? 'declined' : 'invited';
 		} else if (
 			invite.status !== InviteStatus.Pending &&
 			status === 'reserved'
@@ -153,9 +146,7 @@ export async function fetchInviteesForHunt({
 			continue;
 		}
 
-		const oldInvite = invites.find(
-			({ hunterId }) => hunterId === hunter.id,
-		);
+		const oldInvite = invites.find(({ hunterId }) => hunterId === hunter.id);
 		if (
 			oldInvite?.fromHunterId || // Already been invited
 			oldInvite?.status === InviteStatus.Accepted // Already part of the hunt

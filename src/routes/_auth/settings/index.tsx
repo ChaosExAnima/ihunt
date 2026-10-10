@@ -115,9 +115,7 @@ function Settings() {
 						{money !== '' ? (
 							<p className="grow text-xl">{money}</p>
 						) : (
-							<p className="text-muted grow text-sm italic">
-								Money is hidden
-							</p>
+							<p className="text-muted grow text-sm italic">Money is hidden</p>
 						)}
 						{!!money && (
 							<p className="text-muted text-xs">

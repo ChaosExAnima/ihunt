@@ -98,8 +98,7 @@ async function lanFetch(input: RequestInfo | URL | string, init?: RequestInit) {
 	}
 	const path = input instanceof Request ? input.url : input;
 	const { protocol, host: curHost } = window.location;
-	const host =
-		lanServer && lanWorking ? lanServer : `${protocol}//${curHost}`;
+	const host = lanServer && lanWorking ? lanServer : `${protocol}//${curHost}`;
 	const url = new URL(path, host);
 	try {
 		const resp = await fetch(url, {
@@ -169,11 +168,7 @@ async function testLanServer() {
 		lanWorking = true;
 	} catch {
 		timeout = Math.min(timeout * 2, MINUTE);
-		console.debug(
-			'LAN test failed, trying in',
-			timeout / SECOND,
-			'seconds',
-		);
+		console.debug('LAN test failed, trying in', timeout / SECOND, 'seconds');
 		window.setTimeout(() => {
 			void testLanServer();
 		}, timeout);

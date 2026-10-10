@@ -26,10 +26,7 @@ export const AdminPhotoList: FC<PropsWithClassName> = ({ className }) => {
 					<RecordContext value={photo}>
 						<AdminPhotoField />
 						<div className="mt-2 flex items-center gap-2">
-							<ReferenceField
-								reference="hunter"
-								source="hunterId"
-							/>
+							<ReferenceField reference="hunter" source="hunterId" />
 							<DeleteButton redirect={false} resource="photo" />
 						</div>
 					</RecordContext>

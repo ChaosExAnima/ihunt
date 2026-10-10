@@ -18,10 +18,7 @@ export function Avatar({ className, hunter, link = false }: AvatarProps) {
 
 	if (link) {
 		return (
-			<Link
-				params={{ hunterId: hunter.id.toString() }}
-				to="/hunters/$hunterId"
-			>
+			<Link params={{ hunterId: hunter.id.toString() }} to="/hunters/$hunterId">
 				<Avatar hunter={hunter} />
 			</Link>
 		);

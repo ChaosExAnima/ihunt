@@ -95,8 +95,8 @@ export function HuntCompleteDialog() {
 				</DialogHeader>
 				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
 					<p>
-						You are paying the hunters {formattedPayment} of{' '}
-						{formattedOriginal}.
+						You are paying the hunters {formattedPayment} of {formattedOriginal}
+						.
 					</p>
 					<Input
 						min={0}

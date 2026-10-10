@@ -70,21 +70,17 @@ function RouteComponent() {
 								/>
 							</CarouselItem>
 						))}
-					{availableHunts?.length === 0 &&
-						activeHunts?.length === 0 && (
-							<CarouselItem>
-								<div className="border-border mx-4 rounded-xl border p-4">
-									<Header level={3}>
-										No hunts available
-									</Header>
-									<p className="mt-4">
-										Sorry, there aren't any hunts available
-										to you right now. There may be some more
-										available later!
-									</p>
-								</div>
-							</CarouselItem>
-						)}
+					{availableHunts?.length === 0 && activeHunts?.length === 0 && (
+						<CarouselItem>
+							<div className="border-border mx-4 rounded-xl border p-4">
+								<Header level={3}>No hunts available</Header>
+								<p className="mt-4">
+									Sorry, there aren't any hunts available to you right now.
+									There may be some more available later!
+								</p>
+							</div>
+						</CarouselItem>
+					)}
 					<CarouselItem>
 						<HuntsCompleted />
 					</CarouselItem>

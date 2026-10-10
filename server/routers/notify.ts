@@ -40,8 +40,7 @@ export const notifyRouter = router({
 				.omit({ type: true, url: true })
 				.extend({ url: z.string().optional() });
 
-			const host =
-				isLan && config.lanHost ? config.lanHost : config.publicHost;
+			const host = isLan && config.lanHost ? config.lanHost : config.publicHost;
 
 			return notifications.map(
 				({ id, createdAt, type, event: rawEvent, seenAt }) => {
@@ -52,9 +51,7 @@ export const notifyRouter = router({
 						created: createdAt,
 						type: notifyTypeSchema.parse(type),
 						...event,
-						url: event.url?.startsWith('/')
-							? `${host}${event.url}`
-							: event.url,
+						url: event.url?.startsWith('/') ? `${host}${event.url}` : event.url,
 					};
 				},
 			);

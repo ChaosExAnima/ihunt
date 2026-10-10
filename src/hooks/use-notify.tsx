@@ -83,10 +83,7 @@ export function useNotifySubscribe() {
 				) {
 					toInvalidate.push(trpc.hunt.getAvailable.queryKey());
 				} else if (event.type.startsWith('hunter-')) {
-					toInvalidate.push(
-						trpc.hunter.pathKey(),
-						trpc.auth.me.queryKey(),
-					);
+					toInvalidate.push(trpc.hunter.pathKey(), trpc.auth.me.queryKey());
 				}
 
 				if (event.title) {

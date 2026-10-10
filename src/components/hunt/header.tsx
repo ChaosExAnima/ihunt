@@ -101,8 +101,7 @@ export function HuntMeta({
 		}
 		const now = new Date();
 		const today =
-			now.getMonth() === date.getMonth() &&
-			now.getDate() === date.getDate();
+			now.getMonth() === date.getMonth() && now.getDate() === date.getDate();
 
 		if (today) {
 			const formatter = new Intl.DateTimeFormat(Locale, {
