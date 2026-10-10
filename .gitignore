@@ -41,7 +41,7 @@ data
 
 # build
 dist
-src/dev-dist
+client/dev-dist
 server.js
 
 # assets

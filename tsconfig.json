@@ -14,7 +14,9 @@
 		"jsx": "preserve",
 		"incremental": true,
 		"paths": {
-			"@/*": ["./src/*"],
+			"@/client/*": ["./client/*"],
+			"@/lib/*": ["./lib/*"],
+			"@/admin/*": ["./admin/*"],
 			"@/server/*": ["./server/*"]
 		},
 		"types": ["./global.d.ts"]

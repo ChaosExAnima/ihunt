@@ -1,0 +1,61 @@
+import { useCallback } from 'react';
+
+import {
+	Toast,
+	ToastClose,
+	ToastDescription,
+	ToastProvider,
+	ToastTitle,
+	ToastViewport,
+} from '@/client/components/ui/toast';
+import { useToast } from '@/client/hooks/use-toast';
+
+export function Toaster() {
+	const { toasts } = useToast();
+
+	const disableHandler = useCallback((event: Event) => {
+		event.preventDefault();
+	}, []);
+
+	return (
+		<ToastProvider>
+			{toasts.map(
+				({
+					action,
+					description,
+					icon: Icon,
+					id,
+					permanent,
+					title,
+					...props
+				}) => (
+					<Toast
+						key={id}
+						{...props}
+						{...(permanent && {
+							onSwipeEnd: disableHandler,
+							onSwipeMove: disableHandler,
+							onSwipeStart: disableHandler,
+						})}
+						className="mb-2"
+					>
+						<div>
+							{title && (
+								<ToastTitle className="mb-2 flex items-center gap-2">
+									{Icon && <Icon />}
+									{title}
+								</ToastTitle>
+							)}
+							{description && (
+								<ToastDescription>{description}</ToastDescription>
+							)}
+						</div>
+						{action}
+						{!permanent && <ToastClose />}
+					</Toast>
+				),
+			)}
+			<ToastViewport />
+		</ToastProvider>
+	);
+}
