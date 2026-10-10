@@ -1,19 +1,24 @@
 # iHunt
 
-This is an app to be used by the upcoming [Poltergeist](https://www.poltergeistlarp.com) LARP iHunt: Alpha Access. If you are planning on playing this game, be warned that **spoilers are ahead**!
+This is the app used by the [Poltergeist](https://www.poltergeistlarp.com) LARP [iHunt: Alpha Access](https://ihunt.poltergeistlarp.com). If you are playing or hoping to play this game, be warned that **spoilers are ahead**!
 
-The stack of this app is as follows:
+## How it works
 
-- Next.js
-- Prisma
-- TailwindCSS
-- ShadCN
-- React Admin
+iHunt is four different services: the JS API server, front end, images, and database.
 
-To install and get it running, do the following:
+## Setup
 
-1. Clone this repo via `git clone https://github.com/ChaosExAnima/ihunt.git ihunt`
-2. Install dependencies via `pnpm install`
-3. Copy `.env.example` to `.env` and update values
-4. Run the dev server via `pnpm run dev`
-5. Visit the app at `http://localhost:3000`
+### Prerequisites
+
+- Node.JS
+- Yarn
+- Docker
+
+### Installation
+
+1. Clone this repo via `git clone https://github.com/ChaosExAnima/ihunt.git ihunt`.
+2. Install dependencies via `yarn`.
+3. Copy `.env.example` to `.env` and update values.
+4. Start the external services via `docker compose up -d`.
+5. Run the dev server via `yarn dev`.
+6. Visit the app at `http://localhost:5173`

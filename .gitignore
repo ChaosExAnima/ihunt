@@ -30,6 +30,7 @@ next-env.d.ts
 # prisma
 prisma/*.db*
 prisma/generated
+*.sql
 
 .vscode
 ihunt.code-workspace
