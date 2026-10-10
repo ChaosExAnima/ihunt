@@ -30,7 +30,7 @@
 		"docker:prod": "docker compose -f config/docker-compose.prod.yml --project-directory=."
 	},
 	"devDependencies": {
-		"concurrently": "^9.2.1",
+		"concurrently": "^10.0.0",
 		"csv-parse": "^7.0.0",
 		"globals": "^17.4.0",
 		"husky": "^9.1.7",
