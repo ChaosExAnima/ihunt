@@ -5,9 +5,9 @@
 	"main": "index.ts",
 	"scripts": {
 		"dev": "NODE_ENV=development nodemon -w . -w ../lib --exec tsx server.ts",
-		"prisma": "prisma generate",
 		"studio": "prisma studio",
 		"build": "esbuild server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --alias:@ihunt/lib=../lib --outfile=server.js",
+		"build:prisma": "prisma generate",
 		"build:scripts": "esbuild scripts/*.ts --bundle --platform=node --target=node24 --format=esm --packages=external --alias:@ihunt/lib=../lib --outdir=scripts/dist",
 		"typecheck": "tsc --noEmit"
 	},
