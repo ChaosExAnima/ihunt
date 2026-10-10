@@ -5,7 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Header } from '@/components/header';
-import { HuntDisplay } from '@/components/hunt';
+import { HuntDisplay, HuntDisplayProps } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed-list';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
@@ -20,57 +20,59 @@ import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,
-	loader({ context: { queryClient } }) {
-		void queryClient.prefetchQuery(trpc.hunt.getActive.queryOptions());
-		void queryClient.prefetchQuery(trpc.hunt.getAvailable.queryOptions());
-		void queryClient.prefetchQuery(trpc.hunt.getCompleted.queryOptions());
-	},
 });
 
 function RouteComponent() {
-	const { data: activeHunts, isLoading: isLoadingActive } = useSuspenseQuery({
-		...trpc.hunt.getActive.queryOptions(),
-		refetchInterval: 30 * SECOND,
-	});
-	const { data: availableHunts, isLoading: isLoadingAvailable } = useQuery({
-		...trpc.hunt.getAvailable.queryOptions(),
-		refetchInterval: 30 * SECOND,
-	});
+	const { data: activeHunts = [], isLoading: isLoadingActive } =
+		useSuspenseQuery({
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'active' }),
+			refetchInterval: 30 * SECOND,
+		});
+	const { data: availableHunts = [], isLoading: isLoadingAvailable } = useQuery(
+		{
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'available' }),
+			refetchInterval: 30 * SECOND,
+		},
+	);
+	const { data: reviewingHunts = [], isLoading: isLoadingReviewing } =
+		useSuspenseQuery({
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'active' }),
+			refetchInterval: 30 * SECOND,
+		});
 
 	const { remainingToday, onJoin, inviteModal } = useAvailableHunt();
 
 	const [api, setApi] = useState<CarouselApi>();
 
+	const totalHunts =
+		activeHunts.length + availableHunts.length + reviewingHunts.length;
+	const isAllLoading =
+		isLoadingActive && isLoadingAvailable && isLoadingReviewing;
+
 	return (
 		<>
 			<Carousel className="-mx-4 flex grow flex-col" setApi={setApi}>
 				<CarouselContent className="grow pb-4">
-					{isLoadingAvailable && isLoadingActive && (
+					{isAllLoading && (
 						<CarouselItem>
 							<HuntLoading className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg" />
 						</CarouselItem>
 					)}
-					{!isLoadingActive &&
-						activeHunts?.map((hunt) => (
-							<CarouselItem key={hunt.id}>
-								<HuntDisplay
-									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
-									hunt={hunt}
-								/>
-							</CarouselItem>
-						))}
-					{!isLoadingAvailable &&
-						availableHunts?.map((hunt) => (
-							<CarouselItem key={hunt.id}>
-								<HuntDisplay
-									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
-									hunt={hunt}
-									onAcceptHunt={onJoin}
-									remainingHunts={remainingToday}
-								/>
-							</CarouselItem>
-						))}
-					{availableHunts?.length === 0 && activeHunts?.length === 0 && (
+					{activeHunts.map((hunt) => (
+						<HuntSlide key={hunt.id} hunt={hunt} />
+					))}
+					{availableHunts.map((hunt) => (
+						<HuntSlide
+							key={hunt.id}
+							hunt={hunt}
+							onAcceptHunt={onJoin}
+							remainingHunts={remainingToday}
+						/>
+					))}
+					{reviewingHunts.map((hunt) => (
+						<HuntSlide key={hunt.id} hunt={hunt} />
+					))}
+					{totalHunts === 0 && (
 						<CarouselItem>
 							<div className="border-border mx-4 rounded-xl border p-4">
 								<Header level={3}>No hunts available</Header>
@@ -96,6 +98,17 @@ function RouteComponent() {
 	);
 }
 
+function HuntSlide(props: HuntDisplayProps) {
+	return (
+		<CarouselItem>
+			<HuntDisplay
+				className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
+				{...props}
+			/>
+		</CarouselItem>
+	);
+}
+
 function CurrentSlide({
 	active = [],
 	available = [],
@@ -103,6 +116,7 @@ function CurrentSlide({
 }: {
 	active?: Entity[];
 	available?: Entity[];
+	reviewing?: Entity[];
 	api: CarouselApi;
 }) {
 	const [current, setCurrent] = useState(0);

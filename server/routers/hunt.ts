@@ -1,10 +1,10 @@
 import { HuntStatus } from '@ihunt/lib/constants';
-import { idSchemaCoerce } from '@ihunt/lib/schemas';
+import { huntStatus, idSchemaCoerce } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { db } from '../lib/db';
+import { db, Prisma } from '../lib/db';
 import {
 	assertHuntsEnabled,
 	huntDisplayInclude,
@@ -26,6 +26,63 @@ import { InviteStatus, outputHuntSchema } from '../lib/schema';
 import { router, userProcedure } from '../lib/trpc';
 
 export const huntRouter = router({
+	getHuntsBy: userProcedure
+		.input(z.object({ status: huntStatus }))
+		.output(outputHuntSchema.array())
+		.query(
+			async ({
+				input: { status },
+				ctx: {
+					hunter: { id: hunterId },
+					user: { code },
+					admin,
+				},
+			}) => {
+				if (!admin && (status === 'cancelled' || status === 'pending')) {
+					throw new TRPCError({ code: 'FORBIDDEN' });
+				}
+
+				if (isHuntsDisabled(code, admin) && status !== 'complete') {
+					return [];
+				}
+				let statusWhere: Prisma.HuntHunterWhereInput['status'] =
+					InviteStatus.Accepted;
+				if (status === 'available') {
+					statusWhere = { not: InviteStatus.Expired };
+				}
+
+				const hunts = await db.hunt.findMany({
+					include: {
+						...huntDisplayInclude,
+						huntHunters: {
+							...huntDisplayInclude.huntHunters,
+							where: { status: statusWhere },
+						},
+					},
+					where: {
+						status,
+						huntHunters: {
+							some: {
+								hunterId,
+								status: InviteStatus.Accepted,
+							},
+						},
+					},
+					orderBy: {
+						scheduledAt: 'desc',
+					},
+				});
+
+				return hunts.map(({ huntHunters, photos, ...hunt }) => ({
+					...hunt,
+					hunters: huntHunters.map(({ hunter }) => hunter),
+					photos: photos.filter(
+						({ hunterId }) => !hunterId || hunterId === hunterId,
+					),
+				}));
+			},
+		),
+
 	getActive: userProcedure.output(outputHuntSchema.array()).query(
 		async ({
 			ctx: {
