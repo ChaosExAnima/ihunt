@@ -2,9 +2,10 @@
 	"name": "@ihunt/client",
 	"private": true,
 	"scripts": {
+		"build": "vite build",
 		"dev": "NODE_ENV=development vite dev",
 		"start": "vite",
-		"build": "vite build"
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@fontsource-variable/geist-mono": "^5.2.7",

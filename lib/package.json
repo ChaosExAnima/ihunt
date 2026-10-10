@@ -4,5 +4,8 @@
 	"exports": {
 		"./*": "./*.ts"
 	},
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
 	"packageManager": "yarn@4.18.1"
 }

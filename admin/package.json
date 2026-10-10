@@ -1,6 +1,9 @@
 {
 	"name": "@ihunt/admin",
 	"private": true,
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
 	"dependencies": {
 		"@ihunt/lib": "workspace:^",
 		"ra-router-tanstack": "^5.14.5",

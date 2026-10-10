@@ -3,10 +3,12 @@
 	"private": true,
 	"main": "index.ts",
 	"scripts": {
-		"dev": "NODE_ENV=development nodemon -w server -w vite.config.ts -w node_modules -w .env --exec tsx server.ts",
+		"dev": "NODE_ENV=development nodemon -w . -w ../lib --exec tsx server.ts",
 		"prisma": "prisma generate",
 		"studio": "prisma studio",
-		"build": "esbuild server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --outfile=server.js"
+		"build": "esbuild server.ts --bundle --platform=node --target=node24 --format=esm --packages=external --alias:@ihunt/lib=../lib --outfile=server.js",
+		"build:scripts": "esbuild scripts/*.ts --bundle --platform=node --target=node24 --format=esm --packages=external --alias:@ihunt/lib=../lib --outdir=scripts/dist",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@fastify/cors": "^11.2.0",
