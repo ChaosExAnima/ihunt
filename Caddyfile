@@ -1,8 +1,13 @@
 ihunt.localhost {
 	@admin path /admin /admin/*
+	@images path /images /images/*
 
 	handle @admin {
 		reverse_proxy localhost:5174
+	}
+
+	handle @images {
+		reverse_proxy localhost:9000
 	}
 
 	handle {

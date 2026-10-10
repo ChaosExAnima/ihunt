@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
 
 	return {
-		base: '/admin/',
+		base: '/admin',
 		publicDir: resolve(clientDir, 'public'),
 		root: import.meta.dirname,
 		build: {
