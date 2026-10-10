@@ -10,10 +10,12 @@
 	],
 	"type": "module",
 	"scripts": {
-		"dev": "concurrently npm:dev:client npm:dev:server",
+		"dev": "concurrently npm:dev:client npm:dev:admin npm:dev:server",
+		"dev:admin": "yarn workspace @ihunt/admin dev",
 		"dev:client": "yarn workspace @ihunt/client dev",
 		"dev:server": "yarn workspace @ihunt/server dev",
 		"build": "yarn build:prisma && yarn build:server",
+		"build:admin": "yarn workspace @ihunt/admin build",
 		"build:client": "yarn workspace @ihunt/client build",
 		"build:prisma": "yarn workspace @ihunt/server prisma",
 		"build:server": "yarn workspace @ihunt/server build",

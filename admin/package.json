@@ -3,15 +3,56 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"build": "vite build",
+		"dev": "NODE_ENV=development vite dev",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@fontsource-variable/geist-mono": "^5.2.7",
+		"@fontsource/kanit": "^5.2.8",
+		"@hookform/resolvers": "^5.2.2",
 		"@ihunt/lib": "workspace:^",
+		"@radix-ui/react-dialog": "^1.1.15",
+		"@radix-ui/react-label": "^2.1.8",
+		"@radix-ui/react-popover": "^1.1.15",
+		"@radix-ui/react-select": "^2.2.6",
+		"@radix-ui/react-separator": "^1.1.8",
+		"@radix-ui/react-slot": "^1.2.4",
+		"@radix-ui/react-switch": "^1.2.6",
+		"@radix-ui/react-toast": "^1.2.15",
+		"@radix-ui/react-tooltip": "^1.2.8",
+		"@tanstack/query-async-storage-persister": "^5.96.2",
+		"@tanstack/react-query": "^5.96.1",
+		"@tanstack/react-query-persist-client": "^5.96.2",
+		"@tanstack/react-router": "^1.168.10",
+		"@trpc/client": "^11.16.0",
+		"@trpc/tanstack-react-query": "^11.16.0",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"idb-keyval": "^6.2.2",
+		"js-cookie": "^3.0.5",
+		"lucide-react": "^1.7.0",
 		"ra-router-tanstack": "^5.14.5",
-		"react-admin": "^5.14.5"
+		"react": "^19.2.4",
+		"react-admin": "^5.14.5",
+		"react-dom": "^19.2.4",
+		"react-hook-form": "^7.72.0",
+		"react-image-crop": "^11.0.10",
+		"superjson": "^2.2.6",
+		"tailwind-merge": "^3.5.0",
+		"tailwindcss": "^4.2.2",
+		"thumbhash": "^0.1.1",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@ihunt/server": "workspace:^"
+		"@ihunt/server": "workspace:^",
+		"@tailwindcss/vite": "^4.2.2",
+		"@tanstack/react-query-devtools": "^5.96.1",
+		"@types/js-cookie": "^3.0.6",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^6.0.1",
+		"vite": "^8.0.5"
 	},
 	"packageManager": "yarn@4.18.1"
 }
