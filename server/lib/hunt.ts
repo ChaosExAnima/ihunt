@@ -83,7 +83,11 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 		return;
 	}
 
-	// Get upcoming hunts within scheduled time.
+	await lockdownHunts(logger);
+	await endActiveHunts(logger);
+}
+
+async function lockdownHunts(logger?: FastifyBaseLogger) {
 	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
 	const upcomingHunts = await db.hunt.findMany({
 		include: {
@@ -142,8 +146,25 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 			logger?.error(err, `Error notifying hunters for hunt ${hunt.id}`);
 		}
 	}
-	if (total) {
-		logger?.info(`Notified ${total} users for ${upcomingHunts.length} hunts`);
+}
+
+async function endActiveHunts(logger?: FastifyBaseLogger) {
+	const endTime = new Date(Date.now() + MINUTE * HUNT_LOCKDOWN_MINUTES);
+	const upcomingHunts = await db.hunt.updateManyAndReturn({
+		select: { id: true },
+		data: { status: HuntStatus.Reviewing },
+		where: {
+			scheduledAt: {
+				lte: endTime,
+			},
+			status: HuntStatus.Active,
+		},
+	});
+
+	if (upcomingHunts.length > 0) {
+		logger?.info(
+			`Ended hunts: ${upcomingHunts.map(({ id }) => id).join(', ')}`,
+		);
 	}
 }
 

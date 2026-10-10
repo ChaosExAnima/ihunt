@@ -22,6 +22,7 @@ export const HUNT_MAX_HUNTERS = 5;
 export const HUNT_MAX_DANGER = 5;
 export const HUNT_INVITE_MINUTES = 5;
 export const HUNT_LOCKDOWN_MINUTES = 15;
+export const HUNT_ACTIVE_END_MINUTES = 30;
 
 export const HunterTypes = {
 	Evileena: 'evileena',
