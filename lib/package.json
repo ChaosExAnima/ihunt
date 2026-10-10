@@ -1,6 +1,7 @@
 {
 	"name": "@ihunt/lib",
 	"private": true,
+	"type": "module",
 	"exports": {
 		"./*": "./*.ts"
 	},

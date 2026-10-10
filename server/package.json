@@ -1,6 +1,7 @@
 {
 	"name": "@ihunt/server",
 	"private": true,
+	"type": "module",
 	"main": "index.ts",
 	"scripts": {
 		"dev": "NODE_ENV=development nodemon -w . -w ../lib --exec tsx server.ts",

@@ -1,6 +1,7 @@
 {
 	"name": "@ihunt/client",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"build": "vite build",
 		"dev": "NODE_ENV=development vite dev",
