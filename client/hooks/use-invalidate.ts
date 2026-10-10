@@ -1,8 +1,7 @@
+import { toArray } from '@ihunt/lib/utils';
 import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import { useCallback } from 'react';
-
-import { toArray } from '@/lib/utils';
 
 export function useInvalidate() {
 	const queryClient = useQueryClient();

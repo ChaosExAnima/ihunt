@@ -1,5 +1,3 @@
-import * as z from 'zod';
-
 import {
 	groupSchema,
 	hunterSchema,
@@ -9,8 +7,9 @@ import {
 	idSchemaCoerce,
 	photoSchema,
 	posIntSchema,
-} from '@/lib/schemas';
-import { idsToEntities } from '@/lib/utils';
+} from '@ihunt/lib/schemas';
+import { idsToEntities } from '@ihunt/lib/utils';
+import * as z from 'zod';
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 

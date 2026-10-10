@@ -1,5 +1,6 @@
 import type { ResizingType } from '@imgproxy/imgproxy-js-core';
 
+import { PhotoSchema } from '@ihunt/lib/schemas';
 import { useQuery } from '@tanstack/react-query';
 import {
 	ImgHTMLAttributes,
@@ -10,8 +11,7 @@ import {
 } from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
 
-import { trpc } from '@/client/lib/api';
-import { PhotoSchema } from '@/lib/schemas';
+import { trpc } from '@/lib/api';
 
 export interface PhotoDisplayProps extends ImgHTMLAttributes<HTMLImageElement> {
 	fit?: ResizingType;

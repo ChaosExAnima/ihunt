@@ -1,10 +1,10 @@
+import { HuntSchema, PhotoHuntSchema } from '@ihunt/lib/schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Camera, Crosshair, Upload } from 'lucide-react';
 import { useCallback } from 'react';
 
-import { trpc } from '@/client/lib/api';
-import { PropsWithClassName } from '@/client/lib/types';
-import { HuntSchema, PhotoHuntSchema } from '@/lib/schemas';
+import { trpc } from '@/lib/api';
+import { PropsWithClassName } from '@/lib/types';
 
 import { Button } from '../ui/button';
 import { UploadPhoto } from '../upload-photo';

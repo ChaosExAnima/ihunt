@@ -1,8 +1,7 @@
+import { SECOND } from '@ihunt/lib/formats';
 import { onlineManager } from '@tanstack/react-query';
 import { Wifi, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-
-import { SECOND } from '@/lib/formats';
 
 import { toast } from './use-toast';
 

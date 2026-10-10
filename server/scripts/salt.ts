@@ -1,7 +1,7 @@
 import { genSalt, hash } from 'bcryptjs';
 import { parseArgs } from 'node:util';
 
-import { HASH_ITERATIONS } from '@/server/lib/auth';
+import { HASH_ITERATIONS } from '../lib/auth';
 
 const {
 	values: { password, plain },

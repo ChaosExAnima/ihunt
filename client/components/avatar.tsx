@@ -1,9 +1,9 @@
+import { HunterSchema } from '@ihunt/lib/schemas';
 import { Link } from '@tanstack/react-router';
 import { UserRound, UserRoundX } from 'lucide-react';
 
-import { cn } from '@/client/lib/styles';
-import { PropsWithClassName } from '@/client/lib/types';
-import { HunterSchema } from '@/lib/schemas';
+import { cn } from '@/lib/styles';
+import { PropsWithClassName } from '@/lib/types';
 
 import { PhotoDisplay } from './photo';
 

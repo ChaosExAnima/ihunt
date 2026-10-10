@@ -1,12 +1,12 @@
+import { dateFormat } from '@ihunt/lib/formats';
+import { HuntSchema } from '@ihunt/lib/schemas';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Dot } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { Card } from '@/client/components/ui/card';
-import { trpc } from '@/client/lib/api';
-import { dateFormat } from '@/lib/formats';
-import { HuntSchema } from '@/lib/schemas';
+import { Card } from '@/components/ui/card';
+import { trpc } from '@/lib/api';
 
 import { Header } from '../header';
 import { Loading } from '../loading';

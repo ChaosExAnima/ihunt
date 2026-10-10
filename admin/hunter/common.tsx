@@ -1,3 +1,4 @@
+import { HunterTypes } from '@ihunt/lib/constants';
 import {
 	AutocompleteInput,
 	BooleanInput,
@@ -6,8 +7,6 @@ import {
 	SelectInput,
 	TextInput,
 } from 'react-admin';
-
-import { HunterTypes } from '@/lib/constants';
 
 import { AdminAvatarInput } from '../components/avatar';
 

@@ -1,3 +1,5 @@
+import { UploadPhoto } from '@ihunt/client/components/upload-photo';
+import { AdminHunterSchema } from '@ihunt/lib/admin-schemas';
 import { FC, PropsWithChildren, useCallback } from 'react';
 import {
 	Button,
@@ -8,10 +10,7 @@ import {
 	useRefresh,
 } from 'react-admin';
 
-import { UploadPhoto } from '@/client/components/upload-photo';
-
 import { useTypedDataProvider } from '../data';
-import { AdminHunterSchema } from '../schemas';
 import { AdminPhotoField } from './photo-field';
 
 export const AdminAvatar: FC<

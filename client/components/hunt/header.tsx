@@ -1,12 +1,12 @@
+import { HuntStatus, Locale } from '@ihunt/lib/constants';
+import { HuntSchema } from '@ihunt/lib/schemas';
+import { arrayOfLength } from '@ihunt/lib/utils';
 import { Clock, MapPin, Skull } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { useCurrencyFormat } from '@/client/hooks/use-currency-format';
-import { cn } from '@/client/lib/styles';
-import { PropsWithClassName } from '@/client/lib/types';
-import { HuntStatus, Locale } from '@/lib/constants';
-import { HuntSchema } from '@/lib/schemas';
-import { arrayOfLength } from '@/lib/utils';
+import { useCurrencyFormat } from '@/hooks/use-currency-format';
+import { cn } from '@/lib/styles';
+import { PropsWithClassName } from '@/lib/types';
 
 import { Header } from '../header';
 import { DeletePhotoButton, HuntPics } from './pics';

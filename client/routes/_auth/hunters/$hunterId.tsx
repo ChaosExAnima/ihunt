@@ -1,24 +1,21 @@
+import { HUNTER_LOW_RATING } from '@ihunt/lib/constants';
+import { dateFormat } from '@ihunt/lib/formats';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 
-import { Callout } from '@/client/components/callout';
-import { Header } from '@/client/components/header';
-import { HunterGroupList } from '@/client/components/hunter/group-list';
-import {
-	HunterMetaName,
-	HunterMetaRating,
-} from '@/client/components/hunter/meta';
-import { Loading } from '@/client/components/loading';
-import { PhotoDisplay } from '@/client/components/photo';
-import { Rating } from '@/client/components/rating';
-import { Button } from '@/client/components/ui/button';
-import { useHunterId } from '@/client/hooks/use-hunter';
-import { useImageColor } from '@/client/hooks/use-image-color';
-import { trpc } from '@/client/lib/api';
-import { cn } from '@/client/lib/styles';
-import { HUNTER_LOW_RATING } from '@/lib/constants';
-import { dateFormat } from '@/lib/formats';
+import { Callout } from '@/components/callout';
+import { Header } from '@/components/header';
+import { HunterGroupList } from '@/components/hunter/group-list';
+import { HunterMetaName, HunterMetaRating } from '@/components/hunter/meta';
+import { Loading } from '@/components/loading';
+import { PhotoDisplay } from '@/components/photo';
+import { Rating } from '@/components/rating';
+import { Button } from '@/components/ui/button';
+import { useHunterId } from '@/hooks/use-hunter';
+import { useImageColor } from '@/hooks/use-image-color';
+import { trpc } from '@/lib/api';
+import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/hunters/$hunterId')({
 	component: RouteComponent,

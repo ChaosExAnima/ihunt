@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 
-import { cn } from '@/client/lib/styles';
+import { cn } from '@/lib/styles';
 
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';

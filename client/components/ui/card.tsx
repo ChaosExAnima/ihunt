@@ -1,8 +1,8 @@
 import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
 
-import { cn } from '@/client/lib/styles';
-import { AttributesWithAsChild } from '@/client/lib/types';
+import { cn } from '@/lib/styles';
+import { AttributesWithAsChild } from '@/lib/types';
 
 const Card = React.forwardRef<
 	HTMLDivElement,

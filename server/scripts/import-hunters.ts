@@ -1,3 +1,5 @@
+import { ACCESS_CODE_REGEX, HuntStatus } from '@ihunt/lib/constants';
+import { extractKey, entitiesToIdMap } from '@ihunt/lib/utils';
 import { parse } from 'csv-parse';
 import { createReadStream } from 'node:fs';
 import { resolve } from 'node:path';
@@ -5,10 +7,8 @@ import { finished } from 'node:stream/promises';
 import { parseArgs } from 'node:util';
 import z from 'zod';
 
-import { ACCESS_CODE_REGEX, HuntStatus } from '@/lib/constants';
-import { extractKey, entitiesToIdMap } from '@/lib/utils';
-import { db, Prisma } from '@/server/lib/db';
-import { InviteStatus } from '@/server/lib/schema';
+import { db, Prisma } from '../lib/db';
+import { InviteStatus } from '../lib/schema';
 
 async function main() {
 	const { positionals } = parseArgs({

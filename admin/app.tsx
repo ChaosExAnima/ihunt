@@ -1,3 +1,5 @@
+import { queryClient } from '@ihunt/client/lib/api';
+import { AdminUserSchema } from '@ihunt/lib/admin-schemas';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Crosshair, Image, Swords, UserRound, UsersRound } from 'lucide-react';
 import { tanStackRouterProvider } from 'ra-router-tanstack';
@@ -13,8 +15,6 @@ import {
 } from 'react-admin';
 import { createRoot } from 'react-dom/client';
 
-import { queryClient } from '@/client/lib/api';
-
 import { LoginPage } from './components/login';
 import { authProvider, dataProvider } from './data';
 import { GroupCreate } from './group/create';
@@ -28,7 +28,6 @@ import { HunterEdit } from './hunter/edit';
 import { HunterList } from './hunter/list';
 import { PhotoList } from './photo/list';
 import { ReviewWall } from './review-wall';
-import { AdminUserSchema } from './schemas';
 import { UserCreate } from './user/create';
 import { UserEdit } from './user/edit';
 import { UserList } from './user/list';

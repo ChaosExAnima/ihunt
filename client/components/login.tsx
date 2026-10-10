@@ -1,8 +1,10 @@
+import {
+	ACCESS_CODE_CHAR_COUNT,
+	ACCESS_CODE_REGEX,
+} from '@ihunt/lib/constants';
+import { AuthSchema } from '@ihunt/lib/schemas';
 import { SubmitEventHandler, useCallback } from 'react';
 import { SubmitHandler, UseFormReturn } from 'react-hook-form';
-
-import { ACCESS_CODE_CHAR_COUNT, ACCESS_CODE_REGEX } from '@/lib/constants';
-import { AuthSchema } from '@/lib/schemas';
 
 import { ActionButton } from './action-button';
 import {

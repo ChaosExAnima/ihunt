@@ -1,6 +1,5 @@
-import { HuntStatus, HuntStatusValues } from '@/lib/constants';
-
-import { AdminHuntSchema } from '../schemas';
+import { AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import { HuntStatus, HuntStatusValues } from '@ihunt/lib/constants';
 
 type HuntStatusName = keyof typeof HuntStatus;
 export const statusNames = Object.keys(HuntStatus) as HuntStatusName[];

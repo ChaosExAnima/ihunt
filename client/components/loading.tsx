@@ -2,8 +2,8 @@ import { onlineManager } from '@tanstack/react-query';
 import { LoaderCircleIcon } from 'lucide-react';
 import { ReactNode } from 'react';
 
-import { cn } from '@/client/lib/styles';
-import { PropsWithClassName } from '@/client/lib/types';
+import { cn } from '@/lib/styles';
+import { PropsWithClassName } from '@/lib/types';
 
 import { ErrorOffline } from './error-handler';
 

@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SESSION_COOKIE_NAME } from '@ihunt/lib/constants';
+import { authSchema, AuthSchema } from '@ihunt/lib/schemas';
 import { useMutation } from '@tanstack/react-query';
 import {
 	createFileRoute,
@@ -11,11 +13,9 @@ import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { Header } from '@/client/components/header';
-import { LoginForm } from '@/client/components/login';
-import { trpc } from '@/client/lib/api';
-import { SESSION_COOKIE_NAME } from '@/lib/constants';
-import { authSchema, AuthSchema } from '@/lib/schemas';
+import { Header } from '@/components/header';
+import { LoginForm } from '@/components/login';
+import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/')({
 	validateSearch(search) {

@@ -1,3 +1,4 @@
+import { HuntStatus } from '@ihunt/lib/constants';
 import { parse } from 'csv-parse';
 import { createReadStream } from 'node:fs';
 import { resolve } from 'node:path';
@@ -5,8 +6,7 @@ import { finished } from 'node:stream/promises';
 import { parseArgs } from 'node:util';
 import z from 'zod';
 
-import { HuntStatus } from '@/lib/constants';
-import { db, Prisma } from '@/server/lib/db';
+import { db, Prisma } from '../lib/db';
 
 async function main() {
 	const { positionals } = parseArgs({

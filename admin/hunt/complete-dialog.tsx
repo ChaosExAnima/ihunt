@@ -1,3 +1,14 @@
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@ihunt/client/components/ui/dialog';
+import { Input } from '@ihunt/client/components/ui/input';
+import { Textarea } from '@ihunt/client/components/ui/textarea';
+import { AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import { currencyFormatter } from '@ihunt/lib/formats';
 import { useMutation } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 import {
@@ -14,19 +25,7 @@ import {
 	useRefresh,
 } from 'react-admin';
 
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/client/components/ui/dialog';
-import { Input } from '@/client/components/ui/input';
-import { Textarea } from '@/client/components/ui/textarea';
-import { currencyFormatter } from '@/lib/formats';
-
 import { useTypedDataProvider } from '../data';
-import { AdminHuntSchema } from '../schemas';
 
 export function HuntCompleteDialog() {
 	const hunt = useRecordContext<AdminHuntSchema>();

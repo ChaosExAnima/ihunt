@@ -48,7 +48,7 @@ export function isDev() {
 	if (typeof process !== 'undefined') {
 		return process.env.NODE_ENV === 'development';
 	}
-	return import.meta.env.DEV;
+	return (import.meta as { env?: { DEV?: boolean } }).env?.DEV ?? false;
 }
 
 export function isPlainObject(value: unknown): value is object {

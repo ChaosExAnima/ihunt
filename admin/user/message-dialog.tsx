@@ -1,19 +1,18 @@
-import { MessageSquare } from 'lucide-react';
-import { SubmitEventHandler, useCallback, useState } from 'react';
-import { Button, useListContext, useNotify } from 'react-admin';
-
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@/client/components/ui/dialog';
-import { Input } from '@/client/components/ui/input';
-import { Textarea } from '@/client/components/ui/textarea';
+} from '@ihunt/client/components/ui/dialog';
+import { Input } from '@ihunt/client/components/ui/input';
+import { Textarea } from '@ihunt/client/components/ui/textarea';
+import { AdminUserSchema } from '@ihunt/lib/admin-schemas';
+import { MessageSquare } from 'lucide-react';
+import { SubmitEventHandler, useCallback, useState } from 'react';
+import { Button, useListContext, useNotify } from 'react-admin';
 
 import { useTypedDataProvider } from '../data';
-import { AdminUserSchema } from '../schemas';
 
 export function MessageDialog() {
 	const { selectedIds } = useListContext<AdminUserSchema>();

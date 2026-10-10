@@ -1,3 +1,8 @@
+import {
+	UploadPhoto,
+	UploadPhotoProps,
+} from '@ihunt/client/components/upload-photo';
+import { Entity } from '@ihunt/lib/types';
 import { useCallback } from 'react';
 import {
 	Button,
@@ -5,12 +10,6 @@ import {
 	useRecordContext,
 	useRefresh,
 } from 'react-admin';
-
-import {
-	UploadPhoto,
-	UploadPhotoProps,
-} from '@/client/components/upload-photo';
-import { Entity } from '@/lib/types';
 
 import { AdminDataProvider } from '../data';
 

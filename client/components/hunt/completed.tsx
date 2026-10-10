@@ -1,4 +1,4 @@
-import { useCurrencyFormat } from '@/client/hooks/use-currency-format';
+import { useCurrencyFormat } from '@/hooks/use-currency-format';
 
 import { HuntDisplayProps } from '.';
 import { Rating } from '../rating';

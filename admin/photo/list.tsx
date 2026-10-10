@@ -1,3 +1,5 @@
+import { PhotoDisplay } from '@ihunt/client/components/photo';
+import { AdminPhotoSchema } from '@ihunt/lib/admin-schemas';
 import {
 	BooleanField,
 	Datagrid,
@@ -11,10 +13,7 @@ import {
 	useRecordContext,
 } from 'react-admin';
 
-import { PhotoDisplay } from '@/client/components/photo';
-
 import { AdminAvatar } from '../components/avatar';
-import { AdminPhotoSchema } from '../schemas';
 
 const queryFilter = [
 	<ReferenceInput key="hunterId" reference="hunter" source="hunterId" />,

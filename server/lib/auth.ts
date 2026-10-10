@@ -1,9 +1,8 @@
+import { SESSION_COOKIE_NAME } from '@ihunt/lib/constants';
+import { HunterTypeSchema } from '@ihunt/lib/schemas';
+import { isDev, omit } from '@ihunt/lib/utils';
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 import { getIronSession } from 'iron-session';
-
-import { SESSION_COOKIE_NAME } from '@/lib/constants';
-import { HunterTypeSchema } from '@/lib/schemas';
-import { isDev, omit } from '@/lib/utils';
 
 import { config } from './config';
 import { db } from './db';

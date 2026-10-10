@@ -1,3 +1,4 @@
+import { isDev } from '@ihunt/lib/utils';
 import { QueryClient } from '@tanstack/react-query';
 import {
 	createRootRouteWithContext,
@@ -5,9 +6,8 @@ import {
 	Outlet,
 } from '@tanstack/react-router';
 
-import { Toaster } from '@/client/components/providers/toaster';
-import { cn } from '@/client/lib/styles';
-import { isDev } from '@/lib/utils';
+import { Toaster } from '@/components/providers/toaster';
+import { cn } from '@/lib/styles';
 
 const devMode = isDev();
 

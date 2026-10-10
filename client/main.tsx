@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 async function start() {
-	const app = await import('@/client/app');
+	const app = await import('@/app');
 	const App = app.App;
 
 	// Render the app

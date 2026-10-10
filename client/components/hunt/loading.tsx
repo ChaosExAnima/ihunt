@@ -1,6 +1,7 @@
-import { cn } from '@/client/lib/styles';
-import { PropsWithClassName } from '@/client/lib/types';
-import { HUNT_MAX_HUNTERS } from '@/lib/constants';
+import { HUNT_MAX_HUNTERS } from '@ihunt/lib/constants';
+
+import { cn } from '@/lib/styles';
+import { PropsWithClassName } from '@/lib/types';
 
 import { Card } from '../ui/card';
 import { HuntHuntersDisplay } from './hunters';

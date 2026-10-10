@@ -1,0 +1,8 @@
+{
+	"name": "@ihunt/lib",
+	"private": true,
+	"exports": {
+		"./*": "./*.ts"
+	},
+	"packageManager": "yarn@4.18.1"
+}

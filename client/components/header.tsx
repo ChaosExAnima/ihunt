@@ -1,6 +1,6 @@
 import type { ElementType, HTMLProps, PropsWithChildren } from 'react';
 
-import { cn } from '@/client/lib/styles';
+import { cn } from '@/lib/styles';
 
 interface HeaderProps extends HTMLProps<HTMLHeadingElement> {
 	className?: string;

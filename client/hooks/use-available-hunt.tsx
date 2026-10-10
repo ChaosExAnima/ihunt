@@ -1,9 +1,9 @@
+import { HUNT_MAX_PER_DAY } from '@ihunt/lib/constants';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 
-import { HuntInviteModal } from '@/client/components/hunt/invite-dialog';
-import { trpc } from '@/client/lib/api';
-import { HUNT_MAX_PER_DAY } from '@/lib/constants';
+import { HuntInviteModal } from '@/components/hunt/invite-dialog';
+import { trpc } from '@/lib/api';
 
 import { useInvalidate } from './use-invalidate';
 

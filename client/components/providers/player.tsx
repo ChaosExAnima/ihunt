@@ -1,7 +1,7 @@
 import { inferOutput } from '@trpc/tanstack-react-query';
 import { createContext, PropsWithChildren, useContext } from 'react';
 
-import { trpc } from '@/client/lib/api';
+import { trpc } from '@/lib/api';
 
 export type PlayerInfo = inferOutput<typeof trpc.auth.me>;
 

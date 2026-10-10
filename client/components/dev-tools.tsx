@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { PropsWithChildren, useCallback } from 'react';
 
-import { trpc } from '@/client/lib/api';
+import { trpc } from '@/lib/api';
 
 import {
 	Select,

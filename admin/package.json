@@ -1,0 +1,13 @@
+{
+	"name": "@ihunt/admin",
+	"private": true,
+	"dependencies": {
+		"@ihunt/lib": "workspace:^",
+		"ra-router-tanstack": "^5.14.5",
+		"react-admin": "^5.14.5"
+	},
+	"devDependencies": {
+		"@ihunt/server": "workspace:^"
+	},
+	"packageManager": "yarn@4.18.1"
+}

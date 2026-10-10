@@ -1,3 +1,4 @@
+import { MaybePromise } from '@ihunt/lib/types';
 import { CameraIcon, LoaderCircle, SwitchCameraIcon } from 'lucide-react';
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { PixelCrop } from 'react-image-crop';
@@ -8,8 +9,7 @@ import {
 	imageToBlob,
 	saveVideoStill,
 	startCameraStream,
-} from '@/client/lib/photos';
-import { MaybePromise } from '@/lib/types';
+} from '@/lib/photos';
 
 import { ActionButton } from '../action-button';
 import { Button } from '../ui/button';

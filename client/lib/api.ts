@@ -1,3 +1,7 @@
+import type { AppRouter } from '@ihunt/server';
+
+import { HOUR, MINUTE, SECOND } from '@ihunt/lib/formats';
+import { isDev } from '@ihunt/lib/utils';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
 import {
@@ -14,11 +18,7 @@ import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
 import { get, set, del } from 'idb-keyval';
 import superjson from 'superjson';
 
-import type { AppRouter } from '@/server/index';
-
-import { toast } from '@/client/hooks/use-toast';
-import { HOUR, MINUTE, SECOND } from '@/lib/formats';
-import { isDev } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 export const queryClient = new QueryClient({
 	defaultOptions: {

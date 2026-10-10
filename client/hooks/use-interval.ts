@@ -1,6 +1,5 @@
+import { SECOND } from '@ihunt/lib/formats';
 import { useEffect } from 'react';
-
-import { SECOND } from '@/lib/formats';
 
 export function useInterval({
 	cb,

@@ -12,15 +12,13 @@ export default defineConfig(({ mode }) => {
 
 	return {
 		publicDir: resolve(import.meta.dirname, 'public'),
-		root: 'src',
+		root: import.meta.dirname,
 		build: {
 			outDir: resolve(import.meta.dirname, 'dist'),
 			emptyOutDir: true,
 			rolldownOptions: {
 				input: {
 					app: 'index.html',
-					// We need an underscore as S3 doesn't like file keys beginning with /admin
-					admin: '_admin.html',
 				},
 			},
 		},
@@ -42,12 +40,12 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			alias: [
 				{
-					find: '@',
-					replacement: resolve(import.meta.dirname, './src'),
+					find: '@ihunt/client',
+					replacement: import.meta.dirname,
 				},
 				{
-					find: '@/server',
-					replacement: resolve(import.meta.dirname, './server/index.ts'),
+					find: '@',
+					replacement: import.meta.dirname,
 				},
 			],
 		},

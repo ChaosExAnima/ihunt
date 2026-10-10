@@ -1,13 +1,13 @@
+import { HUNTER_TOP_MIN_RATING } from '@ihunt/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { Avatar } from '@/client/components/avatar';
-import { Header } from '@/client/components/header';
-import { Loading } from '@/client/components/loading';
-import { Rating } from '@/client/components/rating';
-import { trpc } from '@/client/lib/api';
-import { cn } from '@/client/lib/styles';
-import { HUNTER_TOP_MIN_RATING } from '@/lib/constants';
+import { Avatar } from '@/components/avatar';
+import { Header } from '@/components/header';
+import { Loading } from '@/components/loading';
+import { Rating } from '@/components/rating';
+import { trpc } from '@/lib/api';
+import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/hunters/')({
 	component: RouteComponent,

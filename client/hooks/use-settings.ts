@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { PlayerInfo, usePlayer } from '@/client/components/providers/player';
-import { trpc } from '@/client/lib/api';
+import { PlayerInfo, usePlayer } from '@/components/providers/player';
+import { trpc } from '@/lib/api';
 
 import { useInvalidate } from './use-invalidate';
 

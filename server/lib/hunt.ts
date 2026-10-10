@@ -1,15 +1,14 @@
-import { TRPCError } from '@trpc/server';
-import { FastifyBaseLogger } from 'fastify';
-
 import {
 	HUNT_LOCKDOWN_MINUTES,
 	HUNTER_LOW_RATING,
 	HUNTER_TOP_MIN_RATING,
 	HuntStatus,
-} from '@/lib/constants';
-import { MINUTE } from '@/lib/formats';
-import { notifyEventSchema } from '@/lib/schemas';
-import { clamp } from '@/lib/utils';
+} from '@ihunt/lib/constants';
+import { MINUTE } from '@ihunt/lib/formats';
+import { notifyEventSchema } from '@ihunt/lib/schemas';
+import { clamp } from '@ihunt/lib/utils';
+import { TRPCError } from '@trpc/server';
+import { FastifyBaseLogger } from 'fastify';
 
 import { config } from './config';
 import { db, Hunt, Prisma } from './db';

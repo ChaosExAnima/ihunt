@@ -1,11 +1,11 @@
+import { HuntStatus } from '@ihunt/lib/constants';
+import { idSchema, idSchemaCoerce, posIntSchema } from '@ihunt/lib/schemas';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { HuntStatus } from '@/lib/constants';
-import { idSchema, idSchemaCoerce, posIntSchema } from '@/lib/schemas';
-import { db } from '@/server/lib/db';
-import { outputPhoto, photoUrl, uploadPhoto } from '@/server/lib/photo';
-import { loggedInProcedure, router } from '@/server/lib/trpc';
+import { db } from '../lib/db';
+import { outputPhoto, photoUrl, uploadPhoto } from '../lib/photo';
+import { loggedInProcedure, router } from '../lib/trpc';
 
 const resizingTypeSchema = z.enum([
 	'fill',

@@ -1,5 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+	AdminHunterSchema,
+	adminUserSchema,
+	AdminUserSchema,
+} from '@ihunt/lib/admin-schemas';
+import {
 	AutocompleteInput,
 	Edit,
 	NumberInput,
@@ -9,11 +14,6 @@ import {
 } from 'react-admin';
 
 import { SimpleForm } from '../components/simple-form';
-import {
-	AdminHunterSchema,
-	adminUserSchema,
-	AdminUserSchema,
-} from '../schemas';
 
 export function UserEdit() {
 	const { record: player } = useEditController<AdminUserSchema>();

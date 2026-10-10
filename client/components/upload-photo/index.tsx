@@ -10,7 +10,7 @@ import {
 	useState,
 } from 'react';
 
-import { blobToDataUrl, imageToBlob } from '@/client/lib/photos';
+import { blobToDataUrl, imageToBlob } from '@/lib/photos';
 
 import { ControllableDialog } from '../confirm-dialog';
 import { Button } from '../ui/button';

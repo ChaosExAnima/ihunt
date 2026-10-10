@@ -1,3 +1,7 @@
+import { HunterTypeIcon } from '@ihunt/client/components/hunter/type-icon';
+import { AdminHunterSchema } from '@ihunt/lib/admin-schemas';
+import { Locale } from '@ihunt/lib/constants';
+import { roundToHalves } from '@ihunt/lib/formats';
 import { EditIcon } from 'lucide-react';
 import { useCallback } from 'react';
 import {
@@ -18,12 +22,7 @@ import {
 	useRecordContext,
 } from 'react-admin';
 
-import { HunterTypeIcon } from '@/client/components/hunter/type-icon';
-import { Locale } from '@/lib/constants';
-import { roundToHalves } from '@/lib/formats';
-
 import { AdminAvatar } from '../components/avatar';
-import { AdminHunterSchema } from '../schemas';
 import { hunterTypeChoices } from './common';
 import { MoneyDialog } from './money-dialog';
 

@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { isTRPCClientError } from '@trpc/client';
 
-import { BackButton } from '@/client/components/back-button';
-import { HuntDisplay } from '@/client/components/hunt';
-import { Loading } from '@/client/components/loading';
-import { useAvailableHunt } from '@/client/hooks/use-available-hunt';
-import { trpc } from '@/client/lib/api';
+import { BackButton } from '@/components/back-button';
+import { HuntDisplay } from '@/components/hunt';
+import { Loading } from '@/components/loading';
+import { useAvailableHunt } from '@/hooks/use-available-hunt';
+import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth/hunts/$huntId')({
 	component: RouteComponent,

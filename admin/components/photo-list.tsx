@@ -1,3 +1,6 @@
+import { cn } from '@ihunt/client/lib/styles';
+import { PropsWithClassName } from '@ihunt/client/lib/types';
+import { AdminPhotoSchema } from '@ihunt/lib/admin-schemas';
 import { FC } from 'react';
 import {
 	DeleteButton,
@@ -6,10 +9,6 @@ import {
 	useChoicesContext,
 } from 'react-admin';
 
-import { cn } from '@/client/lib/styles';
-import { PropsWithClassName } from '@/client/lib/types';
-
-import { AdminPhotoSchema } from '../schemas';
 import { AdminPhotoField } from './photo-field';
 
 export const AdminPhotoList: FC<PropsWithClassName> = ({ className }) => {

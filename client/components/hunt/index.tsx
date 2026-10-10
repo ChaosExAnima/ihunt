@@ -1,7 +1,7 @@
-import type { PropsWithClassName } from '@/client/lib/types';
+import { HuntStatus } from '@ihunt/lib/constants';
+import { HuntSchema } from '@ihunt/lib/schemas';
 
-import { HuntStatus } from '@/lib/constants';
-import { HuntSchema } from '@/lib/schemas';
+import type { PropsWithClassName } from '@/lib/types';
 
 import { HuntDisplayActive } from './active';
 import { HuntDisplayAvailable } from './available';

@@ -2,7 +2,7 @@ import { ErrorComponentProps } from '@tanstack/react-router';
 import { CircleAlertIcon, WifiOffIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
-import { PropsWithClassName } from '@/client/lib/types';
+import { PropsWithClassName } from '@/lib/types';
 
 import { BackButton } from './back-button';
 import { Button } from './ui/button';

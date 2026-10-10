@@ -1,10 +1,10 @@
+import { HUNT_INVITE_MINUTES } from '@ihunt/lib/constants';
+import { HunterSchema } from '@ihunt/lib/schemas';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
-import { useInvalidate } from '@/client/hooks/use-invalidate';
-import { trpc } from '@/client/lib/api';
-import { HUNT_INVITE_MINUTES } from '@/lib/constants';
-import { HunterSchema } from '@/lib/schemas';
+import { useInvalidate } from '@/hooks/use-invalidate';
+import { trpc } from '@/lib/api';
 
 import { Avatar } from '../avatar';
 import { ConfirmDialog } from '../confirm-dialog';

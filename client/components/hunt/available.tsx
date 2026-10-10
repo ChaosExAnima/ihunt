@@ -1,18 +1,18 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { CircleCheckBig, X } from 'lucide-react';
-import { useCallback, useId, useMemo, useState } from 'react';
-
-import { useHunterId } from '@/client/hooks/use-hunter';
-import { useInterval } from '@/client/hooks/use-interval';
-import { useInvalidate } from '@/client/hooks/use-invalidate';
-import { trpc } from '@/client/lib/api';
 import {
 	HUNT_LOCKDOWN_MINUTES,
 	HUNT_MAX_DANGER,
 	HUNT_MAX_PER_DAY,
-} from '@/lib/constants';
-import { MINUTE, SECOND } from '@/lib/formats';
-import { HuntSchema } from '@/lib/schemas';
+} from '@ihunt/lib/constants';
+import { MINUTE, SECOND } from '@ihunt/lib/formats';
+import { HuntSchema } from '@ihunt/lib/schemas';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { CircleCheckBig, X } from 'lucide-react';
+import { useCallback, useId, useMemo, useState } from 'react';
+
+import { useHunterId } from '@/hooks/use-hunter';
+import { useInterval } from '@/hooks/use-interval';
+import { useInvalidate } from '@/hooks/use-invalidate';
+import { trpc } from '@/lib/api';
 
 import { HuntDisplayProps } from '.';
 import { ConfirmDialog, ConfirmDialogProps } from '../confirm-dialog';

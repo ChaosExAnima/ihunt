@@ -1,6 +1,5 @@
+import { currencyFormatter } from '@ihunt/lib/formats';
 import { useMemo } from 'react';
-
-import { currencyFormatter } from '@/lib/formats';
 
 import { useSettings } from './use-settings';
 

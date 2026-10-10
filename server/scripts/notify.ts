@@ -1,7 +1,7 @@
+import { idArray } from '@ihunt/lib/schemas';
 import { parseArgs } from 'node:util';
 
-import { idArray } from '@/lib/schemas';
-import { notifyUser } from '@/server/lib/notify';
+import { notifyUser } from '../lib/notify';
 
 async function main() {
 	const { positionals, values } = parseArgs({

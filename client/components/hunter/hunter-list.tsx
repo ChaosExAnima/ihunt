@@ -1,5 +1,6 @@
-import { cn } from '@/client/lib/styles';
-import { HunterSchema } from '@/lib/schemas';
+import { HunterSchema } from '@ihunt/lib/schemas';
+
+import { cn } from '@/lib/styles';
 
 import { Avatar } from '../avatar';
 

@@ -1,13 +1,13 @@
+import { SECOND } from '@ihunt/lib/formats';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Header } from '@/client/components/header';
-import { Loading } from '@/client/components/loading';
-import { Notification } from '@/client/components/notification';
-import { trpc } from '@/client/lib/api';
-import { cn } from '@/client/lib/styles';
-import { SECOND } from '@/lib/formats';
+import { Header } from '@/components/header';
+import { Loading } from '@/components/loading';
+import { Notification } from '@/components/notification';
+import { trpc } from '@/lib/api';
+import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/notifications')({
 	component: RouteComponent,

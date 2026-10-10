@@ -1,4 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { adminCreateHuntInput } from '@ihunt/lib/admin-schemas';
+import {
+	HUNT_MAX_DANGER,
+	HUNT_MAX_HUNTERS,
+	HuntStatus,
+} from '@ihunt/lib/constants';
 import {
 	Create,
 	DateTimeInput,
@@ -7,11 +13,8 @@ import {
 	TextInput,
 } from 'react-admin';
 
-import { HUNT_MAX_DANGER, HUNT_MAX_HUNTERS, HuntStatus } from '@/lib/constants';
-
 import { CreateToolbar } from '../components/create-toolbar';
 import { SimpleForm } from '../components/simple-form';
-import { adminCreateHuntInput } from '../schemas';
 import { huntStatusChoices } from './common';
 
 export function HuntCreate() {

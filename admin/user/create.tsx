@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AdminHunterSchema, adminUserSchema } from '@ihunt/lib/admin-schemas';
 import {
 	AutocompleteArrayInput,
 	Create,
@@ -9,7 +10,6 @@ import {
 
 import { CreateToolbar } from '../components/create-toolbar';
 import { SimpleForm } from '../components/simple-form';
-import { AdminHunterSchema, adminUserSchema } from '../schemas';
 
 export function UserCreate() {
 	return (

@@ -1,8 +1,9 @@
+import {
+	PhotoDisplay,
+	PhotoDisplayProps,
+} from '@ihunt/client/components/photo';
+import { AdminPhotoSchema } from '@ihunt/lib/admin-schemas';
 import { useRecordContext } from 'react-admin';
-
-import { PhotoDisplay, PhotoDisplayProps } from '@/client/components/photo';
-
-import { AdminPhotoSchema } from '../schemas';
 
 export function AdminPhotoField(
 	props: Omit<PhotoDisplayProps, 'photo'> & { photo?: AdminPhotoSchema },

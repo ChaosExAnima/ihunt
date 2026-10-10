@@ -1,11 +1,11 @@
+import { HunterTypes, HuntStatus } from '@ihunt/lib/constants';
+import { HunterTypeSchema } from '@ihunt/lib/schemas';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { HunterTypes, HuntStatus } from '@/lib/constants';
-import { HunterTypeSchema } from '@/lib/schemas';
-import { hunterToAccessCode } from '@/server/lib/auth';
-import { db, Prisma } from '@/server/lib/db';
-import { uploadPhoto } from '@/server/lib/photo';
+import { hunterToAccessCode } from '../lib/auth';
+import { db, Prisma } from '../lib/db';
+import { uploadPhoto } from '../lib/photo';
 
 async function main() {
 	try {

@@ -1,11 +1,11 @@
+import { PhotoHuntSchema } from '@ihunt/lib/schemas';
+import { Entity } from '@ihunt/lib/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash } from 'lucide-react';
 import { ReactNode, useCallback } from 'react';
 
-import { trpc } from '@/client/lib/api';
-import { cn } from '@/client/lib/styles';
-import { PhotoHuntSchema } from '@/lib/schemas';
-import { Entity } from '@/lib/types';
+import { trpc } from '@/lib/api';
+import { cn } from '@/lib/styles';
 
 import { PhotoDisplay } from '../photo';
 import { Button } from '../ui/button';

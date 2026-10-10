@@ -1,3 +1,4 @@
+import { AdminHunterSchema } from '@ihunt/lib/admin-schemas';
 import {
 	BooleanInput,
 	BulkDeleteWithConfirmButton,
@@ -8,7 +9,6 @@ import {
 } from 'react-admin';
 
 import { AdminAvatar } from '../components/avatar';
-import { AdminHunterSchema } from '../schemas';
 import { MessageDialog } from './message-dialog';
 
 export function UserList() {

@@ -1,8 +1,8 @@
+import { hunterTypeSchema } from '@ihunt/lib/schemas';
 import { parseArgs } from 'node:util';
 
-import { hunterTypeSchema } from '@/lib/schemas';
-import { calculateNextAccessCode } from '@/server/lib/auth';
-import { db } from '@/server/lib/db';
+import { calculateNextAccessCode } from '../lib/auth';
+import { db } from '../lib/db';
 
 async function main() {
 	const { positionals, values } = parseArgs({

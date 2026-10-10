@@ -1,3 +1,6 @@
+import { adminAuthSchema, adminCreateInput } from '@ihunt/lib/admin-schemas';
+import { isDev } from '@ihunt/lib/utils';
+import { AppRouter } from '@ihunt/server';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	createTRPCClient,
@@ -11,11 +14,6 @@ import {
 import Cookies from 'js-cookie';
 import { AuthProvider, DataProvider, useDataProvider } from 'react-admin';
 import superjson from 'superjson';
-
-import { isDev } from '@/lib/utils';
-import { AppRouter } from '@/server/index';
-
-import { adminAuthSchema, adminCreateInput } from './schemas';
 
 const url = '/trpc';
 const trpc = createTRPCClient<AppRouter>({

@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { adminGroupSchema } from '@ihunt/lib/admin-schemas';
 import { Edit, ReferenceArrayInput, TextInput } from 'react-admin';
 
 import { SimpleForm } from '../components/simple-form';
-import { adminGroupSchema } from '../schemas';
 
 export function GroupEdit() {
 	return (

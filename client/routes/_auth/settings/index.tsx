@@ -3,21 +3,21 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Eye, EyeClosed } from 'lucide-react';
 import { FocusEventHandler, useCallback, useId } from 'react';
 
-import { ActionButton } from '@/client/components/action-button';
-import { Avatar } from '@/client/components/avatar';
-import { Header } from '@/client/components/header';
-import { Loading } from '@/client/components/loading';
-import { AvatarReplaceButton } from '@/client/components/settings/avatar-replace';
-import { EditableBlock } from '@/client/components/settings/editable-block';
-import { SettingBlock } from '@/client/components/settings/setting-block';
-import { Button } from '@/client/components/ui/button';
-import { Switch } from '@/client/components/ui/switch';
-import { useCurrencyFormat } from '@/client/hooks/use-currency-format';
-import { useHunter } from '@/client/hooks/use-hunter';
-import { useInvalidate } from '@/client/hooks/use-invalidate';
-import { useSettings } from '@/client/hooks/use-settings';
-import { useTheme } from '@/client/hooks/use-theme';
-import { trpc } from '@/client/lib/api';
+import { ActionButton } from '@/components/action-button';
+import { Avatar } from '@/components/avatar';
+import { Header } from '@/components/header';
+import { Loading } from '@/components/loading';
+import { AvatarReplaceButton } from '@/components/settings/avatar-replace';
+import { EditableBlock } from '@/components/settings/editable-block';
+import { SettingBlock } from '@/components/settings/setting-block';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useCurrencyFormat } from '@/hooks/use-currency-format';
+import { useHunter } from '@/hooks/use-hunter';
+import { useInvalidate } from '@/hooks/use-invalidate';
+import { useSettings } from '@/hooks/use-settings';
+import { useTheme } from '@/hooks/use-theme';
+import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth/settings/')({
 	component: Settings,

@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { adminHuntSchema, AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import { HUNT_MAX_DANGER, HUNT_MAX_HUNTERS } from '@ihunt/lib/constants';
 import {
 	AutocompleteArrayInput,
 	DateTimeInput,
@@ -9,12 +11,9 @@ import {
 	TextInput,
 } from 'react-admin';
 
-import { HUNT_MAX_DANGER, HUNT_MAX_HUNTERS } from '@/lib/constants';
-
 import { AdminPhotoList } from '../components/photo-list';
 import { AdminPhotoInput } from '../components/photo-upload';
 import { SimpleForm } from '../components/simple-form';
-import { adminHuntSchema, AdminHuntSchema } from '../schemas';
 import { huntStatusChoices } from './common';
 
 export function HuntEdit() {

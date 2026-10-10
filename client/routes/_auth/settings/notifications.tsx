@@ -1,14 +1,14 @@
+import { NotifyTypeSchema } from '@ihunt/lib/schemas';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useId, useMemo } from 'react';
 
-import { BackButton } from '@/client/components/back-button';
-import { Header } from '@/client/components/header';
-import { SettingBlock } from '@/client/components/settings/setting-block';
-import { Button } from '@/client/components/ui/button';
-import { Switch } from '@/client/components/ui/switch';
-import { useNotifyRequest } from '@/client/hooks/use-notify';
-import { useSettings } from '@/client/hooks/use-settings';
-import { NotifyTypeSchema } from '@/lib/schemas';
+import { BackButton } from '@/components/back-button';
+import { Header } from '@/components/header';
+import { SettingBlock } from '@/components/settings/setting-block';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useNotifyRequest } from '@/hooks/use-notify';
+import { useSettings } from '@/hooks/use-settings';
 
 export const Route = createFileRoute('/_auth/settings/notifications')({
 	component: NotificationsPage,

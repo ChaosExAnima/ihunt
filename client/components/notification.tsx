@@ -1,3 +1,5 @@
+import { dateFormat } from '@ihunt/lib/formats';
+import { NotifyEventSchema, NotifyTypeSchema } from '@ihunt/lib/schemas';
 import { Link } from '@tanstack/react-router';
 import {
 	StarIcon,
@@ -11,9 +13,7 @@ import {
 	StarOffIcon,
 } from 'lucide-react';
 
-import { cn } from '@/client/lib/styles';
-import { dateFormat } from '@/lib/formats';
-import { NotifyEventSchema, NotifyTypeSchema } from '@/lib/schemas';
+import { cn } from '@/lib/styles';
 
 export function Notification(
 	notification: NotifyEventSchema & { created: Date; seen: boolean },

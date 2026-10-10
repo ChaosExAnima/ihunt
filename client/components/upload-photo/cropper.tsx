@@ -13,7 +13,7 @@ import ReactCrop, {
 } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { cn } from '@/client/lib/styles';
+import { cn } from '@/lib/styles';
 
 interface UploadCropperProps extends PropsWithChildren {
 	aspect?: number;

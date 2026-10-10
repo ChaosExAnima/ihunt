@@ -1,3 +1,19 @@
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@ihunt/client/components/ui/dialog';
+import { Input } from '@ihunt/client/components/ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@ihunt/client/components/ui/select';
+import { AdminHunterSchema } from '@ihunt/lib/admin-schemas';
 import { BadgeEuro } from 'lucide-react';
 import {
 	ChangeEventHandler,
@@ -11,24 +27,6 @@ import {
 	useRecordContext,
 	useUpdate,
 } from 'react-admin';
-
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/client/components/ui/dialog';
-import { Input } from '@/client/components/ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/client/components/ui/select';
-
-import { AdminHunterSchema } from '../schemas';
 
 export function MoneyDialog() {
 	const hunter = useRecordContext<AdminHunterSchema>();

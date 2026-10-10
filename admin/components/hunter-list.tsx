@@ -1,3 +1,12 @@
+import { AvatarEmpty, AvatarLocked } from '@ihunt/client/components/avatar';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@ihunt/client/components/ui/tooltip';
+import { AdminHunterSchema, AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import { arrayOfLength } from '@ihunt/lib/utils';
 import {
 	ChipField,
 	Link,
@@ -7,16 +16,6 @@ import {
 	useRecordContext,
 } from 'react-admin';
 
-import { AvatarEmpty, AvatarLocked } from '@/client/components/avatar';
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/client/components/ui/tooltip';
-import { arrayOfLength } from '@/lib/utils';
-
-import { AdminHunterSchema, AdminHuntSchema } from '../schemas';
 import { AdminAvatar } from './avatar';
 
 export function AdminHunter() {

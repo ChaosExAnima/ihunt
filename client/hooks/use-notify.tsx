@@ -3,10 +3,10 @@ import { useSubscription } from '@trpc/tanstack-react-query';
 import { Bell } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 
-import { typeToIcon } from '@/client/components/notification';
-import { Button } from '@/client/components/ui/button';
-import { ToastAction } from '@/client/components/ui/toast';
-import { trpc } from '@/client/lib/api';
+import { typeToIcon } from '@/components/notification';
+import { Button } from '@/components/ui/button';
+import { ToastAction } from '@/components/ui/toast';
+import { trpc } from '@/lib/api';
 
 import { useInvalidate } from './use-invalidate';
 import { toast } from './use-toast';

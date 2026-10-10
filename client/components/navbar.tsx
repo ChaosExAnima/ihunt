@@ -1,11 +1,11 @@
 import type { JSX, PropsWithChildren, ReactNode } from 'react';
 
+import { HunterSchema } from '@ihunt/lib/schemas';
 import { Link, LinkProps } from '@tanstack/react-router';
 import { BellIcon, Crosshair, SettingsIcon } from 'lucide-react';
 
-import { useHunterId } from '@/client/hooks/use-hunter';
-import { cn } from '@/client/lib/styles';
-import { HunterSchema } from '@/lib/schemas';
+import { useHunterId } from '@/hooks/use-hunter';
+import { cn } from '@/lib/styles';
 
 import { Avatar } from './avatar';
 

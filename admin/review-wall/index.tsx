@@ -1,11 +1,10 @@
+import { Header } from '@ihunt/client/components/header';
+import { PhotoDisplay } from '@ihunt/client/components/photo';
+import { Rating } from '@ihunt/client/components/rating';
+import { trpc } from '@ihunt/client/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-import { Header } from '@/client/components/header';
-import { PhotoDisplay } from '@/client/components/photo';
-import { Rating } from '@/client/components/rating';
-import { trpc } from '@/client/lib/api';
 
 export function ReviewWall() {
 	const [index, setIndex] = useState(0);

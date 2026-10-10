@@ -1,23 +1,22 @@
-import { TRPCError } from '@trpc/server';
-import * as z from 'zod';
-
 import {
 	adminCreateInput,
 	adminFilter,
 	adminInput,
 	resourceSchema,
-} from '@/admin/schemas';
-import { HuntStatus } from '@/lib/constants';
-import { idArray, idSchemaCoerce } from '@/lib/schemas';
-import { Entity } from '@/lib/types';
-import { extractIds, extractKey, idsToEntities, omit } from '@/lib/utils';
-import { db } from '@/server/lib/db';
-import { completeHunt, updateHunt } from '@/server/lib/hunt';
-import { photoUrl } from '@/server/lib/photo';
-import { adminProcedure, router } from '@/server/lib/trpc';
+} from '@ihunt/lib/admin-schemas';
+import { HuntStatus } from '@ihunt/lib/constants';
+import { idArray, idSchemaCoerce } from '@ihunt/lib/schemas';
+import { Entity } from '@ihunt/lib/types';
+import { extractIds, extractKey, idsToEntities, omit } from '@ihunt/lib/utils';
+import { TRPCError } from '@trpc/server';
+import * as z from 'zod';
 
+import { db } from '../lib/db';
+import { completeHunt, updateHunt } from '../lib/hunt';
 import { hunterUpdateNotifications } from '../lib/hunter';
+import { photoUrl } from '../lib/photo';
 import { InviteStatus } from '../lib/schema';
+import { adminProcedure, router } from '../lib/trpc';
 
 export const adminRouter = router({
 	create: adminProcedure

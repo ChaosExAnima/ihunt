@@ -1,3 +1,5 @@
+import { HunterTypes } from '@ihunt/lib/constants';
+import { HunterTypeSchema } from '@ihunt/lib/schemas';
 import {
 	BookMarked,
 	Handshake,
@@ -5,9 +7,6 @@ import {
 	Swords,
 	Wrench,
 } from 'lucide-react';
-
-import { HunterTypes } from '@/lib/constants';
-import { HunterTypeSchema } from '@/lib/schemas';
 
 export function HunterTypeIcon({
 	type,

@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import { useInvalidate } from '@/client/hooks/use-invalidate';
-import { trpc } from '@/client/lib/api';
+import { useInvalidate } from '@/hooks/use-invalidate';
+import { trpc } from '@/lib/api';
 
 import { Button } from '../ui/button';
 import { UploadPhoto } from '../upload-photo';

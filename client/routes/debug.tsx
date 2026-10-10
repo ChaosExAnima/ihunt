@@ -2,10 +2,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useState } from 'react';
 
-import { ActionButton } from '@/client/components/action-button';
-import { BackButton } from '@/client/components/back-button';
-import { Header } from '@/client/components/header';
-import { apiDebug, trpc } from '@/client/lib/api';
+import { ActionButton } from '@/components/action-button';
+import { BackButton } from '@/components/back-button';
+import { Header } from '@/components/header';
+import { apiDebug, trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/debug')({
 	component: RouteComponent,

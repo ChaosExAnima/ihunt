@@ -1,6 +1,7 @@
-import { cn } from '@/client/lib/styles';
-import { HUNTER_TOP_MIN_RATING } from '@/lib/constants';
-import { HunterSchema } from '@/lib/schemas';
+import { HUNTER_TOP_MIN_RATING } from '@ihunt/lib/constants';
+import { HunterSchema } from '@ihunt/lib/schemas';
+
+import { cn } from '@/lib/styles';
 
 import { Header } from '../header';
 import { Rating } from '../rating';

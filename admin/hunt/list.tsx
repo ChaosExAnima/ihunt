@@ -1,3 +1,5 @@
+import { AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import { HUNT_MAX_DANGER, HuntStatus, Locale } from '@ihunt/lib/constants';
 import {
 	EditIcon,
 	EyeClosedIcon,
@@ -29,11 +31,8 @@ import {
 	useUpdate,
 } from 'react-admin';
 
-import { HUNT_MAX_DANGER, HuntStatus, Locale } from '@/lib/constants';
-
 import { AdminHuntHunters } from '../components/hunter-list';
 import { useTypedDataProvider } from '../data';
-import { AdminHuntSchema } from '../schemas';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import { HuntCompleteDialog } from './complete-dialog';
 

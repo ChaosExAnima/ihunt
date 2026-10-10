@@ -1,15 +1,12 @@
+import { SECOND } from '@ihunt/lib/formats';
 import { onlineManager, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import { Loading } from '@/client/components/loading';
-import { Navbar } from '@/client/components/navbar';
-import { PlayerInfoProvider } from '@/client/components/providers/player';
-import {
-	useNotifyRequestToast,
-	useNotifySubscribe,
-} from '@/client/hooks/use-notify';
-import { trpc } from '@/client/lib/api';
-import { SECOND } from '@/lib/formats';
+import { Loading } from '@/components/loading';
+import { Navbar } from '@/components/navbar';
+import { PlayerInfoProvider } from '@/components/providers/player';
+import { useNotifyRequestToast, useNotifySubscribe } from '@/hooks/use-notify';
+import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
 	component: Page,

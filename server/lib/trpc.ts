@@ -1,9 +1,8 @@
+import { MINUTE, SECOND } from '@ihunt/lib/formats';
+import { isDev } from '@ihunt/lib/utils';
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import z, { ZodError } from 'zod';
-
-import { MINUTE, SECOND } from '@/lib/formats';
-import { isDev } from '@/lib/utils';
 
 import { Context } from './auth';
 import { Prisma } from './db';

@@ -2,9 +2,9 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
 
-import { config } from '@/server/lib/config';
-import { db } from '@/server/lib/db';
-import { generateThumbhash } from '@/server/lib/photo';
+import { config } from '../lib/config';
+import { db } from '../lib/db';
+import { generateThumbhash } from '../lib/photo';
 
 async function main() {
 	const force = process.argv.includes('-f');

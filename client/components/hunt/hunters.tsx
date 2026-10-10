@@ -1,5 +1,5 @@
-import { HuntSchema } from '@/lib/schemas';
-import { arrayOfLength } from '@/lib/utils';
+import { HuntSchema } from '@ihunt/lib/schemas';
+import { arrayOfLength } from '@ihunt/lib/utils';
 
 import { Avatar, AvatarEmpty, AvatarLocked } from '../avatar';
 

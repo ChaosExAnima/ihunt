@@ -1,9 +1,8 @@
+import { isDev } from '@ihunt/lib/utils';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-
-import { isDev } from '@/lib/utils';
 
 import { BackButton } from './components/back-button';
 import { DevTools } from './components/dev-tools';

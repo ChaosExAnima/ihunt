@@ -1,12 +1,10 @@
+import { HUNT_INVITE_MINUTES, HuntStatus } from '@ihunt/lib/constants';
+import { MINUTE } from '@ihunt/lib/formats';
+import { idArray, idSchemaCoerce } from '@ihunt/lib/schemas';
+import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { HUNT_INVITE_MINUTES, HuntStatus } from '@/lib/constants';
-import { MINUTE } from '@/lib/formats';
-import { idArray, idSchemaCoerce } from '@/lib/schemas';
-import { extractIds } from '@/lib/utils';
-
-import { PrismaClientKnownRequestError } from '../../prisma/generated/internal/prismaNamespace';
 import { db } from '../lib/db';
 import { huntInLockdown, isHuntsDisabled } from '../lib/hunt';
 import {
@@ -17,6 +15,7 @@ import {
 import { inviteSendEvent, notifyHunter } from '../lib/notify';
 import { InviteStatus } from '../lib/schema';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
+import { PrismaClientKnownRequestError } from '../prisma/generated/internal/prismaNamespace';
 
 export const inviteRouter = router({
 	availableInvitees: userProcedure

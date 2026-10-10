@@ -1,4 +1,4 @@
-import { usePlayer } from '@/client/components/providers/player';
+import { usePlayer } from '@/components/providers/player';
 
 export function useHunter() {
 	return usePlayer()?.hunter ?? null;

@@ -1,22 +1,22 @@
+import { SECOND } from '@ihunt/lib/formats';
+import { Entity } from '@ihunt/lib/types';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Header } from '@/client/components/header';
-import { HuntDisplay } from '@/client/components/hunt';
-import { HuntsCompleted } from '@/client/components/hunt/completed-list';
-import { HuntLoading } from '@/client/components/hunt/loading';
+import { Header } from '@/components/header';
+import { HuntDisplay } from '@/components/hunt';
+import { HuntsCompleted } from '@/components/hunt/completed-list';
+import { HuntLoading } from '@/components/hunt/loading';
 import {
 	Carousel,
 	CarouselApi,
 	CarouselContent,
 	CarouselItem,
-} from '@/client/components/ui/carousel';
-import { useAvailableHunt } from '@/client/hooks/use-available-hunt';
-import { trpc } from '@/client/lib/api';
-import { cn } from '@/client/lib/styles';
-import { SECOND } from '@/lib/formats';
-import { Entity } from '@/lib/types';
+} from '@/components/ui/carousel';
+import { useAvailableHunt } from '@/hooks/use-available-hunt';
+import { trpc } from '@/lib/api';
+import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,

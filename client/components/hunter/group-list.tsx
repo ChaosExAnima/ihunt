@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { trpc } from '@/client/lib/api';
+import { trpc } from '@/lib/api';
 
 import { HunterList } from './hunter-list';
 

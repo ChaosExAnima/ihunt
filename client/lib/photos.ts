@@ -1,6 +1,6 @@
 import type { PixelCrop } from 'react-image-crop';
 
-import { MaybePromise } from '@/lib/types';
+import { MaybePromise } from '@ihunt/lib/types';
 
 export function blobToDataUrl(blob: Blob): Promise<string> {
 	return new Promise((result, reject) => {

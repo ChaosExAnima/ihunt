@@ -1,8 +1,8 @@
-import { HuntStatus } from '@/lib/constants';
-import { huntCompleteEvent } from '@/server/lib/notify';
-import { InviteStatus } from '@/server/lib/schema';
+import { HuntStatus } from '@ihunt/lib/constants';
 
-import { db } from '../server';
+import { db } from '../index';
+import { huntCompleteEvent } from '../lib/notify';
+import { InviteStatus } from '../lib/schema';
 
 async function main() {
 	const huntHunters = await db.huntHunter.findMany({
