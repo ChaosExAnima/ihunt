@@ -14,10 +14,10 @@
 		"dev:admin": "yarn workspace @ihunt/admin dev",
 		"dev:client": "yarn workspace @ihunt/client dev",
 		"dev:server": "yarn workspace @ihunt/server dev",
-		"build": "yarn build:prisma && yarn build:server",
+		"build": "yarn build:prisma && yarn build:server && yarn build:client && yarn build:admin",
 		"build:admin": "yarn workspace @ihunt/admin build",
 		"build:client": "yarn workspace @ihunt/client build",
-		"build:prisma": "yarn workspace @ihunt/server prisma",
+		"build:prisma": "yarn workspace @ihunt/server build:prisma",
 		"build:server": "yarn workspace @ihunt/server build",
 		"build:scripts": "yarn workspace @ihunt/server build:scripts",
 		"studio": "yarn workspace @ihunt/server studio",
@@ -39,7 +39,7 @@
 		"oxlint": "^1.58.0",
 		"oxlint-tsgolint": "^0.21.0",
 		"tsx": "^4.21.0",
-		"typescript": "^6.0.0",
+		"typescript": "^7.0.2",
 		"typescript-eslint": "^8.58.0"
 	},
 	"lint-staged": {
