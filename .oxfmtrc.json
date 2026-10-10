@@ -22,7 +22,8 @@
 		"client/**.gen.*",
 		"**/*.yml",
 		"client/dev-dist",
-		"dist",
-		"prisma/generated"
+		"client/dist",
+		"server/dist",
+		"server/prisma/generated"
 	]
 }
