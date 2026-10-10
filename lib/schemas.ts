@@ -53,7 +53,7 @@ export const hunterSchema = z.object({
 	bio: z.string().nullish(),
 	handle: z.string().min(6),
 	id: idSchema,
-	money: z.coerce.number().int(),
+	money: z.coerce.number().int().optional(),
 	name: z.string(),
 	pronouns: z.string().nullish(),
 	rating: z.number().positive().max(5),

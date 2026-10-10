@@ -44,6 +44,7 @@ export function HuntList() {
 				status: [
 					{ id: 'pending', name: 'Pending' },
 					{ id: 'active', name: 'Active' },
+					{ id: 'reviewing', name: 'Reviewing' },
 				],
 			}}
 			actions={<HuntListActions />}

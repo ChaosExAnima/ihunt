@@ -4,13 +4,23 @@ import { HuntDisplayProps } from '.';
 import { Rating } from '../rating';
 import { HuntBase } from './base';
 
-export function HuntDisplayCompleted({ hunt }: HuntDisplayProps) {
-	const payment = useCurrencyFormat(
-		Math.floor(hunt.payment / hunt.hunters.length),
+export function HuntDisplayCompleted({
+	hunt,
+	payment,
+}: HuntDisplayProps & { payment?: number }) {
+	const formattedPayment = useCurrencyFormat(
+		Math.floor(payment ?? hunt.payment / hunt.hunters.length),
 	);
 	return (
 		<HuntBase hideText hunt={hunt}>
-			{payment && <p className="text-lg">You earned {payment}!</p>}
+			{formattedPayment && (
+				<p className="text-lg">You earned {formattedPayment}!</p>
+			)}
+			{hunt.status === 'reviewing' && (
+				<p className="text-muted">
+					Client is reviewing the results, come back later.
+				</p>
+			)}
 			{hunt.comment && (
 				<>
 					<p className="text-muted">Here's what your client had to say:</p>
