@@ -19,10 +19,11 @@
 		"preserveWhitespace": true
 	},
 	"ignorePatterns": [
-		"src/**.gen.*",
+		"client/**.gen.*",
 		"**/*.yml",
-		"src/dev-dist",
-		"dist",
-		"prisma/generated"
+		"client/dev-dist",
+		"client/dist",
+		"server/dist",
+		"server/prisma/generated"
 	]
 }

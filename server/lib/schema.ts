@@ -1,11 +1,10 @@
-import * as z from 'zod';
-
 import {
 	huntSchema,
 	huntStatus,
 	notifyTypeSchema,
 	photoHuntSchema,
-} from '@/lib/schemas';
+} from '@ihunt/lib/schemas';
+import * as z from 'zod';
 
 export const outputHuntSchema = huntSchema.extend({
 	photos: photoHuntSchema.array(),

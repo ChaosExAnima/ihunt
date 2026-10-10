@@ -1,20 +1,19 @@
+import { adminAuthSchema } from '@ihunt/lib/admin-schemas';
+import { authSchema, hunterSchema } from '@ihunt/lib/schemas';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 import * as z from 'zod';
 
-import { adminAuthSchema } from '@/admin/schemas';
-import { authSchema, hunterSchema } from '@/lib/schemas';
-import { config } from '@/server/lib/config';
-import { db } from '@/server/lib/db';
+import { getAdminSession } from '../lib/auth';
+import { config } from '../lib/config';
+import { db } from '../lib/db';
+import { userSettingsDatabaseSchema } from '../lib/schema';
 import {
 	debugProcedure,
 	publicProcedure,
 	router,
 	userProcedure,
-} from '@/server/lib/trpc';
-
-import { getAdminSession } from '../lib/auth';
-import { userSettingsDatabaseSchema } from '../lib/schema';
+} from '../lib/trpc';
 
 export const authRouter = router({
 	logIn: publicProcedure.input(authSchema).mutation(

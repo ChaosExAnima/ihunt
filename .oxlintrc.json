@@ -73,7 +73,7 @@
 		"@tanstack/eslint-plugin-query",
 		{ "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }
 	],
-	"ignorePatterns": ["public", "src/dev-dist", "dist"],
+	"ignorePatterns": ["public", "client/dev-dist", "dist"],
 	"overrides": [
 		{
 			"files": ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],

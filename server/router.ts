@@ -1,5 +1,4 @@
-import { router } from '@/server/lib/trpc';
-
+import { router } from './lib/trpc';
 import { adminRouter } from './routers/admin';
 import { apiRouter } from './routers/api';
 import { authRouter } from './routers/auth';

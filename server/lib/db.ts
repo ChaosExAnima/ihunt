@@ -1,12 +1,11 @@
+import { isDev } from '@ihunt/lib/utils';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import { isDev } from '@/lib/utils';
-
-import { Prisma, PrismaClient } from '../../prisma/generated/client';
+import { Prisma, PrismaClient } from '../prisma/generated/client';
 import { config } from './config';
 import { logger } from './server';
 
-export * from '../../prisma/generated/client';
+export * from '../prisma/generated/client';
 
 const levels: Prisma.LogLevel[] = ['error', 'warn'];
 if (isDev()) {

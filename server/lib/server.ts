@@ -1,6 +1,5 @@
+import { isPlainObject } from '@ihunt/lib/utils';
 import fastify, { FastifyServerOptions } from 'fastify';
-
-import { isPlainObject } from '@/lib/utils';
 
 import { Config, config } from './config';
 

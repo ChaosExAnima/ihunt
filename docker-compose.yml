@@ -19,6 +19,8 @@ services:
   postgres:
     image: postgres
     restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql
     shm_size: 128mb
     environment:
       POSTGRES_PASSWORD: password

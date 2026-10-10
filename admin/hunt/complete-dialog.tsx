@@ -1,0 +1,129 @@
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@ihunt/client/components/ui/dialog';
+import { Input } from '@ihunt/client/components/ui/input';
+import { Textarea } from '@ihunt/client/components/ui/textarea';
+import { AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import { currencyFormatter } from '@ihunt/lib/formats';
+import { useMutation } from '@tanstack/react-query';
+import { Check } from 'lucide-react';
+import {
+	ChangeEvent,
+	SubmitEventHandler,
+	useCallback,
+	useMemo,
+	useState,
+} from 'react';
+import {
+	Button,
+	IconButtonWithTooltip,
+	useRecordContext,
+	useRefresh,
+} from 'react-admin';
+
+import { useTypedDataProvider } from '../data';
+
+export function HuntCompleteDialog() {
+	const hunt = useRecordContext<AdminHuntSchema>();
+	const [modalOpen, setModalOpen] = useState(false);
+	const [modalData, setModalData] = useState({
+		comment: hunt?.comment ?? '',
+		payment: hunt?.payment ?? 0,
+		rating: hunt?.rating ?? 5,
+	});
+
+	const dataProvider = useTypedDataProvider();
+	const { isPending, mutateAsync } = useMutation({
+		mutationFn: dataProvider.completeHunt,
+	});
+
+	const huntId = hunt?.id;
+	const refresh = useRefresh();
+	const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
+		(event) => {
+			event.preventDefault();
+			if (!huntId) {
+				return;
+			}
+			void mutateAsync({
+				huntId,
+				...modalData,
+			}).then(() => {
+				refresh();
+				setModalOpen(false);
+			});
+		},
+		[huntId, modalData, mutateAsync, refresh],
+	);
+	const createFieldHandler = useCallback(
+		(field: keyof typeof modalData) =>
+			(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+				setModalData((prevData) => ({
+					...prevData,
+					[field]:
+						field === 'comment'
+							? event.target.value
+							: parseFloat(event.target.value),
+				})),
+		[],
+	);
+
+	const formattedOriginal = useMemo(
+		() => currencyFormatter.format(hunt?.payment ?? 0),
+		[hunt?.payment],
+	);
+	const formattedPayment = useMemo(
+		() => currencyFormatter.format(modalData.payment),
+		[modalData.payment],
+	);
+
+	return (
+		<Dialog onOpenChange={setModalOpen} open={modalOpen}>
+			<DialogTrigger asChild>
+				<IconButtonWithTooltip label="Complete">
+					<Check />
+				</IconButtonWithTooltip>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Complete hunt</DialogTitle>
+				</DialogHeader>
+				<form className="flex flex-col gap-2" onSubmit={handleSubmit}>
+					<p>
+						You are paying the hunters {formattedPayment} of {formattedOriginal}
+						.
+					</p>
+					<Input
+						min={0}
+						onChange={createFieldHandler('payment')}
+						step={10}
+						type="number"
+						value={modalData.payment}
+					/>
+					<p>Rate your hunters: {modalData.rating}</p>
+					<Input
+						max={5}
+						min={1}
+						onChange={createFieldHandler('rating')}
+						step={0.5}
+						type="range"
+						value={modalData.rating}
+					/>
+					<p>Leave a comment:</p>
+					<Textarea
+						onChange={createFieldHandler('comment')}
+						placeholder="Put your complaints here"
+						value={modalData.comment}
+					/>
+					<Button color="success" disabled={isPending} type="submit">
+						Complete
+					</Button>
+				</form>
+			</DialogContent>
+		</Dialog>
+	);
+}

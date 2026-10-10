@@ -1,0 +1,71 @@
+import { HunterSchema } from '@ihunt/lib/schemas';
+import { Link } from '@tanstack/react-router';
+import { UserRound, UserRoundX } from 'lucide-react';
+
+import { cn } from '@/lib/styles';
+import { PropsWithClassName } from '@/lib/types';
+
+import { PhotoDisplay } from './photo';
+
+interface AvatarProps {
+	className?: string;
+	hunter: Pick<HunterSchema, 'avatar' | 'handle' | 'id'>;
+	link?: boolean;
+}
+
+export function Avatar({ className, hunter, link = false }: AvatarProps) {
+	const photo = hunter.avatar;
+
+	if (link) {
+		return (
+			<Link params={{ hunterId: hunter.id.toString() }} to="/hunters/$hunterId">
+				<Avatar hunter={hunter} />
+			</Link>
+		);
+	}
+
+	return (
+		<div
+			className={cn(
+				'border-border border',
+				'relative flex size-10 shrink-0 overflow-hidden rounded-full',
+				className,
+			)}
+		>
+			{photo && (
+				<PhotoDisplay fit="fill" height={40} photo={photo} width={40} />
+			)}
+			<span className="bg-muted text-muted-foreground flex h-full w-full items-center justify-center rounded-full uppercase">
+				{hunter.handle.slice(0, 2)}
+			</span>
+		</div>
+	);
+}
+
+export function AvatarEmpty({ className }: PropsWithClassName) {
+	return (
+		<div
+			className={cn(
+				'border-border text-border border',
+				'flex size-10 shrink-0 items-center justify-center rounded-full',
+				className,
+			)}
+		>
+			<UserRound className="dark:text-stone-600" />
+		</div>
+	);
+}
+
+export function AvatarLocked({ className }: PropsWithClassName) {
+	return (
+		<div
+			className={cn(
+				'border-border text-border border',
+				'flex size-10 shrink-0 items-center justify-center rounded-full',
+				className,
+			)}
+		>
+			<UserRoundX className="dark:text-stone-600" />
+		</div>
+	);
+}

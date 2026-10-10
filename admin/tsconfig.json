@@ -1,0 +1,10 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"jsx": "preserve",
+		"paths": { "@/*": ["../client/*"], "@ihunt/client/*": ["../client/*"] }
+	},
+	"include": ["**/*.ts", "**/*.tsx", "../client/global.d.ts"],
+	"exclude": ["node_modules"]
+}

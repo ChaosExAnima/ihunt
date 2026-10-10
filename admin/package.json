@@ -1,0 +1,40 @@
+{
+	"name": "@ihunt/admin",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"dev": "NODE_ENV=development vite dev",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@fontsource-variable/geist-mono": "^5.2.7",
+		"@fontsource/kanit": "^5.2.8",
+		"@hookform/resolvers": "^5.2.2",
+		"@ihunt/lib": "workspace:^",
+		"@tanstack/react-query": "^5.96.1",
+		"@trpc/client": "^11.16.0",
+		"@trpc/tanstack-react-query": "^11.16.0",
+		"js-cookie": "^3.0.5",
+		"lucide-react": "^1.7.0",
+		"ra-router-tanstack": "^5.14.5",
+		"react": "^19.2.4",
+		"react-admin": "^5.14.5",
+		"react-dom": "^19.2.4",
+		"react-hook-form": "^7.72.0",
+		"superjson": "^2.2.6",
+		"tailwindcss": "^4.2.2",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@ihunt/server": "workspace:^",
+		"@tailwindcss/vite": "^4.2.2",
+		"@tanstack/react-query-devtools": "^5.96.1",
+		"@types/js-cookie": "^3.0.6",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^6.0.1",
+		"vite": "^8.0.5"
+	},
+	"packageManager": "yarn@4.18.1"
+}

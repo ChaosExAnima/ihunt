@@ -1,0 +1,4 @@
+@import '../client/global.css';
+
+/* Admin imports client components, which Tailwind wouldn't otherwise scan. */
+@source '../client';

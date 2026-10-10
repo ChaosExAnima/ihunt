@@ -1,0 +1,44 @@
+import { HunterTypes } from '@ihunt/lib/constants';
+import {
+	AutocompleteInput,
+	BooleanInput,
+	NumberInput,
+	ReferenceInput,
+	SelectInput,
+	TextInput,
+} from 'react-admin';
+
+import { AdminAvatarInput } from '../components/avatar';
+
+export const hunterTypeChoices = Object.entries(HunterTypes).map(
+	([key, val]) => ({
+		id: val,
+		name: key,
+	}),
+);
+
+export function HunterCommonDetails() {
+	return (
+		<div className="gap-4 md:grid md:grid-cols-2">
+			<TextInput source="name" />
+			<TextInput source="handle" />
+			<TextInput source="pronouns" />
+			<SelectInput choices={hunterTypeChoices} source="type" />
+			<ReferenceInput reference="group" source="groupId" />
+			<NumberInput
+				max={5}
+				min={0}
+				source="rating"
+				step={0.1}
+				defaultValue={2.5}
+			/>
+			<NumberInput source="money" />
+			<ReferenceInput reference="user" source="userId">
+				<AutocompleteInput label="Player" />
+			</ReferenceInput>
+			<AdminAvatarInput />
+			<TextInput minRows={4} multiline source="bio" />
+			<BooleanInput className="col-span-2" source="alive" defaultValue={true} />
+		</div>
+	);
+}

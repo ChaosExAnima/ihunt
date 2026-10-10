@@ -1,0 +1,65 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { adminCreateHuntInput } from '@ihunt/lib/admin-schemas';
+import {
+	HUNT_MAX_DANGER,
+	HUNT_MAX_HUNTERS,
+	HuntStatus,
+} from '@ihunt/lib/constants';
+import {
+	Create,
+	DateTimeInput,
+	NumberInput,
+	SelectInput,
+	TextInput,
+} from 'react-admin';
+
+import { CreateToolbar } from '../components/create-toolbar';
+import { SimpleForm } from '../components/simple-form';
+import { huntStatusChoices } from './common';
+
+export function HuntCreate() {
+	return (
+		<Create>
+			<SimpleForm
+				resolver={zodResolver(adminCreateHuntInput)}
+				toolbar={<CreateToolbar />}
+			>
+				<div className="grid grid-cols-2 gap-4">
+					<TextInput required source="name" />
+					<SelectInput
+						choices={huntStatusChoices()}
+						defaultValue={HuntStatus.Pending}
+						required
+						source="status"
+					/>
+					<TextInput
+						className="col-span-2"
+						multiline
+						required
+						source="description"
+					/>
+					<TextInput source="warnings" />
+					<NumberInput
+						defaultValue={1}
+						max={HUNT_MAX_DANGER}
+						min={1}
+						source="danger"
+					/>
+					<TextInput source="place" />
+					<NumberInput
+						defaultValue={10_000}
+						min={0}
+						source="payment"
+						step={10}
+					/>
+					<DateTimeInput defaultValue={null} source="scheduledAt" />
+					<NumberInput
+						defaultValue={HUNT_MAX_HUNTERS}
+						min={1}
+						source="maxHunters"
+					/>
+				</div>
+			</SimpleForm>
+		</Create>
+	);
+}

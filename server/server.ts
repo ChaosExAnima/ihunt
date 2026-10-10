@@ -1,12 +1,11 @@
 import { fastifyCors } from '@fastify/cors';
+import { MINUTE, SECOND } from '@ihunt/lib/formats';
+import { isDev } from '@ihunt/lib/utils';
 import {
 	fastifyTRPCPlugin,
 	type FastifyTRPCPluginOptions,
 } from '@trpc/server/adapters/fastify';
 import { setInterval } from 'node:timers/promises';
-
-import { MINUTE, SECOND } from '@/lib/formats';
-import { isDev } from '@/lib/utils';
 
 import { createAuthContext } from './lib/auth';
 import { config } from './lib/config';

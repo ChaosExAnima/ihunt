@@ -1,18 +1,17 @@
-import { TRPCError } from '@trpc/server';
-import * as z from 'zod';
-
-import { HuntStatus } from '@/lib/constants';
+import { HuntStatus } from '@ihunt/lib/constants';
 import {
 	groupSchema,
 	hunterSchema,
 	hunterTypeSchema,
 	idSchemaCoerce,
-} from '@/lib/schemas';
-import { db } from '@/server/lib/db';
-import { InviteStatus, outputHuntSchema } from '@/server/lib/schema';
-import { debugProcedure, router, userProcedure } from '@/server/lib/trpc';
+} from '@ihunt/lib/schemas';
+import { TRPCError } from '@trpc/server';
+import * as z from 'zod';
 
 import { config } from '../lib/config';
+import { db } from '../lib/db';
+import { InviteStatus, outputHuntSchema } from '../lib/schema';
+import { debugProcedure, router, userProcedure } from '../lib/trpc';
 
 export const hunterRouter = router({
 	getGroup: userProcedure

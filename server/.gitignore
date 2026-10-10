@@ -1,0 +1,8 @@
+# prisma
+prisma/*.db*
+prisma/generated
+
+secrets
+
+server.js
+scripts/dist

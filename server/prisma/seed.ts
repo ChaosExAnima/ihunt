@@ -1,0 +1,213 @@
+import { HunterTypes, HuntStatus } from '@ihunt/lib/constants';
+import { HunterTypeSchema } from '@ihunt/lib/schemas';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+import { hunterToAccessCode } from '../lib/auth';
+import { db, Prisma } from '../lib/db';
+import { uploadPhoto } from '../lib/photo';
+
+async function main() {
+	try {
+		await db.hunterGroup.createMany({
+			data: [
+				{
+					id: 1,
+					name: 'NPCs Anonymous',
+				},
+				{
+					id: 2,
+					name: 'Team Techie',
+				},
+				{
+					id: 3,
+					name: 'Dropouts',
+				},
+				{
+					id: 4,
+					name: 'Fang Fans',
+				},
+			],
+		});
+
+		const hunters = (
+			[
+				{
+					name: 'Steve',
+					handle: 'g00db0i',
+					type: HunterTypes.Phooey,
+					groupId: 1,
+				},
+				{
+					name: 'Edgar',
+					handle: 'hailseitan',
+					type: HunterTypes.Evileena,
+					groupId: 4,
+				},
+				{
+					name: 'Bonnie',
+					handle: 'oldwest',
+					type: HunterTypes.Knight,
+					groupId: 3,
+				},
+				{
+					name: 'Giles',
+					handle: 'libraryguy',
+					type: HunterTypes.Evileena,
+					groupId: 2,
+				},
+				{
+					name: 'Buffy',
+					handle: 'theslayer',
+					type: HunterTypes.Knight,
+					groupId: 1,
+				},
+				{
+					name: 'Sam',
+					handle: 'nerdgirl',
+					type: HunterTypes.SixtySixer,
+					groupId: 2,
+				},
+				{
+					name: 'Jess',
+					handle: 'GoodTimeBadTime',
+					type: HunterTypes.SixtySixer,
+					groupId: 2,
+				},
+				{
+					name: 'Frankie',
+					handle: 'wolfgirrl',
+					type: HunterTypes.Knight,
+					groupId: 3,
+				},
+				{
+					name: 'Roger',
+					handle: '6669420',
+					type: HunterTypes.SixtySixer,
+					groupId: 3,
+				},
+				{
+					name: 'Rey',
+					handle: 'love2slay',
+					type: HunterTypes.Phooey,
+					groupId: 4,
+				},
+			] satisfies Prisma.HunterCreateManyInput[]
+		).map(
+			(row, index) =>
+				({
+					...row,
+					id: index + 1,
+					userId: index + 1,
+					rating: 3,
+					alive: true,
+				}) satisfies Prisma.HunterCreateManyInput,
+		);
+
+		const typeCounts = {
+			evileena: 0,
+			knight: 0,
+			phooey: 0,
+			'66er': 0,
+		} satisfies Record<HunterTypeSchema, number>;
+		await db.user.createMany({
+			data: hunters.map(({ userId, type }) => ({
+				id: userId,
+				code: hunterToAccessCode(type, ++typeCounts[type]),
+			})),
+		});
+
+		await db.hunter.createMany({
+			data: hunters,
+		});
+
+		await db.hunt.createMany({
+			data: [
+				{
+					id: 1,
+					name: 'Werewolf',
+					status: HuntStatus.Available,
+					description:
+						'saw something wandering around in the woods. hearing howls.',
+					danger: 2,
+					payment: 1000,
+				},
+				{
+					id: 2,
+					name: 'Vampire',
+					status: HuntStatus.Available,
+					description: 'a body was found without blood',
+					danger: 3,
+					payment: 2000,
+				},
+				{
+					id: 3,
+					name: 'Zombie',
+					status: HuntStatus.Pending,
+					description:
+						'something like a dozen zombies in the old graveyard. €500 a head.',
+					danger: 1,
+					payment: 6000,
+				},
+				{
+					id: 4,
+					name: 'Ancient Vampire',
+					status: HuntStatus.Complete,
+					description: 'very old dangerous vampire!',
+					danger: 3,
+					payment: 10_000,
+				},
+			],
+		});
+		for (const hunter of hunters) {
+			if (hunter.groupId !== 4) {
+				continue;
+			}
+			await db.huntHunter.create({
+				data: {
+					hunterId: hunter.id,
+					huntId: 4,
+				},
+			});
+		}
+
+		const photos = [
+			{
+				filename: 'werewolf.jpg',
+				huntId: 1,
+			},
+			{
+				filename: 'vampire.jpg',
+				huntId: 2,
+			},
+			{
+				filename: 'zombies.jpg',
+				huntId: 3,
+			},
+			{
+				filename: 'ancient_vampire.jpg',
+				huntId: 4,
+			},
+		];
+		for (const photo of photos) {
+			const buffer = await readFile(
+				resolve(import.meta.dirname, 'fixtures', photo.filename),
+			);
+			await uploadPhoto({
+				buffer,
+				huntId: photo.huntId,
+			});
+		}
+	} catch (err) {
+		console.log('Error seeding database:', err);
+	} finally {
+		await db.$disconnect();
+	}
+}
+
+main()
+	.then(() => process.exit())
+	.catch((err: unknown) => {
+		console.error(`Fatal:`, err);
+		process.exit(1);
+	});

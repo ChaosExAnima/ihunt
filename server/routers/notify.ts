@@ -1,11 +1,10 @@
-import * as z from 'zod';
-
 import {
 	idArray,
 	idSchema,
 	notifyEventSchema,
 	notifyTypeSchema,
-} from '@/lib/schemas';
+} from '@ihunt/lib/schemas';
+import * as z from 'zod';
 
 import { config } from '../lib/config';
 import { db, Prisma } from '../lib/db';

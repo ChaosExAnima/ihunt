@@ -1,4 +1,4 @@
-import { HUNTER_LOW_RATING, HUNTER_TOP_MIN_RATING } from '@/lib/constants';
+import { HUNTER_LOW_RATING, HUNTER_TOP_MIN_RATING } from '@ihunt/lib/constants';
 
 import { db, Hunter, Prisma } from './db';
 import {

@@ -1,11 +1,10 @@
+import { mergeDeep } from '@ihunt/lib/utils';
 import * as z from 'zod';
 
-import { mergeDeep } from '@/lib/utils';
-import { db } from '@/server/lib/db';
-import { uploadPhoto } from '@/server/lib/photo';
-import { router, userProcedure } from '@/server/lib/trpc';
-
+import { db } from '../lib/db';
+import { uploadPhoto } from '../lib/photo';
 import { userSettingsSchema } from '../lib/schema';
+import { router, userProcedure } from '../lib/trpc';
 
 export const settingsRouter = router({
 	updateAvatar: userProcedure

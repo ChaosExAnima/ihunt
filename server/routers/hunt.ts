@@ -1,9 +1,8 @@
+import { HuntStatus } from '@ihunt/lib/constants';
+import { idSchemaCoerce } from '@ihunt/lib/schemas';
+import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
-
-import { HuntStatus } from '@/lib/constants';
-import { idSchemaCoerce } from '@/lib/schemas';
-import { extractIds } from '@/lib/utils';
 
 import { db } from '../lib/db';
 import {
