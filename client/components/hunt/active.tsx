@@ -42,7 +42,7 @@ function PicPicker({ huntId }: { huntId: number }) {
 		trpc.hunt.uploadPhoto.mutationOptions({
 			async onSuccess() {
 				await queryClient.invalidateQueries({
-					queryKey: trpc.hunt.getActive.queryKey(),
+					queryKey: trpc.hunt.getHuntsBy.queryKey(),
 				});
 			},
 		}),

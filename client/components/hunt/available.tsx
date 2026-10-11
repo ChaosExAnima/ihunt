@@ -182,7 +182,7 @@ function HuntInviteRejectButton({
 	const { mutate: rejectInvite } = useMutation(
 		trpc.invite.rejectInvite.mutationOptions({
 			onSuccess() {
-				invalidate([trpc.hunt.getAvailable.queryKey()]);
+				invalidate([trpc.hunt.getHuntsBy.queryKey()]);
 			},
 		}),
 	);

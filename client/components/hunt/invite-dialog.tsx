@@ -44,7 +44,7 @@ export function HuntInviteModal({
 	const { mutate } = useMutation(
 		trpc.invite.sendInvites.mutationOptions({
 			onSuccess() {
-				invalidate([trpc.hunt.getAvailable.queryKey()]);
+				invalidate([trpc.hunt.getHuntsBy.queryKey()]);
 			},
 		}),
 	);

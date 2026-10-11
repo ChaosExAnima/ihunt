@@ -88,7 +88,7 @@ export function DeletePhotoButton({
 		trpc.photos.delete.mutationOptions({
 			async onSuccess() {
 				await queryClient.invalidateQueries({
-					queryKey: trpc.hunt.getActive.queryKey(),
+					queryKey: trpc.hunt.getHuntsBy.queryKey(),
 				});
 				onDelete?.();
 			},
