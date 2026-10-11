@@ -36,7 +36,7 @@ function RouteComponent() {
 	);
 	const { data: reviewingHunts = [], isLoading: isLoadingReviewing } =
 		useSuspenseQuery({
-			...trpc.hunt.getHuntsBy.queryOptions({ status: 'active' }),
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'reviewing' }),
 			refetchInterval: 30 * SECOND,
 		});
 
@@ -90,6 +90,7 @@ function RouteComponent() {
 				<CurrentSlide
 					active={activeHunts}
 					available={availableHunts}
+					reviewing={reviewingHunts}
 					api={api}
 				/>
 			</Carousel>
@@ -110,16 +111,19 @@ function HuntSlide(props: HuntDisplayProps) {
 }
 
 function CurrentSlide({
-	active = [],
-	available = [],
+	active,
+	available,
+	reviewing,
 	api,
 }: {
-	active?: Entity[];
-	available?: Entity[];
-	reviewing?: Entity[];
+	active: Entity[];
+	available: Entity[];
+	reviewing: Entity[];
 	api: CarouselApi;
 }) {
 	const [current, setCurrent] = useState(0);
+
+	const totalHunts = active.length + available.length + reviewing.length;
 
 	useEffect(() => {
 		if (!api) {
@@ -163,7 +167,18 @@ function CurrentSlide({
 					)}
 				/>
 			))}
-			{active.length === 0 && available.length === 0 && (
+			{reviewing.map(({ id }, index) => (
+				<span
+					key={id}
+					className={cn(
+						dotClass,
+						index + reviewing.length === current
+							? 'bg-stone-200 dark:bg-stone-400'
+							: 'bg-stone-400 dark:bg-stone-600',
+					)}
+				/>
+			))}
+			{totalHunts === 0 && (
 				<span
 					className={cn(
 						dotClass,
@@ -176,7 +191,7 @@ function CurrentSlide({
 			<span
 				className={cn(
 					dotClass,
-					Math.max(active.length + available.length, 1) === current
+					Math.max(totalHunts, 1) === current
 						? 'bg-stone-200 dark:bg-stone-400'
 						: 'bg-stone-400 dark:bg-stone-600',
 				)}

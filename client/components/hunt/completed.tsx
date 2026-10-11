@@ -13,12 +13,12 @@ export function HuntDisplayCompleted({
 	);
 	return (
 		<HuntBase hideText hunt={hunt}>
-			{formattedPayment && (
+			{hunt.status === 'complete' && formattedPayment && (
 				<p className="text-lg">You earned {formattedPayment}!</p>
 			)}
 			{hunt.status === 'reviewing' && (
 				<p className="text-muted">
-					Client is reviewing the results, come back later.
+					Client is reviewing the results and will rate your hunt soon.
 				</p>
 			)}
 			{hunt.comment && (
