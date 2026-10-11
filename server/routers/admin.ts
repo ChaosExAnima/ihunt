@@ -15,7 +15,7 @@ import { db } from '../lib/db';
 import { completeHunt, updateHunt } from '../lib/hunt';
 import { hunterUpdateNotifications } from '../lib/hunter';
 import { photoUrl } from '../lib/photo';
-import { InviteStatus } from '../lib/schema';
+import { HuntSpotStatus } from '../lib/schema';
 import { adminProcedure, router } from '../lib/trpc';
 
 export const adminRouter = router({
@@ -103,12 +103,8 @@ export const adminRouter = router({
 				}
 				case 'hunt': {
 					data = await db.hunt.findMany(query);
-					await db.huntHunter.deleteMany({
-						where: {
-							huntId: {
-								in: inIds,
-							},
-						},
+					await db.huntSpot.deleteMany({
+						where: { huntId: { in: inIds } },
 					});
 					await db.hunt.deleteMany(query);
 					break;
@@ -203,26 +199,20 @@ export const adminRouter = router({
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
-								huntHunters: true,
+								spots: true,
 								photos: {
 									select: { id: true },
 								},
 							},
 						});
 						return {
-							data: hunts.map(({ huntHunters, photos, ...hunt }) => ({
+							data: hunts.map(({ spots, photos, ...hunt }) => ({
 								...hunt,
 								hunterIds: extractKey(
-									huntHunters.filter(
-										({ status }) => status === InviteStatus.Accepted,
-									),
+									spots.filter(({ status }) => status === HuntSpotStatus.Taken),
 									'hunterId',
 								),
 								photoIds: extractIds(photos),
-								reserved: huntHunters.some(
-									({ status, expiresAt }) =>
-										status === InviteStatus.Pending && !!expiresAt,
-								),
 							})),
 							total: await db.hunt.count({
 								where,
@@ -233,20 +223,16 @@ export const adminRouter = router({
 						const hunters = await db.hunter.findMany({
 							...query,
 							include: {
-								huntHunters: {
-									select: {
-										huntId: true,
-									},
-									where: {
-										status: InviteStatus.Accepted,
-									},
+								spots: {
+									select: { huntId: true },
+									where: { status: HuntSpotStatus.Taken },
 								},
 							},
 						});
 						return {
-							data: hunters.map(({ huntHunters, ...hunter }) => ({
+							data: hunters.map(({ spots, ...hunter }) => ({
 								...hunter,
-								huntIds: extractKey(huntHunters, 'huntId'),
+								huntIds: extractKey(spots, 'huntId'),
 							})),
 							total: await db.hunter.count({ where }),
 						};
@@ -318,7 +304,7 @@ export const adminRouter = router({
 							include: {
 								huntHunters: {
 									select: { hunterId: true },
-									where: { status: InviteStatus.Accepted },
+									where: { status: HuntSpotStatus.Taken },
 								},
 								photos: { select: { id: true } },
 							},
@@ -567,28 +553,18 @@ export const adminRouter = router({
 		),
 
 	wallData: adminProcedure.query(async () => {
-		const reviews = await db.huntHunter.findMany({
+		const reviews = await db.huntSpot.findMany({
 			// All hunts that are completed + have a comment, where the hunter was part of the hunt.
 			where: {
-				status: InviteStatus.Accepted,
+				status: HuntSpotStatus.Taken,
 				hunt: {
 					status: HuntStatus.Complete,
-					comment: {
-						not: null,
-					},
+					comment: { not: null },
 				},
 			},
 			include: {
-				hunt: {
-					include: {
-						photos: true,
-					},
-				},
-				hunter: {
-					include: {
-						avatar: true,
-					},
-				},
+				hunt: { include: { photos: true } },
+				hunter: { include: { avatar: true } },
 			},
 		});
 
@@ -620,7 +596,7 @@ export const adminRouter = router({
 				}
 				const score =
 					(huntCounts.get(review.huntId) ?? 0) +
-					(hunterCounts.get(review.hunterId) ?? 0);
+					(hunterCounts.get(review.hunterId ?? 0) ?? 0);
 
 				if (score < bestScore) {
 					bestScore = score;
@@ -637,10 +613,12 @@ export const adminRouter = router({
 					bestCandidate.huntId,
 					(huntCounts.get(bestCandidate.huntId) ?? 0) + 1,
 				);
-				hunterCounts.set(
-					bestCandidate.hunterId,
-					(hunterCounts.get(bestCandidate.hunterId) ?? 0) + 1,
-				);
+				if (bestCandidate.hunterId) {
+					hunterCounts.set(
+						bestCandidate.hunterId,
+						(hunterCounts.get(bestCandidate.hunterId) ?? 0) + 1,
+					);
+				}
 				sequence.push(bestCandidate);
 				availableReviews.delete(
 					`${bestCandidate.huntId}:${bestCandidate.hunterId}`,

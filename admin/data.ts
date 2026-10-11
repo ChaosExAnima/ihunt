@@ -1,6 +1,7 @@
+import type { AppRouter } from '@ihunt/server';
+
 import { adminAuthSchema, adminCreateInput } from '@ihunt/lib/admin-schemas';
 import { isDev } from '@ihunt/lib/utils';
-import { AppRouter } from '@ihunt/server';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	createTRPCClient,
