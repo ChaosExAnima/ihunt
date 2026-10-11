@@ -11,7 +11,6 @@ export const HuntStatus = {
 	Cancelled: 'cancelled',
 	Pending: 'pending',
 	Available: 'available',
-	Upcoming: 'upcoming',
 	Active: 'active',
 	Reviewing: 'reviewing',
 	Complete: 'complete',
