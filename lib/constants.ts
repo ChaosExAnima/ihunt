@@ -8,11 +8,13 @@ export const ACCESS_CODE_REGEX = /^[a-zA-Z][0-9]{1,2}$/;
 export const SESSION_COOKIE_NAME = 'ihunt-session';
 
 export const HuntStatus = {
-	Active: 'active',
-	Available: 'available',
 	Cancelled: 'cancelled',
-	Complete: 'complete',
 	Pending: 'pending',
+	Available: 'available',
+	Upcoming: 'upcoming',
+	Active: 'active',
+	Reviewing: 'reviewing',
+	Complete: 'complete',
 } as const;
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
@@ -21,6 +23,7 @@ export const HUNT_MAX_HUNTERS = 5;
 export const HUNT_MAX_DANGER = 5;
 export const HUNT_INVITE_MINUTES = 5;
 export const HUNT_LOCKDOWN_MINUTES = 15;
+export const HUNT_ACTIVE_END_MINUTES = 30;
 
 export const HunterTypes = {
 	Evileena: 'evileena',

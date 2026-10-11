@@ -13,7 +13,7 @@ export function useAvailableHunt() {
 		trpc.hunt.join.mutationOptions({
 			onSuccess() {
 				invalidate([
-					trpc.hunt.getAvailable.queryKey(),
+					trpc.hunt.getHuntsBy.queryKey(),
 					trpc.hunt.getHuntsToday.queryKey(),
 					trpc.invite.pathKey(),
 				]);

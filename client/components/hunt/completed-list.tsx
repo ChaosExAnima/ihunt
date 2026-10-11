@@ -1,3 +1,4 @@
+import { HuntStatus } from '@ihunt/lib/constants';
 import { dateFormat } from '@ihunt/lib/formats';
 import { HuntSchema } from '@ihunt/lib/schemas';
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +14,9 @@ import { Loading } from '../loading';
 import { Rating } from '../rating';
 
 export function HuntsCompleted() {
-	const { data: hunts } = useQuery(trpc.hunt.getCompleted.queryOptions());
+	const { data: hunts } = useQuery(
+		trpc.hunt.getHuntsBy.queryOptions({ status: HuntStatus.Complete }),
+	);
 
 	// TODO: Update dates as time passes.
 	const huntsByDate: [string, HuntSchema[]][] = useMemo(() => {

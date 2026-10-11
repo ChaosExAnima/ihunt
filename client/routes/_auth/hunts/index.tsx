@@ -5,7 +5,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Header } from '@/components/header';
-import { HuntDisplay } from '@/components/hunt';
+import { HuntDisplay, HuntDisplayProps } from '@/components/hunt';
 import { HuntsCompleted } from '@/components/hunt/completed-list';
 import { HuntLoading } from '@/components/hunt/loading';
 import {
@@ -20,57 +20,59 @@ import { cn } from '@/lib/styles';
 
 export const Route = createFileRoute('/_auth/hunts/')({
 	component: RouteComponent,
-	loader({ context: { queryClient } }) {
-		void queryClient.prefetchQuery(trpc.hunt.getActive.queryOptions());
-		void queryClient.prefetchQuery(trpc.hunt.getAvailable.queryOptions());
-		void queryClient.prefetchQuery(trpc.hunt.getCompleted.queryOptions());
-	},
 });
 
 function RouteComponent() {
-	const { data: activeHunts, isLoading: isLoadingActive } = useSuspenseQuery({
-		...trpc.hunt.getActive.queryOptions(),
-		refetchInterval: 30 * SECOND,
-	});
-	const { data: availableHunts, isLoading: isLoadingAvailable } = useQuery({
-		...trpc.hunt.getAvailable.queryOptions(),
-		refetchInterval: 30 * SECOND,
-	});
+	const { data: activeHunts = [], isLoading: isLoadingActive } =
+		useSuspenseQuery({
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'active' }),
+			refetchInterval: 30 * SECOND,
+		});
+	const { data: availableHunts = [], isLoading: isLoadingAvailable } = useQuery(
+		{
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'available' }),
+			refetchInterval: 30 * SECOND,
+		},
+	);
+	const { data: reviewingHunts = [], isLoading: isLoadingReviewing } =
+		useSuspenseQuery({
+			...trpc.hunt.getHuntsBy.queryOptions({ status: 'reviewing' }),
+			refetchInterval: 30 * SECOND,
+		});
 
 	const { remainingToday, onJoin, inviteModal } = useAvailableHunt();
 
 	const [api, setApi] = useState<CarouselApi>();
 
+	const totalHunts =
+		activeHunts.length + availableHunts.length + reviewingHunts.length;
+	const isAllLoading =
+		isLoadingActive && isLoadingAvailable && isLoadingReviewing;
+
 	return (
 		<>
 			<Carousel className="-mx-4 flex grow flex-col" setApi={setApi}>
 				<CarouselContent className="grow pb-4">
-					{isLoadingAvailable && isLoadingActive && (
+					{isAllLoading && (
 						<CarouselItem>
 							<HuntLoading className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg" />
 						</CarouselItem>
 					)}
-					{!isLoadingActive &&
-						activeHunts?.map((hunt) => (
-							<CarouselItem key={hunt.id}>
-								<HuntDisplay
-									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
-									hunt={hunt}
-								/>
-							</CarouselItem>
-						))}
-					{!isLoadingAvailable &&
-						availableHunts?.map((hunt) => (
-							<CarouselItem key={hunt.id}>
-								<HuntDisplay
-									className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
-									hunt={hunt}
-									onAcceptHunt={onJoin}
-									remainingHunts={remainingToday}
-								/>
-							</CarouselItem>
-						))}
-					{availableHunts?.length === 0 && activeHunts?.length === 0 && (
+					{activeHunts.map((hunt) => (
+						<HuntSlide key={hunt.id} hunt={hunt} />
+					))}
+					{availableHunts.map((hunt) => (
+						<HuntSlide
+							key={hunt.id}
+							hunt={hunt}
+							onAcceptHunt={onJoin}
+							remainingHunts={remainingToday}
+						/>
+					))}
+					{reviewingHunts.map((hunt) => (
+						<HuntSlide key={hunt.id} hunt={hunt} />
+					))}
+					{totalHunts === 0 && (
 						<CarouselItem>
 							<div className="border-border mx-4 rounded-xl border p-4">
 								<Header level={3}>No hunts available</Header>
@@ -88,6 +90,7 @@ function RouteComponent() {
 				<CurrentSlide
 					active={activeHunts}
 					available={availableHunts}
+					reviewing={reviewingHunts}
 					api={api}
 				/>
 			</Carousel>
@@ -96,16 +99,31 @@ function RouteComponent() {
 	);
 }
 
+function HuntSlide(props: HuntDisplayProps) {
+	return (
+		<CarouselItem>
+			<HuntDisplay
+				className="border-border mx-4 flex h-full flex-col border p-4 shadow-lg"
+				{...props}
+			/>
+		</CarouselItem>
+	);
+}
+
 function CurrentSlide({
-	active = [],
-	available = [],
+	active,
+	available,
+	reviewing,
 	api,
 }: {
-	active?: Entity[];
-	available?: Entity[];
+	active: Entity[];
+	available: Entity[];
+	reviewing: Entity[];
 	api: CarouselApi;
 }) {
 	const [current, setCurrent] = useState(0);
+
+	const totalHunts = active.length + available.length + reviewing.length;
 
 	useEffect(() => {
 		if (!api) {
@@ -149,7 +167,18 @@ function CurrentSlide({
 					)}
 				/>
 			))}
-			{active.length === 0 && available.length === 0 && (
+			{reviewing.map(({ id }, index) => (
+				<span
+					key={id}
+					className={cn(
+						dotClass,
+						index + reviewing.length === current
+							? 'bg-stone-200 dark:bg-stone-400'
+							: 'bg-stone-400 dark:bg-stone-600',
+					)}
+				/>
+			))}
+			{totalHunts === 0 && (
 				<span
 					className={cn(
 						dotClass,
@@ -162,7 +191,7 @@ function CurrentSlide({
 			<span
 				className={cn(
 					dotClass,
-					Math.max(active.length + available.length, 1) === current
+					Math.max(totalHunts, 1) === current
 						? 'bg-stone-200 dark:bg-stone-400'
 						: 'bg-stone-400 dark:bg-stone-600',
 				)}

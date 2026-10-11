@@ -81,7 +81,7 @@ export function useNotifySubscribe() {
 					event.type.startsWith('hunt-') ||
 					event.type.startsWith('invite-')
 				) {
-					toInvalidate.push(trpc.hunt.getAvailable.queryKey());
+					toInvalidate.push(trpc.hunt.getHuntsBy.queryKey());
 				} else if (event.type.startsWith('hunter-')) {
 					toInvalidate.push(trpc.hunter.pathKey(), trpc.auth.me.queryKey());
 				}

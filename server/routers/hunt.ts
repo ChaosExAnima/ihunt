@@ -1,5 +1,5 @@
 import { HuntStatus } from '@ihunt/lib/constants';
-import { idSchemaCoerce } from '@ihunt/lib/schemas';
+import { huntStatus, idSchemaCoerce } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
@@ -26,126 +26,71 @@ import { InviteStatus, outputHuntSchema } from '../lib/schema';
 import { router, userProcedure } from '../lib/trpc';
 
 export const huntRouter = router({
-	getActive: userProcedure.output(outputHuntSchema.array()).query(
-		async ({
-			ctx: {
-				hunter: { id: hunterId },
-				user: { code },
-				admin,
-			},
-		}) => {
-			if (isHuntsDisabled(code, admin)) {
-				return [];
-			}
-			const hunts = await db.hunt.findMany({
-				include: huntDisplayInclude,
-				where: {
-					huntHunters: {
-						some: {
-							hunterId,
-							status: InviteStatus.Accepted,
-						},
-					},
-					status: HuntStatus.Active,
+	getHuntsBy: userProcedure
+		.input(z.object({ status: huntStatus }))
+		.output(outputHuntSchema.array())
+		.query(
+			async ({
+				input: { status },
+				ctx: {
+					hunter: { id: hunterId },
+					user: { code },
+					admin,
 				},
-			});
+			}) => {
+				if (!admin && (status === 'cancelled' || status === 'pending')) {
+					throw new TRPCError({ code: 'FORBIDDEN' });
+				}
 
-			return hunts.map(({ huntHunters, photos, ...hunt }) => ({
-				...hunt,
-				hunters: huntHunters.map(({ hunter }) => hunter),
-				photos: photos.filter(
-					({ hunterId }) => !hunterId || hunterId === hunterId,
-				),
-			}));
-		},
-	),
+				if (isHuntsDisabled(code, admin) && status !== 'complete') {
+					return [];
+				}
 
-	getAvailable: userProcedure.output(outputHuntSchema.array()).query(
-		async ({
-			ctx: {
-				hunter: currentHunter,
-				user: { code },
-				admin,
-			},
-		}) => {
-			if (isHuntsDisabled(code, admin)) {
-				return [];
-			}
-
-			const hunts = await db.hunt.findMany({
-				include: {
-					huntHunters: {
+				let hunts;
+				if (status === 'available') {
+					hunts = await db.hunt.findMany({
+						where: {
+							status,
+						},
 						include: {
-							hunter: {
-								include: {
-									avatar: true,
+							...huntDisplayInclude,
+							huntHunters: {
+								...huntDisplayInclude.huntHunters,
+								where: { status: { not: InviteStatus.Expired } },
+							},
+						},
+						orderBy: {
+							scheduledAt: 'desc',
+						},
+					});
+				} else {
+					hunts = await db.hunt.findMany({
+						include: huntDisplayInclude,
+						where: {
+							status,
+							huntHunters: {
+								some: {
+									hunterId,
+									status: InviteStatus.Accepted,
 								},
 							},
 						},
-						where: {
-							status: {
-								not: InviteStatus.Expired,
-							},
+						orderBy: {
+							scheduledAt: 'desc',
 						},
-					},
-					photos: true,
-				},
-				orderBy: {
-					createdAt: 'desc',
-				},
-				where: {
-					status: HuntStatus.Available,
-				},
-			});
+					});
+				}
 
-			const reservedMap = invitesToReserved({
-				invites: hunts.flatMap(({ huntHunters }) => huntHunters),
-				hunterId: currentHunter.id,
-			});
-
-			return hunts.map(({ huntHunters, photos, ...hunt }) => ({
-				...hunt,
-				hunters: huntHunters
-					.filter(({ status }) => status === InviteStatus.Accepted)
-					.map(({ hunter }) => hunter),
-				reserved: reservedMap.get(hunt.id),
-				photos: photos.filter(({ hunterId }) => !hunterId),
-			}));
-		},
-	),
-
-	getCompleted: userProcedure
-		.output(outputHuntSchema.array())
-		.query(async ({ ctx: { hunter } }) => {
-			const hunts = await db.hunt.findMany({
-				include: huntDisplayInclude,
-				orderBy: {
-					completedAt: 'desc',
-				},
-				where: {
-					huntHunters: {
-						some: {
-							hunter: {
-								id: hunter.id,
-							},
-							status: InviteStatus.Accepted,
-						},
-					},
-					status: HuntStatus.Complete,
-					completedAt: {
-						not: null,
-					},
-				},
-			});
-
-			return hunts.map(({ huntHunters, photos, ...hunt }) => ({
-				...hunt,
-				photos: photos.filter(
-					({ hunterId }) => !hunterId || hunterId === hunter.id,
-				),
-				hunters: huntHunters.map(({ hunter }) => hunter),
-			}));
-		}),
+				return hunts.map(({ huntHunters, photos, ...hunt }) => ({
+					...hunt,
+					hunters: huntHunters.map(({ hunter }) => hunter),
+					photos: photos.filter(
+						({ hunterId: photoHunterId }) =>
+							!photoHunterId || photoHunterId === hunterId,
+					),
+				}));
+			},
+		),
 
 	getHuntsToday: userProcedure.query(
 		async ({

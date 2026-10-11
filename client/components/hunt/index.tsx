@@ -22,6 +22,7 @@ export function HuntDisplay(props: PropsWithClassName<HuntDisplayProps>) {
 		case HuntStatus.Available:
 			return <HuntDisplayAvailable {...props} />;
 		case HuntStatus.Complete:
+		case HuntStatus.Reviewing:
 			return <HuntDisplayCompleted {...props} />;
 		default:
 			return null;

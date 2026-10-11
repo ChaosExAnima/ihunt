@@ -5,6 +5,7 @@ import {
 	EyeClosedIcon,
 	EyeIcon,
 	PlayIcon,
+	SquareIcon,
 	TimerResetIcon,
 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
@@ -44,6 +45,7 @@ export function HuntList() {
 				status: [
 					{ id: 'pending', name: 'Pending' },
 					{ id: 'active', name: 'Active' },
+					{ id: 'reviewing', name: 'Reviewing' },
 				],
 			}}
 			actions={<HuntListActions />}
@@ -136,6 +138,18 @@ function HuntActions() {
 			});
 		}
 	}, [update, hunt]);
+	const handleStop = useCallback(() => {
+		if (hunt) {
+			void update('hunt', {
+				data: {
+					status: HuntStatus.Reviewing,
+					completedAt: hunt.completedAt ?? new Date(),
+				},
+				id: hunt.id,
+				previousData: hunt,
+			});
+		}
+	}, [update, hunt]);
 
 	if (!hunt) {
 		return null;
@@ -149,14 +163,24 @@ function HuntActions() {
 			</Link>
 			{hunt.status === HuntStatus.Available && (
 				<IconButtonWithTooltip
-					disabled={isPending}
 					label="Start"
 					onClick={handleStart}
+					disabled={isPending}
 				>
 					<PlayIcon />
 				</IconButtonWithTooltip>
 			)}
-			{hunt.status === HuntStatus.Active && <HuntCompleteDialog />}
+			{hunt.status === HuntStatus.Active && (
+				<IconButtonWithTooltip
+					label="End"
+					onClick={handleStop}
+					disabled={isPending}
+				>
+					<SquareIcon />
+				</IconButtonWithTooltip>
+			)}
+			{(hunt.status === HuntStatus.Active ||
+				hunt.status === HuntStatus.Reviewing) && <HuntCompleteDialog />}
 		</div>
 	);
 }
