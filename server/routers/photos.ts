@@ -3,6 +3,8 @@ import { idSchema, idSchemaCoerce, posIntSchema } from '@ihunt/lib/schemas';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
+import { spotByHunter } from '@/lib/spot';
+
 import { db } from '../lib/db';
 import { outputPhoto, photoUrl, uploadPhoto } from '../lib/photo';
 import { loggedInProcedure, router } from '../lib/trpc';
@@ -105,7 +107,7 @@ export const photosRouter = router({
 			if (huntId && hunterId && !admin) {
 				const hunt = await db.hunt.findUniqueOrThrow({
 					include: {
-						huntHunters: {
+						spots: {
 							select: {
 								hunterId: true,
 							},
@@ -119,11 +121,10 @@ export const photosRouter = router({
 						message: 'Hunt must be active to upload photos',
 					});
 				}
-				if (
-					!hunt.huntHunters.find(
-						(huntHunter) => huntHunter.hunterId === hunterId,
-					)
-				) {
+
+				const spot = await spotByHunter(hunterId, huntId);
+
+				if (!spot) {
 					throw new TRPCError({
 						code: 'UNAUTHORIZED',
 						message: 'You must be involved with this hunt',
