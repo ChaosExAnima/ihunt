@@ -8,12 +8,13 @@ export const ACCESS_CODE_REGEX = /^[a-zA-Z][0-9]{1,2}$/;
 export const SESSION_COOKIE_NAME = 'ihunt-session';
 
 export const HuntStatus = {
-	Active: 'active',
-	Available: 'available',
 	Cancelled: 'cancelled',
+	Pending: 'pending',
+	Available: 'available',
+	Upcoming: 'upcoming',
+	Active: 'active',
 	Reviewing: 'reviewing',
 	Complete: 'complete',
-	Pending: 'pending',
 } as const;
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
