@@ -3,10 +3,9 @@ import { idSchema, idSchemaCoerce, posIntSchema } from '@ihunt/lib/schemas';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { spotByHunter } from '@/lib/spot';
-
 import { db } from '../lib/db';
 import { outputPhoto, photoUrl, uploadPhoto } from '../lib/photo';
+import { spotByHunter } from '../lib/spot';
 import { loggedInProcedure, router } from '../lib/trpc';
 
 const resizingTypeSchema = z.enum([

@@ -3,12 +3,11 @@ import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { huntersFromGroupId } from '@/lib/hunter';
-import { inviteHunters } from '@/lib/invite';
-import { clearHuntSpot, spotByHunter } from '@/lib/spot';
-
 import { db } from '../lib/db';
+import { huntersFromGroupId } from '../lib/hunter';
+import { inviteHunters } from '../lib/invite';
 import { HuntSpotStatus } from '../lib/schema';
+import { clearHuntSpot, spotByHunter } from '../lib/spot';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
 export const inviteRouter = router({
