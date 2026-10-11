@@ -50,7 +50,7 @@ export async function dailyHuntCount(
 	return uniqueHuntIds.size;
 }
 
-export async function hunterIdsToInvite(hunterIds: number[], huntId: number) {
+export async function hunterIdsToInvite(huntId: number, hunterIds: number[]) {
 	const spots = await spotsByHunt(huntId);
 	const huntersToCheck = new Set(hunterIds);
 	let spotsAvailable = 0;
@@ -116,7 +116,7 @@ export async function inviteHuntersToSpots(
 	hunterIds: number[],
 	fromHunterId?: number,
 ) {
-	const huntersToInvite = await hunterIdsToInvite(hunterIds, huntId);
+	const huntersToInvite = await hunterIdsToInvite(huntId, hunterIds);
 	if (!huntersToInvite.length) {
 		return [];
 	}

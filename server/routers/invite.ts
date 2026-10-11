@@ -1,88 +1,17 @@
-import { HUNT_INVITE_MINUTES, HuntStatus } from '@ihunt/lib/constants';
-import { MINUTE } from '@ihunt/lib/formats';
 import { idArray, idSchemaCoerce } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
+import { huntersFromGroupId } from '@/lib/hunter';
+import { inviteHunters } from '@/lib/invite';
+import { clearHuntSpot, spotByHunter } from '@/lib/spot';
+
 import { db } from '../lib/db';
-import { huntInLockdown, isHuntsDisabled } from '../lib/hunt';
-import {
-	expireInvites,
-	fetchInviteesForHunt,
-	respondToInvite,
-} from '../lib/invite';
-import { inviteSendEvent, notifyHunter } from '../lib/notify';
-import { InviteStatus } from '../lib/schema';
+import { HuntSpotStatus } from '../lib/schema';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
-import { PrismaClientKnownRequestError } from '../prisma/generated/internal/prismaNamespace';
 
 export const inviteRouter = router({
-	availableInvitees: userProcedure
-		.input(
-			z.object({
-				huntId: idSchemaCoerce,
-			}),
-		)
-		.output(idArray)
-		.query(
-			async ({
-				ctx: {
-					hunter,
-					user: { code },
-					admin,
-				},
-				input: { huntId },
-			}) => {
-				// No group means nobody to invite.
-				if (!hunter.groupId || isHuntsDisabled(code, admin)) {
-					return [];
-				}
-
-				// Load the hunt and check if we're already full.
-				const hunt = await db.hunt.findUniqueOrThrow({
-					include: {
-						huntHunters: true,
-					},
-					where: { id: huntId },
-				});
-
-				if (
-					hunt.huntHunters.length >= hunt.maxHunters ||
-					!hunt.huntHunters.some(
-						({ hunterId, status }) =>
-							hunterId === hunter.id && status === InviteStatus.Accepted,
-					)
-				) {
-					return [];
-				}
-
-				if (huntInLockdown(hunt)) {
-					return [];
-				}
-
-				// Get the invitees
-				const invitees = await fetchInviteesForHunt({
-					fromHunterId: hunter.id,
-					groupId: hunter.groupId,
-					huntId,
-				});
-
-				return extractIds(invitees);
-			},
-		),
-
-	getInvites: userProcedure.query(async ({ ctx: { hunter } }) => {
-		const invites = await db.huntHunter.findMany({
-			where: {
-				status: InviteStatus.Pending,
-				hunterId: hunter.id,
-			},
-		});
-
-		return expireInvites(invites);
-	}),
-
 	rejectInvite: userProcedure
 		.input(
 			z.object({
@@ -90,39 +19,35 @@ export const inviteRouter = router({
 			}),
 		)
 		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
-			const success = await respondToInvite({
-				currentHunter: hunter,
-				huntId,
-				response: 'decline',
-			});
-
-			// Expire all invites if this was the last rejection.
-			const pendingInvitesCount = await db.huntHunter.count({
-				where: {
-					huntId,
-					status: InviteStatus.Pending,
-				},
-			});
-			if (!pendingInvitesCount) {
-				await db.huntHunter.updateMany({
-					where: {
-						huntId,
-						status: InviteStatus.Rejected,
-					},
-					data: {
-						expiresAt: null,
-						status: InviteStatus.Expired,
-						// Leave fromHunterId so we know there's been an invite in the past.
-					},
-				});
+			const spot = await spotByHunter(hunter.id, huntId);
+			if (spot?.status !== HuntSpotStatus.Locked) {
+				return { success: false };
 			}
 
-			return {
-				success,
-			};
+			await clearHuntSpot(spot.id);
+
+			return { success: true };
 		}),
 
-	sendInvites: userProcedure
+	sendInvitesToHunters: userProcedure
+		.input(
+			z.object({
+				huntId: idSchemaCoerce,
+				hunterIds: idArray,
+			}),
+		)
+		.mutation(
+			async ({
+				ctx: { hunter: currentHunter },
+				input: { huntId, hunterIds },
+			}) => {
+				const spots = await inviteHunters(huntId, hunterIds, currentHunter);
+
+				return { count: spots.length };
+			},
+		),
+
+	sendInvitesToGroup: userProcedure
 		.input(
 			z.object({
 				huntId: idSchemaCoerce,
@@ -136,79 +61,10 @@ export const inviteRouter = router({
 				});
 			}
 
-			// Prevent creating invites when hunt is locked down or unavailable.
-			const hunt = await db.hunt.findUniqueOrThrow({
-				where: {
-					id: huntId,
-				},
-			});
-			if (hunt.status !== HuntStatus.Available || huntInLockdown(hunt)) {
-				throw new TRPCError({
-					code: 'FORBIDDEN',
-					message: 'Hunt cannot have invites',
-				});
-			}
-
-			const invitees = await fetchInviteesForHunt({
-				fromHunterId: currentHunter.id,
-				groupId: currentHunter.groupId,
-				huntId,
-			});
-
-			if (invitees.length === 0) {
-				throw new TRPCError({
-					code: 'NOT_FOUND',
-					message: 'Nobody left to invite today',
-				});
-			}
-
-			const expiresAt = new Date(Date.now() + MINUTE * HUNT_INVITE_MINUTES);
-			const event = inviteSendEvent({
-				fromHunter: currentHunter,
-				hunt,
-			});
-
-			for (const invitee of invitees) {
-				try {
-					const hunterId = invitee.id;
-					await db.huntHunter.upsert({
-						where: {
-							huntId_hunterId: {
-								hunterId,
-								huntId,
-							},
-						},
-						create: {
-							expiresAt,
-							fromHunterId: currentHunter.id,
-							huntId,
-							hunterId,
-							status: InviteStatus.Pending,
-						},
-						update: {
-							expiresAt,
-							fromHunterId: currentHunter.id,
-							status: InviteStatus.Pending,
-						},
-					});
-					await notifyHunter({
-						event,
-						hunter: invitee,
-					});
-				} catch (err) {
-					if (
-						err instanceof PrismaClientKnownRequestError &&
-						err.code === 'P2002'
-					) {
-						continue;
-					}
-					throw err;
-				}
-			}
-
-			return {
-				count: invitees.length,
-			};
+			const groupHunters = await huntersFromGroupId(currentHunter.groupId);
+			const hunterIds = extractIds(groupHunters);
+			const spots = await inviteHunters(huntId, hunterIds, currentHunter);
+			return { count: spots.length };
 		}),
 
 	resetInvites: adminProcedure
@@ -219,21 +75,15 @@ export const inviteRouter = router({
 			}),
 		)
 		.mutation(async ({ input: { huntIds, force } }) => {
-			await db.huntHunter.updateMany({
+			await db.huntSpot.updateMany({
 				where: {
-					huntId: {
-						in: huntIds,
-					},
-					status: !force
-						? {
-								not: InviteStatus.Accepted,
-							}
-						: undefined,
+					huntId: { in: huntIds },
+					status: force ? undefined : HuntSpotStatus.Locked,
 				},
 				data: {
-					expiresAt: null,
+					status: HuntSpotStatus.Empty,
+					hunterId: null,
 					fromHunterId: null,
-					status: InviteStatus.Expired,
 				},
 			});
 		}),

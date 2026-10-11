@@ -10,6 +10,10 @@ import {
 	ratingLow,
 } from './notify';
 
+export async function huntersFromGroupId(groupId: number) {
+	return db.hunter.findMany({ where: { groupId }, orderBy: { name: 'asc' } });
+}
+
 export async function hunterUpdateNotifications(
 	hunter: Hunter,
 	data: Prisma.HunterUpdateInput,
