@@ -4,7 +4,7 @@ import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
 
-import { db, Prisma } from '../lib/db';
+import { db } from '../lib/db';
 import {
 	assertHuntsEnabled,
 	huntDisplayInclude,
@@ -45,39 +45,48 @@ export const huntRouter = router({
 				if (isHuntsDisabled(code, admin) && status !== 'complete') {
 					return [];
 				}
-				let statusWhere: Prisma.HuntHunterWhereInput['status'] =
-					InviteStatus.Accepted;
-				if (status === 'available') {
-					statusWhere = { not: InviteStatus.Expired };
-				}
 
-				const hunts = await db.hunt.findMany({
-					include: {
-						...huntDisplayInclude,
-						huntHunters: {
-							...huntDisplayInclude.huntHunters,
-							where: { status: statusWhere },
+				let hunts;
+				if (status === 'available') {
+					hunts = await db.hunt.findMany({
+						where: {
+							status,
 						},
-					},
-					where: {
-						status,
-						huntHunters: {
-							some: {
-								hunterId,
-								status: InviteStatus.Accepted,
+						include: {
+							...huntDisplayInclude,
+							huntHunters: {
+								...huntDisplayInclude.huntHunters,
+								where: { status: { not: InviteStatus.Expired } },
 							},
 						},
-					},
-					orderBy: {
-						scheduledAt: 'desc',
-					},
-				});
+						orderBy: {
+							scheduledAt: 'desc',
+						},
+					});
+				} else {
+					hunts = await db.hunt.findMany({
+						include: huntDisplayInclude,
+						where: {
+							status,
+							huntHunters: {
+								some: {
+									hunterId,
+									status: InviteStatus.Accepted,
+								},
+							},
+						},
+						orderBy: {
+							scheduledAt: 'desc',
+						},
+					});
+				}
 
 				return hunts.map(({ huntHunters, photos, ...hunt }) => ({
 					...hunt,
 					hunters: huntHunters.map(({ hunter }) => hunter),
 					photos: photos.filter(
-						({ hunterId }) => !hunterId || hunterId === hunterId,
+						({ hunterId: photoHunterId }) =>
+							!photoHunterId || photoHunterId === hunterId,
 					),
 				}));
 			},
