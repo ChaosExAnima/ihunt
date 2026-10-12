@@ -1,5 +1,5 @@
 import { HuntStatus } from '@ihunt/lib/constants';
-import { huntStatus, idSchemaCoerce } from '@ihunt/lib/schemas';
+import { huntStatus, idSchemaCoerce, posIntSchema } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import * as z from 'zod';
@@ -11,18 +11,22 @@ import {
 	isHuntsDisabled,
 } from '../lib/hunt';
 import { huntInLockdown } from '../lib/hunt';
-import {
-	fetchDailyHuntCount,
-	fetchInviteesForHunt,
-	invitesToReserved,
-} from '../lib/invite';
+import { huntersFromGroupId } from '../lib/hunter';
 import {
 	inviteResponseEvent,
 	notifyHunter,
 	notifyHuntsReload,
 } from '../lib/notify';
-import { uploadPhoto } from '../lib/photo';
-import { InviteStatus, outputHuntSchema } from '../lib/schema';
+import { photosFromHunter, uploadPhoto } from '../lib/photo';
+import { HuntSpotStatus, outputHuntSchema } from '../lib/schema';
+import {
+	claimHuntSpot,
+	clearHuntSpot,
+	dailyHuntCount,
+	hunterIdsByHunt,
+	spotByHunter,
+	hunterIdsToInvite,
+} from '../lib/spot';
 import { router, userProcedure } from '../lib/trpc';
 
 export const huntRouter = router({
@@ -46,53 +50,26 @@ export const huntRouter = router({
 					return [];
 				}
 
-				let hunts;
-				if (status === 'available') {
-					hunts = await db.hunt.findMany({
-						where: {
-							status,
-						},
-						include: {
-							...huntDisplayInclude,
-							huntHunters: {
-								...huntDisplayInclude.huntHunters,
-								where: { status: { not: InviteStatus.Expired } },
-							},
-						},
-						orderBy: {
-							scheduledAt: 'desc',
-						},
-					});
-				} else {
-					hunts = await db.hunt.findMany({
-						include: huntDisplayInclude,
-						where: {
-							status,
-							huntHunters: {
-								some: {
-									hunterId,
-									status: InviteStatus.Accepted,
-								},
-							},
-						},
-						orderBy: {
-							scheduledAt: 'desc',
-						},
-					});
-				}
+				const hunts = await db.hunt.findMany({
+					where: {
+						status,
+						spots: status !== 'available' ? { some: { hunterId } } : undefined,
+					},
+					include: huntDisplayInclude,
+					orderBy: { scheduledAt: 'desc' },
+				});
 
-				return hunts.map(({ huntHunters, photos, ...hunt }) => ({
+				return hunts.map(({ spots, photos, ...hunt }) => ({
 					...hunt,
-					hunters: huntHunters.map(({ hunter }) => hunter),
-					photos: photos.filter(
-						({ hunterId: photoHunterId }) =>
-							!photoHunterId || photoHunterId === hunterId,
-					),
+					hunters: spots
+						.map((spot) => spot.hunter)
+						.filter((hunter) => !!hunter),
+					photos: photosFromHunter(photos, hunterId),
 				}));
 			},
 		),
 
-	getHuntsToday: userProcedure.query(
+	getHuntsToday: userProcedure.output(posIntSchema).query(
 		async ({
 			ctx: {
 				hunter,
@@ -103,7 +80,7 @@ export const huntRouter = router({
 			if (isHuntsDisabled(code, admin)) {
 				return 0;
 			}
-			return fetchDailyHuntCount(hunter.id);
+			return await dailyHuntCount(hunter.id);
 		},
 	),
 
@@ -122,23 +99,6 @@ export const huntRouter = router({
 				where: { id: huntId },
 			});
 
-			const huntHunters = await db.huntHunter.findMany({
-				where: {
-					huntId,
-					status:
-						hunt.status !== HuntStatus.Available
-							? InviteStatus.Accepted
-							: undefined,
-				},
-				include: {
-					hunter: {
-						include: {
-							avatar: true,
-						},
-					},
-				},
-			});
-
 			if (
 				hunt.status === HuntStatus.Cancelled ||
 				hunt.status === HuntStatus.Pending
@@ -146,31 +106,25 @@ export const huntRouter = router({
 				throw new TRPCError({ code: 'NOT_FOUND' });
 			}
 
-			const currentHunterInvite = huntHunters.find(
-				({ hunterId }) => hunter.id === hunterId,
-			);
+			const hunterIdsInHunt = await hunterIdsByHunt(huntId);
+
+			// If not available, check if the hunter is part of the hunt.
 			if (
-				(hunt.status === HuntStatus.Complete ||
-					hunt.status === HuntStatus.Active) &&
-				!currentHunterInvite
+				hunt.status !== HuntStatus.Available &&
+				!hunterIdsInHunt.includes(hunter.id)
 			) {
 				throw new TRPCError({ code: 'NOT_FOUND' });
 			}
 
-			const map = invitesToReserved({
-				hunterId: hunter.id,
-				invites: huntHunters,
+			const hunters = await db.hunter.findMany({
+				where: { id: { in: hunterIdsInHunt } },
+				include: { avatar: true },
 			});
 
 			return {
 				...hunt,
-				reserved: map.get(hunt.id),
-				hunters: huntHunters
-					.filter(({ status }) => status === InviteStatus.Accepted)
-					.map(({ hunter }) => hunter),
-				photos: photos.filter(
-					({ hunterId }) => !hunterId || hunterId === hunter.id,
-				),
+				hunters,
+				photos: photosFromHunter(photos, hunter.id),
 			};
 		}),
 
@@ -187,20 +141,13 @@ export const huntRouter = router({
 			assertHuntsEnabled(code, admin);
 
 			const hunterId = currentHunter.id;
+			let existingSpot = await spotByHunter(hunterId, huntId);
 			const hunt = await db.hunt.findUniqueOrThrow({
-				where: {
-					id: huntId,
-				},
-				include: {
-					huntHunters: true,
-				},
+				where: { id: huntId },
 			});
-			const invite = hunt.huntHunters.find(
-				(huntHunter) => hunterId === huntHunter.hunterId,
-			);
 
 			// If we already joined, leave the hunt.
-			if (invite?.status === InviteStatus.Accepted) {
+			if (existingSpot?.status === HuntSpotStatus.Taken) {
 				if (huntInLockdown(hunt)) {
 					throw new TRPCError({
 						code: 'FORBIDDEN',
@@ -208,82 +155,38 @@ export const huntRouter = router({
 					});
 				}
 
-				await db.huntHunter.update({
-					where: {
-						huntId_hunterId: {
-							hunterId: currentHunter.id,
-							huntId,
-						},
-					},
-					data: {
-						status: InviteStatus.Expired,
-					},
-				});
-
-				// Expire all invites
-				await db.huntHunter.updateMany({
-					where: {
-						fromHunterId: currentHunter.id,
-						status: InviteStatus.Pending,
-						huntId,
-					},
-					data: {
-						status: InviteStatus.Expired,
-					},
-				});
+				await clearHuntSpot(existingSpot.id);
 
 				log.info(`${currentHunter.name} canceled hunt with ID ${huntId}`);
 				notifyHuntsReload();
 				return { accepted: false, huntId };
 			}
 
-			// Calculate the remaining spots, including invites.
-			let joinedCount = 0;
-			let invitedCount = 0;
-			for (const invite of hunt.huntHunters) {
-				if (invite.status === InviteStatus.Accepted) {
-					joinedCount++;
-				} else if (invite.status === InviteStatus.Pending) {
-					invitedCount++;
+			if (existingSpot) {
+				await db.huntSpot.update({
+					where: { id: existingSpot.id },
+					data: { status: HuntSpotStatus.Taken },
+				});
+			} else {
+				const claimedSpot = await claimHuntSpot(huntId, hunterId);
+				if (!claimedSpot) {
+					throw new TRPCError({
+						code: 'FORBIDDEN',
+						message: 'Hunt is already full',
+					});
+				} else {
+					existingSpot = claimedSpot;
 				}
 			}
 
-			if (
-				joinedCount >= hunt.maxHunters ||
-				(joinedCount + invitedCount >= hunt.maxHunters &&
-					invite?.status !== InviteStatus.Pending)
-			) {
-				throw new TRPCError({
-					code: 'FORBIDDEN',
-					message: 'Hunt is already full',
-				});
-			}
-
-			// Join the hunt.
-			const updatedInvite = await db.huntHunter.upsert({
-				where: {
-					huntId_hunterId: {
-						hunterId: currentHunter.id,
-						huntId,
-					},
-				},
-				update: {
-					status: InviteStatus.Accepted,
-				},
-				create: {
-					hunterId: currentHunter.id,
-					huntId,
-					status: InviteStatus.Accepted,
-				},
-			});
 			log.info(`${currentHunter.name} accepted hunt with ID ${huntId}`);
 
 			notifyHuntsReload();
 
 			// Notify the inviter.
-			if (updatedInvite.fromHunterId) {
+			if (existingSpot.fromHunterId) {
 				const inviter = await db.hunter.findUnique({
-					where: { id: updatedInvite.fromHunterId },
+					where: { id: existingSpot.fromHunterId },
 				});
 				if (inviter) {
 					await notifyHunter({
@@ -297,14 +200,13 @@ export const huntRouter = router({
 				}
 			}
 
+			// Get group hunter IDs that can be invited to the hunt.
 			let invitees: number[] = [];
 			if (currentHunter.groupId) {
-				const groupHunters = await fetchInviteesForHunt({
-					fromHunterId: currentHunter.id,
-					groupId: currentHunter.groupId,
-					huntId,
-				});
-				invitees = extractIds(groupHunters);
+				const groupHunters = await huntersFromGroupId(currentHunter.groupId);
+				const groupHunterIds = extractIds(groupHunters);
+
+				invitees = await hunterIdsToInvite(huntId, groupHunterIds);
 			}
 
 			return {

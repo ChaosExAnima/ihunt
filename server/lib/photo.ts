@@ -34,6 +34,19 @@ export function photoUrl({
 	});
 }
 
+export function photosFromHunter(
+	photos: Photo[],
+	hunterId: number,
+	allowEmpty = true,
+) {
+	return photos.filter(({ hunterId: photoHunterId }) => {
+		if (!photoHunterId) {
+			return allowEmpty;
+		}
+		return photoHunterId === hunterId;
+	});
+}
+
 const ROUND_TO_PIXELS = 100;
 
 function actualSize(photoSize: number, targetSize?: number) {

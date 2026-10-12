@@ -10,8 +10,8 @@ import { setInterval } from 'node:timers/promises';
 import { createAuthContext } from './lib/auth';
 import { config } from './lib/config';
 import { onHuntInterval } from './lib/hunt';
-import { onInviteInterval } from './lib/invite';
 import { server } from './lib/server';
+import { onSpotInterval } from './lib/spot';
 import { appRouter, type AppRouter } from './router';
 
 async function startServer() {
@@ -57,7 +57,7 @@ async function startMainLoop() {
 		Date.now(),
 	)) {
 		await onHuntInterval(server.log);
-		await onInviteInterval(server.log);
+		await onSpotInterval(server.log);
 		server.log.info(`Finished loop in ${Date.now() - startTime}ms`);
 	}
 }

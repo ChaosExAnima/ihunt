@@ -2,17 +2,14 @@ import { HuntStatus } from '@ihunt/lib/constants';
 
 import { db } from '../index';
 import { huntCompleteEvent } from '../lib/notify';
-import { InviteStatus } from '../lib/schema';
 
 async function main() {
-	const huntHunters = await db.huntHunter.findMany({
+	const huntHunters = await db.huntSpot.findMany({
 		where: {
-			status: InviteStatus.Accepted,
+			hunterId: { not: null },
 			hunt: {
 				status: HuntStatus.Complete,
-				completedAt: {
-					not: null,
-				},
+				completedAt: { not: null },
 			},
 		},
 		include: {
@@ -30,7 +27,7 @@ async function main() {
 		const hasNotification = notifications.find(
 			({ hunterId }) => hunterId === huntHunter.hunterId,
 		);
-		if (!hasNotification) {
+		if (!hasNotification && huntHunter.hunterId) {
 			await db.notification.create({
 				data: {
 					hunterId: huntHunter.hunterId,

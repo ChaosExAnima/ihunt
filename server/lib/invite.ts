@@ -1,239 +1,48 @@
 import { HuntStatus } from '@ihunt/lib/constants';
-import { todayStart } from '@ihunt/lib/formats';
-import {
-	HuntReservedSchema,
-	HuntReservedStatusSchema,
-} from '@ihunt/lib/schemas';
-import { FastifyBaseLogger } from 'fastify';
+import { TRPCError } from '@trpc/server';
 
-import { db, Hunt, Hunter, HuntHunter } from './db';
-import { inviteResponseEvent, notifyHunter } from './notify';
-import { InviteStatus } from './schema';
+import { db, Hunter } from './db';
+import { huntInLockdown } from './hunt';
+import { inviteSendEvent, notifyHunter } from './notify';
+import { inviteHuntersToSpots } from './spot';
 
-export async function expireInvites(invites: HuntHunter[]) {
-	const now = new Date();
-	const validInvites: HuntHunter[] = [];
-	for (const invite of invites) {
-		if (
-			!invite.expiresAt ||
-			(invite.expiresAt >= now && invite.status !== InviteStatus.Expired)
-		) {
-			validInvites.push(invite);
-		}
-	}
-
-	await db.huntHunter.updateMany({
-		data: {
-			status: InviteStatus.Expired,
-		},
-		where: {
-			expiresAt: {
-				lt: now,
-			},
-			status: InviteStatus.Pending,
-		},
+export async function inviteHunters(
+	huntId: number,
+	hunterIds: number[],
+	fromHunter: Hunter,
+) {
+	// Prevent creating invites when hunt is locked down or unavailable.
+	const hunt = await db.hunt.findUniqueOrThrow({
+		where: { id: huntId },
 	});
-
-	return validInvites;
-}
-
-export async function fetchDailyHuntCount(hunterId: number) {
-	const dateStart = new Date(todayStart());
-	const huntCount = await db.hunt.count({
-		where: {
-			huntHunters: {
-				some: {
-					hunterId,
-					status: InviteStatus.Accepted,
-				},
-			},
-			scheduledAt: {
-				gte: dateStart,
-			},
-			status: {
-				in: [HuntStatus.Active, HuntStatus.Available, HuntStatus.Complete],
-			},
-		},
-	});
-	return huntCount;
-}
-
-export function invitesToReserved({
-	invites,
-	hunterId,
-}: {
-	invites: HuntHunter[];
-	hunterId: number;
-}) {
-	const huntReservedMap = new Map<number, HuntReservedSchema>();
-	for (const invite of invites) {
-		if (
-			!invite.expiresAt ||
-			invite.status === InviteStatus.Expired ||
-			invite.status === InviteStatus.Accepted
-		) {
-			continue;
-		}
-		const mapData = huntReservedMap.get(invite.huntId);
-		let status: HuntReservedStatusSchema = mapData?.status ?? 'reserved';
-
-		if (invite.fromHunterId === hunterId) {
-			status = 'sent';
-		} else if (invite.hunterId === hunterId && status !== 'sent') {
-			status = invite.status === InviteStatus.Rejected ? 'declined' : 'invited';
-		} else if (
-			invite.status !== InviteStatus.Pending &&
-			status === 'reserved'
-		) {
-			continue;
-		}
-
-		huntReservedMap.set(invite.huntId, {
-			expires: invite.expiresAt,
-			status,
-			count: (mapData?.count ?? 0) + 1,
+	if (hunt.status !== HuntStatus.Available || huntInLockdown(hunt)) {
+		throw new TRPCError({
+			code: 'FORBIDDEN',
+			message: 'Hunt cannot have invites',
 		});
 	}
-	return huntReservedMap;
-}
 
-export async function fetchInviteesForHunt({
-	fromHunterId,
-	groupId,
-	huntId,
-}: {
-	fromHunterId: number;
-	groupId: number;
-	huntId: number;
-}) {
-	const hunt = await db.hunt.findUniqueOrThrow({
-		where: {
-			id: huntId,
-		},
-	});
-	const invites = await db.huntHunter.findMany({
-		where: {
-			huntId,
-			hunterId: {
-				not: fromHunterId,
-			},
-		},
-	});
-
-	// Check if there is space left.
-	const activeInvites = invites.filter(
-		({ status }) =>
-			status === InviteStatus.Accepted || status === InviteStatus.Pending,
-	);
-
-	if (hunt.maxHunters - activeInvites.length <= 0) {
-		return [];
+	const spots = await inviteHuntersToSpots(huntId, hunterIds, fromHunter.id);
+	if (!spots.length) {
+		throw new TRPCError({
+			code: 'NOT_FOUND',
+			message: 'Nobody left to invite today',
+		});
 	}
 
-	// Get the hunters in the group.
-	const hunters = await db.hunter.findMany({
-		where: {
-			alive: true,
-			groupId,
-			userId: {
-				not: null,
-			},
-		},
+	const event = inviteSendEvent({
+		fromHunter,
+		hunt,
 	});
-
-	const invitees: Hunter[] = [];
-	for (const hunter of hunters) {
-		// Don't invite the inviting hunter.
-		if (hunter.id === fromHunterId) {
+	for (const spot of spots) {
+		if (!spot.hunterId) {
 			continue;
 		}
-
-		const oldInvite = invites.find(({ hunterId }) => hunterId === hunter.id);
-		if (
-			oldInvite?.fromHunterId || // Already been invited
-			oldInvite?.status === InviteStatus.Accepted // Already part of the hunt
-		) {
-			continue;
-		}
-
-		invitees.push(hunter);
+		await notifyHunter({
+			event,
+			hunterId: spot.hunterId,
+		});
 	}
 
-	return invitees;
-}
-
-export async function onInviteInterval(logger?: FastifyBaseLogger) {
-	const { count } = await db.huntHunter.updateMany({
-		data: {
-			status: InviteStatus.Expired,
-		},
-		where: {
-			expiresAt: {
-				lt: new Date(),
-			},
-			status: InviteStatus.Pending,
-		},
-	});
-	if (count) {
-		logger?.debug(`Cleared ${count} invites`);
-	}
-}
-
-export async function respondToInvite({
-	currentHunter,
-	hunt,
-	huntId,
-	response,
-}: {
-	currentHunter: Hunter;
-	hunt?: Hunt;
-	huntId: number;
-	response: 'accept' | 'decline';
-}) {
-	hunt ??= await db.hunt.findUniqueOrThrow({
-		where: {
-			id: huntId,
-		},
-	});
-	const status =
-		response === 'accept' ? InviteStatus.Accepted : InviteStatus.Rejected;
-	const invite = await db.huntHunter.upsert({
-		create: {
-			huntId,
-			hunterId: currentHunter.id,
-			status,
-		},
-		update: {
-			status,
-		},
-		where: {
-			huntId_hunterId: {
-				huntId,
-				hunterId: currentHunter.id,
-			},
-		},
-	});
-
-	if (!invite.fromHunterId) {
-		return false;
-	}
-
-	const inviter = await db.hunter.findUniqueOrThrow({
-		where: {
-			id: invite.fromHunterId,
-		},
-	});
-
-	if (!inviter.userId) {
-		return false;
-	}
-
-	return notifyHunter({
-		event: inviteResponseEvent({
-			fromHunter: currentHunter,
-			hunt,
-			response,
-		}),
-		hunter: inviter,
-	});
+	return spots;
 }

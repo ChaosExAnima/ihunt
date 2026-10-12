@@ -163,7 +163,7 @@ async function main() {
 			if (hunter.groupId !== 4) {
 				continue;
 			}
-			await db.huntHunter.create({
+			await db.huntSpot.create({
 				data: {
 					hunterId: hunter.id,
 					huntId: 4,

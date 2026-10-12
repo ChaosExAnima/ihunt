@@ -12,14 +12,13 @@ export const outputHuntSchema = huntSchema.extend({
 	status: z.string().transform((status) => huntStatus.parse(status)),
 });
 
-export const InviteStatus = {
-	Accepted: 'accepted',
-	Expired: 'expired',
-	Pending: 'pending',
-	Rejected: 'rejected',
+export const HuntSpotStatus = {
+	Empty: 'empty',
+	Locked: 'locked',
+	Taken: 'taken',
 } as const;
-export const inviteStatusSchema = z.enum(Object.values(InviteStatus));
-export type InviteStatusSchema = z.infer<typeof inviteStatusSchema>;
+export const huntSpotStatusSchema = z.enum(Object.values(HuntSpotStatus));
+export type HuntSpotStatusSchema = z.infer<typeof huntSpotStatusSchema>;
 
 export const subscriptionSchema = z.object({
 	endpoint: z.url(),

@@ -15,7 +15,7 @@ export function ReviewWall() {
 	const review = reviews?.at(index);
 	const photo =
 		review?.hunt.photos.find(({ hunterId }) => hunterId === review.hunterId) ??
-		review?.hunter.avatar;
+		review?.hunter?.avatar;
 
 	const totalImages = reviews?.length ?? 0;
 	useEffect(() => {
@@ -34,7 +34,7 @@ export function ReviewWall() {
 	return (
 		<main className="relative flex h-screen w-screen items-center justify-center gap-2 bg-black">
 			{isLoading && <LoaderCircleIcon className="size-1/4 animate-spin" />}
-			{!!review && (
+			{!!review?.hunter && (
 				<div className="flex max-w-1/2 flex-col items-center gap-4 p-10 text-center">
 					<Header className="font-[Kanit]">{review.hunter.handle}</Header>
 					<p>

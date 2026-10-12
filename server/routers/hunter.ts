@@ -10,7 +10,7 @@ import * as z from 'zod';
 
 import { config } from '../lib/config';
 import { db } from '../lib/db';
-import { InviteStatus, outputHuntSchema } from '../lib/schema';
+import { outputHuntSchema } from '../lib/schema';
 import { debugProcedure, router, userProcedure } from '../lib/trpc';
 
 export const hunterRouter = router({
@@ -115,28 +115,22 @@ export const hunterRouter = router({
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {
-			const { huntHunters, ...hunter } = await db.hunter.findUniqueOrThrow({
-				include: {
-					avatar: true,
-					huntHunters: {
-						where: {
-							hunt: {
-								status: HuntStatus.Complete,
-							},
-							status: InviteStatus.Accepted,
-						},
-						include: {
-							hunt: true,
-						},
-					},
-				},
+			const hunter = await db.hunter.findUniqueOrThrow({
 				where: { id },
+				include: { avatar: true },
+			});
+
+			const hunts = await db.hunt.findMany({
+				where: {
+					spots: { some: { hunterId: id } },
+					status: HuntStatus.Complete,
+				},
 			});
 
 			return {
 				...hunter,
 				type: hunterTypeSchema.parse(hunter.type),
-				hunts: huntHunters.map(({ hunt }) => hunt),
+				hunts,
 			};
 		}),
 });
