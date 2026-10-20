@@ -1,5 +1,5 @@
 // Inspired by react-hot-toast library
-import { ComponentType, ReactNode, useEffect, useState } from 'react';
+import { ComponentType, ReactNode, useSyncExternalStore } from 'react';
 
 import type { ToastActionElement, ToastProps } from '@/components/ui/toast';
 
@@ -69,7 +69,7 @@ const addToRemoveQueue = (toastId: string) => {
 	toastTimeouts.set(toastId, timeout);
 };
 
-export const reducer = (state: State, action: Action): State => {
+const reducer = (state: State, action: Action): State => {
 	switch (action.type) {
 		case 'ADD_TOAST':
 			return {
@@ -124,10 +124,6 @@ export const reducer = (state: State, action: Action): State => {
 	}
 };
 
-const listeners: Array<(state: State) => void> = [];
-
-let memoryState: State = { toasts: [] };
-
 type Toast = Omit<ToasterToast, 'id'>;
 
 export function toast(props: Toast) {
@@ -160,29 +156,31 @@ export function toast(props: Toast) {
 	};
 }
 
-export function useToast() {
-	const [state, setState] = useState<State>(memoryState);
+const listeners = new Set<() => void>();
+let memoryState: State = { toasts: [] };
 
-	useEffect(() => {
-		listeners.push(setState);
-		return () => {
-			const index = listeners.indexOf(setState);
-			if (index > -1) {
-				listeners.splice(index, 1);
-			}
-		};
-	}, [state]);
+function subscribe(listener: () => void) {
+	listeners.add(listener);
+	return () => {
+		listeners.delete(listener);
+	};
+}
+
+function getSnapshot() {
+	return memoryState;
+}
+
+function dispatch(action: Action) {
+	memoryState = reducer(memoryState, action);
+	listeners.forEach((listener) => listener());
+}
+
+export function useToast() {
+	const state = useSyncExternalStore(subscribe, getSnapshot);
 
 	return {
 		...state,
 		dismiss: (toastId?: string) => dispatch({ toastId, type: 'DISMISS_TOAST' }),
 		toast,
 	};
-}
-
-function dispatch(action: Action) {
-	memoryState = reducer(memoryState, action);
-	listeners.forEach((listener) => {
-		listener(memoryState);
-	});
 }
