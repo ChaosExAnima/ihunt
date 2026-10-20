@@ -1,4 +1,5 @@
 import { isDev } from '@ihunt/lib/utils';
+import { onlineManager } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
@@ -11,14 +12,16 @@ import { Loading } from './components/loading';
 import { useOffline } from './hooks/use-offline';
 import { useTheme } from './hooks/use-theme';
 import { persister, queryClient } from './lib/api';
-import { routeTree } from './routeTree.gen';
 import '@fontsource-variable/geist-mono';
 import '@fontsource/kanit';
+
+import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({
 	context: {
 		queryClient,
+		online: onlineManager.isOnline(),
 	},
 	defaultErrorComponent: (props) => <ErrorHandler {...props} />,
 	defaultNotFoundComponent: () => <NotFound />,

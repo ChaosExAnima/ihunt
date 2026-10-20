@@ -1,10 +1,11 @@
-import { usePlayer } from '@/components/providers/player';
+import { useRouteContext } from '@tanstack/react-router';
 
 export function useHunter() {
-	return usePlayer()?.hunter ?? null;
+	const { hunter } = useRouteContext({ from: '/_auth' });
+	return hunter;
 }
 
 export function useHunterId() {
 	const hunter = useHunter();
-	return hunter?.id ?? null;
+	return hunter.id;
 }

@@ -1,33 +1,29 @@
 import { SECOND } from '@ihunt/lib/formats';
-import { onlineManager, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import { Loading } from '@/components/loading';
 import { Navbar } from '@/components/navbar';
-import { PlayerInfoProvider } from '@/components/providers/player';
 import { useNotifyRequestToast, useNotifySubscribe } from '@/hooks/use-notify';
 import { trpc } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth')({
 	component: Page,
-	async loader({ context: { queryClient }, location }) {
+	async beforeLoad({ context: { queryClient }, location }) {
 		try {
-			if (onlineManager.isOnline()) {
-				await queryClient.ensureQueryData(trpc.auth.me.queryOptions());
-				await queryClient.ensureQueryData(
-					trpc.notify.unreadCount.queryOptions(),
-				);
-			}
-			return queryClient.prefetchQuery(trpc.auth.me.queryOptions());
+			const player = await queryClient.query({
+				...trpc.auth.me.queryOptions(),
+				staleTime: 'static',
+			});
+			return {
+				...player,
+			};
 		} catch {
-			// Empty
+			throw redirect({ search: { redirect: location.href }, to: '/' });
 		}
-		throw redirect({ search: { redirect: location.href }, to: '/' });
 	},
 });
 
 function Page() {
-	const { data: player } = useQuery(trpc.auth.me.queryOptions());
 	const { data: unreadCount = 0 } = useQuery({
 		...trpc.notify.unreadCount.queryOptions(),
 		refetchInterval: 30 * SECOND,
@@ -36,22 +32,12 @@ function Page() {
 	useNotifyRequestToast();
 	useNotifySubscribe();
 
-	if (!player) {
-		return <Loading />;
-	}
-
 	return (
-		<PlayerInfoProvider info={player}>
-			<div className="flex w-full grow flex-col justify-stretch">
-				<Navbar
-					hunter={player.hunter}
-					isHuntActive={false}
-					unreadCount={unreadCount}
-				/>
-				<main className="flex grow flex-col gap-2 px-4 pb-4">
-					<Outlet />
-				</main>
-			</div>
-		</PlayerInfoProvider>
+		<div className="flex w-full grow flex-col justify-stretch">
+			<Navbar unreadCount={unreadCount} />
+			<main className="flex grow flex-col gap-2 px-4 pb-4">
+				<Outlet />
+			</main>
+		</div>
 	);
 }

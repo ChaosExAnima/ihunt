@@ -1,11 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
+import { useRouteContext } from '@tanstack/react-router';
 
-import { PlayerInfo, usePlayer } from '@/components/providers/player';
 import { trpc } from '@/lib/api';
 
 import { useInvalidate } from './use-invalidate';
 
 export function useSettings() {
+	const { settings } = useRouteContext({ from: '/_auth' });
 	const invalidate = useInvalidate();
 	const updateMutation = useMutation(
 		trpc.settings.updateSettings.mutationOptions({
@@ -14,8 +15,5 @@ export function useSettings() {
 			},
 		}),
 	);
-	return [usePlayer()?.settings, updateMutation] as [
-		PlayerInfo['settings'],
-		typeof updateMutation,
-	];
+	return [settings, updateMutation] as const;
 }

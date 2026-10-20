@@ -1,17 +1,13 @@
 import type { JSX, PropsWithChildren, ReactNode } from 'react';
 
-import { HunterSchema } from '@ihunt/lib/schemas';
 import { Link, LinkProps } from '@tanstack/react-router';
 import { BellIcon, Crosshair, SettingsIcon } from 'lucide-react';
 
-import { useHunterId } from '@/hooks/use-hunter';
-import { cn } from '@/lib/styles';
+import { useHunter } from '@/hooks/use-hunter';
 
 import { Avatar } from './avatar';
 
 export interface NavbarProps {
-	hunter: HunterSchema;
-	isHuntActive: boolean;
 	unreadCount: number;
 }
 
@@ -25,20 +21,14 @@ interface NavbarItemProps {
 
 export function Navbar({
 	children,
-	hunter,
-	isHuntActive,
 	unreadCount,
 }: PropsWithChildren<NavbarProps>) {
-	const hunterId = useHunterId();
+	const hunter = useHunter();
+
 	return (
 		<nav className="border-border dark:bg-background sticky mb-4 border-b bg-white  shadow-md">
 			<ol className="flex items-center justify-start gap-2">
-				<NavbarItemLink
-					className={cn(isHuntActive && 'text-rose-700')}
-					icon={<Crosshair />}
-					name="Hunts"
-					to="/hunts"
-				/>
+				<NavbarItemLink icon={<Crosshair />} name="Hunts" to="/hunts" />
 				<NavbarItemLink
 					noLabel
 					className="relative ml-auto"
@@ -58,7 +48,7 @@ export function Navbar({
 					name="Settings"
 					to="/settings"
 				/>
-				{hunterId && (
+				{hunter && (
 					<NavbarItemLink
 						noLabel
 						icon={
@@ -66,7 +56,7 @@ export function Navbar({
 						}
 						name="My Profile"
 						to="/hunters/$hunterId"
-						params={{ hunterId: hunterId.toString() }}
+						params={{ hunterId: hunter.id.toString() }}
 					/>
 				)}
 				{children ? <li>{children}</li> : null}

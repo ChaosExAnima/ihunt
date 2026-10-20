@@ -13,6 +13,7 @@ const devMode = isDev();
 
 export const Route = createRootRouteWithContext<{
 	queryClient: QueryClient;
+	online: boolean;
 }>()({
 	component: () => (
 		<div
