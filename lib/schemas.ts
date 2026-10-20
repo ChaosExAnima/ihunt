@@ -81,6 +81,7 @@ export const spotSchema = z.discriminatedUnion('state', [
 	z.object({
 		state: z.literal(SpotStatus.Locked),
 		hunterId: idSchema,
+		fromHunterId: idSchema.nullish(),
 	}),
 	z.object({
 		state: z.literal(SpotStatus.Taken),

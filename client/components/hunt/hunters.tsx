@@ -1,45 +1,36 @@
-import { HuntSchema } from '@ihunt/lib/schemas';
-import { arrayOfLength } from '@ihunt/lib/utils';
+import { HuntSchema, SpotSchema } from '@ihunt/lib/schemas';
+import { useQuery } from '@tanstack/react-query';
+
+import { trpc } from '@/lib/api';
 
 import { Avatar, AvatarEmpty, AvatarLocked } from '../avatar';
 
-interface HuntHuntersDisplayProps {
-	reservations?: number;
-}
-
-export function HuntHuntersDisplay({
-	hunters = [],
-	reservations = 0,
-	maxHunters = 0,
-}: HuntHuntersDisplayProps &
-	Partial<Pick<HuntSchema, 'hunters' | 'maxHunters'>>) {
-	const reservedSpots = arrayOfLength(
-		Math.min(reservations, maxHunters - hunters.length),
-	);
-	const emptySpots = arrayOfLength(
-		maxHunters - (hunters.length + reservations),
-	);
-
+export function HuntSpotsDisplay({
+	spots = [],
+}: Partial<Pick<HuntSchema, 'spots'>>) {
 	return (
 		<div className="flex items-center gap-2 text-sm">
 			<p>Hunters:</p>
 			<ul className="flex gap-2">
-				{hunters.map((hunter) => (
-					<li key={hunter.id}>
-						<Avatar hunter={hunter} link />
-					</li>
-				))}
-				{reservedSpots.map((index) => (
+				{spots.map((spot, index) => (
 					<li key={index}>
-						<AvatarLocked className="pl-1" />
-					</li>
-				))}
-				{emptySpots.map((index) => (
-					<li key={index}>
-						<AvatarEmpty />
+						<SpotDisplay spot={spot} />
 					</li>
 				))}
 			</ul>
 		</div>
 	);
+}
+
+function SpotDisplay({ spot }: { spot: SpotSchema }) {
+	const hunterId = spot.state === 'empty' ? null : spot.hunterId;
+	const { data } = useQuery(trpc.hunter.getOne.queryOptions({ hunterId }));
+	switch (spot.state) {
+		case 'empty':
+			return <AvatarEmpty />;
+		case 'locked':
+			return <AvatarLocked />;
+		case 'taken':
+			return data ? <Avatar hunter={data} link /> : null;
+	}
 }

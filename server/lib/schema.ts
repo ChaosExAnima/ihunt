@@ -4,7 +4,7 @@ import {
 	idSchema,
 	notifyTypeSchema,
 	photoHuntSchema,
-	spotStatus,
+	spotSchema,
 } from '@ihunt/lib/schemas';
 import * as z from 'zod';
 
@@ -12,10 +12,9 @@ export const outputHuntSchema = huntSchema.extend({
 	photos: photoHuntSchema.array(),
 	spots: z
 		.object({ status: z.string(), hunterId: idSchema.nullable() })
-		.transform(({ status, ...rest }) => ({
-			status: spotStatus.parse(status),
-			...rest,
-		}))
+		.transform(({ status, ...rest }) =>
+			spotSchema.parse({ state: status, ...rest }),
+		)
 		.array(),
 	rating: z.coerce.number().min(0).max(5).default(0),
 	status: z.string().transform((status) => huntStatus.parse(status)),

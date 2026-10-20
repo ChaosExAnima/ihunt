@@ -1,10 +1,14 @@
-import { HUNT_MAX_HUNTERS } from '@ihunt/lib/constants';
+import { HUNT_MAX_HUNTERS, SpotStatus } from '@ihunt/lib/constants';
 
 import { cn } from '@/lib/styles';
 import { PropsWithClassName } from '@/lib/types';
 
 import { Card } from '../ui/card';
-import { HuntHuntersDisplay } from './hunters';
+import { HuntSpotsDisplay } from './hunters';
+
+const emptySpots = Array(HUNT_MAX_HUNTERS).map(() => ({
+	state: SpotStatus.Empty,
+}));
 
 export function HuntLoading({ className }: PropsWithClassName) {
 	return (
@@ -14,7 +18,7 @@ export function HuntLoading({ className }: PropsWithClassName) {
 			</div>
 			<div className="flex items-center gap-2 text-sm">
 				<p>Hunters:</p>
-				<HuntHuntersDisplay maxHunters={HUNT_MAX_HUNTERS} />
+				<HuntSpotsDisplay spots={emptySpots} />
 			</div>
 			<div className="flex flex-col gap-1">
 				<p className="bg-border h-4 grow animate-pulse" />
