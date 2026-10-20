@@ -1,4 +1,5 @@
-import { HuntStatus } from '@ihunt/lib/constants';
+import { HUNT_MAX_PER_DAY, HuntStatus } from '@ihunt/lib/constants';
+import { todayStart } from '@ihunt/lib/formats';
 import {
 	groupSchema,
 	hunterSchema,
@@ -10,10 +11,40 @@ import * as z from 'zod';
 
 import { config } from '../lib/config';
 import { db } from '../lib/db';
+import { isHuntsDisabled } from '../lib/hunt';
+import { lockdownMinutes } from '../lib/invite';
 import { outputHuntSchema } from '../lib/schema';
+import { spotsByHunter } from '../lib/spot';
 import { debugProcedure, router, userProcedure } from '../lib/trpc';
 
 export const hunterRouter = router({
+	huntStatus: userProcedure.query(
+		async ({
+			ctx: {
+				hunter,
+				user: { code },
+				admin,
+			},
+		}) => {
+			if (isHuntsDisabled(code, admin)) {
+				return {
+					allowed: false,
+					today: 0,
+					lockdown: null,
+				};
+			}
+
+			const spots = await spotsByHunter(hunter.id, todayStart());
+			const lockdown = lockdownMinutes(spots);
+
+			return {
+				allowed: spots.length >= HUNT_MAX_PER_DAY || !!lockdown,
+				today: spots.length,
+				lockdown,
+			};
+		},
+	),
+
 	getGroup: userProcedure
 		.input(
 			z

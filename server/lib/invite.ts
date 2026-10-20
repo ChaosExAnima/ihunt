@@ -6,7 +6,7 @@ import {
 import { MINUTE, todayStart } from '@ihunt/lib/formats';
 import { TRPCError } from '@trpc/server';
 
-import { db, Hunter } from './db';
+import { db, Hunter, HuntSpot } from './db';
 import { huntInLockdown } from './hunt';
 import { inviteSendEvent, notifyHunter } from './notify';
 import { inviteHuntersToSpots, spotsByHunter } from './spot';
@@ -22,12 +22,31 @@ export async function hunterCanHunt(hunterId: number) {
 		return false;
 	}
 
-	const lastUpdated = spots[0]?.updatedAt.getTime();
-	if (lastUpdated + HUNTER_LOCKDOWN_MINUTES * MINUTE < Date.now()) {
+	if (lockdownMinutes(spots) !== null) {
 		return false;
 	}
 
 	return true;
+}
+
+export function lockdownMinutes(spots: HuntSpot[]) {
+	const lastUpdated = spots.reduce((prevTime, { updatedAt }) => {
+		const currentTime = updatedAt.getTime();
+		return currentTime > prevTime ? currentTime : prevTime;
+	}, 0);
+
+	if (lastUpdated === 0) {
+		return null;
+	}
+
+	const lockEndTime = lastUpdated + HUNTER_LOCKDOWN_MINUTES * MINUTE;
+	const now = Date.now();
+
+	if (lockEndTime < now) {
+		return null;
+	}
+
+	return lockEndTime - now;
 }
 
 export async function inviteHunters(

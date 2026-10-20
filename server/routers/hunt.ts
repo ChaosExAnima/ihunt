@@ -70,30 +70,6 @@ export const huntRouter = router({
 			},
 		),
 
-	getHuntStatus: userProcedure.query(
-		async ({
-			ctx: {
-				hunter,
-				user: { code },
-				admin,
-			},
-		}) => {
-			if (isHuntsDisabled(code, admin)) {
-				return {
-					today: 0,
-					locked: true,
-				};
-			}
-			const canHunt = await hunterCanHunt(hunter.id);
-			const huntsToday = await dailyHuntCount(hunter.id);
-
-			return {
-				today: huntsToday,
-				locked: !canHunt,
-			};
-		},
-	),
-
 	getHuntsToday: userProcedure.output(posIntSchema).query(
 		async ({
 			ctx: {
