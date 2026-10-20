@@ -1,9 +1,10 @@
-import { HUNT_LOCKDOWN_MINUTES, HUNT_MAX_PER_DAY } from '@ihunt/lib/constants';
+import { HUNT_LOCKDOWN_MINUTES } from '@ihunt/lib/constants';
 import { MINUTE, todayStart } from '@ihunt/lib/formats';
 import { extractIds } from '@ihunt/lib/utils';
 import { FastifyBaseLogger } from 'fastify';
 
 import { db, Hunt, Prisma } from './db';
+import { hunterCanHunt } from './invite';
 import { HuntSpotStatus } from './schema';
 
 export async function spotsByHunt(huntId: number) {
@@ -70,8 +71,8 @@ export async function hunterIdsToInvite(huntId: number, hunterIds: number[]) {
 
 	const huntersToInvite = [];
 	for (const hunterId of huntersToCheck) {
-		const huntsToday = await dailyHuntCount(hunterId);
-		if (huntsToday < HUNT_MAX_PER_DAY) {
+		const canHunt = await hunterCanHunt(hunterId);
+		if (canHunt) {
 			huntersToInvite.push(hunterId);
 			if (huntersToInvite.length >= spotsAvailable) {
 				break;
