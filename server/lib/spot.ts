@@ -36,13 +36,15 @@ export async function spotByHunter(hunterId: number, huntId?: number) {
 	return spot;
 }
 
-export async function dailyHuntCount(
-	hunterId: number,
-	date = new Date(todayStart()),
-) {
-	const spots = await db.huntSpot.findMany({
-		where: { hunterId, updatedAt: { gte: date } },
+export async function spotsByHunter(hunterId: number, date?: Date) {
+	return db.huntSpot.findMany({
+		where: { hunterId, updatedAt: date ? { gte: date } : undefined },
+		orderBy: { updatedAt: 'desc' },
 	});
+}
+
+export async function dailyHuntCount(hunterId: number, date = todayStart()) {
+	const spots = await spotsByHunter(hunterId, date);
 	const uniqueHuntIds = new Set<number>();
 	for (const spot of spots) {
 		uniqueHuntIds.add(spot.huntId);

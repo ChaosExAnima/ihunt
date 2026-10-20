@@ -35,5 +35,5 @@ export function roundToHalves(input: number) {
 }
 
 export function todayStart() {
-	return new Date().setHours(0, 0, 0, 0);
+	return new Date(new Date().setHours(0, 0, 0, 0));
 }

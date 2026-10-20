@@ -33,3 +33,4 @@ export const HunterTypes = {
 
 export const HUNTER_TOP_MIN_RATING = 4.5;
 export const HUNTER_LOW_RATING = 2;
+export const HUNTER_LOCKDOWN_MINUTES = 60;

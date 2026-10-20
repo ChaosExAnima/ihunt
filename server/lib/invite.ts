@@ -1,10 +1,34 @@
-import { HuntStatus } from '@ihunt/lib/constants';
+import {
+	HUNT_MAX_PER_DAY,
+	HUNTER_LOCKDOWN_MINUTES,
+	HuntStatus,
+} from '@ihunt/lib/constants';
+import { MINUTE, todayStart } from '@ihunt/lib/formats';
 import { TRPCError } from '@trpc/server';
 
 import { db, Hunter } from './db';
 import { huntInLockdown } from './hunt';
 import { inviteSendEvent, notifyHunter } from './notify';
-import { inviteHuntersToSpots } from './spot';
+import { inviteHuntersToSpots, spotsByHunter } from './spot';
+
+export async function hunterCanHunt(hunterId: number) {
+	const spots = await spotsByHunter(hunterId, todayStart());
+
+	if (spots.length === 0) {
+		return true;
+	}
+
+	if (spots.length >= HUNT_MAX_PER_DAY) {
+		return false;
+	}
+
+	const lastUpdated = spots[0]?.updatedAt.getTime();
+	if (lastUpdated + HUNTER_LOCKDOWN_MINUTES * MINUTE < Date.now()) {
+		return false;
+	}
+
+	return true;
+}
 
 export async function inviteHunters(
 	huntId: number,
