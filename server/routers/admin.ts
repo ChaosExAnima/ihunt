@@ -205,12 +205,8 @@ export const adminRouter = router({
 							},
 						});
 						return {
-							data: hunts.map(({ spots, photos, ...hunt }) => ({
+							data: hunts.map(({ photos, ...hunt }) => ({
 								...hunt,
-								hunterIds: extractKey(
-									spots.filter(({ status }) => status === SpotStatus.Taken),
-									'hunterId',
-								),
 								photoIds: extractIds(photos),
 							})),
 							total: await db.hunt.count({

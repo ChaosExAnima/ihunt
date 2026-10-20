@@ -7,7 +7,7 @@ import {
 	idSchemaCoerce,
 	photoSchema,
 	posIntSchema,
-	spotSchema,
+	spotStatus,
 } from '@ihunt/lib/schemas';
 import { idsToEntities } from '@ihunt/lib/utils';
 import * as z from 'zod';
@@ -25,12 +25,19 @@ export const resourceSchema = z.enum([
 ]);
 export type Resources = z.infer<typeof resourceSchema>;
 
+export const adminSpotSchema = z.object({
+	id: idSchema,
+	status: spotStatus,
+	hunterId: idSchema.nullable(),
+});
+export type AdminSpotSchema = z.infer<typeof adminSpotSchema>;
+
 export const adminHuntSchema = huntSchema.omit({ photos: true }).extend({
 	code: z.string(),
 	hunterIds: idArray,
 	photoIds: idArray,
 	maxHunters: z.int().min(1).default(HUNT_MAX_HUNTERS),
-	spots: spotSchema.and(z.object({ id: idSchemaCoerce })).array(),
+	spots: adminSpotSchema.array(),
 });
 export type AdminHuntSchema = z.infer<typeof adminHuntSchema>;
 

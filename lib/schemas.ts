@@ -88,6 +88,7 @@ export const spotSchema = z.discriminatedUnion('state', [
 		hunterId: idSchema,
 	}),
 ]);
+export type SpotSchema = z.infer<typeof spotSchema>;
 
 export const huntSchema = z.object({
 	id: idSchema,

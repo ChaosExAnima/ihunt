@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 import { hunterToAccessCode } from '../lib/auth';
 import { db, Prisma } from '../lib/db';
 import { uploadPhoto } from '../lib/photo';
+import { syncSpotsForHunt } from '../lib/spot';
 
 async function main() {
 	try {
@@ -163,17 +164,8 @@ async function main() {
 				},
 			],
 		});
-		for (const hunter of hunters) {
-			if (hunter.groupId !== 4) {
-				continue;
-			}
-			await db.huntSpot.create({
-				data: {
-					hunterId: hunter.id,
-					huntId: 4,
-				},
-			});
-		}
+		const hunts = await db.hunt.findMany();
+		await Promise.all(hunts.map((hunt) => syncSpotsForHunt(hunt)));
 
 		const photos = [
 			{
