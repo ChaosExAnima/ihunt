@@ -12,6 +12,7 @@ import {
 } from '../lib/hunt';
 import { huntInLockdown } from '../lib/hunt';
 import { huntersFromGroupId } from '../lib/hunter';
+import { hunterCanHunt } from '../lib/invite';
 import {
 	inviteResponseEvent,
 	notifyHunter,
@@ -68,6 +69,30 @@ export const huntRouter = router({
 				}));
 			},
 		),
+
+	getHuntStatus: userProcedure.query(
+		async ({
+			ctx: {
+				hunter,
+				user: { code },
+				admin,
+			},
+		}) => {
+			if (isHuntsDisabled(code, admin)) {
+				return {
+					today: 0,
+					locked: true,
+				};
+			}
+			const canHunt = await hunterCanHunt(hunter.id);
+			const huntsToday = await dailyHuntCount(hunter.id);
+
+			return {
+				today: huntsToday,
+				locked: !canHunt,
+			};
+		},
+	),
 
 	getHuntsToday: userProcedure.output(posIntSchema).query(
 		async ({
@@ -140,34 +165,37 @@ export const huntRouter = router({
 		}) => {
 			assertHuntsEnabled(code, admin);
 
-			const hunterId = currentHunter.id;
-			let existingSpot = await spotByHunter(hunterId, huntId);
+			// Ensure the hunt exists.
 			const hunt = await db.hunt.findUniqueOrThrow({
 				where: { id: huntId },
 			});
 
-			// If we already joined, leave the hunt.
-			if (existingSpot?.status === HuntSpotStatus.Taken) {
-				if (huntInLockdown(hunt)) {
-					throw new TRPCError({
-						code: 'FORBIDDEN',
-						message: 'Cannot leave before hunt',
-					});
-				}
-
-				await clearHuntSpot(existingSpot.id);
-
-				log.info(`${currentHunter.name} canceled hunt with ID ${huntId}`);
-				notifyHuntsReload();
-				return { accepted: false, huntId };
+			// Check if the hunter is allowed to hunt.
+			const hunterId = currentHunter.id;
+			const canHunt = await hunterCanHunt(hunterId);
+			if (!canHunt) {
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot hunt' });
 			}
 
-			if (existingSpot) {
+			// Check if the spot was already taken by this hunter.
+			const existingSpot = await spotByHunter(hunterId, huntId);
+			if (existingSpot?.status === HuntSpotStatus.Taken) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'Already in hunt',
+				});
+			}
+
+			// Claim the spot.
+			let spot = existingSpot;
+			if (spot) {
+				// Update the hunt to be taken.
 				await db.huntSpot.update({
-					where: { id: existingSpot.id },
+					where: { id: spot.id },
 					data: { status: HuntSpotStatus.Taken },
 				});
 			} else {
+				// Claim a spot if available.
 				const claimedSpot = await claimHuntSpot(huntId, hunterId);
 				if (!claimedSpot) {
 					throw new TRPCError({
@@ -175,18 +203,17 @@ export const huntRouter = router({
 						message: 'Hunt is already full',
 					});
 				} else {
-					existingSpot = claimedSpot;
+					spot = claimedSpot;
 				}
 			}
 
 			log.info(`${currentHunter.name} accepted hunt with ID ${huntId}`);
-
 			notifyHuntsReload();
 
 			// Notify the inviter.
-			if (existingSpot.fromHunterId) {
+			if (spot.fromHunterId) {
 				const inviter = await db.hunter.findUnique({
-					where: { id: existingSpot.fromHunterId },
+					where: { id: spot.fromHunterId },
 				});
 				if (inviter) {
 					await notifyHunter({
@@ -214,6 +241,40 @@ export const huntRouter = router({
 				huntId,
 				invitees,
 			};
+		},
+	),
+
+	leave: userProcedure.input(z.object({ huntId: idSchemaCoerce })).mutation(
+		async ({
+			ctx: {
+				hunter: currentHunter,
+				user: { code },
+				admin,
+				req: { log },
+			},
+			input: { huntId },
+		}) => {
+			assertHuntsEnabled(code, admin);
+
+			const hunt = await db.hunt.findUniqueOrThrow({ where: { id: huntId } });
+			if (huntInLockdown(hunt)) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Cannot leave before hunt',
+				});
+			}
+
+			const spot = await spotByHunter(currentHunter.id, huntId);
+			if (!spot) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'Not in this hunt',
+				});
+			}
+
+			await clearHuntSpot(spot.id);
+			log.info(`${currentHunter.name} canceled hunt with ID ${huntId}`);
+			notifyHuntsReload();
 		},
 	),
 

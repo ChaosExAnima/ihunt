@@ -39,7 +39,11 @@ export async function spotByHunter(hunterId: number, huntId?: number) {
 
 export async function spotsByHunter(hunterId: number, date?: Date) {
 	return db.huntSpot.findMany({
-		where: { hunterId, updatedAt: date ? { gte: date } : undefined },
+		where: {
+			hunterId,
+			status: HuntSpotStatus.Taken,
+			updatedAt: date ? { gte: date } : undefined,
+		},
 		orderBy: { updatedAt: 'desc' },
 	});
 }
