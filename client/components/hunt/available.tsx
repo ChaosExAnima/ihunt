@@ -2,6 +2,7 @@ import {
 	HUNT_LOCKDOWN_MINUTES,
 	HUNT_MAX_DANGER,
 	HUNT_MAX_PER_DAY,
+	SpotStatus,
 } from '@ihunt/lib/constants';
 import { MINUTE, SECOND } from '@ihunt/lib/formats';
 import { HuntSchema } from '@ihunt/lib/schemas';
@@ -22,26 +23,30 @@ import { HuntBase } from './base';
 export function HuntDisplayAvailable(props: HuntDisplayProps) {
 	const { hunt, onAcceptHunt } = props;
 
-	const { danger, hunters = [], id: huntId, maxHunters, reserved } = hunt;
+	const { danger, spots, id: huntId } = hunt;
 
 	const currentHunterId = useHunterId();
 	const hasAccepted = useMemo(
-		() => (hunters ?? []).some((hunter) => hunter.id === currentHunterId),
-		[hunters, currentHunterId],
+		() =>
+			spots.some(
+				(spot) =>
+					spot.state === SpotStatus.Taken && spot.hunterId === currentHunterId,
+			),
+		[spots, currentHunterId],
 	);
 
 	const handleAccept = useCallback(() => {
 		onAcceptHunt?.(huntId);
 	}, [huntId, onAcceptHunt]);
 
-	const { data: huntsToday = 0 } = useQuery(
-		trpc.hunt.getHuntsToday.queryOptions(),
-	);
+	const { data } = useQuery(trpc.hunter.huntStatus.queryOptions());
+	const huntsToday = data?.today ?? 0;
 
 	const remainingHunts = HUNT_MAX_PER_DAY - huntsToday;
-	const openSpots = maxHunters - (hunters.length + (reserved?.count ?? 0));
-	const canJoinHunt =
-		remainingHunts > 0 && openSpots > 0 && reserved?.status !== 'declined';
+	const openSpots = spots.filter(
+		(spot) => spot.state === SpotStatus.Empty,
+	).length;
+	const canJoinHunt = data?.allowed ?? false;
 
 	const isLockedDown = useLockedDown(hunt.scheduledAt);
 
@@ -113,35 +118,24 @@ function checkHuntTime(ts?: number) {
 	return !!ts && ts <= lockdownTS;
 }
 
-function HuntInvite({
-	noHunts,
-	hasSpace,
-	hasJoined,
-	reserved,
-	minutesLeft = 0,
-}: Pick<HuntSchema, 'reserved'> & {
-	noHunts: boolean;
-	hasSpace: boolean;
-	hasJoined: boolean;
-	minutesLeft?: number;
-}) {
-	if (
-		!reserved ||
-		minutesLeft <= 0 ||
-		(hasSpace && reserved.status === 'reserved') ||
-		(hasJoined && reserved.status !== 'sent')
-	) {
+function HuntInvite({ spots }: Pick<HuntSchema, 'spots'>) {
+	const hunterId = useHunterId();
+	const spot = spots.find(
+		(spot) => spot.state !== SpotStatus.Empty && spot.hunterId === hunterId,
+	);
+
+	const minutesLeft = 0;
+
+	if (!spot || spot.state === SpotStatus.Empty) {
 		return null;
 	}
 
-	if (reserved.status === 'invited') {
+	if (spot.state === SpotStatus.Locked) {
 		return (
 			<p className="text-center">
 				Your group invited you to join this hunt!
 				<br />
-				{!noHunts
-					? `You have ${minutesLeft} minutes left to accept or decline.`
-					: `You must leave other hunts within ${minutesLeft} minutes to accept.`}
+				You have {minutesLeft} minutes left to accept or decline.
 			</p>
 		);
 	} else if (reserved.status === 'sent') {
@@ -150,14 +144,6 @@ function HuntInvite({
 				You have invited your group.
 				<br />
 				They have {minutesLeft} minutes left to accept or decline.
-			</p>
-		);
-	} else if (reserved.status === 'declined') {
-		return (
-			<p className="text-center">
-				You have rejected the invitation.
-				<br />
-				You can join in {minutesLeft} minutes.
 			</p>
 		);
 	}

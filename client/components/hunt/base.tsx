@@ -1,4 +1,3 @@
-import { HuntStatus } from '@ihunt/lib/constants';
 import { HuntSchema } from '@ihunt/lib/schemas';
 import { CircleAlert } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useCallback, useState } from 'react';
@@ -8,7 +7,7 @@ import { cn } from '@/lib/styles';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { HuntHeader } from './header';
-import { HuntHuntersDisplay } from './hunters';
+import { HuntSpotsDisplay } from './hunters';
 
 interface HuntBaseProps {
 	afterHeader?: ReactNode;
@@ -36,11 +35,7 @@ export function HuntBase({
 			{!hideHeader && <HuntHeader hunt={hunt} />}
 			{afterHeader}
 
-			<HuntHuntersDisplay
-				hunters={hunt.hunters}
-				reservations={hunt.reserved?.count}
-				maxHunters={hunt.status !== HuntStatus.Available ? 0 : hunt.maxHunters}
-			/>
+			<HuntSpotsDisplay spots={hunt.spots} />
 
 			{!hideText && (
 				<div className="flex grow">
