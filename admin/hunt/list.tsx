@@ -52,6 +52,7 @@ export function HuntList() {
 		>
 			<DataTable bulkActionButtons={<HuntBulkActions />} rowClick={false}>
 				<DataTable.Col source="id" />
+				<DataTable.Col source="code" />
 				<DataTable.Col source="name" />
 				<DataTable.Col source="status" render={renderHuntStatus} />
 				<DataTable.Col source="scheduledAt" label="Scheduled for">

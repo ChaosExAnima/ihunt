@@ -22,6 +22,7 @@ export function HuntEdit() {
 			<SimpleForm resolver={zodResolver(adminHuntSchema)}>
 				<div className="grid grid-cols-2 gap-4">
 					<TextInput required source="name" />
+					<TextInput required source="code" />
 					<SelectInput
 						choices={huntStatusChoices([])}
 						required

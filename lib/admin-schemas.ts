@@ -25,6 +25,7 @@ export type Resources = z.infer<typeof resourceSchema>;
 export const adminHuntSchema = huntSchema
 	.omit({ hunters: true, photos: true, reserved: true })
 	.extend({
+		code: z.string(),
 		hunterIds: idArray,
 		photoIds: idArray,
 		reserved: z.boolean().optional(),

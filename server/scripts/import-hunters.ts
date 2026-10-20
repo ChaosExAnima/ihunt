@@ -166,6 +166,7 @@ function parseHunterRow(row: CSVHunterSchema) {
 			(comment, index) =>
 				({
 					name: `${shape.handle} review`,
+					code: `HB${index.toString().padStart(2, '0')}`,
 					description: `Review ${index + 1} for ${shape.handle}`,
 					payment: 0,
 					comment,

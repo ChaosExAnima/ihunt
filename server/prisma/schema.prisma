@@ -9,6 +9,7 @@ datasource db {
 
 model Hunt {
     id          Int        @id @default(autoincrement())
+    code        String
     createdAt   DateTime   @default(now())
     scheduledAt DateTime?
     completedAt DateTime?
