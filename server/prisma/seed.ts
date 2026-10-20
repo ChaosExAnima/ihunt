@@ -125,6 +125,7 @@ async function main() {
 			data: [
 				{
 					id: 1,
+					code: 'H01',
 					name: 'Werewolf',
 					status: HuntStatus.Available,
 					description:
@@ -134,6 +135,7 @@ async function main() {
 				},
 				{
 					id: 2,
+					code: 'H02',
 					name: 'Vampire',
 					status: HuntStatus.Available,
 					description: 'a body was found without blood',
@@ -142,6 +144,7 @@ async function main() {
 				},
 				{
 					id: 3,
+					code: 'H03',
 					name: 'Zombie',
 					status: HuntStatus.Pending,
 					description:
@@ -151,6 +154,7 @@ async function main() {
 				},
 				{
 					id: 4,
+					code: 'H04',
 					name: 'Ancient Vampire',
 					status: HuntStatus.Complete,
 					description: 'very old dangerous vampire!',
@@ -163,7 +167,7 @@ async function main() {
 			if (hunter.groupId !== 4) {
 				continue;
 			}
-			await db.huntHunter.create({
+			await db.huntSpot.create({
 				data: {
 					hunterId: hunter.id,
 					huntId: 4,

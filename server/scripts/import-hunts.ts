@@ -27,6 +27,7 @@ async function main() {
 
 const huntSchema = z.object({
 	name: z.string(),
+	code: z.string(),
 	danger: z.coerce.number().int().min(1).max(5),
 	payment: z.string().transform((input) =>
 		z.coerce

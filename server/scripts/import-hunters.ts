@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import z from 'zod';
 
 import { db, Prisma } from '../lib/db';
-import { InviteStatus } from '../lib/schema';
+import { HuntSpotStatus } from '../lib/schema';
 
 async function main() {
 	const { positionals } = parseArgs({
@@ -138,11 +138,11 @@ async function processHunters(rows: CSVHunterSchema[]) {
 		const hunts = await db.hunt.createManyAndReturn({
 			data: reviews,
 		});
-		await db.huntHunter.createMany({
+		await db.huntSpot.createMany({
 			data: hunts.map(({ id }) => ({
 				hunterId,
 				huntId: id,
-				status: InviteStatus.Accepted,
+				status: HuntSpotStatus.Taken,
 				paid: 0,
 			})),
 		});
@@ -166,6 +166,7 @@ function parseHunterRow(row: CSVHunterSchema) {
 			(comment, index) =>
 				({
 					name: `${shape.handle} review`,
+					code: `HB${index.toString().padStart(2, '0')}`,
 					description: `Review ${index + 1} for ${shape.handle}`,
 					payment: 0,
 					comment,

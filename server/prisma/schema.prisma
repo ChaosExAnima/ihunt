@@ -8,23 +8,24 @@ datasource db {
 }
 
 model Hunt {
-    id          Int          @id @default(autoincrement())
-    createdAt   DateTime     @default(now())
+    id          Int        @id @default(autoincrement())
+    code        String
+    createdAt   DateTime   @default(now())
     scheduledAt DateTime?
     completedAt DateTime?
     name        String
     description String
     place       String?
     warnings    String?
-    status      String       @default("pending")
-    danger      Int          @default(1)
-    maxHunters  Int          @default(5)
-    minRating   Int          @default(0)
+    status      String     @default("pending")
+    danger      Int        @default(1)
+    maxHunters  Int        @default(5)
+    minRating   Int        @default(0)
     photos      Photo[]
     rating      Float?
     comment     String?
     payment     Int
-    huntHunters HuntHunter[]
+    spots       HuntSpot[]
 
     @@index([status])
     @@index([scheduledAt])
@@ -47,7 +48,7 @@ model Hunter {
     pronouns      String?
     type          String?
     rating        Float          @default(1)
-    huntHunters   HuntHunter[]
+    spots         HuntSpot[]
     notifications Notification[]
 
     @@index([alive])
@@ -59,20 +60,18 @@ model HunterGroup {
     hunters Hunter[]
 }
 
-model HuntHunter {
+model HuntSpot {
+    id       Int     @id @default(autoincrement())
     huntId   Int
-    hunt     Hunt   @relation(fields: [huntId], references: [id])
-    hunterId Int
-    hunter   Hunter @relation(fields: [hunterId], references: [id])
+    hunt     Hunt    @relation(fields: [huntId], references: [id])
+    hunterId Int?
+    hunter   Hunter? @relation(fields: [hunterId], references: [id])
 
-    createdAt    DateTime  @default(now())
-    expiresAt    DateTime?
-    status       String    @default("pending")
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    status       String   @default("empty")
     paid         Int?
     fromHunterId Int?
-
-    @@id([huntId, hunterId])
-    @@index([expiresAt])
 }
 
 model Photo {

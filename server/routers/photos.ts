@@ -5,6 +5,7 @@ import * as z from 'zod';
 
 import { db } from '../lib/db';
 import { outputPhoto, photoUrl, uploadPhoto } from '../lib/photo';
+import { spotByHunter } from '../lib/spot';
 import { loggedInProcedure, router } from '../lib/trpc';
 
 const resizingTypeSchema = z.enum([
@@ -105,7 +106,7 @@ export const photosRouter = router({
 			if (huntId && hunterId && !admin) {
 				const hunt = await db.hunt.findUniqueOrThrow({
 					include: {
-						huntHunters: {
+						spots: {
 							select: {
 								hunterId: true,
 							},
@@ -119,11 +120,10 @@ export const photosRouter = router({
 						message: 'Hunt must be active to upload photos',
 					});
 				}
-				if (
-					!hunt.huntHunters.find(
-						(huntHunter) => huntHunter.hunterId === hunterId,
-					)
-				) {
+
+				const spot = await spotByHunter(hunterId, huntId);
+
+				if (!spot) {
 					throw new TRPCError({
 						code: 'UNAUTHORIZED',
 						message: 'You must be involved with this hunt',

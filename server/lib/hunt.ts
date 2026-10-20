@@ -6,7 +6,7 @@ import {
 } from '@ihunt/lib/constants';
 import { MINUTE } from '@ihunt/lib/formats';
 import { notifyEventSchema } from '@ihunt/lib/schemas';
-import { clamp } from '@ihunt/lib/utils';
+import { clamp, extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
 import { FastifyBaseLogger } from 'fastify';
 
@@ -23,19 +23,17 @@ import {
 	ratingHigh,
 	ratingLow,
 } from './notify';
-import { InviteStatus } from './schema';
+import { HuntSpotStatus } from './schema';
+import { hunterIdsByHunt, syncSpotsForHunt } from './spot';
 
 export const huntDisplayInclude = {
-	huntHunters: {
+	spots: {
 		include: {
 			hunter: {
 				include: {
 					avatar: true,
 				},
 			},
-		},
-		where: {
-			status: InviteStatus.Accepted,
 		},
 	},
 	photos: true,
@@ -90,20 +88,8 @@ export async function onHuntInterval(logger?: FastifyBaseLogger) {
 async function lockdownHunts(logger?: FastifyBaseLogger) {
 	const lockdownTime = new Date(Date.now() - MINUTE * HUNT_LOCKDOWN_MINUTES);
 	const upcomingHunts = await db.hunt.findMany({
-		include: {
-			huntHunters: {
-				include: {
-					hunter: true,
-				},
-				where: {
-					status: InviteStatus.Accepted,
-				},
-			},
-		},
 		where: {
-			scheduledAt: {
-				lte: lockdownTime,
-			},
+			scheduledAt: { lte: lockdownTime },
 			status: HuntStatus.Available,
 		},
 	});
@@ -112,11 +98,34 @@ async function lockdownHunts(logger?: FastifyBaseLogger) {
 		return;
 	}
 
+	const upcomingHuntsIds = extractIds(upcomingHunts);
+	await db.huntSpot.updateMany({
+		where: { huntId: { in: upcomingHuntsIds }, hunterId: null },
+		data: { status: HuntSpotStatus.Locked },
+	});
+
+	const huntSpots = await db.huntSpot.findMany({
+		where: { huntId: { in: upcomingHuntsIds }, status: HuntSpotStatus.Taken },
+		include: { hunter: true },
+	});
+
 	// Send notifications that hunt is upcoming.
 	let total = 0;
 	for (const hunt of upcomingHunts) {
+		// Extract hunters from spots
+		const hunters = [];
+		for (const spot of huntSpots) {
+			if (spot.huntId === hunt.id && spot.hunter) {
+				hunters.push(spot.hunter);
+			}
+		}
+
+		if (!hunters.length) {
+			continue;
+		}
+
 		try {
-			for (const { hunter } of hunt.huntHunters) {
+			for (const hunter of hunters) {
 				const notifications = await db.notification.findMany({
 					where: {
 						type: 'hunt-starting',
@@ -171,55 +180,45 @@ async function endActiveHunts(logger?: FastifyBaseLogger) {
 export async function updateHunt({
 	hunt,
 	hunterIds,
+	logger,
 }: {
 	hunt: Hunt;
 	hunterIds?: number[];
+	logger?: FastifyBaseLogger;
 }) {
-	// Adjust hunt invites
-	if (hunterIds) {
-		await db.huntHunter.updateMany({
-			data: {
-				status: InviteStatus.Expired,
-			},
-			where: {
-				huntId: hunt.id,
-				hunterId: {
-					notIn: hunterIds,
-				},
-				status: InviteStatus.Accepted,
-			},
+	await syncSpotsForHunt(hunt, logger);
+
+	if (!hunterIds?.length) {
+		notifyHuntsReload();
+		return;
+	}
+
+	const spots = await db.huntSpot.updateManyAndReturn({
+		where: { huntId: hunt.id },
+		data: {
+			hunterId: null,
+			status: HuntSpotStatus.Locked,
+			fromHunterId: null,
+		},
+	});
+
+	const hunterIdsToClaim = [...hunterIds];
+	for (const spot of spots) {
+		const hunterId = hunterIdsToClaim.pop();
+		await db.huntSpot.update({
+			where: { id: spot.id },
+			data: { hunterId },
 		});
-		for (const hunterId of hunterIds) {
-			await db.huntHunter.upsert({
-				where: {
-					huntId_hunterId: {
-						hunterId,
-						huntId: hunt.id,
-					},
-				},
-				update: {
-					status: InviteStatus.Accepted,
-				},
-				create: {
-					status: InviteStatus.Accepted,
-					hunterId,
-					huntId: hunt.id,
-				},
-			});
-		}
 	}
 
 	// Hunt newly up, notify hunters.
-	hunterIds ??= [];
 	if (hunt.status === HuntStatus.Available) {
 		await notifyHunters({
 			event: huntAvailableEvent(),
 			hunterIds,
 		});
 		return;
-	}
-
-	if (hunt.status === HuntStatus.Active) {
+	} else if (hunt.status === HuntStatus.Active) {
 		await notifyHunters({
 			event: huntStartingEvent({ hunt, noTime: true }),
 			hunterIds,
@@ -243,30 +242,24 @@ export async function completeHunt({
 	comment?: string;
 	logger: FastifyBaseLogger;
 }) {
-	const huntHunters = await db.huntHunter.findMany({
-		where: {
-			huntId,
-			status: InviteStatus.Accepted,
-		},
-		include: {
-			hunter: true,
-		},
-	});
+	const hunterIds = await hunterIdsByHunt(huntId);
 	const hunt = await db.hunt.findUniqueOrThrow({
 		where: {
 			id: huntId,
 		},
 	});
 
-	if (!huntHunters.length || hunt.status === HuntStatus.Complete) {
+	if (!hunterIds.length || hunt.status === HuntStatus.Complete) {
 		return;
 	}
 
-	const hunters = huntHunters.map(({ hunter }) => hunter);
-	const aliveHunters = hunters.filter(({ alive }) => alive);
+	const hunters = await db.hunter.findMany({
+		where: { id: { in: hunterIds }, alive: true },
+	});
 
-	const perHunterPayment = Math.floor(payment / aliveHunters.length); // Rounding errors to iHunt, inc
+	const perHunterPayment = Math.floor(payment / hunters.length); // Rounding errors to iHunt, inc
 
+	// Save data to hunt and hunt spots
 	await db.hunt.update({
 		where: {
 			id: huntId,
@@ -280,20 +273,13 @@ export async function completeHunt({
 		},
 	});
 
-	// Update and notify the hunters.
-	for (const hunter of aliveHunters) {
-		await db.huntHunter.update({
-			where: {
-				huntId_hunterId: {
-					hunterId: hunter.id,
-					huntId: hunt.id,
-				},
-			},
-			data: {
-				paid: perHunterPayment,
-			},
-		});
+	await db.huntSpot.updateMany({
+		where: { huntId, hunterId: { not: null } },
+		data: { paid: perHunterPayment },
+	});
 
+	// Update and notify the hunters.
+	for (const hunter of hunters) {
 		let newRating = clamp({
 			input: (huntRating + hunter.rating) / 2,
 			max: 5,
