@@ -23,7 +23,6 @@ import {
 	Link,
 	List,
 	NumberInput,
-	ReferenceArrayField,
 	SearchInput,
 	SelectArrayInput,
 	TopToolbar,
@@ -51,7 +50,6 @@ export function HuntList() {
 			actions={<HuntListActions />}
 		>
 			<DataTable bulkActionButtons={<HuntBulkActions />} rowClick={false}>
-				<DataTable.Col source="id" />
 				<DataTable.Col source="code" />
 				<DataTable.Col source="name" />
 				<DataTable.Col source="status" render={renderHuntStatus} />
@@ -75,14 +73,8 @@ export function HuntList() {
 					}}
 				/>
 				<DataTable.NumberCol source="danger" />
-				<DataTable.Col source="hunterIds" label="Hunters">
-					<ReferenceArrayField
-						reference="hunter"
-						sortable={false}
-						source="hunterIds"
-					>
-						<AdminHuntHunters />
-					</ReferenceArrayField>
+				<DataTable.Col label="Hunters">
+					<AdminHuntHunters />
 				</DataTable.Col>
 				<DataTable.NumberCol
 					source="photoIds"

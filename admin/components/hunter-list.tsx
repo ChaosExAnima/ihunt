@@ -5,7 +5,12 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@ihunt/client/components/ui/tooltip';
-import { AdminHunterSchema, AdminHuntSchema } from '@ihunt/lib/admin-schemas';
+import {
+	AdminHunterSchema,
+	AdminHuntSchema,
+	AdminSpotSchema,
+} from '@ihunt/lib/admin-schemas';
+import { SpotStatusValues } from '@ihunt/lib/constants';
 import { SpotSchema } from '@ihunt/lib/schemas';
 import {
 	ChipField,
@@ -94,8 +99,8 @@ export function AdminHuntHunters() {
 	);
 }
 
-function AdminSpotAvatar({ spot }: { spot: SpotSchema }) {
-	switch (spot.state) {
+function AdminSpotAvatar({ spot }: { spot: AdminSpotSchema }) {
+	switch (spot.status) {
 		case 'empty':
 			return <AvatarEmpty />;
 		case 'locked':
@@ -109,4 +114,6 @@ function AdminSpotAvatar({ spot }: { spot: SpotSchema }) {
 				</RecordContextProvider>
 			);
 	}
+
+	return 'foo';
 }
