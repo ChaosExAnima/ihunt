@@ -4,7 +4,7 @@ import {
 	adminInput,
 	resourceSchema,
 } from '@ihunt/lib/admin-schemas';
-import { HuntStatus } from '@ihunt/lib/constants';
+import { HuntStatus, SpotStatus } from '@ihunt/lib/constants';
 import { idArray, idSchemaCoerce } from '@ihunt/lib/schemas';
 import { Entity } from '@ihunt/lib/types';
 import { extractIds, extractKey, idsToEntities, omit } from '@ihunt/lib/utils';
@@ -15,7 +15,6 @@ import { db } from '../lib/db';
 import { completeHunt, updateHunt } from '../lib/hunt';
 import { hunterUpdateNotifications } from '../lib/hunter';
 import { photoUrl } from '../lib/photo';
-import { HuntSpotStatus } from '../lib/schema';
 import { adminProcedure, router } from '../lib/trpc';
 
 export const adminRouter = router({
@@ -209,7 +208,7 @@ export const adminRouter = router({
 							data: hunts.map(({ spots, photos, ...hunt }) => ({
 								...hunt,
 								hunterIds: extractKey(
-									spots.filter(({ status }) => status === HuntSpotStatus.Taken),
+									spots.filter(({ status }) => status === SpotStatus.Taken),
 									'hunterId',
 								),
 								photoIds: extractIds(photos),
@@ -225,7 +224,7 @@ export const adminRouter = router({
 							include: {
 								spots: {
 									select: { huntId: true },
-									where: { status: HuntSpotStatus.Taken },
+									where: { status: SpotStatus.Taken },
 								},
 							},
 						});
@@ -304,7 +303,7 @@ export const adminRouter = router({
 							include: {
 								huntHunters: {
 									select: { hunterId: true },
-									where: { status: HuntSpotStatus.Taken },
+									where: { status: SpotStatus.Taken },
 								},
 								photos: { select: { id: true } },
 							},
@@ -477,7 +476,7 @@ export const adminRouter = router({
 					const { hunterIds, ...dataRest } = data;
 					if (
 						hunterIds &&
-						data.maxHunters &&
+						data.maxHunters !== undefined &&
 						hunterIds.length > data.maxHunters
 					) {
 						throw new TRPCError({
@@ -556,7 +555,7 @@ export const adminRouter = router({
 		const reviews = await db.huntSpot.findMany({
 			// All hunts that are completed + have a comment, where the hunter was part of the hunt.
 			where: {
-				status: HuntSpotStatus.Taken,
+				status: SpotStatus.Taken,
 				hunt: {
 					status: HuntStatus.Complete,
 					comment: { not: null },

@@ -1,4 +1,4 @@
-import { HuntStatus } from '@ihunt/lib/constants';
+import { HuntStatus, SpotStatus } from '@ihunt/lib/constants';
 import { huntStatus, idSchemaCoerce, posIntSchema } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
@@ -19,7 +19,7 @@ import {
 	notifyHuntsReload,
 } from '../lib/notify';
 import { photosFromHunter, uploadPhoto } from '../lib/photo';
-import { HuntSpotStatus, outputHuntSchema } from '../lib/schema';
+import { outputHuntSchema } from '../lib/schema';
 import {
 	claimHuntSpot,
 	clearHuntSpot,
@@ -60,11 +60,8 @@ export const huntRouter = router({
 					orderBy: { scheduledAt: 'desc' },
 				});
 
-				return hunts.map(({ spots, photos, ...hunt }) => ({
+				return hunts.map(({ photos, ...hunt }) => ({
 					...hunt,
-					hunters: spots
-						.map((spot) => spot.hunter)
-						.filter((hunter) => !!hunter),
 					photos: photosFromHunter(photos, hunterId),
 				}));
 			},
@@ -94,10 +91,8 @@ export const huntRouter = router({
 		.output(outputHuntSchema)
 		.query(async ({ input: { huntId }, ctx: { hunter } }) => {
 			const { photos, ...hunt } = await db.hunt.findUniqueOrThrow({
-				include: {
-					photos: true,
-				},
 				where: { id: huntId },
+				include: huntDisplayInclude,
 			});
 
 			if (
@@ -155,7 +150,7 @@ export const huntRouter = router({
 
 			// Check if the spot was already taken by this hunter.
 			const existingSpot = await spotByHunter(hunterId, huntId);
-			if (existingSpot?.status === HuntSpotStatus.Taken) {
+			if (existingSpot?.status === SpotStatus.Taken) {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
 					message: 'Already in hunt',
@@ -168,7 +163,7 @@ export const huntRouter = router({
 				// Update the hunt to be taken.
 				await db.huntSpot.update({
 					where: { id: spot.id },
-					data: { status: HuntSpotStatus.Taken },
+					data: { status: SpotStatus.Taken },
 				});
 			} else {
 				// Claim a spot if available.

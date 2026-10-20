@@ -1,11 +1,10 @@
-import { HUNT_LOCKDOWN_MINUTES } from '@ihunt/lib/constants';
+import { HUNT_LOCKDOWN_MINUTES, SpotStatus } from '@ihunt/lib/constants';
 import { MINUTE, todayStart } from '@ihunt/lib/formats';
 import { extractIds } from '@ihunt/lib/utils';
 import { FastifyBaseLogger } from 'fastify';
 
 import { db, Hunt, Prisma } from './db';
 import { hunterCanHunt } from './invite';
-import { HuntSpotStatus } from './schema';
 
 export async function spotsByHunt(huntId: number) {
 	return db.huntSpot.findMany({
@@ -17,7 +16,7 @@ export async function spotsByHunt(huntId: number) {
 export async function emptySpotsByHunt(huntId: number) {
 	const spots = await spotsByHunt(huntId);
 	return spots.filter(
-		(spot) => spot.status === HuntSpotStatus.Empty && !spot.hunterId,
+		(spot) => spot.status === SpotStatus.Empty && !spot.hunterId,
 	);
 }
 
@@ -41,7 +40,7 @@ export async function spotsByHunter(hunterId: number, date?: Date) {
 	return db.huntSpot.findMany({
 		where: {
 			hunterId,
-			status: HuntSpotStatus.Taken,
+			status: SpotStatus.Taken,
 			updatedAt: date ? { gte: date } : undefined,
 		},
 		orderBy: { updatedAt: 'desc' },
@@ -64,7 +63,7 @@ export async function hunterIdsToInvite(huntId: number, hunterIds: number[]) {
 	for (const spot of spots) {
 		if (spot.hunterId) {
 			huntersToCheck.delete(spot.hunterId);
-		} else if (spot.status === HuntSpotStatus.Empty) {
+		} else if (spot.status === SpotStatus.Empty) {
 			spotsAvailable++;
 		}
 	}
@@ -143,7 +142,7 @@ export async function inviteHuntersToSpots(
 		claimedSpots.push(
 			await db.huntSpot.update({
 				where: { id: spot.id },
-				data: { status: HuntSpotStatus.Locked, hunterId, fromHunterId },
+				data: { status: SpotStatus.Locked, hunterId, fromHunterId },
 			}),
 		);
 	}
@@ -162,11 +161,11 @@ export async function unlockHuntSpots() {
 	const before = new Date(Date.now() - HUNT_LOCKDOWN_MINUTES * MINUTE);
 	const updated = await db.huntSpot.updateMany({
 		where: {
-			status: HuntSpotStatus.Locked,
+			status: SpotStatus.Locked,
 			hunterId: { not: null },
 			updatedAt: { lte: before },
 		},
-		data: { status: HuntSpotStatus.Empty, hunterId: null, fromHunterId: null },
+		data: { status: SpotStatus.Empty, hunterId: null, fromHunterId: null },
 	});
 	return updated.count;
 }
@@ -179,7 +178,7 @@ export async function claimHuntSpot(huntId: number, hunterId: number) {
 	for (const spot of spots) {
 		if (spot.hunterId === hunterId) {
 			// Exit if the spot was already claimed.
-			if (spot.status === HuntSpotStatus.Taken) {
+			if (spot.status === SpotStatus.Taken) {
 				return spot;
 			}
 			foundSpotId = spot.id;
@@ -196,7 +195,7 @@ export async function claimHuntSpot(huntId: number, hunterId: number) {
 
 	const result = await db.huntSpot.update({
 		where: { id: foundSpotId },
-		data: { hunterId, status: HuntSpotStatus.Taken },
+		data: { hunterId, status: SpotStatus.Taken },
 	});
 	return result;
 }
@@ -204,6 +203,6 @@ export async function claimHuntSpot(huntId: number, hunterId: number) {
 export async function clearHuntSpot(id: number) {
 	await db.huntSpot.update({
 		where: { id },
-		data: { status: HuntSpotStatus.Empty, hunterId: null },
+		data: { status: SpotStatus.Empty, hunterId: null },
 	});
 }

@@ -1,24 +1,25 @@
 import {
 	huntSchema,
 	huntStatus,
+	idSchema,
 	notifyTypeSchema,
 	photoHuntSchema,
+	spotStatus,
 } from '@ihunt/lib/schemas';
 import * as z from 'zod';
 
 export const outputHuntSchema = huntSchema.extend({
 	photos: photoHuntSchema.array(),
+	spots: z
+		.object({ status: z.string(), hunterId: idSchema.nullable() })
+		.transform(({ status, ...rest }) => ({
+			status: spotStatus.parse(status),
+			...rest,
+		}))
+		.array(),
 	rating: z.coerce.number().min(0).max(5).default(0),
 	status: z.string().transform((status) => huntStatus.parse(status)),
 });
-
-export const HuntSpotStatus = {
-	Empty: 'empty',
-	Locked: 'locked',
-	Taken: 'taken',
-} as const;
-export const huntSpotStatusSchema = z.enum(Object.values(HuntSpotStatus));
-export type HuntSpotStatusSchema = z.infer<typeof huntSpotStatusSchema>;
 
 export const subscriptionSchema = z.object({
 	endpoint: z.url(),

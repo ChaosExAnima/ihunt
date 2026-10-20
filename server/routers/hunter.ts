@@ -142,7 +142,7 @@ export const hunterRouter = router({
 			hunterSchema.extend({
 				alive: z.boolean(),
 				groupId: idSchemaCoerce.nullish(),
-				hunts: outputHuntSchema.omit({ hunters: true, photos: true }).array(),
+				hunts: outputHuntSchema.omit({ photos: true, spots: true }).array(),
 			}),
 		)
 		.query(async ({ input: { hunterId: id } }) => {

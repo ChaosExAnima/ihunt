@@ -2,9 +2,9 @@ import * as z from 'zod';
 
 import {
 	HUNT_MAX_DANGER,
-	HUNT_MAX_HUNTERS,
 	HuntStatus,
 	ACCESS_CODE_REGEX,
+	SpotStatus,
 } from './constants';
 
 export const authSchema = z.object({
@@ -72,25 +72,41 @@ export const huntReservedSchema = z.object({
 export type HuntReservedSchema = z.infer<typeof huntReservedSchema>;
 export type HuntReservedStatusSchema = HuntReservedSchema['status'];
 
+export const spotStatus = z.enum(SpotStatus);
+
+export const spotSchema = z.discriminatedUnion('state', [
+	z.object({
+		state: z.literal(SpotStatus.Empty),
+	}),
+	z.object({
+		state: z.literal(SpotStatus.Locked),
+		hunterId: idSchema,
+	}),
+	z.object({
+		state: z.literal(SpotStatus.Taken),
+		hunterId: idSchema,
+	}),
+]);
+
 export const huntSchema = z.object({
-	comment: z.string().nullable(),
-	completedAt: z.coerce.date().nullable(),
-	createdAt: z.coerce.date(),
-	danger: z.int().min(1).max(HUNT_MAX_DANGER),
-	description: z.string(),
-	hunters: hunterSchema.array(),
 	id: idSchema,
-	maxHunters: z.int().min(1).default(HUNT_MAX_HUNTERS),
-	minRating: z.number().min(0).max(5).default(0),
 	name: z.string().min(1),
+	description: z.string(),
+	warnings: z.string().nullish(),
+	danger: z.int().min(1).max(HUNT_MAX_DANGER),
+	place: z.string().nullish(),
 	payment: z.int().nonnegative(),
 	photos: photoHuntSchema.array(),
-	place: z.string().nullish(),
-	rating: z.coerce.number().min(0).max(5),
-	reserved: huntReservedSchema.nullish(),
-	scheduledAt: z.coerce.date().nullable(),
+
 	status: huntStatus,
-	warnings: z.string().nullish(),
+	createdAt: z.coerce.date(),
+	scheduledAt: z.coerce.date().nullable(),
+	completedAt: z.coerce.date().nullable(),
+
+	spots: spotSchema.array(),
+
+	comment: z.string().nullable(),
+	rating: z.coerce.number().min(0).max(5),
 });
 export type HuntSchema = z.infer<typeof huntSchema>;
 export const huntsSchema = huntSchema.array();

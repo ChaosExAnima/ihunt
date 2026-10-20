@@ -1,3 +1,4 @@
+import { SpotStatus } from '@ihunt/lib/constants';
 import { idArray, idSchemaCoerce } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
@@ -6,7 +7,6 @@ import * as z from 'zod';
 import { db } from '../lib/db';
 import { huntersFromGroupId } from '../lib/hunter';
 import { inviteHunters } from '../lib/invite';
-import { HuntSpotStatus } from '../lib/schema';
 import { clearHuntSpot, spotByHunter } from '../lib/spot';
 import { adminProcedure, router, userProcedure } from '../lib/trpc';
 
@@ -19,7 +19,7 @@ export const inviteRouter = router({
 		)
 		.mutation(async ({ ctx: { hunter }, input: { huntId } }) => {
 			const spot = await spotByHunter(hunter.id, huntId);
-			if (spot?.status !== HuntSpotStatus.Locked) {
+			if (spot?.status !== SpotStatus.Locked) {
 				return { success: false };
 			}
 
@@ -77,10 +77,10 @@ export const inviteRouter = router({
 			await db.huntSpot.updateMany({
 				where: {
 					huntId: { in: huntIds },
-					status: force ? undefined : HuntSpotStatus.Locked,
+					status: force ? undefined : SpotStatus.Locked,
 				},
 				data: {
-					status: HuntSpotStatus.Empty,
+					status: SpotStatus.Empty,
 					hunterId: null,
 					fromHunterId: null,
 				},

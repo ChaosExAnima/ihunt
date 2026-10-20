@@ -1,4 +1,8 @@
-import { ACCESS_CODE_REGEX, HuntStatus } from '@ihunt/lib/constants';
+import {
+	ACCESS_CODE_REGEX,
+	HuntStatus,
+	SpotStatus,
+} from '@ihunt/lib/constants';
 import { extractKey, entitiesToIdMap } from '@ihunt/lib/utils';
 import { parse } from 'csv-parse';
 import { createReadStream } from 'node:fs';
@@ -8,7 +12,6 @@ import { parseArgs } from 'node:util';
 import z from 'zod';
 
 import { db, Prisma } from '../lib/db';
-import { HuntSpotStatus } from '../lib/schema';
 
 async function main() {
 	const { positionals } = parseArgs({
@@ -142,7 +145,7 @@ async function processHunters(rows: CSVHunterSchema[]) {
 			data: hunts.map(({ id }) => ({
 				hunterId,
 				huntId: id,
-				status: HuntSpotStatus.Taken,
+				status: SpotStatus.Taken,
 				paid: 0,
 			})),
 		});
