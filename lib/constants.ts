@@ -17,6 +17,13 @@ export const HuntStatus = {
 } as const;
 export type HuntStatusValues = (typeof HuntStatus)[keyof typeof HuntStatus];
 
+export const SpotStatus = {
+	Empty: 'empty',
+	Locked: 'locked',
+	Taken: 'taken',
+} as const;
+export type SpotStatusValues = (typeof SpotStatus)[keyof typeof SpotStatus];
+
 export const HUNT_MAX_PER_DAY = 2;
 export const HUNT_MAX_HUNTERS = 5;
 export const HUNT_MAX_DANGER = 5;

@@ -7,9 +7,12 @@ import {
 	idSchemaCoerce,
 	photoSchema,
 	posIntSchema,
+	spotSchema,
 } from '@ihunt/lib/schemas';
 import { idsToEntities } from '@ihunt/lib/utils';
 import * as z from 'zod';
+
+import { HUNT_MAX_HUNTERS } from './constants';
 
 export const adminAuthSchema = z.object({ password: z.string().min(4) });
 
@@ -22,14 +25,13 @@ export const resourceSchema = z.enum([
 ]);
 export type Resources = z.infer<typeof resourceSchema>;
 
-export const adminHuntSchema = huntSchema
-	.omit({ hunters: true, photos: true, reserved: true })
-	.extend({
-		code: z.string(),
-		hunterIds: idArray,
-		photoIds: idArray,
-		reserved: z.boolean().optional(),
-	});
+export const adminHuntSchema = huntSchema.omit({ photos: true }).extend({
+	code: z.string(),
+	hunterIds: idArray,
+	photoIds: idArray,
+	maxHunters: z.int().min(1).default(HUNT_MAX_HUNTERS),
+	spots: spotSchema.and(z.object({ id: idSchemaCoerce })).array(),
+});
 export type AdminHuntSchema = z.infer<typeof adminHuntSchema>;
 
 export const adminHunterSchema = hunterSchema
@@ -78,6 +80,7 @@ export const adminCreateHuntInput = adminHuntSchema.omit({
 	id: true,
 	photoIds: true,
 	rating: true,
+	spots: true,
 });
 
 export const adminCreateInput = z.discriminatedUnion('resource', [
@@ -128,7 +131,7 @@ export const adminInput = z.discriminatedUnion('resource', [
 	z.object({
 		resource: z.literal('hunt'),
 		data: adminHuntSchema
-			.omit({ id: true })
+			.omit({ id: true, spots: true })
 			.partial()
 			.transform(({ photoIds, ...rest }) => ({
 				...rest,

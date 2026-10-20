@@ -3,6 +3,7 @@ import {
 	HUNTER_LOW_RATING,
 	HUNTER_TOP_MIN_RATING,
 	HuntStatus,
+	SpotStatus,
 } from '@ihunt/lib/constants';
 import { MINUTE } from '@ihunt/lib/formats';
 import { notifyEventSchema } from '@ihunt/lib/schemas';
@@ -23,19 +24,10 @@ import {
 	ratingHigh,
 	ratingLow,
 } from './notify';
-import { HuntSpotStatus } from './schema';
 import { hunterIdsByHunt, syncSpotsForHunt } from './spot';
 
 export const huntDisplayInclude = {
-	spots: {
-		include: {
-			hunter: {
-				include: {
-					avatar: true,
-				},
-			},
-		},
-	},
+	spots: true,
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
 
@@ -101,11 +93,11 @@ async function lockdownHunts(logger?: FastifyBaseLogger) {
 	const upcomingHuntsIds = extractIds(upcomingHunts);
 	await db.huntSpot.updateMany({
 		where: { huntId: { in: upcomingHuntsIds }, hunterId: null },
-		data: { status: HuntSpotStatus.Locked },
+		data: { status: SpotStatus.Locked },
 	});
 
 	const huntSpots = await db.huntSpot.findMany({
-		where: { huntId: { in: upcomingHuntsIds }, status: HuntSpotStatus.Taken },
+		where: { huntId: { in: upcomingHuntsIds }, status: SpotStatus.Taken },
 		include: { hunter: true },
 	});
 
@@ -197,7 +189,7 @@ export async function updateHunt({
 		where: { huntId: hunt.id },
 		data: {
 			hunterId: null,
-			status: HuntSpotStatus.Locked,
+			status: SpotStatus.Locked,
 			fromHunterId: null,
 		},
 	});

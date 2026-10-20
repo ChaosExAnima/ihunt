@@ -1,4 +1,4 @@
-import { HuntStatus } from '@ihunt/lib/constants';
+import { HuntStatus, SpotStatus } from '@ihunt/lib/constants';
 import { huntStatus, idSchemaCoerce, posIntSchema } from '@ihunt/lib/schemas';
 import { extractIds } from '@ihunt/lib/utils';
 import { TRPCError } from '@trpc/server';
@@ -18,7 +18,7 @@ import {
 	notifyHuntsReload,
 } from '../lib/notify';
 import { photosFromHunter, uploadPhoto } from '../lib/photo';
-import { HuntSpotStatus, outputHuntSchema } from '../lib/schema';
+import { outputHuntSchema } from '../lib/schema';
 import {
 	claimHuntSpot,
 	clearHuntSpot,
@@ -59,11 +59,8 @@ export const huntRouter = router({
 					orderBy: { scheduledAt: 'desc' },
 				});
 
-				return hunts.map(({ spots, photos, ...hunt }) => ({
+				return hunts.map(({ photos, ...hunt }) => ({
 					...hunt,
-					hunters: spots
-						.map((spot) => spot.hunter)
-						.filter((hunter) => !!hunter),
 					photos: photosFromHunter(photos, hunterId),
 				}));
 			},
@@ -93,10 +90,8 @@ export const huntRouter = router({
 		.output(outputHuntSchema)
 		.query(async ({ input: { huntId }, ctx: { hunter } }) => {
 			const { photos, ...hunt } = await db.hunt.findUniqueOrThrow({
-				include: {
-					photos: true,
-				},
 				where: { id: huntId },
+				include: huntDisplayInclude,
 			});
 
 			if (
@@ -147,7 +142,7 @@ export const huntRouter = router({
 			});
 
 			// If we already joined, leave the hunt.
-			if (existingSpot?.status === HuntSpotStatus.Taken) {
+			if (existingSpot?.status === SpotStatus.Taken) {
 				if (huntInLockdown(hunt)) {
 					throw new TRPCError({
 						code: 'FORBIDDEN',
@@ -165,7 +160,7 @@ export const huntRouter = router({
 			if (existingSpot) {
 				await db.huntSpot.update({
 					where: { id: existingSpot.id },
-					data: { status: HuntSpotStatus.Taken },
+					data: { status: SpotStatus.Taken },
 				});
 			} else {
 				const claimedSpot = await claimHuntSpot(huntId, hunterId);
