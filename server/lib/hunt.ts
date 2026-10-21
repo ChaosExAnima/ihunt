@@ -189,7 +189,7 @@ export async function updateHunt({
 		where: { huntId: hunt.id },
 		data: {
 			hunterId: null,
-			status: SpotStatus.Locked,
+			status: SpotStatus.Empty,
 			fromHunterId: null,
 		},
 	});
@@ -197,9 +197,12 @@ export async function updateHunt({
 	const hunterIdsToClaim = [...hunterIds];
 	for (const spot of spots) {
 		const hunterId = hunterIdsToClaim.pop();
+		if (!hunterId) {
+			break;
+		}
 		await db.huntSpot.update({
 			where: { id: spot.id },
-			data: { hunterId },
+			data: { hunterId, status: SpotStatus.Taken },
 		});
 	}
 

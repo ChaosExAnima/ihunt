@@ -10,8 +10,6 @@ import {
 	AdminHuntSchema,
 	AdminSpotSchema,
 } from '@ihunt/lib/admin-schemas';
-import { SpotStatusValues } from '@ihunt/lib/constants';
-import { SpotSchema } from '@ihunt/lib/schemas';
 import {
 	ChipField,
 	Link,
@@ -82,7 +80,7 @@ export function AdminHunters({ withName = false }: { withName?: boolean }) {
 	);
 }
 
-export function AdminHuntHunters() {
+export function AdminHuntSpots() {
 	const record = useRecordContext<AdminHuntSchema>();
 	if (!record) {
 		return null;
@@ -114,6 +112,4 @@ function AdminSpotAvatar({ spot }: { spot: AdminSpotSchema }) {
 				</RecordContextProvider>
 			);
 	}
-
-	return 'foo';
 }
