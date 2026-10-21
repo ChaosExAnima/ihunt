@@ -37,6 +37,8 @@ export const queryClient = new QueryClient({
 
 export const persister = createAsyncStoragePersister({
 	storage: { getItem: get, setItem: set, removeItem: del },
+	serialize: superjson.stringify,
+	deserialize: superjson.parse,
 });
 
 const url = '/trpc';
