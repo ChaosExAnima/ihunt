@@ -39,18 +39,19 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 		onAcceptHunt?.(huntId);
 	}, [huntId, onAcceptHunt]);
 
-	const { data } = useQuery(trpc.hunter.huntStatus.queryOptions());
-	const huntsToday = data?.today ?? 0;
+	const { data: huntsToday = 0 } = useQuery(
+		trpc.hunt.getHuntsToday.queryOptions(),
+	);
 
 	const remainingHunts = HUNT_MAX_PER_DAY - huntsToday;
 	const openSpots = spots.filter(
 		(spot) => spot.state === SpotStatus.Empty,
 	).length;
-	const canJoinHunt = data?.allowed ?? false;
+	const canJoinHunt = remainingHunts > 0 && openSpots > 0;
 
 	const isLockedDown = useLockedDown(hunt.scheduledAt);
 
-	const expiresTs = reserved?.expires?.getTime();
+	const expiresTs = Date.now() + 10_000;
 	const [minutesLeft, setMinutesLeft] = useState(() =>
 		expiresTs ? Math.ceil((expiresTs - Date.now()) / MINUTE) : 0,
 	);
@@ -64,17 +65,10 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 
 	return (
 		<HuntBase {...props}>
-			<HuntInvite
-				noHunts={remainingHunts === 0}
-				hasSpace={openSpots > 0}
-				hasJoined={hasAccepted}
-				reserved={reserved}
-				minutesLeft={minutesLeft}
-				key={reserved?.status}
-			/>
+			<HuntInvite spots={spots} />
 
 			<div className="flex justify-center gap-2">
-				{!hasAccepted && (canJoinHunt || reserved?.status === 'invited') && (
+				{!hasAccepted && canJoinHunt && (
 					<HuntJoinButton
 						danger={danger}
 						isLockedDown={isLockedDown}
@@ -91,12 +85,8 @@ export function HuntDisplayAvailable(props: HuntDisplayProps) {
 						Leave hunt
 					</Button>
 				)}
-				{reserved?.status === 'invited' && !hasAccepted && (
-					<HuntInviteRejectButton
-						huntId={huntId}
-						minutesLeft={minutesLeft}
-						key={reserved?.status}
-					/>
+				{!hasAccepted && (
+					<HuntInviteRejectButton huntId={huntId} minutesLeft={minutesLeft} />
 				)}
 			</div>
 
@@ -138,7 +128,12 @@ function HuntInvite({ spots }: Pick<HuntSchema, 'spots'>) {
 				You have {minutesLeft} minutes left to accept or decline.
 			</p>
 		);
-	} else if (reserved.status === 'sent') {
+	} else if (
+		spots.some(
+			(spot) =>
+				spot.state === SpotStatus.Locked && spot.fromHunterId === hunterId,
+		)
+	) {
 		return (
 			<p className="text-center">
 				You have invited your group.

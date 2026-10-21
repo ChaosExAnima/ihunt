@@ -11,9 +11,14 @@ import * as z from 'zod';
 export const outputHuntSchema = huntSchema.extend({
 	photos: photoHuntSchema.array(),
 	spots: z
-		.object({ status: z.string(), hunterId: idSchema.nullable() })
-		.transform(({ status, ...rest }) =>
-			spotSchema.parse({ state: status, ...rest }),
+		.object({
+			status: z.string(),
+			updatedAt: z.date(),
+			hunterId: idSchema.nullable(),
+			fromHunterId: idSchema.nullable(),
+		})
+		.transform(({ status, hunterId, fromHunterId }) =>
+			spotSchema.parse({ state: status, hunterId, fromHunterId }),
 		)
 		.array(),
 	rating: z.coerce.number().min(0).max(5).default(0),

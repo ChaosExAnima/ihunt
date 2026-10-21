@@ -9,7 +9,7 @@ export function HuntDisplayCompleted({
 	payment,
 }: HuntDisplayProps & { payment?: number }) {
 	const formattedPayment = useCurrencyFormat(
-		Math.floor(payment ?? hunt.payment / hunt.hunters.length),
+		Math.floor(payment ?? hunt.payment / hunt.spots.length),
 	);
 	return (
 		<HuntBase hideText hunt={hunt}>
