@@ -27,7 +27,7 @@ import {
 import { hunterIdsByHunt, syncSpotsForHunt } from './spot';
 
 export const huntDisplayInclude = {
-	spots: true,
+	spots: { orderBy: [{ hunterId: 'asc' }, { status: 'asc' }] },
 	photos: true,
 } as const satisfies Prisma.HuntInclude;
 
