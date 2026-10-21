@@ -198,15 +198,19 @@ export const adminRouter = router({
 						const hunts = await db.hunt.findMany({
 							...query,
 							include: {
-								spots: true,
+								spots: { orderBy: [{ hunterId: 'asc' }, { status: 'asc' }] },
 								photos: {
 									select: { id: true },
 								},
 							},
 						});
 						return {
-							data: hunts.map(({ photos, ...hunt }) => ({
+							data: hunts.map(({ photos, spots, ...hunt }) => ({
 								...hunt,
+								spots,
+								hunterIds: extractKey(spots, 'hunterId').filter(
+									(hunterId): hunterId is number => !!hunterId,
+								),
 								photoIds: extractIds(photos),
 							})),
 							total: await db.hunt.count({
@@ -293,20 +297,18 @@ export const adminRouter = router({
 					};
 				}
 				case 'hunt': {
-					const { huntHunters, photos, ...hunt } =
-						await db.hunt.findUniqueOrThrow({
-							...query,
-							include: {
-								huntHunters: {
-									select: { hunterId: true },
-									where: { status: SpotStatus.Taken },
-								},
-								photos: { select: { id: true } },
-							},
-						});
+					const { photos, ...hunt } = await db.hunt.findUniqueOrThrow({
+						...query,
+						include: {
+							spots: { orderBy: [{ hunterId: 'asc' }, { status: 'asc' }] },
+							photos: { select: { id: true } },
+						},
+					});
 					return {
 						...hunt,
-						hunterIds: extractKey(huntHunters, 'hunterId'),
+						hunterIds: extractKey(hunt.spots, 'hunterId').filter(
+							(hunterId): hunterId is number => !!hunterId,
+						),
 						photoIds: extractIds(photos),
 					};
 				}

@@ -31,7 +31,7 @@ import {
 	useUpdate,
 } from 'react-admin';
 
-import { AdminHuntHunters } from '../components/hunter-list';
+import { AdminHuntSpots } from '../components/hunter-list';
 import { useTypedDataProvider } from '../data';
 import { huntStatusChoices, renderHuntStatus } from './common';
 import { HuntCompleteDialog } from './complete-dialog';
@@ -74,7 +74,7 @@ export function HuntList() {
 				/>
 				<DataTable.NumberCol source="danger" />
 				<DataTable.Col label="Hunters">
-					<AdminHuntHunters />
+					<AdminHuntSpots />
 				</DataTable.Col>
 				<DataTable.NumberCol
 					source="photoIds"
