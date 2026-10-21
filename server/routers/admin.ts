@@ -87,11 +87,7 @@ export const adminRouter = router({
 		)
 		.mutation(async ({ input: { ids: inIds, resource } }) => {
 			const query = {
-				where: {
-					id: {
-						in: inIds,
-					},
-				},
+				where: { id: { in: inIds } },
 			};
 			let data: Entity[] = [];
 			switch (resource) {
@@ -117,10 +113,7 @@ export const adminRouter = router({
 					data = await db.photo.findMany(query);
 					await db.photo.updateMany({
 						...query,
-						data: {
-							hunterId: null,
-							huntId: null,
-						},
+						data: { hunterId: null, huntId: null },
 					});
 					break;
 				}
@@ -135,13 +128,7 @@ export const adminRouter = router({
 		}),
 
 	getList: adminProcedure
-		.input(
-			adminFilter.and(
-				z.object({
-					ids: idArray.optional(),
-				}),
-			),
-		)
+		.input(adminFilter.and(z.object({ ids: idArray.optional() })))
 		.query(
 			async ({
 				input: { filter, ids, meta, perPage, page, resource, sort },
@@ -153,10 +140,7 @@ export const adminRouter = router({
 					const textSearch = filter.q;
 					// @ts-expect-error -- Query is broken
 					delete filterWhere.q;
-					filterWhere = {
-						...filterWhere,
-						...textSearch,
-					};
+					filterWhere = { ...filterWhere, ...textSearch };
 				}
 
 				const where = {
@@ -166,9 +150,7 @@ export const adminRouter = router({
 
 				const query = {
 					orderBy: sort
-						? {
-								[sort.field]: sort.order.toLowerCase(),
-							}
+						? { [sort.field]: sort.order.toLowerCase() }
 						: undefined,
 					skip: perPage && page ? perPage * (page - 1) : undefined,
 					take: perPage,
@@ -179,9 +161,7 @@ export const adminRouter = router({
 					case 'group': {
 						const groups = await db.hunterGroup.findMany({
 							...query,
-							include: {
-								hunters: { select: { id: true } },
-							},
+							include: { hunters: { select: { id: true } } },
 						});
 
 						return {
@@ -189,9 +169,7 @@ export const adminRouter = router({
 								...group,
 								hunterIds: extractIds(hunters),
 							})),
-							total: await db.hunterGroup.count({
-								where,
-							}),
+							total: await db.hunterGroup.count({ where }),
 						};
 					}
 					case 'hunt': {
@@ -199,9 +177,7 @@ export const adminRouter = router({
 							...query,
 							include: {
 								spots: { orderBy: [{ hunterId: 'asc' }, { status: 'asc' }] },
-								photos: {
-									select: { id: true },
-								},
+								photos: { select: { id: true } },
 							},
 						});
 						return {
@@ -213,9 +189,7 @@ export const adminRouter = router({
 								),
 								photoIds: extractIds(photos),
 							})),
-							total: await db.hunt.count({
-								where,
-							}),
+							total: await db.hunt.count({ where }),
 						};
 					}
 					case 'hunter': {
@@ -242,14 +216,7 @@ export const adminRouter = router({
 							where: {
 								...where,
 								OR: !meta?.showAll
-									? [
-											{
-												hunterId: {
-													not: null,
-												},
-											},
-											{ huntId: { not: null } },
-										]
+									? [{ hunterId: { not: null } }, { huntId: { not: null } }]
 									: undefined,
 							},
 						});
@@ -285,11 +252,7 @@ export const adminRouter = router({
 				case 'group': {
 					const { hunters, ...group } = await db.hunterGroup.findUniqueOrThrow({
 						...query,
-						include: {
-							hunters: {
-								select: { id: true },
-							},
-						},
+						include: { hunters: { select: { id: true } } },
 					});
 					return {
 						...group,
