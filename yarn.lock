@@ -2901,14 +2901,14 @@ __metadata:
   linkType: hard
 
 "@prisma/adapter-pg@npm:^7.4.2":
-  version: 7.10.0
-  resolution: "@prisma/adapter-pg@npm:7.10.0"
+  version: 7.10.1
+  resolution: "@prisma/adapter-pg@npm:7.10.1"
   dependencies:
-    "@prisma/driver-adapter-utils": "npm:7.10.0"
+    "@prisma/driver-adapter-utils": "npm:7.10.1"
     "@types/pg": "npm:^8.16.0"
     pg: "npm:^8.16.3"
     postgres-array: "npm:3.0.4"
-  checksum: 10c0/6335eb2381b7691535bc753f88b9a6c7dffcf7ad44a250eb489e867249e8c8d6f68417421f5a2c80bc625ce49849f0ff3f303855ab6e6537765c339a030aca5d
+  checksum: 10c0/f30918ae3aa3dfcb084a13c96b5fba2ff8dfe32b58ccc734aa50dfd96f24a93c9067c7a756e7bfd6b0c72116b174b2729a07b4c23834240bb3ca5ad8785c7f6b
   languageName: node
   linkType: hard
 
@@ -2955,6 +2955,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prisma/debug@npm:7.10.1":
+  version: 7.10.1
+  resolution: "@prisma/debug@npm:7.10.1"
+  checksum: 10c0/a220e5706241257375dc6d59df0863d7855caa09ef548af596436fcd620d37ac155b8443f9cf317947de950f4c34b1f748fa0567404977be84f4e575c1085b20
+  languageName: node
+  linkType: hard
+
 "@prisma/debug@npm:7.2.0":
   version: 7.2.0
   resolution: "@prisma/debug@npm:7.2.0"
@@ -2985,12 +2992,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/driver-adapter-utils@npm:7.10.0":
-  version: 7.10.0
-  resolution: "@prisma/driver-adapter-utils@npm:7.10.0"
+"@prisma/driver-adapter-utils@npm:7.10.1":
+  version: 7.10.1
+  resolution: "@prisma/driver-adapter-utils@npm:7.10.1"
   dependencies:
-    "@prisma/debug": "npm:7.10.0"
-  checksum: 10c0/f037e8ad4fea53eb63fa1655930c9846410a0549e10a37067821864a801225be49ae1ca2325021dc6eb44ac517d75684842f4095f56f74af6057753c1a5c92e0
+    "@prisma/debug": "npm:7.10.1"
+  checksum: 10c0/faba8c0d820a4a8702f52e3bd985a12463a8aebead5d4fb0480cf0f0d22e6dcd148712c7f4fc28969a56d2c27dba5129ac29225b09c88e3b61b5e3c8d5ce51c4
   languageName: node
   linkType: hard
 
