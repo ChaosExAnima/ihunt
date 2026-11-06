@@ -9334,15 +9334,15 @@ __metadata:
   linkType: hard
 
 "lucide-react@npm:^1.7.0":
-  version: 1.59.0
-  resolution: "lucide-react@npm:1.59.0"
+  version: 1.69.0
+  resolution: "lucide-react@npm:1.69.0"
   peerDependencies:
     "@types/react": "*"
     react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/e02dbdda8a9689527988ffb8ed7f01675755146ee7abfebbbe46b843fbc477f23dc0a4524fe257d0daa3d8eb3289a46f8bdce4a1dcbbdeeab5d158bfa68842c4
+  checksum: 10c0/0a1bf8a0bbe0159f4b0db5367e4045bc610a4a28c6366f8fcd8c8fc6ae74b7af8a6dbb3fb412bf43a5bb4fc5af40d276c956d0250fb21e1e7e3374ebe6b579c4
   languageName: node
   linkType: hard
 
