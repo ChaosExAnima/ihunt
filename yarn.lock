@@ -2369,6 +2369,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@marmelab/decode-uri-component@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@marmelab/decode-uri-component@npm:0.2.3"
+  checksum: 10c0/ece18ec91eaa479be97e734359b9095816b2b3f9804157e37a908059d654e70cba68d47f7487903664417f2024d4d783c01ecd27b9b845aa5ff450ee7c5eb7e8
+  languageName: node
+  linkType: hard
+
+"@marmelab/query-string@npm:^7.1.4":
+  version: 7.1.4
+  resolution: "@marmelab/query-string@npm:7.1.4"
+  dependencies:
+    "@marmelab/decode-uri-component": "npm:^0.2.3"
+    filter-obj: "npm:^1.1.0"
+    split-on-first: "npm:^1.0.0"
+    strict-uri-encode: "npm:^2.0.0"
+  checksum: 10c0/c98534d72ddcd1c8a3b93d399959a2f1042ad849d776d3ae920ceff194f9b50f4288a04447d022cf50d58db6a782bb31baeabe187a9e39d2f2f19a694a73968a
+  languageName: node
+  linkType: hard
+
 "@monaco-editor/loader@npm:^1.5.0":
   version: 1.7.0
   resolution: "@monaco-editor/loader@npm:1.7.0"
@@ -6778,13 +6797,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decode-uri-component@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "decode-uri-component@npm:0.2.2"
-  checksum: 10c0/1f4fa54eb740414a816b3f6c24818fbfcabd74ac478391e9f4e2282c994127db02010ce804f3d08e38255493cfe68608b3f5c8e09fd6efc4ae46c807691f7a31
-  languageName: node
-  linkType: hard
-
 "deep-is@npm:^0.1.3":
   version: 0.1.4
   resolution: "deep-is@npm:0.1.4"
@@ -6936,15 +6948,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.2.4":
-  version: 3.4.16
-  resolution: "dompurify@npm:3.4.16"
+"dompurify@npm:^3.4.17":
+  version: 3.4.17
+  resolution: "dompurify@npm:3.4.17"
   dependencies:
     "@types/trusted-types": "npm:^2.0.7"
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: 10c0/65a901c6b6d489d3e898f67223d81dac66d613cda48f5785f0ed52a4ae320c4b2745490a58c14161e29f0273080fea0a0cb234a9ef892650e1a9b2a7befa07a5
+  checksum: 10c0/6a12251ef5e700fc91b6d96d33e9f8b5fd590c55276f632cf42d182c5808e9f48d5bef435ab26eac235dfcc05ed8fe95e1c8308dcc502bf1050e561f14d0361a
   languageName: node
   linkType: hard
 
@@ -10773,18 +10785,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"query-string@npm:^7.1.3":
-  version: 7.1.3
-  resolution: "query-string@npm:7.1.3"
-  dependencies:
-    decode-uri-component: "npm:^0.2.2"
-    filter-obj: "npm:^1.1.0"
-    split-on-first: "npm:^1.0.0"
-    strict-uri-encode: "npm:^2.0.0"
-  checksum: 10c0/a896c08e9e0d4f8ffd89a572d11f668c8d0f7df9c27c6f49b92ab31366d3ba0e9c331b9a620ee747893436cd1f2f821a6327e2bc9776bde2402ac6c270b801b2
-  languageName: node
-  linkType: hard
-
 "quick-format-unescaped@npm:^4.0.3":
   version: 4.0.4
   resolution: "quick-format-unescaped@npm:4.0.4"
@@ -10792,16 +10792,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ra-core@npm:^5.15.4":
-  version: 5.15.4
-  resolution: "ra-core@npm:5.15.4"
+"ra-core@npm:^5.15.6":
+  version: 5.15.6
+  resolution: "ra-core@npm:5.15.6"
   dependencies:
+    "@marmelab/query-string": "npm:^7.1.4"
     date-fns: "npm:^3.6.0"
     eventemitter3: "npm:^5.0.1"
     inflection: "npm:^3.0.0"
     jsonexport: "npm:^3.2.0"
     lodash: "npm:^4.17.21"
-    query-string: "npm:^7.1.3"
     react-error-boundary: "npm:^4.0.13"
     react-is: "npm:^18.2.0 || ^19.0.0"
   peerDependencies:
@@ -10811,55 +10811,55 @@ __metadata:
     react-hook-form: ^7.72.0
     react-router: ^6.28.1 || ^7.1.1
     react-router-dom: ^6.28.1 || ^7.1.1
-  checksum: 10c0/ca713020e18d0515ed6e84f7cfba7363de70c724d6ac43c6ce9c58fc6bcb39de64022936be3ec2521f97effbd299a645caf152f8b6fed7a6fd3a00f7f7d6e388
+  checksum: 10c0/860b52291b5ab8d541b64960606f5c2a0e7a60181f50171fa64113dcec14cb3a4057e1160a88c2f3bd1ecd4fa26970caaa318ad7a7659a2cdbbebbb1db0e49a2
   languageName: node
   linkType: hard
 
-"ra-i18n-polyglot@npm:^5.15.4":
-  version: 5.15.4
-  resolution: "ra-i18n-polyglot@npm:5.15.4"
+"ra-i18n-polyglot@npm:^5.15.6":
+  version: 5.15.6
+  resolution: "ra-i18n-polyglot@npm:5.15.6"
   dependencies:
     node-polyglot: "npm:^2.2.2"
-    ra-core: "npm:^5.15.4"
-  checksum: 10c0/a8cf88cb4ad03b290643715bf73421dd9f9376cf8a211a39d77adce62a06f411481ac2c9f44f41e25272dd80cc36d90f33d82e1146f1dc0e21b75c137e20b1fd
+    ra-core: "npm:^5.15.6"
+  checksum: 10c0/899d7ab002d644eb4f25687c323587ddb975d65b9e4d3ab06f3f4d12265799830fbbfacb6400dc2bd6b42ad4dc208fbd01ada954a9b9831a858b56115f16f04f
   languageName: node
   linkType: hard
 
-"ra-language-english@npm:^5.15.4":
-  version: 5.15.4
-  resolution: "ra-language-english@npm:5.15.4"
+"ra-language-english@npm:^5.15.6":
+  version: 5.15.6
+  resolution: "ra-language-english@npm:5.15.6"
   dependencies:
-    ra-core: "npm:^5.15.4"
-  checksum: 10c0/6f3b53888b01204434c99058e2d0b278ac83c1def3131f8a4efd13686da8743463389b020dd0dcf423bf2b68c66617dc11053a472cce68bde291bf1330d82791
+    ra-core: "npm:^5.15.6"
+  checksum: 10c0/cfeeab156c5d092cad3f82363fd2aa59b5104cfe0da7408102d2601587d5197c2eeb06a148c970b1f3ad2832f1538a99cac32bd3f5e7719d4344a4db422cd997
   languageName: node
   linkType: hard
 
 "ra-router-tanstack@npm:^5.14.5":
-  version: 5.15.4
-  resolution: "ra-router-tanstack@npm:5.15.4"
+  version: 5.15.6
+  resolution: "ra-router-tanstack@npm:5.15.6"
   peerDependencies:
     "@tanstack/history": ^1.0.0
     "@tanstack/react-router": ^1.0.0
     ra-core: ^5.0.0
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
-  checksum: 10c0/cba9b47f899dbd35fc73a4c600b4760d34b1cad22f3451c652227f1ce0f66ed0e110ddedb3a3a2559e3c06ec03eb07db257022ab076650756a87232350c8c4c1
+  checksum: 10c0/90b8feab2e67f69b8e4820fdcece0242affaf13f9f5e30c919cdaf98f695e8fd42f06e23deb5d13a2a5eaf5b62c503267c74f77cc1425a4039caca5ca994f4b9
   languageName: node
   linkType: hard
 
-"ra-ui-materialui@npm:^5.15.4":
-  version: 5.15.4
-  resolution: "ra-ui-materialui@npm:5.15.4"
+"ra-ui-materialui@npm:^5.15.6":
+  version: 5.15.6
+  resolution: "ra-ui-materialui@npm:5.15.6"
   dependencies:
+    "@marmelab/query-string": "npm:^7.1.4"
     autosuggest-highlight: "npm:^3.1.1"
     clsx: "npm:^2.1.1"
     css-mediaquery: "npm:^0.1.2"
     diacritic: "npm:^0.0.2"
-    dompurify: "npm:^3.2.4"
+    dompurify: "npm:^3.4.17"
     inflection: "npm:^3.0.0"
     jsonexport: "npm:^3.2.0"
     lodash: "npm:~4.18.1"
-    query-string: "npm:^7.1.3"
     react-dropzone: "npm:^14.2.3"
     react-error-boundary: "npm:^4.0.13"
     react-hotkeys-hook: "npm:^5.1.0"
@@ -10878,7 +10878,7 @@ __metadata:
     react-is: ^18.0.0 || ^19.0.0
     react-router: ^6.28.1 || ^7.1.1
     react-router-dom: ^6.28.1 || ^7.1.1
-  checksum: 10c0/e2187071e6059f9c99c4e961c1ac203ee639e7ea6db5fe27aedfc2d9f182a4645613aea23f27ab4cdc9e3da603692650aa03bca1ae87a9d9b0c897211a890234
+  checksum: 10c0/d1f61c3907b874ccf8b3bec185ccc32ba97eaa51860782fcf040ba0d5183ff16ca6fcd41c952af12315a9833d5f46b5f5e44595baf9df4144be7cb28251f36f1
   languageName: node
   linkType: hard
 
@@ -10893,25 +10893,25 @@ __metadata:
   linkType: hard
 
 "react-admin@npm:^5.14.5":
-  version: 5.15.4
-  resolution: "react-admin@npm:5.15.4"
+  version: 5.15.6
+  resolution: "react-admin@npm:5.15.6"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
     "@mui/icons-material": "npm:^5.16.12 || ^6.0.0 || ^7.0.0 || ^9.0.0"
     "@mui/material": "npm:^5.16.12 || ^6.0.0 || ^7.0.0 || ^9.0.0"
     "@tanstack/react-query": "npm:^5.83.0"
-    ra-core: "npm:^5.15.4"
-    ra-i18n-polyglot: "npm:^5.15.4"
-    ra-language-english: "npm:^5.15.4"
-    ra-ui-materialui: "npm:^5.15.4"
+    ra-core: "npm:^5.15.6"
+    ra-i18n-polyglot: "npm:^5.15.6"
+    ra-language-english: "npm:^5.15.6"
+    ra-ui-materialui: "npm:^5.15.6"
     react-hook-form: "npm:^7.72.0"
     react-router: "npm:^6.28.1 || ^7.1.1"
     react-router-dom: "npm:^6.28.1 || ^7.1.1"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
-  checksum: 10c0/6c8fb24b6bc9e521cdc8fdb9e067aa4e417040005f6998f2fc3d36e3f1a76d9490c43501b0a9e263fcdb0ab0d780bc097252eeade802503ae0eb3397df880464
+  checksum: 10c0/8cb27b09e7b0d08cc8814e500ec3cb649365906fbd5b06f01012b03f7c8e96e158653b26d032034844177553682390d7e0945cbd89cc69e4bc7592f69c1fe673
   languageName: node
   linkType: hard
 
